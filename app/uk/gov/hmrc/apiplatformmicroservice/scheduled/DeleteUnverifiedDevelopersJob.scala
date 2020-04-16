@@ -49,6 +49,7 @@ class DeleteUnverifiedDevelopersJob @Inject()(override val lockKeeper: DeleteUnv
 
     (for {
       developerEmails <- developerConnector.fetchUnverifiedDevelopers(now.minusDays(createdBeforeInDays), jobConfig.limit)
+      _ = Logger.info(s"Found ${developerEmails.size} unverified developers")
       _ <- sequence(developerEmails.map(deleteDeveloper(_)))
     } yield RunningOfJobSuccessful) recoverWith {
       case NonFatal(e) =>

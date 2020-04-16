@@ -49,6 +49,7 @@ class DeleteUnregisteredDevelopersJob @Inject()(override val lockKeeper: DeleteU
 
     (for {
       developerEmails <- developerConnector.fetchExpiredUnregisteredDevelopers(jobConfig.limit)
+      _ = Logger.info(s"Found ${developerEmails.size} unregistered developers")
       _ <- sequence(developerEmails.map(deleteDeveloper(_)))
     } yield RunningOfJobSuccessful) recoverWith {
       case NonFatal(e) =>
