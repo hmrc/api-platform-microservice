@@ -43,7 +43,7 @@ class ThirdPartyDeveloperConnector @Inject()(config: ThirdPartyDeveloperConnecto
   }
 
   def deleteDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Int] = {
-    http.POST(s"${config.baseUrl}/developer/delete", DeleteDeveloperRequest(email)).map(_.status)
+    http.POST(s"${config.baseUrl}/developer/delete?notifyDeveloper=false", DeleteDeveloperRequest(email)).map(_.status)
   }
 
   def deleteUnregisteredDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Int] = {

@@ -42,7 +42,8 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
   }
 
   def removeCollaborator(applicationId: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Int] = {
-    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?adminsToEmail=").map(_.status)
+    http.DELETE[HttpResponse](s"$serviceBaseUrl/application/$applicationId/collaborator/${urlEncode(emailAddress)}?notifyCollaborator=false&adminsToEmail=")
+      .map(_.status)
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = {

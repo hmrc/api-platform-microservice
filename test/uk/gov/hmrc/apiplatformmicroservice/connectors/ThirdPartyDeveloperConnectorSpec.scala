@@ -89,7 +89,7 @@ class ThirdPartyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with M
 
   "deleteDeveloper" should {
     "delete developer" in new Setup {
-      when(mockHttp.POST(endpoint("developer/delete"), DeleteDeveloperRequest(devEmail))).thenReturn(successful(HttpResponse(OK)))
+      when(mockHttp.POST(endpoint("developer/delete?notifyDeveloper=false"), DeleteDeveloperRequest(devEmail))).thenReturn(successful(HttpResponse(OK)))
 
       val result: Int = await(connector.deleteDeveloper(devEmail))
 
@@ -97,7 +97,7 @@ class ThirdPartyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with M
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttp.POST(endpoint("developer/delete"), DeleteDeveloperRequest(devEmail))).thenReturn(Future.failed(new NotFoundException("")))
+      when(mockHttp.POST(endpoint("developer/delete?notifyDeveloper=false"), DeleteDeveloperRequest(devEmail))).thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
         await(connector.deleteDeveloper(devEmail))

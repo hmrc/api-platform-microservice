@@ -97,7 +97,7 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
   "removeCollaborator" should {
     val appId = "app ID"
     val email = "email@example.com"
-    val url = baseUrl + s"/application/$appId/collaborator/email%40example.com?adminsToEmail="
+    val url = baseUrl + s"/application/$appId/collaborator/email%40example.com?notifyCollaborator=false&adminsToEmail="
 
     "remove collaborator" in new Setup {
       when(mockHttpClient.DELETE[HttpResponse](meq(url), any())(any(), any(), any())).thenReturn(successful(HttpResponse(OK)))
