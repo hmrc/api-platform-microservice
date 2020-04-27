@@ -18,7 +18,8 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.7.0",
   "uk.gov.hmrc" %% "mongo-lock" % "6.18.0-play-26",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.23.0-play-26",
-  "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26"
+  "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26",
+  "uk.gov.hmrc" %% "json-encryption" % "4.5.0-play-26",
 )
 
 def testDeps(scope: String) = Seq(

@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.http.Status
 import play.api.http.Status.OK
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.ApplicationResponse
 import uk.gov.hmrc.http._
@@ -112,6 +113,28 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
 
       intercept[NotFoundException] {
         await(connector.removeCollaborator(appId, email))
+      }
+    }
+  }
+
+  "fetchAllCollaborators" should {
+    val url = baseUrl + "/collaborators/all"
+
+    "return collaborators" in new Setup {
+      when(mockHttpClient.GET[Set[String]](meq(url))(any(), any(), any())).thenReturn(successful(Set("email@example.com", "email2@example.com")))
+
+      val result = await(connector.fetchAllCollaborators)
+
+      result.size shouldBe 2
+      result should contain allOf ("email@example.com", "email2@example.com")
+    }
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Set[String]](meq(url))(any(), any(), any()))
+        .thenReturn(Future.failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchAllCollaborators)
       }
     }
   }

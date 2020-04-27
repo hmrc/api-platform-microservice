@@ -46,6 +46,10 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
       .map(_.status)
   }
 
+  def fetchAllCollaborators(implicit hc: HeaderCarrier): Future[Set[String]] = {
+    http.GET[Set[String]](s"$serviceBaseUrl/collaborators/all")
+  }
+
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = {
     encode(str, encoding)
   }
