@@ -24,7 +24,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse, ThirdPartyApplicationConnectorConfig}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationResponse, PaginatedApplicationLastUseResponse, ThirdPartyApplicationConnectorConfig}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -52,19 +52,25 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
 
   def applicationsLastUsedBefore(lastUseDate: DateTime)(implicit hc: HeaderCarrier): Future[Seq[(UUID, DateTime)]] = {
     val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
-    val lastUseDates = http.GET[Seq[ApplicationLastUseDate]](s"$serviceBaseUrl/application", Seq("lastUseBefore" -> urlEncode(dateFormatter.withZoneUTC().print(lastUseDate))))
-
-    lastUseDates.map(_.map(app => (app.id, app.lastAccess)))
+    http.GET[PaginatedApplicationLastUseResponse](
+      url = s"$serviceBaseUrl/application",
+      queryParams = Seq("lastUseBefore" -> urlEncode(dateFormatter.withZoneUTC().print(lastUseDate))))
+      .map(
+        page => page.applications.map(
+          app => (app.id, app.lastAccess)))
   }
 
-  private def urlEncode(str: String, encoding: String = "UTF-8"): String = {
-    encode(str, encoding)
-  }
+  private def urlEncode(str: String, encoding: String = "UTF-8"): String = encode(str, encoding)
 }
 
 object ThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: String)
   private[connectors] case class ApplicationLastUseDate(id: UUID, lastAccess: DateTime)
+  private[connectors] case class PaginatedApplicationLastUseResponse(applications: List[ApplicationLastUseDate],
+                                                                     page: Int,
+                                                                     pageSize: Int,
+                                                                     total: Int,
+                                                                     matching: Int)
 
   case class ThirdPartyApplicationConnectorConfig(
     applicationSandboxBaseUrl: String, applicationSandboxUseProxy: Boolean, applicationSandboxBearerToken: String, applicationSandboxApiKey: String,
@@ -75,6 +81,7 @@ object ThirdPartyApplicationConnector {
     implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
     implicit val formatApplicationResponse: Format[ApplicationResponse] = Json.format[ApplicationResponse]
     implicit val formatApplicationLastUseDate: Format[ApplicationLastUseDate] = Json.format[ApplicationLastUseDate]
+    implicit val formatPaginatedApplicationLastUseDate: Format[PaginatedApplicationLastUseResponse] = Json.format[PaginatedApplicationLastUseResponse]
   }
 }
 

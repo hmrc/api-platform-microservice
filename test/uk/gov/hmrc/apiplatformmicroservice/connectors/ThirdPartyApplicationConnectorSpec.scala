@@ -27,7 +27,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse, PaginatedApplicationLastUseResponse}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
@@ -123,6 +123,9 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
   }
 
   "applicationsLastUsedBefore" should {
+    def paginatedResponse(lastUseDates: List[ApplicationLastUseDate]) =
+      PaginatedApplicationLastUseResponse(lastUseDates, 1, 100, lastUseDates.size, lastUseDates.size)
+
     val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
 
     "return applicationId and lastUseDate as Tuples" in new Setup {
@@ -131,8 +134,10 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
       val oldApplication1 = ApplicationLastUseDate(UUID.randomUUID(), DateTime.now.minusMonths(13))
       val oldApplication2 = ApplicationLastUseDate(UUID.randomUUID(), DateTime.now.minusMonths(14))
 
-      when(mockHttpClient.GET[Seq[ApplicationLastUseDate]](meq( s"$baseUrl/application"), meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
-        .thenReturn(successful(Seq(oldApplication1, oldApplication2)))
+      when(mockHttpClient.GET[PaginatedApplicationLastUseResponse](
+        meq( s"$baseUrl/application"),
+        meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
+        .thenReturn(successful(paginatedResponse(List(oldApplication1, oldApplication2))))
 
       val results = await(connector.applicationsLastUsedBefore(lastUseDate))
 
@@ -144,8 +149,10 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
       val lastUseDate = DateTime.now.minusMonths(12)
       val encodedDateString: String = URLEncoder.encode(dateFormatter.withZoneUTC().print(lastUseDate), StandardCharsets.UTF_8.toString)
 
-      when(mockHttpClient.GET[Seq[ApplicationLastUseDate]](meq( s"$baseUrl/application"), meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
-        .thenReturn(successful(Seq.empty))
+      when(mockHttpClient.GET[PaginatedApplicationLastUseResponse](
+        meq( s"$baseUrl/application"),
+        meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
+        .thenReturn(successful(paginatedResponse(List.empty)))
 
       val results = await(connector.applicationsLastUsedBefore(lastUseDate))
 
