@@ -17,12 +17,16 @@
 package uk.gov.hmrc.apiplatformmicroservice.connectors
 
 import java.net.URLEncoder.encode
+import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
+import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ThirdPartyApplicationConnectorConfig, ApplicationResponse}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse, ThirdPartyApplicationConnectorConfig}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,6 +50,13 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
       .map(_.status)
   }
 
+  def applicationsLastUsedBefore(lastUseDate: DateTime)(implicit hc: HeaderCarrier): Future[Seq[(UUID, DateTime)]] = {
+    val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
+    val lastUseDates = http.GET[Seq[ApplicationLastUseDate]](s"$serviceBaseUrl/application", Seq("lastUseBefore" -> urlEncode(dateFormatter.withZoneUTC().print(lastUseDate))))
+
+    lastUseDates.map(_.map(app => (app.id, app.lastAccess)))
+  }
+
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = {
     encode(str, encoding)
   }
@@ -53,13 +64,17 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
 
 object ThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: String)
+  private[connectors] case class ApplicationLastUseDate(id: UUID, lastAccess: DateTime)
+
   case class ThirdPartyApplicationConnectorConfig(
     applicationSandboxBaseUrl: String, applicationSandboxUseProxy: Boolean, applicationSandboxBearerToken: String, applicationSandboxApiKey: String,
     applicationProductionBaseUrl: String, applicationProductionUseProxy: Boolean, applicationProductionBearerToken: String, applicationProductionApiKey: String
   )
 
   object JsonFormatters {
+    implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
     implicit val formatApplicationResponse: Format[ApplicationResponse] = Json.format[ApplicationResponse]
+    implicit val formatApplicationLastUseDate: Format[ApplicationLastUseDate] = Json.format[ApplicationLastUseDate]
   }
 }
 

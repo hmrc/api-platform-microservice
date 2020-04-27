@@ -16,12 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.connectors
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.util.UUID
+
+import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.ApplicationResponse
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
@@ -113,6 +119,37 @@ class ThirdPartyApplicationConnectorSpec extends UnitSpec with ScalaFutures with
       intercept[NotFoundException] {
         await(connector.removeCollaborator(appId, email))
       }
+    }
+  }
+
+  "applicationsLastUsedBefore" should {
+    val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
+
+    "return applicationId and lastUseDate as Tuples" in new Setup {
+      val lastUseDate = DateTime.now.minusMonths(12)
+      val encodedDateString: String = URLEncoder.encode(dateFormatter.withZoneUTC().print(lastUseDate), StandardCharsets.UTF_8.toString)
+      val oldApplication1 = ApplicationLastUseDate(UUID.randomUUID(), DateTime.now.minusMonths(13))
+      val oldApplication2 = ApplicationLastUseDate(UUID.randomUUID(), DateTime.now.minusMonths(14))
+
+      when(mockHttpClient.GET[Seq[ApplicationLastUseDate]](meq( s"$baseUrl/application"), meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
+        .thenReturn(successful(Seq(oldApplication1, oldApplication2)))
+
+      val results = await(connector.applicationsLastUsedBefore(lastUseDate))
+
+      results should contain ((oldApplication1.id, oldApplication1.lastAccess))
+      results should contain ((oldApplication2.id, oldApplication2.lastAccess))
+    }
+
+    "return empty Sequence when no results are returned" in new Setup {
+      val lastUseDate = DateTime.now.minusMonths(12)
+      val encodedDateString: String = URLEncoder.encode(dateFormatter.withZoneUTC().print(lastUseDate), StandardCharsets.UTF_8.toString)
+
+      when(mockHttpClient.GET[Seq[ApplicationLastUseDate]](meq( s"$baseUrl/application"), meq(Seq("lastUseBefore" -> encodedDateString)))(any(), any(), any()))
+        .thenReturn(successful(Seq.empty))
+
+      val results = await(connector.applicationsLastUsedBefore(lastUseDate))
+
+      results.size should be (0)
     }
   }
 }
