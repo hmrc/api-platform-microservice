@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.config
 
-import java.util.concurrent.TimeUnit.{HOURS, SECONDS}
+import java.util.concurrent.TimeUnit.{DAYS, HOURS, SECONDS}
 
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.PayloadEncryptionConfig
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.ThirdPartyApplicationConnectorConfig
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.ThirdPartyDeveloperConnectorConfig
-import uk.gov.hmrc.apiplatformmicroservice.scheduled.{DeleteUnregisteredDevelopersJobConfig, DeleteUnverifiedDevelopersJobConfig}
+import uk.gov.hmrc.apiplatformmicroservice.scheduled.{DeleteUnregisteredDevelopersJobConfig, DeleteUnverifiedDevelopersJobConfig, MigrateUnregisteredDevelopersJobConfig}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -35,7 +36,9 @@ class ConfigurationModule extends Module {
       bind[ThirdPartyDeveloperConnectorConfig].toProvider[ThirdPartyDeveloperConnectorConfigProvider],
       bind[ThirdPartyApplicationConnectorConfig].toProvider[ThirdPartyApplicationConnectorConfigProvider],
       bind[DeleteUnverifiedDevelopersJobConfig].toProvider[DeleteUnverifiedDevelopersJobConfigProvider],
-      bind[DeleteUnregisteredDevelopersJobConfig].toProvider[DeleteUnregisteredDevelopersJobConfigProvider]
+      bind[DeleteUnregisteredDevelopersJobConfig].toProvider[DeleteUnregisteredDevelopersJobConfigProvider],
+      bind[MigrateUnregisteredDevelopersJobConfig].toProvider[MigrateUnregisteredDevelopersJobConfigProvider],
+      bind[PayloadEncryptionConfig].toProvider[PayloadEncryptionConfigProvider]
     )
   }
 }
@@ -105,5 +108,28 @@ class DeleteUnregisteredDevelopersJobConfigProvider @Inject()(configuration: Con
     val enabled = configuration.getOptional[Boolean]("deleteUnregisteredDevelopersJob.enabled").getOrElse(false)
     val limit = configuration.getOptional[Int]("deleteUnregisteredDevelopersJob.limit").getOrElse(10)
     DeleteUnregisteredDevelopersJobConfig(initialDelay, interval, enabled, limit)
+  }
+}
+
+@Singleton
+class MigrateUnregisteredDevelopersJobConfigProvider  @Inject()(configuration: Configuration)
+  extends Provider[MigrateUnregisteredDevelopersJobConfig] {
+
+  override def get(): MigrateUnregisteredDevelopersJobConfig = {
+    val initialDelay = configuration.getOptional[String]("migrateUnregisteredDevelopersJob.initialDelay").map(Duration.create(_).asInstanceOf[FiniteDuration])
+      .getOrElse(FiniteDuration(150, SECONDS))
+    val interval = configuration.getOptional[String]("migrateUnregisteredDevelopersJob.interval").map(Duration.create(_).asInstanceOf[FiniteDuration])
+      .getOrElse(FiniteDuration(1, DAYS))
+    val enabled = configuration.getOptional[Boolean]("migrateUnregisteredDevelopersJob.enabled").getOrElse(false)
+    MigrateUnregisteredDevelopersJobConfig(initialDelay, interval, enabled)
+  }
+}
+
+@Singleton
+class PayloadEncryptionConfigProvider @Inject()(configuration: Configuration)
+  extends Provider[PayloadEncryptionConfig] {
+
+  override def get(): PayloadEncryptionConfig = {
+    PayloadEncryptionConfig(configuration.get[String]("json.encryption.key"))
   }
 }

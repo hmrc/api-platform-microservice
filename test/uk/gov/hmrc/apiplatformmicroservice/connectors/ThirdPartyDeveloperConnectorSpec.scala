@@ -21,9 +21,11 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.http.Status
 import play.api.http.Status.OK
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.JsonFormatters.{formatDeleteDeveloperRequest, formatDeleteUnregisteredDevelopersRequest}
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.{DeleteDeveloperRequest, DeleteUnregisteredDevelopersRequest, DeveloperResponse, ThirdPartyDeveloperConnectorConfig}
+import play.api.libs.json.{JsString, JsValue, Json}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
@@ -38,12 +40,17 @@ class ThirdPartyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with M
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val mockHttp: HttpClient = mock[HttpClient]
+    val mockPayloadEncryption: PayloadEncryption = mock[PayloadEncryption]
+    val encryptedJson = new EncryptedJson(mockPayloadEncryption)
     val baseUrl = "http://third-party-developer"
     val config = ThirdPartyDeveloperConnectorConfig(baseUrl)
     val devEmail = "joe.bloggs@example.com"
     def endpoint(path: String) = s"$baseUrl/$path"
+    val encryptedString = JsString("someEncryptedStringOfData")
+    val encryptedBody: JsValue = Json.toJson(SecretRequest(encryptedString.as[String]))
+    when(mockPayloadEncryption.encrypt(any[String])(any())).thenReturn(encryptedString)
 
-    val connector = new ThirdPartyDeveloperConnector(config, mockHttp)
+    val connector = new ThirdPartyDeveloperConnector(config, mockHttp, encryptedJson)
   }
 
   "fetchUnverifiedDevelopers" should {
@@ -119,6 +126,25 @@ class ThirdPartyDeveloperConnectorSpec extends UnitSpec with ScalaFutures with M
 
       intercept[NotFoundException] {
         await(connector.deleteUnregisteredDeveloper(devEmail))
+      }
+    }
+  }
+
+  "createUnregisteredUser" should {
+    "create an unregistered user" in new Setup {
+      when(mockHttp.POST(endpoint("unregistered-developer"), encryptedBody)).thenReturn(successful(HttpResponse(OK)))
+
+      val result = await(connector.createUnregisteredDeveloper(devEmail))
+
+      result shouldBe OK
+    }
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttp.POST(endpoint("unregistered-developer"), encryptedBody))
+        .thenReturn(Future.failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.createUnregisteredDeveloper(devEmail))
       }
     }
   }

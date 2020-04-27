@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule
 import javax.inject.{Inject, Singleton}
 import play.api.Application
 import play.api.inject.ApplicationLifecycle
-import uk.gov.hmrc.apiplatformmicroservice.scheduled.{DeleteUnregisteredDevelopersJob, DeleteUnregisteredDevelopersJobConfig, DeleteUnverifiedDevelopersJob, DeleteUnverifiedDevelopersJobConfig}
+import uk.gov.hmrc.apiplatformmicroservice.scheduled.{DeleteUnregisteredDevelopersJob, DeleteUnregisteredDevelopersJobConfig, DeleteUnverifiedDevelopersJob, DeleteUnverifiedDevelopersJobConfig, MigrateUnregisteredDevelopersJob, MigrateUnregisteredDevelopersJobConfig}
 import uk.gov.hmrc.play.scheduling.{RunningOfScheduledJobs, ScheduledJob}
 
 import scala.concurrent.ExecutionContext
@@ -36,6 +36,8 @@ class Scheduler @Inject()(deleteUnverifiedDevelopersJobConfig: DeleteUnverifiedD
                           deleteUnverifiedDevelopersJob: DeleteUnverifiedDevelopersJob,
                           deleteUnregisteredDevelopersJobConfig: DeleteUnregisteredDevelopersJobConfig,
                           deleteUnregisteredDevelopersJob: DeleteUnregisteredDevelopersJob,
+                          migrateUnregisteredDevelopersJobConfig: MigrateUnregisteredDevelopersJobConfig,
+                          migrateUnregisteredDevelopersJob: MigrateUnregisteredDevelopersJob,
                           override val applicationLifecycle: ApplicationLifecycle,
                           override val application: Application)
                          (implicit val ec: ExecutionContext) extends RunningOfScheduledJobs {
@@ -51,5 +53,11 @@ class Scheduler @Inject()(deleteUnverifiedDevelopersJobConfig: DeleteUnverifiedD
     Seq.empty
   }
 
-  override lazy val scheduledJobs: Seq[ScheduledJob] = deleteUnverifiedDevsJob ++ deleteUnregisteredDevsJob
+  lazy val migrateUnregisteredDevsJob: Seq[ScheduledJob] = if (migrateUnregisteredDevelopersJobConfig.enabled) {
+    Seq(migrateUnregisteredDevelopersJob)
+  } else {
+    Seq.empty
+  }
+
+  override lazy val scheduledJobs: Seq[ScheduledJob] = deleteUnverifiedDevsJob ++ deleteUnregisteredDevsJob ++ migrateUnregisteredDevsJob
 }
