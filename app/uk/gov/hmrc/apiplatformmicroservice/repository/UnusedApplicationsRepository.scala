@@ -35,6 +35,7 @@ class UnusedApplicationsRepository @Inject()(mongo: ReactiveMongoComponent)(impl
 
   override def indexes = List(
     Index(key = List("applicationId" -> Ascending), name = Some("applicationIdIndex"), unique = true, background = true),
+    Index(key = List("environment" -> Ascending), name = Some("environmentIndex"), unique = false, background = true),
     Index(key = List("lastInteractionDate" -> Ascending), name = Some("lastInteractionDateIndex"), unique = false, background = true)
   )
 

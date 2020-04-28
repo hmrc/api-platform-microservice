@@ -19,23 +19,45 @@ package uk.gov.hmrc.apiplatformmicroservice.models
 import java.util.UUID
 
 import org.joda.time.DateTime
-import play.api.libs.json.{Format, JsPath, Json, Reads}
+import play.api.libs.json.{Format, JsError, JsPath, JsResult, JsString, JsSuccess, JsValue, Json, Reads, Writes}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import play.api.libs.functional.syntax._
+import uk.gov.hmrc.apiplatformmicroservice.models.Environment.Environment
 
 case class ApplicationUsageDetails(applicationId: UUID, creationDate: DateTime, lastAccessDate: Option[DateTime])
 
-case class UnusedApplication(applicationId: UUID, lastInteractionDate: DateTime)
+case class UnusedApplication(applicationId: UUID, environment: Environment, lastInteractionDate: DateTime)
+
+object Environment extends Enumeration {
+  type Environment = Value
+  val SANDBOX, PRODUCTION = Value
+}
 
 object MongoFormat {
   implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
 
+  implicit def environmentWrites: Writes[Environment.Value] = (v: Environment.Value) => JsString(v.toString)
+
   val unusedApplicationReads: Reads[UnusedApplication] = (
     (JsPath \ "applicationId").read[UUID] and
+      (JsPath \ "environment").read[Environment] and
       (JsPath \ "lastInteractionDate").read[DateTime]
     )(UnusedApplication.apply _)
 
-  implicit val unusedApplicationFormat = {
-    Format(unusedApplicationReads, Json.writes[UnusedApplication])
+  def environmentReads[Environment](): Reads[Environment.Value] = {
+    case JsString("SANDBOX") => JsSuccess(Environment.SANDBOX)
+    case JsString("PRODUCTION") => JsSuccess(Environment.PRODUCTION)
+    case JsString(s) =>
+      try {
+        JsSuccess(Environment.withName(s))
+      } catch {
+        case _: NoSuchElementException =>
+          JsError(s"Enumeration expected of type: Environment, but it does not contain '$s'")
+      }
+    case _ => JsError("String value expected")
   }
+
+  implicit val unusedApplicationFormat = Format(unusedApplicationReads, Json.writes[UnusedApplication])
+  implicit val environmentFormat: Format[Environment.Value] = Format(environmentReads(), environmentWrites)
+
 }
