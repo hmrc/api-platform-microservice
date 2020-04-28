@@ -24,7 +24,8 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationResponse, PaginatedApplicationLastUseResponse, ThirdPartyApplicationConnectorConfig}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationResponse, PaginatedApplicationLastUseResponse, ThirdPartyApplicationConnectorConfig, toDomain}
+import uk.gov.hmrc.apiplatformmicroservice.models.ApplicationUsageDetails
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -32,6 +33,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
+  val ISODateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
+
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val serviceBaseUrl: String
@@ -50,22 +53,22 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
       .map(_.status)
   }
 
-  def applicationsLastUsedBefore(lastUseDate: DateTime)(implicit hc: HeaderCarrier): Future[Seq[(UUID, DateTime)]] = {
+  def applicationsLastUsedBefore(lastUseDate: DateTime)(implicit hc: HeaderCarrier): Future[List[(UUID, DateTime)]] = {
     val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
     http.GET[PaginatedApplicationLastUseResponse](
       url = s"$serviceBaseUrl/application",
-      queryParams = Seq("lastUseBefore" -> urlEncode(dateFormatter.withZoneUTC().print(lastUseDate))))
-      .map(
-        page => page.applications.map(
-          app => (app.id, app.lastAccess)))
-  }
+      queryParams = Seq("lastUseBefore" -> urlEncode(ISODateFormatter.withZoneUTC().print(lastUseDate))))
+      .map(page => toDomain(page.applications))
 
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = encode(str, encoding)
 }
 
 object ThirdPartyApplicationConnector {
+  def toDomain(applications: List[ApplicationLastUseDate]): List[ApplicationUsageDetails] =
+    applications.map(app => ApplicationUsageDetails(app.id, app.createdOn, app.lastAccess))
+
   private[connectors] case class ApplicationResponse(id: String)
-  private[connectors] case class ApplicationLastUseDate(id: UUID, lastAccess: DateTime)
+  private[connectors] case class ApplicationLastUseDate(id: UUID, createdOn: DateTime, lastAccess: Option[DateTime])
   private[connectors] case class PaginatedApplicationLastUseResponse(applications: List[ApplicationLastUseDate],
                                                                      page: Int,
                                                                      pageSize: Int,

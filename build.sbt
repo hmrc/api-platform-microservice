@@ -1,3 +1,4 @@
+import play.core.PlayVersion
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
@@ -26,7 +27,9 @@ def testDeps(scope: String) = Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "org.mockito" % "mockito-core" % "3.1.0" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.16.0-play-26" % scope
+  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.16.0-play-26" % scope,
+  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
 )
 
 lazy val root = (project in file("."))
