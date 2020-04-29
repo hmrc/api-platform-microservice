@@ -20,16 +20,15 @@ import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector._
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.JsonFormatters.{formatDeleteDeveloperRequest, formatDeleteUnregisteredDevelopersRequest, formatDeveloperResponse}
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.{DeleteDeveloperRequest, DeleteUnregisteredDevelopersRequest, ThirdPartyDeveloperConnectorConfig, DeveloperResponse}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ThirdPartyDeveloperConnector @Inject()(config: ThirdPartyDeveloperConnectorConfig, http: HttpClient, encryptedJson: EncryptedJson)
-                                            (implicit ec: ExecutionContext) {
+class ThirdPartyDeveloperConnector @Inject()(config: ThirdPartyDeveloperConnectorConfig, http: HttpClient)(implicit ec: ExecutionContext) {
 
   val dateFormatter = ISODateTimeFormat.basicDate()
 
@@ -50,26 +49,17 @@ class ThirdPartyDeveloperConnector @Inject()(config: ThirdPartyDeveloperConnecto
   def deleteUnregisteredDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Int] = {
     http.POST(s"${config.baseUrl}/unregistered-developer/delete", DeleteUnregisteredDevelopersRequest(Seq(email))).map(_.status)
   }
-
-  def createUnregisteredDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Int] = {
-    encryptedJson.secretRequestJson[Int](
-      Json.toJson(CreateUnregisteredDevelopersRequest(email)), { secretRequestJson =>
-        http.POST(s"${config.baseUrl}/unregistered-developer", secretRequestJson).map(_.status)
-      })
-  }
 }
 
 object ThirdPartyDeveloperConnector {
   private[connectors] case class DeleteDeveloperRequest(emailAddress: String)
   private[connectors] case class DeleteUnregisteredDevelopersRequest(emails: Seq[String])
-  private[connectors] case class CreateUnregisteredDevelopersRequest(email: String)
   private[connectors] case class DeveloperResponse(email: String)
   case class ThirdPartyDeveloperConnectorConfig(baseUrl: String)
 
   object JsonFormatters {
     implicit val formatDeleteDeveloperRequest: Format[DeleteDeveloperRequest] = Json.format[DeleteDeveloperRequest]
     implicit val formatDeleteUnregisteredDevelopersRequest: Format[DeleteUnregisteredDevelopersRequest] = Json.format[DeleteUnregisteredDevelopersRequest]
-    implicit val formatCreateUnregisteredDevelopersRequest: Format[CreateUnregisteredDevelopersRequest] = Json.format[CreateUnregisteredDevelopersRequest]
     implicit val formatDeveloperResponse: Format[DeveloperResponse] = Json.format[DeveloperResponse]
   }
 }
