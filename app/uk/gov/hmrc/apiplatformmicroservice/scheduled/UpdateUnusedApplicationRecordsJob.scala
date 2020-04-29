@@ -20,7 +20,7 @@ import java.util.UUID
 import javax.inject.Inject
 import net.ceedubs.ficus.Ficus._
 import org.joda.time.DateTime
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.models.Environment.Environment
@@ -67,8 +67,15 @@ abstract class UpdateUnusedApplicationRecordsJob @Inject()(environment: Environm
     for {
       knownApplications <- unusedApplicationsRepository.applicationsByEnvironment(environment)
       currentUnusedApplications <- thirdPartyApplicationConnector.applicationsLastUsedBefore(notificationCutoffDate())
-      _ <- unusedApplicationsRepository.bulkInsert(unknownApplications(knownApplications, currentUnusedApplications))
-      _ <- removeApplications(noLongerUnusedApplications(knownApplications, currentUnusedApplications))
+
+      newUnusedApplications = unknownApplications(knownApplications, currentUnusedApplications)
+      _ = Logger.info(s"[UpdateUnusedApplicationRecordsJob] Found ${newUnusedApplications.size} new unused applications since last update")
+
+      recentlyUsedApplications = noLongerUnusedApplications(knownApplications, currentUnusedApplications)
+      _ = Logger.info(s"[UpdateUnusedApplicationRecordsJob] Found ${recentlyUsedApplications.size} applications that have been used since last update")
+
+      _ = if(newUnusedApplications.nonEmpty) unusedApplicationsRepository.bulkInsert(newUnusedApplications)
+      _ <- removeApplications(recentlyUsedApplications)
     } yield RunningOfJobSuccessful
   }
 }

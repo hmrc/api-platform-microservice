@@ -20,7 +20,7 @@ import java.util.UUID
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
-import org.mockito.Mockito.{verifyNoInteractions, when}
+import org.mockito.Mockito.{verifyNoInteractions, when, verify, times}
 import org.mockito.{ArgumentCaptor, ArgumentMatchersSugar}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -118,6 +118,34 @@ class UpdateUnusedApplicationRecordsJobSpec extends PlaySpec
 
       verifyNoInteractions(mockProductionThirdPartyApplicationConnector)
     }
+
+    "not persist application details already stored in database" in new SandboxJobSetup {
+      val application: (ApplicationUsageDetails, UnusedApplication) =
+        applicationDetails(Environment.SANDBOX, DateTime.now.minusMonths(13), Some(DateTime.now.minusMonths(13)))
+
+      when(mockSandboxThirdPartyApplicationConnector.applicationsLastUsedBefore(*))
+        .thenReturn(Future.successful(List(application._1)))
+      when(mockUnusedApplicationsRepository.applicationsByEnvironment(Environment.SANDBOX)).thenReturn(Future(List(application._2)))
+
+      await(underTest.runJob)
+
+      verify(mockUnusedApplicationsRepository, times(0)).bulkInsert(*)(*)
+      verifyNoInteractions(mockProductionThirdPartyApplicationConnector)
+    }
+
+    "remove applications that have been used since last update" in new SandboxJobSetup {
+      val application: (ApplicationUsageDetails, UnusedApplication) =
+        applicationDetails(Environment.SANDBOX, DateTime.now.minusMonths(13), Some(DateTime.now.minusMonths(13)))
+
+      when(mockSandboxThirdPartyApplicationConnector.applicationsLastUsedBefore(*)).thenReturn(Future.successful(List.empty))
+      when(mockUnusedApplicationsRepository.applicationsByEnvironment(Environment.SANDBOX)).thenReturn(Future(List(application._2)))
+      when(mockUnusedApplicationsRepository.deleteApplication(Environment.SANDBOX, application._2.applicationId)).thenReturn(Future.successful(true))
+
+      await(underTest.runJob)
+
+      verify(mockUnusedApplicationsRepository).deleteApplication(Environment.SANDBOX, application._2.applicationId)
+      verifyNoInteractions(mockProductionThirdPartyApplicationConnector)
+    }
   }
 
   "PRODUCTION job" should {
@@ -141,6 +169,34 @@ class UpdateUnusedApplicationRecordsJobSpec extends PlaySpec
       capturedInsertValue must contain (applicationWithLastUseDate._2)
       capturedInsertValue must contain (applicationWithoutLastUseDate._2)
 
+      verifyNoInteractions(mockSandboxThirdPartyApplicationConnector)
+    }
+
+    "not persist application details already stored in database" in new ProductionJobSetup {
+      val application: (ApplicationUsageDetails, UnusedApplication) =
+        applicationDetails(Environment.PRODUCTION, DateTime.now.minusMonths(13), Some(DateTime.now.minusMonths(13)))
+
+      when(mockProductionThirdPartyApplicationConnector.applicationsLastUsedBefore(*))
+        .thenReturn(Future.successful(List(application._1)))
+      when(mockUnusedApplicationsRepository.applicationsByEnvironment(Environment.PRODUCTION)).thenReturn(Future(List(application._2)))
+
+      await(underTest.runJob)
+
+      verify(mockUnusedApplicationsRepository, times(0)).bulkInsert(*)(*)
+      verifyNoInteractions(mockSandboxThirdPartyApplicationConnector)
+    }
+
+    "remove applications that have been used since last update" in new ProductionJobSetup {
+      val application: (ApplicationUsageDetails, UnusedApplication) =
+        applicationDetails(Environment.PRODUCTION, DateTime.now.minusMonths(13), Some(DateTime.now.minusMonths(13)))
+
+      when(mockProductionThirdPartyApplicationConnector.applicationsLastUsedBefore(*)).thenReturn(Future.successful(List.empty))
+      when(mockUnusedApplicationsRepository.applicationsByEnvironment(Environment.PRODUCTION)).thenReturn(Future(List(application._2)))
+      when(mockUnusedApplicationsRepository.deleteApplication(Environment.PRODUCTION, application._2.applicationId)).thenReturn(Future.successful(true))
+
+      await(underTest.runJob)
+
+      verify(mockUnusedApplicationsRepository).deleteApplication(Environment.PRODUCTION, application._2.applicationId)
       verifyNoInteractions(mockSandboxThirdPartyApplicationConnector)
     }
   }
