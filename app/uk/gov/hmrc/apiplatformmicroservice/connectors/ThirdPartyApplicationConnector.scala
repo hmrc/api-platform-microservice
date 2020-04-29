@@ -53,12 +53,14 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
       .map(_.status)
   }
 
-  def applicationsLastUsedBefore(lastUseDate: DateTime)(implicit hc: HeaderCarrier): Future[List[(UUID, DateTime)]] = {
-    val dateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()
+  def applicationsLastUsedBefore(lastUseDate: DateTime): Future[List[ApplicationUsageDetails]] = {
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+
     http.GET[PaginatedApplicationLastUseResponse](
       url = s"$serviceBaseUrl/application",
       queryParams = Seq("lastUseBefore" -> urlEncode(ISODateFormatter.withZoneUTC().print(lastUseDate))))
       .map(page => toDomain(page.applications))
+  }
 
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = encode(str, encoding)
 }

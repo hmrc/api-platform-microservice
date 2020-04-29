@@ -19,10 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.models
 import java.util.UUID
 
 import org.joda.time.DateTime
-import play.api.libs.json.{Format, JsError, JsPath, JsResult, JsString, JsSuccess, JsValue, Json, Reads, Writes}
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.models.Environment.Environment
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 case class ApplicationUsageDetails(applicationId: UUID, creationDate: DateTime, lastAccessDate: Option[DateTime])
 
@@ -37,6 +37,7 @@ object MongoFormat {
   implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
 
   implicit def environmentWrites: Writes[Environment.Value] = (v: Environment.Value) => JsString(v.toString)
+  implicit val environmentFormat: Format[Environment.Value] = Format(environmentReads(), environmentWrites)
 
   val unusedApplicationReads: Reads[UnusedApplication] = (
     (JsPath \ "applicationId").read[UUID] and
@@ -58,6 +59,6 @@ object MongoFormat {
   }
 
   implicit val unusedApplicationFormat = Format(unusedApplicationReads, Json.writes[UnusedApplication])
-  implicit val environmentFormat: Format[Environment.Value] = Format(environmentReads(), environmentWrites)
+
 
 }
