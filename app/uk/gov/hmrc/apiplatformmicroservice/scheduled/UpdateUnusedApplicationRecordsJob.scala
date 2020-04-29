@@ -62,7 +62,10 @@ abstract class UpdateUnusedApplicationRecordsJob @Inject()(environment: Environm
     }
 
     def removeApplications(applicationsToRemove: Set[UUID]) =
-      Future.sequence(applicationsToRemove.map(unusedApplicationsRepository.deleteApplication(environment, _)))
+      Future.sequence(applicationsToRemove.map { applicationId =>
+        Logger.info(s"[UpdateUnusedApplicationRecordsJob] Application [$applicationId] in $environment environment has been used since last update - removing from list of unused applications to delete")
+        unusedApplicationsRepository.deleteApplication(environment, applicationId)
+      })
 
     for {
       knownApplications <- unusedApplicationsRepository.applicationsByEnvironment(environment)
