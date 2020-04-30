@@ -19,6 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.connectors
 import java.net.URLEncoder.encode
 import java.util.UUID
 
+import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
@@ -31,6 +33,13 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+
+class ThirdPartyApplicationConnectorModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(Names.named("tpa-production")).to(classOf[ProductionThirdPartyApplicationConnector])
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(Names.named("tpa-sandbox")).to(classOf[SandboxThirdPartyApplicationConnector])
+  }
+}
 
 abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
   val ISODateFormatter: DateTimeFormatter = ISODateTimeFormat.dateTime()

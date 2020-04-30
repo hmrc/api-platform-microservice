@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.scheduled
 import java.util.UUID
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton, Named}
 import net.ceedubs.ficus.Ficus._
 import org.joda.time.DateTime
 import play.api.{Configuration, Logger}
@@ -30,11 +30,11 @@ import uk.gov.hmrc.apiplatformmicroservice.repository.UnusedApplicationsReposito
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class UpdateUnusedApplicationRecordsJob @Inject()(environment: Environment,
-                                                           thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
-                                                           unusedApplicationsRepository: UnusedApplicationsRepository,
-                                                           configuration: Configuration,
-                                                           mongo: ReactiveMongoComponent)
+abstract class UpdateUnusedApplicationRecordsJob (environment: Environment,
+                                                  thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
+                                                  unusedApplicationsRepository: UnusedApplicationsRepository,
+                                                  configuration: Configuration,
+                                                  mongo: ReactiveMongoComponent)
   extends TimedJob(s"UpdateUnusedApplicationsRecords-$environment", configuration, mongo) {
 
   val DeleteUnusedApplicationsAfter: FiniteDuration = configuration.underlying.as[FiniteDuration]("deleteUnusedApplicationsAfter")
@@ -83,13 +83,15 @@ abstract class UpdateUnusedApplicationRecordsJob @Inject()(environment: Environm
   }
 }
 
-class UpdateUnusedSandboxApplicationRecordJob @Inject()(thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
+@Singleton
+class UpdateUnusedSandboxApplicationRecordJob @Inject()(@Named("tpa-sandbox") thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
                                                         unusedApplicationsRepository: UnusedApplicationsRepository,
                                                         configuration: Configuration,
                                                         mongo: ReactiveMongoComponent)
   extends UpdateUnusedApplicationRecordsJob(Environment.SANDBOX, thirdPartyApplicationConnector, unusedApplicationsRepository, configuration, mongo)
 
-class UpdateUnusedProductionApplicationRecordJob @Inject()(thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
+@Singleton
+class UpdateUnusedProductionApplicationRecordJob @Inject()(@Named("tpa-production") thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
                                                         unusedApplicationsRepository: UnusedApplicationsRepository,
                                                         configuration: Configuration,
                                                         mongo: ReactiveMongoComponent)

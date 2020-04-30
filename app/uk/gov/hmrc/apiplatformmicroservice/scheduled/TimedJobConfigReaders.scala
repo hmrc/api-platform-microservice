@@ -43,25 +43,6 @@ trait TimedJobConfigReaders {
       TimedJobConfig(parsedStartTime, parsedExecutionInterval, parsedEnabled)
   }
 
-//  implicit def deleteUnusedApplicationsConfigReader: ValueReader[DeleteUnusedApplicationsConfig] = ValueReader.relative[DeleteUnusedApplicationsConfig] {
-//    config =>
-//      val cutoff = config.as[FiniteDuration]("deleteApplicationsIfUnusedFor")
-//      val dryRun = config.as[Option[Boolean]]("dryRun").getOrElse(true)
-//
-//      DeleteUnusedApplicationsConfig(cutoff, dryRun)
-//  }
-//
-//  implicit def applicationToBeDeletedNotificationsConfigReader: ValueReader[ApplicationToBeDeletedNotificationsConfig] =
-//    ValueReader.relative[ApplicationToBeDeletedNotificationsConfig] {
-//      config =>
-//        val notificationCutoff = config.as[FiniteDuration]("sendNotificationsInAdvance")
-//        val emailServiceURL = config.as[String]("emailServiceURL")
-//        val emailTemplateId = config.as[String]("emailTemplateId")
-//        val environmentName = config.as[String]("environmentName")
-//        val dryRun = config.as[Option[Boolean]]("dryRun").getOrElse(true)
-//
-//        ApplicationToBeDeletedNotificationsConfig(notificationCutoff, emailServiceURL, emailTemplateId, environmentName, dryRun)
-//    }
 }
 
 object TimedJobConfigReaders extends TimedJobConfigReaders
