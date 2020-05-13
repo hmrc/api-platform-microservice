@@ -25,7 +25,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
 import play.modules.reactivemongo.ReactiveMongoComponent
-import uk.gov.hmrc.apiplatformmicroservice.connectors.{ProductionThirdPartyApplicationConnector, SandboxThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ProductionThirdPartyApplicationConnector, SandboxThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.lock.LockRepository
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}

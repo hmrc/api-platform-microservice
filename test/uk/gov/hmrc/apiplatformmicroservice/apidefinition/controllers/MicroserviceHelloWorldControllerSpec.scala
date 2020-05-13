@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.controllers
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

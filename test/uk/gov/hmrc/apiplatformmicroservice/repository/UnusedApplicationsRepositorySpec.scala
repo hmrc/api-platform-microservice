@@ -25,7 +25,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.Index
 import reactivemongo.api.indexes.IndexType.Ascending
-import uk.gov.hmrc.apiplatformmicroservice.models.{Environment, UnusedApplication}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{Environment, UnusedApplication}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
 

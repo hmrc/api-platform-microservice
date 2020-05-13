@@ -28,9 +28,9 @@ import play.api.Configuration
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.MultiBulkWriteResult
-import uk.gov.hmrc.apiplatformmicroservice.connectors.{ProductionThirdPartyApplicationConnector, SandboxThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformmicroservice.models.Environment.Environment
-import uk.gov.hmrc.apiplatformmicroservice.models.{ApplicationUsageDetails, Environment, UnusedApplication}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ProductionThirdPartyApplicationConnector, SandboxThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.Environment.Environment
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApplicationUsageDetails, Environment, UnusedApplication}
 import uk.gov.hmrc.apiplatformmicroservice.repository.UnusedApplicationsRepository
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
 

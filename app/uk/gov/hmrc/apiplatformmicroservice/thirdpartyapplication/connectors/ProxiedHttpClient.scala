@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.connectors
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}

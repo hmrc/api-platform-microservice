@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.connectors
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -22,8 +22,8 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.JsonFormatters.{formatDeleteDeveloperRequest, formatDeleteUnregisteredDevelopersRequest}
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyDeveloperConnector.{DeleteDeveloperRequest, DeleteUnregisteredDevelopersRequest, DeveloperResponse, ThirdPartyDeveloperConnectorConfig}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ThirdPartyDeveloperConnector.JsonFormatters.{formatDeleteDeveloperRequest, formatDeleteUnregisteredDevelopersRequest}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ThirdPartyDeveloperConnector.{DeleteDeveloperRequest, DeleteUnregisteredDevelopersRequest, DeveloperResponse, ThirdPartyDeveloperConnectorConfig}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.connectors
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -27,8 +27,8 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse, PaginatedApplicationLastUseResponse}
-import uk.gov.hmrc.apiplatformmicroservice.models.ApplicationUsageDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ThirdPartyApplicationConnector.{ApplicationLastUseDate, ApplicationResponse, PaginatedApplicationLastUseResponse}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApplicationUsageDetails
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.controllers
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
