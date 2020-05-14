@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.util.{ApiDefinitionTestDataHelper, AsyncHmrcSpec, ApiDefinitionsForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatformmicroservice.util.mocks.ApiDefinitionsForCollaboratorFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.util.{ApiDefinitionTestDataHelper, AsyncHmrcSpec}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,7 +40,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
 
   "ApiDefinitionController" should {
     "return the API definitions" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.returnApiDefinitions(fakeApiDefinition)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
 
       val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
 
@@ -48,7 +49,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     }
 
     "return an empty when there are no api definitions available" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.returnApiDefinitions(Seq.empty: _*)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(Seq.empty: _*)
 
       val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
 
@@ -57,7 +58,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     }
 
     "return error when the service throws and exception" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.throwException(new RuntimeException("Something went wrong oops..."))
+      ApiDefinitionsForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
 
       val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
 

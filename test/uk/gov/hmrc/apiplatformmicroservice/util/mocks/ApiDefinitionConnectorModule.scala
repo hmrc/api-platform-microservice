@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.util
+package uk.gov.hmrc.apiplatformmicroservice.util.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForCollaboratorFetcher
 
 import scala.concurrent.Future
 
-trait ApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait ApiDefinitionConnectorModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
-  object ApiDefinitionsForCollaboratorFetcherMock {
-    val aMock = mock[ApiDefinitionsForCollaboratorFetcher]
+  object ApiDefinitionConnectorMock {
+    val aMock = mock[ApiDefinitionConnector]
 
-    def returnApiDefinitions(apis: APIDefinition*) = {
-      when(aMock(*)(*)).thenReturn(Future.successful(apis.toSeq))
-    }
+    object FetchAllApiDefinitions {
+      def willReturnApiDefinitions(apis: APIDefinition*) = {
+        when(aMock.fetchAllApiDefinitions(*)).thenReturn(Future.successful(apis.toSeq))
+      }
 
-    def throwException(e: Exception) = {
-      when(aMock(*)(*)).thenReturn(Future.failed(e))
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchAllApiDefinitions(*)).thenReturn(Future.failed(e))
+      }
     }
   }
 
