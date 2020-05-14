@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sm --start MONGO THIRD_PARTY_APPLICATION COMBINED_API_DEFINITION API_DEFINITION
+
+./run_local.sh

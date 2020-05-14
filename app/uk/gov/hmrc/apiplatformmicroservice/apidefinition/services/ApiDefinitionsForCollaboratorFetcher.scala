@@ -25,8 +25,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDefinitionsFetcher @Inject()(apiDefinitionConnector: ApiDefinitionConnector, appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
-                                     (implicit ec: ExecutionContext) {
+class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: ApiDefinitionConnector, appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
+                                                    (implicit ec: ExecutionContext) {
 
   def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {

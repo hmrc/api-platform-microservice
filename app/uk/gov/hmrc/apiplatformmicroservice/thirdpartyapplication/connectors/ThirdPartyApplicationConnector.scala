@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import java.net.URLEncoder.encode
-
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
@@ -27,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
+private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val serviceBaseUrl: String
@@ -40,8 +38,6 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email)).map(_.map(_.id.toString))
   }
-
-  private def urlEncode(str: String, encoding: String = "UTF-8"): String = encode(str, encoding)
 }
 
 object ThirdPartyApplicationConnector {
@@ -58,7 +54,7 @@ object ThirdPartyApplicationConnector {
 }
 
 @Singleton
-class SandboxThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class SandboxThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
                                                       override val httpClient: HttpClient,
                                                       override val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
   extends ThirdPartyApplicationConnector {
@@ -70,7 +66,7 @@ class SandboxThirdPartyApplicationConnector @Inject()(val config: ThirdPartyAppl
 }
 
 @Singleton
-class ProductionThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class ProductionThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
                                                          override val httpClient: HttpClient,
                                                          override val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
   extends ThirdPartyApplicationConnector {

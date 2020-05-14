@@ -36,6 +36,6 @@ class ApiDefinitionConnectorConfigProvider @Inject()(val sc: ServicesConfig)
   extends Provider[ApiDefinitionConnectorConfig] {
 
   override def get(): ApiDefinitionConnectorConfig = {
-    ApiDefinitionConnectorConfig(sc.baseUrl("api-definition"))
+    ApiDefinitionConnectorConfig(sc.baseUrl("combined-api-definition"))
   }
 }
