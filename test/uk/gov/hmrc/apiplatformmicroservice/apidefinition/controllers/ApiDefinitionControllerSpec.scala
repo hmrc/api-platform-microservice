@@ -16,22 +16,55 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.util.{ApiDefinitionTestDataHelper, AsyncHmrcSpec, ApiDefinitionsForCollaboratorFetcherModule}
+import uk.gov.hmrc.http.HeaderCarrier
 
-class ApiDefinitionControllerSpec extends WordSpec with Matchers with GuiceOneAppPerSuite {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  private val fakeRequest = FakeRequest("GET", "/")
+class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  private val controller = new ApiDefinitionController(Helpers.stubControllerComponents())
+  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule {
+    implicit val headerCarrier = HeaderCarrier()
+    val fakeRequest = FakeRequest("GET", "/")
+    val fakeEmail = "joebloggs@example.com"
+    val fakeApiName = "hello-api"
+    val fakeApiDefinition = apiDefinition(fakeApiName)
+    val controller = new ApiDefinitionController(Helpers.stubControllerComponents(), ApiDefinitionsForCollaboratorFetcherMock.aMock)
+  }
 
-  "GET /" should {
-    "return 200" in {
-      val result = controller.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
+  "ApiDefinitionController" should {
+    "return the API definitions" in new Setup {
+      ApiDefinitionsForCollaboratorFetcherMock.returnApiDefinitions(fakeApiDefinition)
+
+      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(Seq(fakeApiDefinition))
     }
+
+    "return an empty when there are no api definitions available" in new Setup {
+      ApiDefinitionsForCollaboratorFetcherMock.returnApiDefinitions(Seq.empty: _*)
+
+      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.parse("[]")
+    }
+
+    "return error when the service throws and exception" in new Setup {
+      ApiDefinitionsForCollaboratorFetcherMock.throwException(new RuntimeException("Something went wrong oops..."))
+
+      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
+                                                   "message" -> "An unexpected error occurred")
+    }
+
   }
 }
