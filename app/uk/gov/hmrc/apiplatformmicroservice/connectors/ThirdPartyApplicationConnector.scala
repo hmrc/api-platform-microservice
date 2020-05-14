@@ -17,17 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.connectors
 
 import java.net.URLEncoder.encode
-import java.util.UUID
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import javax.inject.{Inject, Singleton}
-import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationResponse, PaginatedApplicationLastUseResponse, ThirdPartyApplicationConnectorConfig, toDomain}
-import uk.gov.hmrc.apiplatformmicroservice.models.ApplicationUsageDetails
+import uk.gov.hmrc.apiplatformmicroservice.connectors.ThirdPartyApplicationConnector.{ApplicationResponse, ThirdPartyApplicationConnectorConfig}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -62,29 +59,11 @@ abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
       .map(_.status)
   }
 
-  def applicationsLastUsedBefore(lastUseDate: DateTime): Future[List[ApplicationUsageDetails]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-
-    http.GET[PaginatedApplicationLastUseResponse](
-      url = s"$serviceBaseUrl/application",
-      queryParams = Seq("lastUseBefore" -> urlEncode(ISODateFormatter.withZoneUTC().print(lastUseDate))))
-      .map(page => toDomain(page.applications))
-  }
-
   private def urlEncode(str: String, encoding: String = "UTF-8"): String = encode(str, encoding)
 }
 
 object ThirdPartyApplicationConnector {
-  def toDomain(applications: List[ApplicationLastUseDate]): List[ApplicationUsageDetails] =
-    applications.map(app => ApplicationUsageDetails(app.id, app.createdOn, app.lastAccess))
-
   private[connectors] case class ApplicationResponse(id: String)
-  private[connectors] case class ApplicationLastUseDate(id: UUID, createdOn: DateTime, lastAccess: Option[DateTime])
-  private[connectors] case class PaginatedApplicationLastUseResponse(applications: List[ApplicationLastUseDate],
-                                                                     page: Int,
-                                                                     pageSize: Int,
-                                                                     total: Int,
-                                                                     matching: Int)
 
   case class ThirdPartyApplicationConnectorConfig(
     applicationSandboxBaseUrl: String, applicationSandboxUseProxy: Boolean, applicationSandboxBearerToken: String, applicationSandboxApiKey: String,
@@ -94,8 +73,6 @@ object ThirdPartyApplicationConnector {
   object JsonFormatters {
     implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
     implicit val formatApplicationResponse: Format[ApplicationResponse] = Json.format[ApplicationResponse]
-    implicit val formatApplicationLastUseDate: Format[ApplicationLastUseDate] = Json.format[ApplicationLastUseDate]
-    implicit val formatPaginatedApplicationLastUseDate: Format[PaginatedApplicationLastUseResponse] = Json.format[PaginatedApplicationLastUseResponse]
   }
 }
 
