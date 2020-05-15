@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.util.mocks.{ApiDefinitionConnectorModule, ApplicationIdsForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.util.{ApiDefinitionTestDataHelper, AsyncHmrcSpec}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{RETIRED, STABLE}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,21 +27,68 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
   trait Setup extends ApiDefinitionConnectorModule with ApplicationIdsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    val fakeEmail = "joebloggs@example.com"
-    val fakeApiName = "hello-api"
-    val fakeApiDefinition = apiDefinition(fakeApiName)
+    val email = "joebloggs@example.com"
+    val helloApiDefinition = apiDefinition("hello-api")
+    val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
+    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
+                                                                                       apiVersion("2.0", RETIRED)))
+
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
+                                                                                       apiVersion("2.0", STABLE)))
+    val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
+      Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate)), apiVersion("2.0", access = Some(apiAccess()))))
+
+    val apiWithPrivateVersions = apiDefinition("api-with-private-versions",
+      Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate)), apiVersion("2.0", access = Some(apiAccess().asPrivate))))
+
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate.asTrial))))
     val underTest = new ApiDefinitionsForCollaboratorFetcher(ApiDefinitionConnectorMock.aMock, ApplicationIdsForCollaboratorFetcherMock.aMock)
   }
 
   "ApiDefinitionsForCollaboratorFetcher" should {
     "return the public APIs" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(fakeApiDefinition)
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(helloApiDefinition)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(fakeEmail))
+      val result = await(underTest(email))
 
-      result mustBe Seq(fakeApiDefinition)
+      result mustBe Seq(helloApiDefinition)
     }
 
+    "filter out an api that requires trust" in new Setup {
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(helloApiDefinition, requiresTrustApi)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result mustBe Seq(helloApiDefinition)
+    }
+
+    "filter out an api that only has retired versions" in new Setup {
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithRetiredVersions, apiWithOnlyRetiredVersions)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result mustBe Seq(apiWithRetiredVersions)
+    }
+
+    "filter out private versions for an api" in new Setup {
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result.head.versions mustBe Seq(apiVersion("2.0", access = Some(apiAccess())))
+    }
+
+    "return api if its private and with trials" in new Setup {
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPrivateTrials)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result mustBe Seq(apiWithPrivateTrials)
+    }
   }
 }
