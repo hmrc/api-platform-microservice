@@ -40,7 +40,7 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
   }
 }
 
-object ThirdPartyApplicationConnector {
+private[thirdpartyapplication] object ThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: String)
 
   object JsonFormatters {

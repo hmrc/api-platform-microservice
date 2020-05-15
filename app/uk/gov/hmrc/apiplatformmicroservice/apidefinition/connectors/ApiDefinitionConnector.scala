@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDefinitionConnector @Inject()(http: HttpClient, val config: ApiDefinitionConnectorConfig)
+private[apidefinition] class ApiDefinitionConnector @Inject()(http: HttpClient, val config: ApiDefinitionConnectorConfig)
                                       (implicit val ec: ExecutionContext) {
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
@@ -38,7 +38,7 @@ class ApiDefinitionConnector @Inject()(http: HttpClient, val config: ApiDefiniti
   }
 }
 
-object ApiDefinitionConnector {
+private[apidefinition] object ApiDefinitionConnector {
   case class ApiDefinitionConnectorConfig(baseUrl: String)
   def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
 }

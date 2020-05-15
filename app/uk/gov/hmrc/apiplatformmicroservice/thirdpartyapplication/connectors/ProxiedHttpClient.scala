@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.http.ws.{WSProxy, WSProxyConfiguration}
 
 @Singleton
-class ProxiedHttpClient @Inject()(config: Configuration,
+private[connectors] class ProxiedHttpClient @Inject()(config: Configuration,
                                   httpAuditing: HttpAuditing,
                                   wsClient: WSClient,
                                   actorSystem: ActorSystem)
