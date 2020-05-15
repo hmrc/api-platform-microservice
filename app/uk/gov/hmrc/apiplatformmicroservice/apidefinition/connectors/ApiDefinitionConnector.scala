@@ -21,7 +21,7 @@ import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.{ApiDefinitionConnectorConfig, definitionsUrl}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,8 +34,6 @@ class ApiDefinitionConnector @Inject()(http: HttpClient, val config: ApiDefiniti
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitions")
     http.GET[Seq[APIDefinition]](definitionsUrl(config.baseUrl), Seq("filterApis" -> "false")) recover {
       case _ : NotFoundException => { Logger.info("Not found"); Seq.empty}
-      case e : Upstream5xxResponse => { Logger.error(s"Failed $e"); throw e}
-      case e => { Logger.error(s"Failed $e"); throw e}
     }
   }
 }

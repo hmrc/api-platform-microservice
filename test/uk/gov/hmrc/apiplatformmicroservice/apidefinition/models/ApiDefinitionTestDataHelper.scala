@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.util
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{APIStatus, STABLE}
 
 trait ApiDefinitionTestDataHelper {
   def apiDefinition(
