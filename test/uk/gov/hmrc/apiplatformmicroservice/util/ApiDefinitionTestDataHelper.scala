@@ -58,6 +58,9 @@ trait ApiDefinitionTestDataHelper {
     def notTrial: APIAccess = {
       inner.copy(isTrial = Some(false))
     }
+    def withWhitelistedAppIds(appId: String*): APIAccess = {
+      inner.copy(whitelistedApplicationIds = Some(appId.toSeq))
+    }
   }
 
   def endpoint(endpointName: String = "Hello World",
@@ -72,7 +75,7 @@ trait ApiDefinitionTestDataHelper {
 
   def apiVersion(version: String = "1.0",
                  status: APIStatus = STABLE,
-                 access: Option[APIAccess] = None): APIVersion = {
+                 access: Option[APIAccess] = Some(apiAccess())): APIVersion = {
     APIVersion(version,
                 status,
                 access,
