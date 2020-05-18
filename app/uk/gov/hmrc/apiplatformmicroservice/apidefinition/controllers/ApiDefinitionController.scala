@@ -29,7 +29,7 @@ import scala.concurrent.ExecutionContext
 class ApiDefinitionController @Inject()(cc: ControllerComponents, apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher)
                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
 
-  def fetchApiDefinitionsForCollaborator(collaboratorEmail: String): Action[AnyContent] = Action.async { implicit request =>
+  def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery

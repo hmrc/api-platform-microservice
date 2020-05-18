@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitio
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAccess, APIAccessType, APIDefinition, APIStatus}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.Future.successful
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,10 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: ApiDefinitionConnector, appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
                                                     (implicit ec: ExecutionContext) {
 
-  def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def apply(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       allApiDefinitions <- apiDefinitionConnector.fetchAllApiDefinitions
-      applicationIds <- appIdsFetcher(email)
+      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
     } yield filterApis(allApiDefinitions, applicationIds)
   }
 

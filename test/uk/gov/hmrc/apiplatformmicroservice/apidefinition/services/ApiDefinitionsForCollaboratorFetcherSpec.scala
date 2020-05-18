@@ -29,7 +29,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
   trait Setup extends ApiDefinitionConnectorModule with ApplicationIdsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    val email = "joebloggs@example.com"
+    val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
     val helloApiDefinition = apiDefinition("hello-api")
     val apiWithNoAccess = apiDefinition("api-with-no-access", Seq(apiVersion(access = None)))
@@ -93,6 +93,14 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
+
+      result.head.versions mustBe Seq(apiVersion("2.0", access = Some(apiAccess())))
+    }
+
+    "filter out private versions for an api if no email provided" in new Setup {
+      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
+
+      val result = await(underTest(None))
 
       result.head.versions mustBe Seq(apiVersion("2.0", access = Some(apiAccess())))
     }

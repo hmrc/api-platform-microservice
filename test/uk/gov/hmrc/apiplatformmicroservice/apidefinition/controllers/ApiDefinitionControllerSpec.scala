@@ -33,17 +33,26 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val fakeRequest = FakeRequest("GET", "/")
-    val fakeEmail = "joebloggs@example.com"
+    val fakeEmail = Some("joebloggs@example.com")
     val fakeApiName = "hello-api"
     val fakeApiDefinition = apiDefinition(fakeApiName)
     val controller = new ApiDefinitionController(Helpers.stubControllerComponents(), ApiDefinitionsForCollaboratorFetcherMock.aMock)
   }
 
   "ApiDefinitionController" should {
-    "return the API definitions" in new Setup {
+    "return the API definitions when " in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
 
       val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(Seq(fakeApiDefinition))
+    }
+
+    "return the API definitions when no email provided" in new Setup {
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
+
+      val result = controller.fetchApiDefinitionsForCollaborator(None)(fakeRequest)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(Seq(fakeApiDefinition))
