@@ -51,15 +51,6 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
       result shouldBe Seq(helloApiDefinition)
     }
 
-    "return empty sequence if endpoint returns not found error" in new Setup {
-      when(mockHttp.GET[Seq[APIDefinition]](meq(endpoint("api-definition")), meq(Seq("filterApis" -> "false")))(any(), any(), any()))
-        .thenReturn(Future.failed(new NotFoundException("404")))
-
-      val result: Seq[APIDefinition] = await(connector.fetchAllApiDefinitions)
-
-      result shouldBe empty
-    }
-
     "propagate error when endpoint returns error" in new Setup {
       val expectedException = "something went wrong"
       when(mockHttp.GET[Seq[APIDefinition]](meq(endpoint("api-definition")), meq(Seq("filterApis" -> "false")))(any(), any(), any()))

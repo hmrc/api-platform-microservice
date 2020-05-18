@@ -32,9 +32,7 @@ private[apidefinition] class ApiDefinitionConnector @Inject()(http: HttpClient, 
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitions")
-    http.GET[Seq[APIDefinition]](definitionsUrl(config.baseUrl), Seq("filterApis" -> "false")) recover {
-      case _ : NotFoundException => { Logger.info("Not found"); Seq.empty}
-    }
+    http.GET[Seq[APIDefinition]](definitionsUrl(config.baseUrl), Seq("filterApis" -> "false"))
   }
 }
 
