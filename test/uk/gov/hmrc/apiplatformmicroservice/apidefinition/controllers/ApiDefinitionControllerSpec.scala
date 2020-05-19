@@ -40,7 +40,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
   }
 
   "ApiDefinitionController" should {
-    "return the API definitions when " in new Setup {
+    "return the API definitions when email provided" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
 
       val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)

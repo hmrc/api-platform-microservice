@@ -18,29 +18,19 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import play.api.libs.json._
 
-trait APICategoryJsonFormatters {
-  implicit val formatAPICategory = EnumJson.enumFormat(APICategory)
-}
-
-object APICategoryJsonFormatters extends APICategoryJsonFormatters
-
 trait EndpointJsonFormatters {
-  implicit val formatHttpMethod = EnumJson.enumFormat(HttpMethod)
   implicit val formatParameter = Json.format[Parameter]
   implicit val formatEndpoint = Json.format[Endpoint]
 }
 
 trait ApiDefinitionJsonFormatters
-    extends EndpointJsonFormatters
-    with APICategoryJsonFormatters {
-  implicit val formatAPIStatus = EnumJson.enumFormat(APIStatus)
-  implicit val formatAPIAccessType = EnumJson.enumFormat(APIAccessType)
+    extends EndpointJsonFormatters {
 
   implicit val formatAPIAccess = Json.format[APIAccess]
   implicit val formatAPIVersion = Json.format[APIVersion]
   implicit val formatAPIDefinition = Json.format[APIDefinition]
 }
 
-trait JsonFormatters extends ApiDefinitionJsonFormatters {}
+trait JsonFormatters extends ApiDefinitionJsonFormatters
 
 object JsonFormatters extends JsonFormatters

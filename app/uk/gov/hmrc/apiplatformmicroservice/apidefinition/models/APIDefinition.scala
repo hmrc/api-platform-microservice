@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategory.APICategory
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.APIStatus
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.HttpMethod.HttpMethod
+import enumeratum._
 
 case class APIDefinition(serviceName: String,
                          name: String,
@@ -29,12 +27,36 @@ case class APIDefinition(serviceName: String,
                          versions: Seq[APIVersion],
                          categories: Option[Seq[APICategory]] = None)
 
-object APICategory extends Enumeration {
-  type APICategory = Value
+sealed trait APICategory extends EnumEntry
 
-  val EXAMPLE, AGENTS, BUSINESS_RATES, CHARITIES, CONSTRUCTION_INDUSTRY_SCHEME, CORPORATION_TAX, CUSTOMS, ESTATES, HELP_TO_SAVE, INCOME_TAX_MTD,
-  LIFETIME_ISA, MARRIAGE_ALLOWANCE, NATIONAL_INSURANCE, PAYE, PENSIONS, PRIVATE_GOVERNMENT,
-  RELIEF_AT_SOURCE, SELF_ASSESSMENT, STAMP_DUTY, TRUSTS, VAT, VAT_MTD, OTHER = Value
+object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
+
+  val values = findValues
+
+  case object EXAMPLE extends APICategory
+  case object AGENTS extends APICategory
+  case object BUSINESS_RATES extends APICategory
+  case object CHARITIES extends APICategory
+  case object CONSTRUCTION_INDUSTRY_SCHEME extends APICategory
+  case object CORPORATION_TAX extends APICategory
+  case object CUSTOMS extends APICategory
+  case object ESTATES extends APICategory
+  case object HELP_TO_SAVE extends APICategory
+  case object INCOME_TAX_MTD extends APICategory
+  case object LIFETIME_ISA extends APICategory
+  case object MARRIAGE_ALLOWANCE extends APICategory
+  case object NATIONAL_INSURANCE extends APICategory
+  case object PAYE extends APICategory
+  case object PENSIONS extends APICategory
+  case object PRIVATE_GOVERNMENT extends APICategory
+  case object RELIEF_AT_SOURCE extends APICategory
+  case object SELF_ASSESSMENT extends APICategory
+  case object STAMP_DUTY extends APICategory
+  case object TRUSTS extends APICategory
+  case object VAT extends APICategory
+  case object VAT_MTD extends APICategory
+  case object OTHER extends APICategory
+
 }
 
 case class APIVersion(version: String,
@@ -42,26 +64,50 @@ case class APIVersion(version: String,
                       access: Option[APIAccess],
                       endpoints: Seq[Endpoint])
 
-object APIStatus extends Enumeration {
-  type APIStatus = Value
-  val PROTOTYPED, PUBLISHED, ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
+sealed trait APIStatus extends EnumEntry
+
+object APIStatus extends Enum[APIStatus] with PlayJsonEnum[APIStatus] {
+
+  val values = findValues
+
+  case object PROTOTYPED extends APIStatus
+  case object PUBLISHED extends APIStatus
+  case object ALPHA extends APIStatus
+  case object BETA extends APIStatus
+  case object STABLE extends APIStatus
+  case object DEPRECATED extends APIStatus
+  case object RETIRED extends APIStatus
 }
 
-object APIAccessType extends Enumeration {
-  type APIAccessType = Value
-  val PRIVATE, PUBLIC = Value
+sealed trait APIAccessType extends EnumEntry
+
+object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
+
+  val values = findValues
+
+  case object PRIVATE extends APIAccessType
+  case object PUBLIC extends APIAccessType
 }
 
-case class APIAccess(`type`: APIAccessType.Value, whitelistedApplicationIds: Option[Seq[String]] = None, isTrial: Option[Boolean] = None)
+case class APIAccess(`type`: APIAccessType, whitelistedApplicationIds: Option[Seq[String]] = None, isTrial: Option[Boolean] = None)
 
 case class Endpoint(endpointName: String,
                     uriPattern: String,
                     method: HttpMethod,
                     queryParameters: Option[Seq[Parameter]] = None)
 
-object HttpMethod extends Enumeration {
-  type HttpMethod = Value
-  val GET, POST, PUT, PATCH, DELETE, OPTIONS = Value
+sealed trait HttpMethod extends EnumEntry
+
+object HttpMethod extends Enum[HttpMethod] with PlayJsonEnum[HttpMethod] {
+
+  val values = findValues
+
+  case object GET extends HttpMethod
+  case object POST extends HttpMethod
+  case object PUT extends HttpMethod
+  case object PATCH extends HttpMethod
+  case object DELETE extends HttpMethod
+  case object OPTIONS extends HttpMethod
 }
 
 case class Parameter(name: String, required: Boolean = false)
