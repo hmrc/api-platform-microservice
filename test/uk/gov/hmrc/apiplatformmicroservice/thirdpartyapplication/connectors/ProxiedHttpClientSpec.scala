@@ -19,17 +19,16 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import java.util.UUID
 
 import akka.actor.ActorSystem
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.libs.ws.{WSClient, WSRequest}
+import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.test.UnitSpec
 
-class ProxiedHttpClientSpec extends UnitSpec with ScalaFutures with MockitoSugar {
+class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
   private val actorSystem = ActorSystem("test-actor-system")
@@ -41,7 +40,8 @@ class ProxiedHttpClientSpec extends UnitSpec with ScalaFutures with MockitoSugar
     val mockConfig: Configuration = mock[Configuration]
     val mockHttpAuditing: HttpAuditing = mock[HttpAuditing]
     val mockWsClient: WSClient = mock[WSClient]
-    when(mockWsClient.url(url)).thenReturn(mock[WSRequest])
+    val mockWSRequest: WSRequest = mock[WSRequest]
+    when(mockWsClient.url(url)).thenReturn(mockWSRequest)
 
     val underTest = new ProxiedHttpClient(mockConfig, mockHttpAuditing, mockWsClient, actorSystem)
   }
@@ -68,6 +68,18 @@ class ProxiedHttpClientSpec extends UnitSpec with ScalaFutures with MockitoSugar
       private val result = underTest.withHeaders(bearerToken)
 
       result.apiKeyHeader shouldBe None
+    }
+  }
+
+  "buildRequest" should {
+    "build request" in new Setup {
+      when(mockConfig.getOptional[Boolean](meq("proxy.proxyRequiredForThisEnvironment"))(any())).thenReturn(Some(false))
+      when(mockWSRequest.withHttpHeaders(any())).thenReturn(mockWSRequest)
+      when(mockWSRequest.addHttpHeaders(any())).thenReturn(mockWSRequest)
+
+      private val result = underTest.buildRequest(url, Seq.empty)
+
+      result shouldBe mockWSRequest
     }
   }
 }
