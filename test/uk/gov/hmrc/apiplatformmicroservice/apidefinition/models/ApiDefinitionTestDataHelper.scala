@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{STABLE}
+import cats.data.{NonEmptyList => NEL}
 
 trait ApiDefinitionTestDataHelper {
   def apiDefinition(
@@ -78,7 +79,7 @@ trait ApiDefinitionTestDataHelper {
     APIVersion(version,
                 status,
                 access,
-               Seq(endpoint("Today's Date", "/today"),
+               NEL.of(endpoint("Today's Date", "/today"),
                    endpoint("Yesterday's Date", "/yesterday")))
   }
 

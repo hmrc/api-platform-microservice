@@ -18,8 +18,26 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import cats.data.{NonEmptyList => NEL}
 
-trait EndpointJsonFormatters {
+trait NonEmptyListFormatters {
+
+  implicit def nelReads[A](implicit r: Reads[A]): Reads[NEL[A]] =
+    Reads
+      .of[List[A]]
+      .collect(
+        JsonValidationError("expected a NonEmptyList but got an empty list")
+      ) {
+        case head :: tail => NEL(head, tail)
+      }
+
+  implicit def nelWrites[A](implicit w: Writes[A]): Writes[NEL[A]] =
+    Writes
+      .of[List[A]]
+      .contramap(_.toList)
+}
+
+trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val formatParameter = Json.format[Parameter]
   implicit val formatEndpoint = Json.format[Endpoint]
 }
@@ -33,7 +51,7 @@ trait ApiDefinitionJsonFormatters
     (JsPath \ "version").read[String] and
       (JsPath \ "status").read[APIStatus] and
       ((JsPath \ "access").read[APIAccess] or Reads.pure(APIAccess(APIAccessType.PUBLIC))) and
-      (JsPath \ "endpoints").read[Seq[Endpoint]]
+      (JsPath \ "endpoints").read[NEL[Endpoint]]
     )(APIVersion.apply _)
 
   implicit val APIVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]

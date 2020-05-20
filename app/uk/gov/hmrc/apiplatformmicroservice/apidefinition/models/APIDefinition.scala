@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import enumeratum._
+import cats.data.{NonEmptyList => NEL}
 
 case class APIDefinition(serviceName: String,
                          name: String,
@@ -62,7 +63,7 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 case class APIVersion(version: String,
                       status: APIStatus,
                       access: APIAccess,
-                      endpoints: Seq[Endpoint])
+                      endpoints: NEL[Endpoint])
 
 sealed trait APIStatus extends EnumEntry
 
