@@ -37,10 +37,12 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
   }
 
   private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[String]): Seq[APIDefinition] = {
-    def apiHasActiveVersions(api: APIDefinition): Boolean = api.versions.exists(_.status != APIStatus.RETIRED)
-    def apiRequiresTrust(api: APIDefinition): Boolean = api.requiresTrust.getOrElse(false)
 
-    apis.filter(apiHasActiveVersions).filterNot(apiRequiresTrust).flatMap(filterVersions(_, applicationIds))
+    val filterOutNonActiveApis = (apis: Seq[APIDefinition]) => apis.filter(_.versions.exists(_.status != APIStatus.RETIRED))
+    val filterOutApisRequiringTrust = (apis: Seq[APIDefinition]) => apis.filterNot(_.requiresTrust.getOrElse(false))
+    val filterOutVersions = (apis: Seq[APIDefinition]) => apis.flatMap(filterVersions(_, applicationIds))
+
+    (filterOutNonActiveApis andThen filterOutApisRequiringTrust andThen filterOutVersions)(apis)
   }
 
   private def filterVersions(api: APIDefinition, applicationIds: Seq[String]): Option[APIDefinition] = {
