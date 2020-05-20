@@ -16,25 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
-import javax.inject.{Inject, Provider, Singleton}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import com.google.inject.{AbstractModule, Provider}
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.ApiDefinitionConnectorConfig
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class ConfigurationModule extends Module {
-
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    Seq(
-      bind[ApiDefinitionConnectorConfig].toProvider[ApiDefinitionConnectorConfigProvider]
-    )
+class ConfigurationModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[ApiDefinitionConnectorConfig]).toProvider(classOf[ApiDefinitionConnectorConfigProvider])
   }
 }
 
 @Singleton
-class ApiDefinitionConnectorConfigProvider @Inject()(val sc: ServicesConfig)
-  extends Provider[ApiDefinitionConnectorConfig] {
-
+class ApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[ApiDefinitionConnectorConfig] {
   override def get(): ApiDefinitionConnectorConfig = {
     ApiDefinitionConnectorConfig(sc.baseUrl("combined-api-definition"))
   }

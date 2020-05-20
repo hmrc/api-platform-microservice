@@ -16,23 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
-import javax.inject.{Inject, Provider, Singleton}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import com.google.inject.{AbstractModule, Provider}
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ThirdPartyApplicationConnectorConfig
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class ConfigurationModule extends Module {
-
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    Seq(
-      bind[ThirdPartyApplicationConnectorConfig].toProvider[ThirdPartyApplicationConnectorConfigProvider]
-    )
+class ConfigurationModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[ThirdPartyApplicationConnectorConfig]).toProvider(classOf[ThirdPartyApplicationConnectorConfigProvider])
   }
 }
 
 @Singleton
-class ThirdPartyApplicationConnectorConfigProvider @Inject()(val sc: ServicesConfig)
+class ThirdPartyApplicationConnectorConfigProvider @Inject()(sc: ServicesConfig)
   extends Provider[ThirdPartyApplicationConnectorConfig] {
 
   private def serviceUrl(key: String)(serviceName: String): String = {
