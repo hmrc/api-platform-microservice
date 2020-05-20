@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
 import com.google.inject.{AbstractModule, Provider}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.ApiDefinitionConnectorConfig
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorConfig
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {

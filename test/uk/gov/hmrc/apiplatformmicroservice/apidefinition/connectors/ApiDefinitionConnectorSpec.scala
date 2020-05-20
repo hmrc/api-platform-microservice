@@ -18,10 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.ApiDefinitionConnectorConfig
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global

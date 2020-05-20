@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
@@ -28,10 +28,11 @@ import scala.concurrent.{ExecutionContext, Future}
 private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
-  val serviceBaseUrl: String
-  val useProxy: Boolean
-  val bearerToken: String
-  val apiKey: String
+  protected val config: ThirdPartyApplicationConnectorConfig
+  lazy val serviceBaseUrl: String = config.applicationBaseUrl
+  lazy val useProxy: Boolean = config.applicationUseProxy
+  lazy val bearerToken: String = config.applicationBearerToken
+  lazy val apiKey: String = config.applicationApiKey
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
@@ -46,33 +47,25 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
   object JsonFormatters {
     implicit val formatApplicationResponse: Format[ApplicationResponse] = Json.format[ApplicationResponse]
   }
-
-  case class ThirdPartyApplicationConnectorConfig(
-    applicationSandboxBaseUrl: String, applicationSandboxUseProxy: Boolean, applicationSandboxBearerToken: String, applicationSandboxApiKey: String,
-    applicationProductionBaseUrl: String, applicationProductionUseProxy: Boolean, applicationProductionBearerToken: String, applicationProductionApiKey: String
-  )
 }
 
+private[thirdpartyapplication] case class ThirdPartyApplicationConnectorConfig(
+             applicationBaseUrl: String, applicationUseProxy: Boolean,
+             applicationBearerToken: String, applicationApiKey: String
+             )
+
 @Singleton
-private[thirdpartyapplication] class SandboxThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class SandboxThirdPartyApplicationConnector @Inject()(
+                                                      @Named("tpacc-sandbox") override val config: ThirdPartyApplicationConnectorConfig,
                                                       override val httpClient: HttpClient,
-                                                      override val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
-  extends ThirdPartyApplicationConnector {
-
-  val serviceBaseUrl = config.applicationSandboxBaseUrl
-  val useProxy = config.applicationSandboxUseProxy
-  val bearerToken = config.applicationSandboxBearerToken
-  val apiKey = config.applicationSandboxApiKey
-}
+                                                      override val proxiedHttpClient: ProxiedHttpClient)
+                                                      (implicit override val ec: ExecutionContext)
+                                                      extends ThirdPartyApplicationConnector
 
 @Singleton
-private[thirdpartyapplication] class ProductionThirdPartyApplicationConnector @Inject()(val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class ProductionThirdPartyApplicationConnector @Inject()(
+                                                         @Named("tpacc-prod") override val config: ThirdPartyApplicationConnectorConfig,
                                                          override val httpClient: HttpClient,
-                                                         override val proxiedHttpClient: ProxiedHttpClient)(implicit override val ec: ExecutionContext)
-  extends ThirdPartyApplicationConnector {
-
-  val serviceBaseUrl = config.applicationProductionBaseUrl
-  val useProxy = config.applicationProductionUseProxy
-  val bearerToken = config.applicationProductionBearerToken
-  val apiKey = config.applicationProductionApiKey
-}
+                                                         override val proxiedHttpClient: ProxiedHttpClient)
+                                                         (implicit override val ec: ExecutionContext)
+                                                         extends ThirdPartyApplicationConnector

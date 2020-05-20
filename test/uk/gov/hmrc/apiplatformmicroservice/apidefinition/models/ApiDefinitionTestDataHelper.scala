@@ -74,7 +74,7 @@ trait ApiDefinitionTestDataHelper {
 
   def apiVersion(version: String = "1.0",
                  status: APIStatus = STABLE,
-                 access: Option[APIAccess] = Some(apiAccess())): APIVersion = {
+                 access: APIAccess = apiAccess()): APIVersion = {
     APIVersion(version,
                 status,
                 access,
@@ -99,22 +99,19 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(status = APIStatus.RETIRED)
 
     def asPublic: APIVersion =
-      inner.copy(access = inner.access.map(_.asPublic))
+      inner.copy(access = inner.access.asPublic)
 
     def asPrivate: APIVersion =
-      inner.copy(access = inner.access.map(_.asPrivate))
+      inner.copy(access = inner.access.asPrivate)
 
     def asTrial: APIVersion =
-      inner.copy(access = inner.access.map(_.asTrial))
+      inner.copy(access = inner.access.asTrial)
 
     def notTrial: APIVersion =
-      inner.copy(access = inner.access.map(_.notTrial))
+      inner.copy(access = inner.access.notTrial)
 
-    def withAccess(altAccess: Option[APIAccess]): APIVersion =
+    def withAccess(altAccess: APIAccess): APIVersion =
       inner.copy(access = altAccess)
-
-    def withNoAccess: APIVersion =
-      inner.copy(access = None)
   }
 
 }

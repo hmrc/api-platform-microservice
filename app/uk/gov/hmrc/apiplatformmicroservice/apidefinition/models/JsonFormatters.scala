@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 trait EndpointJsonFormatters {
   implicit val formatParameter = Json.format[Parameter]
@@ -27,7 +28,16 @@ trait ApiDefinitionJsonFormatters
     extends EndpointJsonFormatters {
 
   implicit val formatAPIAccess = Json.format[APIAccess]
-  implicit val formatAPIVersion = Json.format[APIVersion]
+
+  implicit val APIVersionReads: Reads[APIVersion] = (
+    (JsPath \ "version").read[String] and
+      (JsPath \ "status").read[APIStatus] and
+      ((JsPath \ "access").read[APIAccess] or Reads.pure(APIAccess(APIAccessType.PUBLIC))) and
+      (JsPath \ "endpoints").read[Seq[Endpoint]]
+    )(APIVersion.apply _)
+
+  implicit val APIVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]
+
   implicit val formatAPIDefinition = Json.format[APIDefinition]
 }
 

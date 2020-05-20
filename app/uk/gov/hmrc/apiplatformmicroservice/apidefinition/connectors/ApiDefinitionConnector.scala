@@ -18,10 +18,10 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.{ApiDefinitionConnectorConfig, definitionsUrl}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.definitionsUrl
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,6 +37,7 @@ private[apidefinition] class ApiDefinitionConnector @Inject()(http: HttpClient, 
 }
 
 private[apidefinition] object ApiDefinitionConnector {
-  case class ApiDefinitionConnectorConfig(baseUrl: String)
   def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
 }
+
+private[apidefinition] case class ApiDefinitionConnectorConfig(baseUrl: String)

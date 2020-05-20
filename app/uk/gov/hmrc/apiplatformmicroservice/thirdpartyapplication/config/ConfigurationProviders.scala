@@ -16,42 +16,61 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
+import com.google.inject.name.Names.named
 import com.google.inject.{AbstractModule, Provider}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ThirdPartyApplicationConnectorConfig
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnectorConfig
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[ThirdPartyApplicationConnectorConfig]).toProvider(classOf[ThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
+      named("tpacc-prod")).toProvider(classOf[ProdThirdPartyApplicationConnectorConfigProvider])
+
+    bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
+      named("tpacc-sandbox")).toProvider(classOf[SandboxThirdPartyApplicationConnectorConfigProvider])
   }
 }
 
 @Singleton
-class ThirdPartyApplicationConnectorConfigProvider @Inject()(sc: ServicesConfig)
-  extends Provider[ThirdPartyApplicationConnectorConfig] {
-
-  private def serviceUrl(key: String)(serviceName: String): String = {
-    if (useProxy(serviceName)) s"${sc.baseUrl(serviceName)}/${sc.getConfString(s"$serviceName.context", key)}"
-    else sc.baseUrl(serviceName)
-  }
-
-  private def useProxy(serviceName: String) = sc.getConfBool(s"$serviceName.use-proxy", false)
-
-  private def bearerToken(serviceName: String) = sc.getConfString(s"$serviceName.bearer-token", "")
-
-  private def apiKey(serviceName: String) = sc.getConfString(s"$serviceName.api-key", "")
+class ProdThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+  extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
     ThirdPartyApplicationConnectorConfig(
-      serviceUrl("third-party-application")("third-party-application-sandbox"),
-      useProxy("third-party-application-sandbox"),
-      bearerToken("third-party-application-sandbox"),
-      apiKey("third-party-application-sandbox"),
       serviceUrl("third-party-application")("third-party-application-production"),
       useProxy("third-party-application-production"),
       bearerToken("third-party-application-production"),
       apiKey("third-party-application-production")
     )
   }
+}
+
+@Singleton
+class SandboxThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+  extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
+
+  override def get(): ThirdPartyApplicationConnectorConfig = {
+    ThirdPartyApplicationConnectorConfig(
+      serviceUrl("third-party-application")("third-party-application-sandbox"),
+      useProxy("third-party-application-sandbox"),
+      bearerToken("third-party-application-sandbox"),
+      apiKey("third-party-application-sandbox")
+    )
+  }
+}
+
+trait ThirdPartyApplicationConnectorConfigProvider {
+  protected val sc: ServicesConfig
+
+  def serviceUrl(key: String)(serviceName: String): String = {
+    if (useProxy(serviceName)) s"${sc.baseUrl(serviceName)}/${sc.getConfString(s"$serviceName.context", key)}"
+    else sc.baseUrl(serviceName)
+  }
+
+  def useProxy(serviceName: String) = sc.getConfBool(s"$serviceName.use-proxy", false)
+
+  def bearerToken(serviceName: String) = sc.getConfString(s"$serviceName.bearer-token", "")
+
+  def apiKey(serviceName: String) = sc.getConfString(s"$serviceName.api-key", "")
 }

@@ -32,7 +32,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
     val helloApiDefinition = apiDefinition("hello-api")
-    val apiWithNoAccess = apiDefinition("api-with-no-access", Seq(apiVersion(access = None)))
     val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
                                                                                        apiVersion("2.0", RETIRED)))
@@ -40,28 +39,19 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
                                                                                        apiVersion("2.0", STABLE)))
     val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
-      Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate)), apiVersion("2.0", access = Some(apiAccess()))))
+      Seq(apiVersion("1.0", access = apiAccess().asPrivate), apiVersion("2.0", access = apiAccess())))
 
     val apiWithOnlyPrivateVersions = apiDefinition("api-with-private-versions",
-      Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate)), apiVersion("2.0", access = Some(apiAccess().asPrivate))))
+      Seq(apiVersion("1.0", access = apiAccess().asPrivate), apiVersion("2.0", access = apiAccess().asPrivate)))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate.asTrial))))
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = apiAccess().asPrivate.asTrial)))
     val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
-      Seq(apiVersion("1.0", access = Some(apiAccess().asPrivate.withWhitelistedAppIds(applicationId)))))
+      Seq(apiVersion("1.0", access = apiAccess().asPrivate.withWhitelistedAppIds(applicationId))))
     val underTest = new ApiDefinitionsForCollaboratorFetcher(ApiDefinitionConnectorMock.aMock, ApplicationIdsForCollaboratorFetcherMock.aMock)
   }
 
   "ApiDefinitionsForCollaboratorFetcher" should {
     "return the public APIs" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithNoAccess)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
-
-      val result = await(underTest(email))
-
-      result mustBe Seq(apiWithNoAccess)
-    }
-
-    "return APIs with no access" in new Setup {
       ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(helloApiDefinition)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
@@ -94,7 +84,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest(email))
 
-      result.head.versions mustBe Seq(apiVersion("2.0", access = Some(apiAccess())))
+      result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
     }
 
     "filter out private versions for an api if no email provided" in new Setup {
@@ -102,7 +92,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest(None))
 
-      result.head.versions mustBe Seq(apiVersion("2.0", access = Some(apiAccess())))
+      result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
     }
 
     "filter out an api if it only has private versions" in new Setup {
