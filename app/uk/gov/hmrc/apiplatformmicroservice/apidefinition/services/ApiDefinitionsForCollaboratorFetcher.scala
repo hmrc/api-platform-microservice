@@ -47,8 +47,9 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
 
   private def filterVersions(api: APIDefinition, applicationIds: Seq[String]): Option[APIDefinition] = {
     val filteredVersions = api.versions.filter(_.access match {
-      case APIAccess(APIAccessType.PRIVATE, whitelistedApplicationIds, isTrial) =>
-        whitelistedApplicationIds.getOrElse(Seq()).exists(s => applicationIds.contains(s)) || isTrial.contains(true)
+      case APIAccess(APIAccessType.PRIVATE, _, Some(true)) => true
+      case APIAccess(APIAccessType.PRIVATE, whitelistedApplicationIds, _) =>
+        whitelistedApplicationIds.getOrElse(Seq()).exists(s => applicationIds.contains(s))
       case _ => true
     })
 
