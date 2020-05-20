@@ -71,16 +71,14 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       result mustBe Seq.empty
     }
 
-    "throw exception if something goes wrong in sandbox" in new Setup {
+    "return production application Ids if something goes wrong in sandbox" in new Setup {
       val expectedExceptionMessage = "something went wrong"
       SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(productionApplicationIds: _*)
 
-      val ex = intercept[RuntimeException] {
-        await(underTest(email))
-      }
+      val result = await(underTest(email))
 
-      ex.getMessage mustBe expectedExceptionMessage
+      result mustBe productionApplicationIds
     }
 
     "throw exception if something goes wrong in production" in new Setup {
