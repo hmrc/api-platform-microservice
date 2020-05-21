@@ -38,11 +38,11 @@ trait ThirdPartyApplicationConnectorModule extends PlaySpec with MockitoSugar wi
     }
   }
 
-  object SandboxThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
-    override val aMock = mock[SandboxThirdPartyApplicationConnector]
+  object SubordinateThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
+    override val aMock = mock[SubordinateThirdPartyApplicationConnector]
   }
 
-  object ProductionThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
-    override val aMock = mock[ProductionThirdPartyApplicationConnector]
+  object PrincipalThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
+    override val aMock = mock[PrincipalThirdPartyApplicationConnector]
   }
 }

@@ -18,25 +18,25 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{ProductionThirdPartyApplicationConnector, SandboxThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
-class ApplicationIdsForCollaboratorFetcher @Inject()(sandboxTpaConnector: SandboxThirdPartyApplicationConnector,
-                                                     productionTpaConnector: ProductionThirdPartyApplicationConnector)
+class ApplicationIdsForCollaboratorFetcher @Inject()(subordinateTpaConnector: SubordinateThirdPartyApplicationConnector,
+                                                     principalTpaConnector: PrincipalThirdPartyApplicationConnector)
                                                     (implicit ec: ExecutionContext) {
 
   def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
-    val sandboxAppIds = sandboxTpaConnector.fetchApplicationsByEmail(email) recover recovery
-    val prodAppIds = productionTpaConnector.fetchApplicationsByEmail(email)
+    val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recovery
+    val principalAppIds = principalTpaConnector.fetchApplicationsByEmail(email)
 
     for {
-      sandbox <- sandboxAppIds
-      production <- prodAppIds
-    } yield sandbox ++ production
+      subordinate <- subordinateAppIds
+      principal <- principalAppIds
+    } yield subordinate ++ principal
   }
 
   private def recovery: PartialFunction[Throwable, Seq[String]] = {

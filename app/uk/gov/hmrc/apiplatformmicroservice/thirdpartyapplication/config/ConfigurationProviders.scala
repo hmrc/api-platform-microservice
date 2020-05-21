@@ -25,15 +25,15 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 class ConfigurationModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-prod")).toProvider(classOf[ProdThirdPartyApplicationConnectorConfigProvider])
+      named("tpacc-principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
 
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-sandbox")).toProvider(classOf[SandboxThirdPartyApplicationConnectorConfigProvider])
+      named("tpacc-subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
   }
 }
 
 @Singleton
-class ProdThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
   extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
@@ -47,7 +47,7 @@ class ProdThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc
 }
 
 @Singleton
-class SandboxThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+class SubordinateThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
   extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {

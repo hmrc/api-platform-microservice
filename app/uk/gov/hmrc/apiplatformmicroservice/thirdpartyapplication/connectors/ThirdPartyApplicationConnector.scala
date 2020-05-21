@@ -55,17 +55,17 @@ private[thirdpartyapplication] case class ThirdPartyApplicationConnectorConfig(
              )
 
 @Singleton
-private[thirdpartyapplication] class SandboxThirdPartyApplicationConnector @Inject()(
-                                                      @Named("tpacc-sandbox") override val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject()(
+                                                      @Named("tpacc-subordinate") override val config: ThirdPartyApplicationConnectorConfig,
                                                       override val httpClient: HttpClient,
                                                       override val proxiedHttpClient: ProxiedHttpClient)
-                                                      (implicit override val ec: ExecutionContext)
+                                                                                        (implicit override val ec: ExecutionContext)
                                                       extends ThirdPartyApplicationConnector
 
 @Singleton
-private[thirdpartyapplication] class ProductionThirdPartyApplicationConnector @Inject()(
-                                                         @Named("tpacc-prod") override val config: ThirdPartyApplicationConnectorConfig,
+private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject()(
+                                                         @Named("tpacc-principal") override val config: ThirdPartyApplicationConnectorConfig,
                                                          override val httpClient: HttpClient,
                                                          override val proxiedHttpClient: ProxiedHttpClient)
-                                                         (implicit override val ec: ExecutionContext)
+                                                                                      (implicit override val ec: ExecutionContext)
                                                          extends ThirdPartyApplicationConnector

@@ -28,63 +28,63 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   trait Setup extends ThirdPartyApplicationConnectorModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val sandboxApplicationIds = Seq("s1", "s2", "s3")
-    val productionApplicationIds = Seq("p1", "p2")
-    val underTest = new ApplicationIdsForCollaboratorFetcher(SandboxThirdPartyApplicationConnectorMock.aMock,
-      ProductionThirdPartyApplicationConnectorMock.aMock)
+    val subordinateApplicationIds = Seq("s1", "s2", "s3")
+    val principalApplicationIds = Seq("p1", "p2")
+    val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock,
+      PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "ApplicationIdsForCollaboratorFetcher" should {
-    "concatenate both sandbox and production application Ids" in new Setup {
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(sandboxApplicationIds: _*)
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(productionApplicationIds: _*)
+    "concatenate both subordinate and principal application Ids" in new Setup {
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest(email))
 
       result mustBe Seq("s1", "s2", "s3", "p1", "p2")
     }
 
-    "return sandbox application Ids if there are no matching production applications" in new Setup {
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(sandboxApplicationIds: _*)
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+    "return subordinate application Ids if there are no matching principal applications" in new Setup {
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
 
-      result mustBe sandboxApplicationIds
+      result mustBe subordinateApplicationIds
     }
 
-    "return production application Ids if there are no matching sandbox applications" in new Setup {
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(productionApplicationIds: _*)
+    "return principal application Ids if there are no matching subordinate applications" in new Setup {
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest(email))
 
-      result mustBe productionApplicationIds
+      result mustBe principalApplicationIds
     }
 
     "return an empty sequence if there are no matching applications in any environment" in new Setup {
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
 
       result mustBe Seq.empty
     }
 
-    "return production application Ids if something goes wrong in sandbox" in new Setup {
+    "return principal application Ids if something goes wrong in subordinate" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(productionApplicationIds: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest(email))
 
-      result mustBe productionApplicationIds
+      result mustBe principalApplicationIds
     }
 
-    "throw exception if something goes wrong in production" in new Setup {
+    "throw exception if something goes wrong in principal" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SandboxThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      ProductionThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
         await(underTest(email))
