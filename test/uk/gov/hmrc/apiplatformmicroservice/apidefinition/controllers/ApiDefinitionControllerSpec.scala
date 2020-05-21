@@ -36,7 +36,6 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     val fakeEmail = Some("joebloggs@example.com")
     val fakeApiName = "hello-api"
     val fakeApiDefinition = apiDefinition(fakeApiName)
-//    val fakeApiDefinitionWithEmptyWhiteListedAppIds = fakeApiDefinition.copy(versions = apiVersion(access = apiAccess()))
     val controller = new ApiDefinitionController(Helpers.stubControllerComponents(), ApiDefinitionsForCollaboratorFetcherMock.aMock)
   }
 
@@ -77,21 +76,5 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
                                                    "message" -> "An unexpected error occurred")
     }
-
-    "return the API definitions without white listed app ids when no white listed app ids are provided" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
-
-      val result = controller.fetchApiDefinitionsForCollaborator(None)(fakeRequest)
-      val expectedJson =  Json.parse(
-        """[{"serviceName":"hello-api","name":"hello-api","description":"hello-api",
-          |"context":"hello-api","versions":[{"version":"1.0","status":"STABLE",
-          |"access":{"type":"PUBLIC","isTrial":false},"endpoints":[{"endpointName":"Today's Date",
-          |"uriPattern":"/today","method":"GET"},{"endpointName":"Yesterday's Date","uriPattern":"/yesterday",
-          |"method":"GET"}]}]}]""".stripMargin)
-
-      status(result) mustBe OK
-      contentAsJson(result) mustBe expectedJson
-    }
-
   }
 }
