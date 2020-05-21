@@ -75,7 +75,8 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest(email))
 
-      result mustBe Seq(apiWithRetiredVersions)
+      result.map(_.name) mustBe Seq(apiWithRetiredVersions.name)
+      result.head.versions.map(_.version) mustBe Seq("2.0")
     }
 
     "filter out private versions for an api" in new Setup {

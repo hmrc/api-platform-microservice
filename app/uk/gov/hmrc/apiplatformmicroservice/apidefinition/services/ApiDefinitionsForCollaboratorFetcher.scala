@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAccess, APIAccessType, APIDefinition, APIStatus}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future.successful
@@ -37,21 +37,21 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
   }
 
   private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[String]): Seq[APIDefinition] = {
-
-    val filterOutNonActiveApis = (apis: Seq[APIDefinition]) => apis.filter(_.versions.exists(_.status != APIStatus.RETIRED))
-    val filterOutApisRequiringTrust = (apis: Seq[APIDefinition]) => apis.filterNot(_.requiresTrust.getOrElse(false))
-    val filterOutVersions = (apis: Seq[APIDefinition]) => apis.flatMap(filterVersions(_, applicationIds))
-
-    (filterOutNonActiveApis andThen filterOutApisRequiringTrust andThen filterOutVersions)(apis)
+    def apiRequiresTrust(api: APIDefinition): Boolean = api.requiresTrust.getOrElse(false)
+    apis.filterNot(apiRequiresTrust).flatMap(filterVersions(_, applicationIds))
   }
 
   private def filterVersions(api: APIDefinition, applicationIds: Seq[String]): Option[APIDefinition] = {
-    val filteredVersions = api.versions.filter(_.access match {
+    def activeVersions(version: APIVersion): Boolean = version.status != APIStatus.RETIRED
+
+    def visiblePrivateVersions(version: APIVersion): Boolean = version.access match {
       case APIAccess(APIAccessType.PRIVATE, _, Some(true)) => true
       case APIAccess(APIAccessType.PRIVATE, whitelistedApplicationIds, _) =>
         whitelistedApplicationIds.getOrElse(Seq()).exists(s => applicationIds.contains(s))
       case _ => true
-    })
+    }
+
+    val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))
