@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionConnectorModule
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,14 +39,14 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
                                                                                        apiVersion("2.0", STABLE)))
     val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
-      Seq(apiVersion("1.0", access = apiAccess().asPrivate), apiVersion("2.0", access = apiAccess())))
+      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = apiAccess())))
 
     val apiWithOnlyPrivateVersions = apiDefinition("api-with-private-versions",
-      Seq(apiVersion("1.0", access = apiAccess().asPrivate), apiVersion("2.0", access = apiAccess().asPrivate)))
+      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = PrivateApiAccess())))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = apiAccess().asPrivate.asTrial)))
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = PrivateApiAccess().asTrial)))
     val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
-      Seq(apiVersion("1.0", access = apiAccess().asPrivate.withWhitelistedAppIds(applicationId))))
+      Seq(apiVersion("1.0", access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
     val underTest = new ApiDefinitionsForCollaboratorFetcher(ApiDefinitionConnectorMock.aMock, ApplicationIdsForCollaboratorFetcherMock.aMock)
   }
 

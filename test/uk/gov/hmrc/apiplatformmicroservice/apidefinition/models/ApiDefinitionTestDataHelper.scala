@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{STABLE}
 import cats.data.{NonEmptyList => NEL}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
 
 trait ApiDefinitionTestDataHelper {
   def apiDefinition(
@@ -27,9 +27,7 @@ trait ApiDefinitionTestDataHelper {
   }
 
   def apiAccess() = {
-    APIAccess(
-      `type` = APIAccessType.PUBLIC
-    )
+    PublicApiAccess()
   }
 
   implicit class ApiDefintionModifier(val inner: APIDefinition) {
@@ -43,13 +41,7 @@ trait ApiDefinitionTestDataHelper {
     def withName(name: String): APIDefinition = inner.copy(name = name)
   }
 
-  implicit class ApiAccessModifier(val inner: APIAccess) {
-    def asPublic: APIAccess = {
-      inner.copy(`type` = APIAccessType.PUBLIC)
-    }
-    def asPrivate: APIAccess = {
-      inner.copy(`type` = APIAccessType.PRIVATE)
-    }
+  implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {
     def asTrial: APIAccess = {
       inner.copy(isTrial = true)
     }
@@ -98,16 +90,20 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(status = APIStatus.RETIRED)
 
     def asPublic: APIVersion =
-      inner.copy(access = inner.access.asPublic)
+      inner.copy(access = PublicApiAccess())
 
     def asPrivate: APIVersion =
-      inner.copy(access = inner.access.asPrivate)
+      inner.copy(access = PrivateApiAccess())
 
-    def asTrial: APIVersion =
-      inner.copy(access = inner.access.asTrial)
+    def asTrial: APIVersion = inner.access match {
+      case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.asTrial)
+      case _ => inner.copy(access = PrivateApiAccess(isTrial = true))
+    }
 
-    def notTrial: APIVersion =
-      inner.copy(access = inner.access.notTrial)
+    def notTrial: APIVersion = inner.access match {
+      case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.notTrial)
+      case _ => inner.copy(access = PrivateApiAccess())
+    }
 
     def withAccess(altAccess: APIAccess): APIVersion =
       inner.copy(access = altAccess)

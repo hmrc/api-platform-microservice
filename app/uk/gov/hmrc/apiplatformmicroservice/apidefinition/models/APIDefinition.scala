@@ -90,7 +90,9 @@ object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType
   case object PUBLIC extends APIAccessType
 }
 
-case class APIAccess(`type`: APIAccessType, whitelistedApplicationIds: Seq[String] = Seq.empty, isTrial: Boolean = false)
+trait APIAccess
+case class PublicApiAccess() extends APIAccess
+case class PrivateApiAccess(whitelistedApplicationIds: Seq[String] = Seq.empty, isTrial: Boolean = false) extends APIAccess
 
 case class Endpoint(endpointName: String,
                     uriPattern: String,

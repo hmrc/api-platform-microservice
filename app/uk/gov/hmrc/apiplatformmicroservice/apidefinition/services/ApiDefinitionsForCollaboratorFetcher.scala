@@ -18,11 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAccess, APIAccessType, APIDefinition, APIStatus, APIVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, APIVersion, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.Future.successful
 
+import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -45,8 +45,8 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
     def activeVersions(version: APIVersion): Boolean = version.status != APIStatus.RETIRED
 
     def visiblePrivateVersions(version: APIVersion): Boolean = version.access match {
-      case APIAccess(APIAccessType.PRIVATE, _, true) => true
-      case APIAccess(APIAccessType.PRIVATE, whitelistedApplicationIds, _) =>
+      case PrivateApiAccess( _, true) => true
+      case PrivateApiAccess(whitelistedApplicationIds, _) =>
         whitelistedApplicationIds.exists(s => applicationIds.contains(s))
       case _ => true
     }
