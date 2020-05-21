@@ -28,9 +28,7 @@ trait ApiDefinitionTestDataHelper {
 
   def apiAccess() = {
     APIAccess(
-      `type` = APIAccessType.PUBLIC,
-      whitelistedApplicationIds = Some(Seq.empty),
-      isTrial = Some(false)
+      `type` = APIAccessType.PUBLIC
     )
   }
 
@@ -53,13 +51,13 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(`type` = APIAccessType.PRIVATE)
     }
     def asTrial: APIAccess = {
-      inner.copy(isTrial = Some(true))
+      inner.copy(isTrial = true)
     }
     def notTrial: APIAccess = {
-      inner.copy(isTrial = Some(false))
+      inner.copy(isTrial = false)
     }
     def withWhitelistedAppIds(appId: String*): APIAccess = {
-      inner.copy(whitelistedApplicationIds = Some(appId.toSeq))
+      inner.copy(whitelistedApplicationIds = appId.toSeq)
     }
   }
 

@@ -42,10 +42,33 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val formatEndpoint = Json.format[Endpoint]
 }
 
+object FormatterHelper {
+
+  implicit class PathAdditions(path: JsPath) {
+
+    def writeNullableIterable[A <: Iterable[_]](implicit writes: Writes[A]): OWrites[A] =
+      OWrites[A] { (a: A) =>
+        if (a.isEmpty) Json.obj()
+        else JsPath.createObj(path -> writes.writes(a))
+      }
+  }
+
+}
 trait ApiDefinitionJsonFormatters
     extends EndpointJsonFormatters {
 
-  implicit val formatAPIAccess = Json.format[APIAccess]
+  import FormatterHelper.PathAdditions
+  implicit val APIAccessReads: Reads[APIAccess] = (
+    (JsPath \ "type").read[APIAccessType] and
+      ((JsPath \ "whitelistedApplicationIds").read[Seq[String]] or Reads.pure(Seq.empty[String])) and
+      ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false))
+    )(APIAccess.apply _)
+
+  implicit val APIAccessWrites: Writes[APIAccess] = (
+    (JsPath \ "type").write[APIAccessType] and
+      (JsPath \ "whitelistedApplicationIds").writeNullableIterable[Seq[String]] and
+      (JsPath \ "isTrial").write[Boolean]
+    )(unlift(APIAccess.unapply))
 
   implicit val APIVersionReads: Reads[APIVersion] = (
     (JsPath \ "version").read[String] and

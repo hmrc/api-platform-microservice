@@ -45,9 +45,9 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
     def activeVersions(version: APIVersion): Boolean = version.status != APIStatus.RETIRED
 
     def visiblePrivateVersions(version: APIVersion): Boolean = version.access match {
-      case APIAccess(APIAccessType.PRIVATE, _, Some(true)) => true
+      case APIAccess(APIAccessType.PRIVATE, _, true) => true
       case APIAccess(APIAccessType.PRIVATE, whitelistedApplicationIds, _) =>
-        whitelistedApplicationIds.getOrElse(Seq()).exists(s => applicationIds.contains(s))
+        whitelistedApplicationIds.exists(s => applicationIds.contains(s))
       case _ => true
     }
 
