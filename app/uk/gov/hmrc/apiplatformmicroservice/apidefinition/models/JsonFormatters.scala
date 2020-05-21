@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import cats.data.{NonEmptyList => NEL}
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{PRIVATE, PUBLIC}
 
 trait NonEmptyListFormatters {
@@ -40,7 +40,15 @@ trait NonEmptyListFormatters {
 
 trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val formatParameter = Json.format[Parameter]
-  implicit val formatEndpoint = Json.format[Endpoint]
+
+  implicit val endpointReads: Reads[Endpoint] = (
+    (JsPath \ "endpointName").read[String] and
+      (JsPath \ "uriPattern").read[String] and
+      (JsPath \ "method").read[HttpMethod] and
+      ((JsPath \ "queryParameters").read[Seq[Parameter]] or Reads.pure(Seq.empty[Parameter]))
+    )(Endpoint.apply _)
+
+  implicit val endpointWrites : Writes[Endpoint] = Json.writes[Endpoint]
 }
 
 trait ApiDefinitionJsonFormatters
@@ -67,7 +75,7 @@ trait ApiDefinitionJsonFormatters
     }
   }
 
-  implicit val APIVersionReads: Reads[APIVersion] =
+  implicit val apiVersionReads: Reads[APIVersion] =
     ((JsPath \ "version").read[String] and
       (JsPath \ "status").read[APIStatus] and
       (JsPath \ "access").readNullable[APIAccess] and
@@ -76,9 +84,20 @@ trait ApiDefinitionJsonFormatters
       case (version, status, Some(access), endpoints) => APIVersion(version, status, access, endpoints)
     }
 
-  implicit val APIVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]
+  implicit val apiVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]
 
-  implicit val formatAPIDefinition = Json.format[APIDefinition]
+  implicit val apiDefinitionReads: Reads[APIDefinition] = (
+    (JsPath \ "serviceName").read[String] and
+      (JsPath \ "name").read[String] and
+      (JsPath \ "description").read[String] and
+      (JsPath \ "context").read[String] and
+      ((JsPath \ "requiresTrust").read[Boolean] or Reads.pure(false)) and
+      ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
+      (JsPath \ "versions").read[Seq[APIVersion]] and
+      ((JsPath \ "categories").read[Seq[APICategory]] or Reads.pure(Seq.empty[APICategory]))
+    )(APIDefinition.apply _)
+
+  implicit val apiDefinitionWrites : Writes[APIDefinition] = Json.writes[APIDefinition]
 }
 
 trait JsonFormatters extends ApiDefinitionJsonFormatters

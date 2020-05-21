@@ -37,8 +37,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: Api
   }
 
   private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[String]): Seq[APIDefinition] = {
-    def apiRequiresTrust(api: APIDefinition): Boolean = api.requiresTrust.getOrElse(false)
-    apis.filterNot(apiRequiresTrust).flatMap(filterVersions(_, applicationIds))
+    apis.filterNot(_.requiresTrust).flatMap(filterVersions(_, applicationIds))
   }
 
   private def filterVersions(api: APIDefinition, applicationIds: Seq[String]): Option[APIDefinition] = {

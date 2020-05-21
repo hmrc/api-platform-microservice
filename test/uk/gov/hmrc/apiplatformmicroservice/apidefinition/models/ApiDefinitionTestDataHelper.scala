@@ -23,7 +23,7 @@ trait ApiDefinitionTestDataHelper {
   def apiDefinition(
       name: String,
       versions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE))) = {
-    APIDefinition(name, name, name, name, None, None, versions)
+    APIDefinition(name, name, name, name, false, false, versions)
   }
 
   def apiAccess() = {
@@ -31,12 +31,12 @@ trait ApiDefinitionTestDataHelper {
   }
 
   implicit class ApiDefintionModifier(val inner: APIDefinition) {
-    def requiresTrust(is: Option[Boolean]): APIDefinition =
+    def requiresTrust(is: Boolean): APIDefinition =
       inner.copy(requiresTrust = is)
 
-    def doesRequireTrust(): APIDefinition = requiresTrust(Some(true))
-    def doesNotRequireTrust(): APIDefinition = requiresTrust(Some(false))
-    def trustNotSpecified(): APIDefinition = requiresTrust(None)
+    def doesRequireTrust(): APIDefinition = requiresTrust(true)
+    def doesNotRequireTrust(): APIDefinition = requiresTrust(false)
+    def trustNotSpecified(): APIDefinition = requiresTrust(false)
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
   }
@@ -55,7 +55,7 @@ trait ApiDefinitionTestDataHelper {
 
   def endpoint(endpointName: String = "Hello World",
                url: String = "/world"): Endpoint = {
-    Endpoint(endpointName, url, HttpMethod.GET, None)
+    Endpoint(endpointName, url, HttpMethod.GET, Seq.empty)
   }
 
   implicit class EndpointModifier(val inner: Endpoint) {

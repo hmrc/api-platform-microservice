@@ -23,10 +23,10 @@ case class APIDefinition(serviceName: String,
                          name: String,
                          description: String,
                          context: String,
-                         requiresTrust: Option[Boolean],
-                         isTestSupport: Option[Boolean] = None,
+                         requiresTrust: Boolean = false,
+                         isTestSupport: Boolean = false,
                          versions: Seq[APIVersion],
-                         categories: Option[Seq[APICategory]] = None)
+                         categories: Seq[APICategory] = Seq.empty)
 
 sealed trait APICategory extends EnumEntry
 
@@ -97,7 +97,7 @@ case class PrivateApiAccess(whitelistedApplicationIds: Seq[String] = Seq.empty, 
 case class Endpoint(endpointName: String,
                     uriPattern: String,
                     method: HttpMethod,
-                    queryParameters: Option[Seq[Parameter]] = None)
+                    queryParameters: Seq[Parameter] = Seq.empty)
 
 sealed trait HttpMethod extends EnumEntry
 
