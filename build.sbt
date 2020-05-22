@@ -8,7 +8,7 @@ lazy val scoverageSettings = {
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
     ScoverageKeys.coverageExcludedPackages := """uk\.gov\.hmrc\.BuildInfo;.*\.Routes;.*\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\.Reverse[^.]*""",
-    ScoverageKeys.coverageMinimum := 84.00,
+    ScoverageKeys.coverageMinimum := 90.00,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false
@@ -19,7 +19,9 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.7.0",
   "uk.gov.hmrc" %% "mongo-lock" % "6.18.0-play-26",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.23.0-play-26",
-  "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26"
+  "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26",
+  "com.beachape" %% "enumeratum-play-json" % "1.6.0",
+  "org.typelevel" %% "cats-core" % "2.1.0"
 )
 
 def testDeps(scope: String) = Seq(
@@ -49,6 +51,8 @@ lazy val root = (project in file("."))
     publishingSettings,
     scoverageSettings,
   )
+  .settings(scalacOptions ++= Seq("-Ypartial-unification"))
+
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin)
 
