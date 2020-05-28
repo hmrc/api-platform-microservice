@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.definitionsUrl
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.{combinedDefinitionUrl, definitionsUrl}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, CombinedAPIDefinition}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -34,10 +34,16 @@ private[apidefinition] class ApiDefinitionConnector @Inject()(http: HttpClient, 
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitions")
     http.GET[Seq[APIDefinition]](definitionsUrl(config.baseUrl), Seq("filterApis" -> "false"))
   }
+
+  def fetchCombinedApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[CombinedAPIDefinition] = {
+    Logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
+    http.GET[CombinedAPIDefinition](combinedDefinitionUrl(config.baseUrl, serviceName))
+  }
 }
 
 private[apidefinition] object ApiDefinitionConnector {
   def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
+  def combinedDefinitionUrl(serviceBaseUrl: String, serviceName: String) = s"$serviceBaseUrl/api-definition/$serviceName"
 }
 
 private[apidefinition] case class ApiDefinitionConnectorConfig(baseUrl: String)

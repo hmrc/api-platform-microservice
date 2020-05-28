@@ -79,9 +79,10 @@ trait ApiDefinitionJsonFormatters
     ((JsPath \ "version").read[String] and
       (JsPath \ "status").read[APIStatus] and
       (JsPath \ "access").readNullable[APIAccess] and
-      (JsPath \ "endpoints").read[NEL[Endpoint]] tupled) map {
-      case (version, status, None, endpoints) => APIVersion(version, status, PublicApiAccess(), endpoints)
-      case (version, status, Some(access), endpoints) => APIVersion(version, status, access, endpoints)
+      (JsPath \ "endpoints").read[NEL[Endpoint]] and
+      ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled)  map {
+      case (version, status, None, endpoints, endpointsEnabled) => APIVersion(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
+      case (version, status, Some(access), endpoints, endpointsEnabled) => APIVersion(version, status, access, endpoints, endpointsEnabled)
     }
 
   implicit val apiVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]
@@ -98,6 +99,8 @@ trait ApiDefinitionJsonFormatters
     )(APIDefinition.apply _)
 
   implicit val apiDefinitionWrites : Writes[APIDefinition] = Json.writes[APIDefinition]
+
+  implicit val formatCombinedApiDefinition = Json.format[CombinedAPIDefinition]
 }
 
 trait JsonFormatters extends ApiDefinitionJsonFormatters

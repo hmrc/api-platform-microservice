@@ -63,7 +63,8 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 case class APIVersion(version: String,
                       status: APIStatus,
                       access: APIAccess,
-                      endpoints: NEL[Endpoint])
+                      endpoints: NEL[Endpoint],
+                      endpointsEnabled: Boolean = false)
 
 sealed trait APIStatus extends EnumEntry
 
