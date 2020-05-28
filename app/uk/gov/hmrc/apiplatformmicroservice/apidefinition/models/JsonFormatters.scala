@@ -101,6 +101,9 @@ trait ApiDefinitionJsonFormatters
   implicit val apiDefinitionWrites : Writes[APIDefinition] = Json.writes[APIDefinition]
 
   implicit val formatCombinedApiDefinition = Json.format[CombinedAPIDefinition]
+  implicit val formatApiAvailability = Json.format[APIAvailability]
+  implicit val formatExtendedApiVersion = Json.format[ExtendedAPIVersion]
+  implicit val formatExtendedApiDefinition = Json.format[ExtendedAPIDefinition]
 }
 
 trait JsonFormatters extends ApiDefinitionJsonFormatters

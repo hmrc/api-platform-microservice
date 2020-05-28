@@ -56,9 +56,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(apiDefinitionConnect
 
   private def createExtendedApiVersions(combinedApiDefinition: CombinedAPIDefinition,
                                         applicationIds: Seq[String], email: Option[String]): Seq[ExtendedAPIVersion] = {
-    val principalVersions: Seq[ExtendedAPIVersion] = toExtendedApiVersion(combinedApiDefinition.principalVersions, applicationIds, email)
-    val subordinateVersions: Seq[ExtendedAPIVersion] = toExtendedApiVersion(combinedApiDefinition.subordinateVersions, applicationIds, email)
-    combineVersions(principalVersions, subordinateVersions).filter(_.status != RETIRED).sortBy(_.version)
+    val combinedVersions = (combinedApiDefinition.subordinateVersions ++ combinedApiDefinition.principalVersions
+      .filterNot(pv => combinedApiDefinition.subordinateVersions.exists(sv => sv.version == pv.version)))
+      .filter(_.status != RETIRED)
+      .sortBy(_.version)
+    toExtendedApiVersion(combinedVersions, applicationIds, email)
   }
 
   private def toExtendedApiVersion(apiVersions: Seq[APIVersion], applicationIds: Seq[String], email: Option[String]): Seq[ExtendedAPIVersion] = {
@@ -84,9 +86,5 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(apiDefinitionConnect
         email.isDefined,
         authorised = true))
     }
-  }
-
-  private def combineVersions(principalVersions: Seq[ExtendedAPIVersion], subordinateVersions: Seq[ExtendedAPIVersion]): Seq[ExtendedAPIVersion] = {
-    subordinateVersions ++ principalVersions.filterNot(pv => subordinateVersions.exists(sv => sv.version == pv.version))
   }
 }

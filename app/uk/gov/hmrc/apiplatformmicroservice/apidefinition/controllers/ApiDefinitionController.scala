@@ -20,18 +20,27 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForCollaboratorFetcher
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiDefinitionController @Inject()(cc: ControllerComponents, apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher)
+class ApiDefinitionController @Inject()(cc: ControllerComponents,
+                                        apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
+                                        extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher)
                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
+    } recover recovery
+  }
+
+  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    extendedApiDefinitionForCollaboratorFetcher(serviceName, collaboratorEmail) map {
+      case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
+      case _ => NotFound
     } recover recovery
   }
 }

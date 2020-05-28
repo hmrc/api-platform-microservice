@@ -20,7 +20,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionsForCollaboratorFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionsForCollaboratorFetcherModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
@@ -30,38 +30,40 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    val fakeRequest = FakeRequest("GET", "/")
-    val fakeEmail = Some("joebloggs@example.com")
-    val fakeApiName = "hello-api"
-    val fakeApiDefinition = apiDefinition(fakeApiName)
-    val controller = new ApiDefinitionController(Helpers.stubControllerComponents(), ApiDefinitionsForCollaboratorFetcherMock.aMock)
+    val request = FakeRequest("GET", "/")
+    val email = Some("joebloggs@example.com")
+    val apiName = "hello-api"
+    val anApiDefinition = apiDefinition(apiName)
+    val anExtendedApiDefinition = extendedApiDefinition(apiName)
+    val controller = new ApiDefinitionController(Helpers.stubControllerComponents(),
+      ApiDefinitionsForCollaboratorFetcherMock.aMock, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }
 
-  "ApiDefinitionController" should {
+  "fetchApiDefinitionsForCollaborator" should {
     "return the API definitions when email provided" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
 
-      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(Seq(fakeApiDefinition))
+      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
     }
 
     "return the API definitions when no email provided" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(fakeApiDefinition)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
 
-      val result = controller.fetchApiDefinitionsForCollaborator(None)(fakeRequest)
+      val result = controller.fetchApiDefinitionsForCollaborator(None)(request)
 
       status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(Seq(fakeApiDefinition))
+      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
     }
 
     "return an empty when there are no api definitions available" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(Seq.empty: _*)
 
-      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.parse("[]")
@@ -70,11 +72,49 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     "return error when the service throws and exception" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
 
-      val result = controller.fetchApiDefinitionsForCollaborator(fakeEmail)(fakeRequest)
+      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
                                                    "message" -> "An unexpected error occurred")
+    }
+  }
+
+  "fetchExtendedApiDefinitionForCollaborator" should {
+    "return the extended API definition when email provided" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
+
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(anExtendedApiDefinition)
+    }
+
+    "return the extended API definition when no email provided" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
+
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, None)(request)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(anExtendedApiDefinition)
+    }
+
+    "return 404 when there is no matching API definition" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
+
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+
+      status(result) mustBe NOT_FOUND
+    }
+
+    "return error when the service throws and exception" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
+
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
+        "message" -> "An unexpected error occurred")
     }
   }
 }

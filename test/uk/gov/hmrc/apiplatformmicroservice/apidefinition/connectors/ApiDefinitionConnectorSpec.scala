@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionTestDataHelper, CombinedAPIDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -35,7 +35,9 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val baseUrl = "http://api-definition"
     val config = ApiDefinitionConnectorConfig(baseUrl)
     def endpoint(path: String) = s"$baseUrl/$path"
-    val helloApiDefinition = apiDefinition("hello-api")
+    val serviceName = "hello-api"
+    val helloApiDefinition = apiDefinition(serviceName)
+    val helloCombinedApiDefinition = combinedApiDefinition(serviceName)
 
     val connector = new ApiDefinitionConnector(mockHttp, config)
   }
@@ -57,6 +59,29 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
       val ex = intercept[RuntimeException] {
         await(connector.fetchAllApiDefinitions)
+      }
+
+      ex.getMessage shouldBe expectedException
+    }
+  }
+
+  "fetchCombinedApiDefinition" should {
+    "return combined API definition" in new Setup {
+      when(mockHttp.GET[CombinedAPIDefinition](meq(endpoint(s"api-definition/$serviceName")))(any(), any(), any()))
+        .thenReturn(successful(helloCombinedApiDefinition))
+
+      val result: CombinedAPIDefinition = await(connector.fetchCombinedApiDefinition(serviceName))
+
+      result shouldBe helloCombinedApiDefinition
+    }
+
+    "propagate error when endpoint returns error" in new Setup {
+      val expectedException = "something went wrong"
+      when(mockHttp.GET[CombinedAPIDefinition](meq(endpoint(s"api-definition/$serviceName")))(any(), any(), any()))
+        .thenReturn(Future.failed(new RuntimeException(expectedException)))
+
+      val ex = intercept[RuntimeException] {
+        await(connector.fetchCombinedApiDefinition(serviceName))
       }
 
       ex.getMessage shouldBe expectedException

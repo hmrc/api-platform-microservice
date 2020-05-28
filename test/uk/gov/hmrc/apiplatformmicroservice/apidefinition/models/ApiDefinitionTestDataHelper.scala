@@ -20,6 +20,28 @@ import cats.data.{NonEmptyList => NEL}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
 
 trait ApiDefinitionTestDataHelper {
+  def extendedApiDefinition(name: String,
+                            versions: Seq[ExtendedAPIVersion] = Seq(extendedApiVersion("1.0", STABLE))) = {
+    ExtendedAPIDefinition(name, name, name, name, false, false, versions)
+  }
+
+  def extendedApiVersion(version: String = "1.0",
+                         status: APIStatus = STABLE): ExtendedAPIVersion = {
+    ExtendedAPIVersion(version,
+      status,
+      NEL.of(endpoint("Today's Date", "/today"),
+        endpoint("Yesterday's Date", "/yesterday")),
+      None,
+      None)
+  }
+
+  def combinedApiDefinition(
+                     name: String,
+                     principalVersions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE)),
+                     subordinateVersions: Seq[APIVersion] = Seq(apiVersion("2.0", STABLE))) = {
+    CombinedAPIDefinition(name, name, name, name, false, false, principalVersions, subordinateVersions)
+  }
+
   def apiDefinition(
       name: String,
       versions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE))) = {
