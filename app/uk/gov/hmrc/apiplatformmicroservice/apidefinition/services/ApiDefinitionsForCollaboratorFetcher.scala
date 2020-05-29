@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, APIVersion, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,14 +26,25 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionConnector: ApiDefinitionConnector, appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
-                                                    (implicit ec: ExecutionContext) {
+class ApiDefinitionsForCollaboratorFetcher @Inject()(principalDefinitionService: PrincipalApiDefinitionService,
+                                                     subordinateDefinitionService: SubordinateApiDefinitionService,
+                                                     appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
+                                                    (implicit ec: ExecutionContext) extends Recoveries {
 
   def apply(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions
+    val subordinateDefinitionsFuture  = subordinateDefinitionService.fetchAllDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
+
     for {
-      allApiDefinitions <- apiDefinitionConnector.fetchAllApiDefinitions
+      principalDefinitions <- principalDefinitionsFuture
+      subordinateDefinitions <- subordinateDefinitionsFuture
+      combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
       applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
-    } yield filterApis(allApiDefinitions, applicationIds)
+    } yield filterApis(combinedDefinitions, applicationIds)
+  }
+
+  private def combineDefinitions(principalDefinitions: Seq[APIDefinition], subordinateDefinitions: Seq[APIDefinition]): Seq[APIDefinition] = {
+    subordinateDefinitions ++ principalDefinitions.filterNot(pd => subordinateDefinitions.exists(sd => sd.serviceName == pd.serviceName))
   }
 
   private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[String]): Seq[APIDefinition] = {

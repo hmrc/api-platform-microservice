@@ -17,20 +17,19 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
+import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class ApplicationIdsForCollaboratorFetcher @Inject()(subordinateTpaConnector: SubordinateThirdPartyApplicationConnector,
                                                      principalTpaConnector: PrincipalThirdPartyApplicationConnector)
-                                                    (implicit ec: ExecutionContext) {
+                                                    (implicit ec: ExecutionContext) extends Recoveries {
 
   def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
-    val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recovery
+    val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recoverWithDefault(Seq.empty[String])
     val principalAppIds = principalTpaConnector.fetchApplicationsByEmail(email)
 
     for {
@@ -38,11 +37,4 @@ class ApplicationIdsForCollaboratorFetcher @Inject()(subordinateTpaConnector: Su
       principal <- principalAppIds
     } yield subordinate ++ principal
   }
-
-  private def recovery: PartialFunction[Throwable, Seq[String]] = {
-    case NonFatal(e) =>
-      Logger.error(s"Error occurred: ${e.getMessage}", e)
-      Seq.empty[String]
-  }
-
 }

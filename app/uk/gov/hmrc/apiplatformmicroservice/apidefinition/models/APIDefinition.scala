@@ -26,7 +26,10 @@ case class APIDefinition(serviceName: String,
                          requiresTrust: Boolean = false,
                          isTestSupport: Boolean = false,
                          versions: Seq[APIVersion],
-                         categories: Seq[APICategory] = Seq.empty)
+                         categories: Seq[APICategory] = Seq.empty) {
+
+  def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
+}
 
 sealed trait APICategory extends EnumEntry
 

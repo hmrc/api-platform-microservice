@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
@@ -27,37 +26,53 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(apiDefinitionConnector: ApiDefinitionConnector,
+class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionService: PrincipalApiDefinitionService,
+                                                            subordinateDefinitionService: SubordinateApiDefinitionService,
                                                             appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
                                                            (implicit ec: ExecutionContext) {
 
   def apply(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
     for {
-      combinedApiDefinition <- apiDefinitionConnector.fetchCombinedApiDefinition(serviceName)
+      principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
+      subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
       applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
-    } yield createExtendedApiDefinition(combinedApiDefinition, applicationIds, email)
+    } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
   }
 
-  private def createExtendedApiDefinition(combinedApiDefinition: CombinedAPIDefinition,
+  private def createExtendedApiDefinition(maybePrincipalDefinition: Option[APIDefinition], maybeSubordinateDefinition: Option[APIDefinition],
                                           applicationIds: Seq[String], email: Option[String]): Option[ExtendedAPIDefinition] = {
-    if (combinedApiDefinition.requiresTrust) {
-      None
-    } else {
-      Some(ExtendedAPIDefinition(
-        combinedApiDefinition.serviceName,
-        combinedApiDefinition.name,
-        combinedApiDefinition.description,
-        combinedApiDefinition.context,
-        combinedApiDefinition.requiresTrust,
-        combinedApiDefinition.isTestSupport,
-        createExtendedApiVersions(combinedApiDefinition, applicationIds, email)))
+
+    def toCombinedAPIDefinition(apiDefinition: APIDefinition,
+                                principalVersions: Seq[APIVersion], subordinateVersions: Seq[APIVersion]): Option[ExtendedAPIDefinition] = {
+      if (apiDefinition.requiresTrust) {
+        None
+      } else {
+        Some(ExtendedAPIDefinition(
+          apiDefinition.serviceName,
+          apiDefinition.name,
+          apiDefinition.description,
+          apiDefinition.context,
+          apiDefinition.requiresTrust,
+          apiDefinition.isTestSupport,
+          createExtendedApiVersions(principalVersions, subordinateVersions, applicationIds, email)))
+      }
+    }
+
+    (maybePrincipalDefinition, maybeSubordinateDefinition) match {
+      case (Some(principalDefinition), None) =>
+        toCombinedAPIDefinition(principalDefinition, principalDefinition.versions, Seq.empty)
+      case (None, Some(subordinateDefinition)) =>
+        toCombinedAPIDefinition(subordinateDefinition, Seq.empty, subordinateDefinition.versions)
+      case (Some(principalDefinition), Some(subordinateDefinition)) =>
+        toCombinedAPIDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
+      case _ => None
     }
   }
 
-  private def createExtendedApiVersions(combinedApiDefinition: CombinedAPIDefinition,
+  private def createExtendedApiVersions(principalVersions: Seq[APIVersion], subordinateVersions: Seq[APIVersion],
                                         applicationIds: Seq[String], email: Option[String]): Seq[ExtendedAPIVersion] = {
-    val combinedVersions = (combinedApiDefinition.subordinateVersions ++ combinedApiDefinition.principalVersions
-      .filterNot(pv => combinedApiDefinition.subordinateVersions.exists(sv => sv.version == pv.version)))
+    val combinedVersions = (subordinateVersions ++ principalVersions
+      .filterNot(pv => subordinateVersions.exists(sv => sv.version == pv.version)))
       .filter(_.status != RETIRED)
       .sortBy(_.version)
     toExtendedApiVersion(combinedVersions, applicationIds, email)

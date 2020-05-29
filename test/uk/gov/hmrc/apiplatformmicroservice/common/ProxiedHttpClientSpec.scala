@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import java.util.UUID
 

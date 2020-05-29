@@ -18,15 +18,15 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.OldApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 
 import scala.concurrent.Future
 
-trait ApiDefinitionConnectorModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait OldApiDefinitionConnectorModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
   object ApiDefinitionConnectorMock {
-    val aMock = mock[ApiDefinitionConnector]
+    val aMock = mock[OldApiDefinitionConnector]
 
     object FetchAllApiDefinitions {
       def willReturnApiDefinitions(apis: APIDefinition*) = {

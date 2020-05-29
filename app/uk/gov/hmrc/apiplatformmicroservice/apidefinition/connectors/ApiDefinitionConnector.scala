@@ -16,34 +16,54 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector.{combinedDefinitionUrl, definitionsUrl}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, CombinedAPIDefinition}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, JsonFormatters, ResourceId}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-private[apidefinition] class ApiDefinitionConnector @Inject()(http: HttpClient, val config: ApiDefinitionConnectorConfig)
-                                      (implicit val ec: ExecutionContext) {
+trait ApiDefinitionConnector
+    extends ApiDefinitionConnectorUtils
+    with JsonFormatters {
+  def http: HttpClient with WSGet
+  def serviceBaseUrl: String
+  implicit val ec: ExecutionContext
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitions")
-    http.GET[Seq[APIDefinition]](definitionsUrl(config.baseUrl), Seq("filterApis" -> "false"))
+    Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
+    val r = http.GET[Seq[APIDefinition]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
+
+    r.foreach(_.foreach(defn => Logger.info(s"Found ${defn.name}")))
+
+    r.map(e => e.sortBy(_.name))
+      .recover {
+        case _: NotFoundException =>
+          Logger.info("Not found")
+          Seq.empty
+        case e =>
+          Logger.error(s"Failed $e")
+          throw e
+      }
   }
 
-  def fetchCombinedApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[CombinedAPIDefinition] = {
+  def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[APIDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    http.GET[CombinedAPIDefinition](combinedDefinitionUrl(config.baseUrl, serviceName))
+    val r = http.GET[APIDefinition](definitionUrl(serviceBaseUrl, serviceName))
+
+    r.map(Some(_))
+      .recover {
+        case _: NotFoundException =>
+          Logger.info("Not found")
+          None
+        case e =>
+          Logger.error(s"Failed $e")
+          throw e
+      }
   }
-}
 
-private[apidefinition] object ApiDefinitionConnector {
-  def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
-  def combinedDefinitionUrl(serviceBaseUrl: String, serviceName: String) = s"$serviceBaseUrl/api-definition/$serviceName"
+  def fetchApiDocumentationResource(resourceId: ResourceId)(
+      implicit hc: HeaderCarrier): Future[Option[WSResponse]]
 }
-
-private[apidefinition] case class ApiDefinitionConnectorConfig(baseUrl: String)
