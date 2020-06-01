@@ -16,29 +16,50 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
+import play.api.libs.ws.WSResponse
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionsForCollaboratorFetcherModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule
+    with ApiDocumentationResourceFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
+    implicit val system = ActorSystem("test")
+    implicit val mat = ActorMaterializer()
+
     val request = FakeRequest("GET", "/")
     val email = Some("joebloggs@example.com")
     val apiName = "hello-api"
+    val version = "1.0"
     val anApiDefinition = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
     val controller = new ApiDefinitionController(Helpers.stubControllerComponents(),
-      ApiDefinitionsForCollaboratorFetcherMock.aMock, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
+    ApiDefinitionsForCollaboratorFetcherMock.aMock,
+    ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
+    ApiDocumentationResourceFetcherMock.aMock)
+    val mockWSResponse = mock[WSResponse]
+    when(mockWSResponse.status).thenReturn(OK)
+    when(mockWSResponse.headers).thenReturn(
+      Map(
+        "Content-Length" -> Seq("500")
+      ))
+    when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
+    when(mockWSResponse.contentType).thenReturn("application/json")
   }
 
   "fetchApiDefinitionsForCollaborator" should {
@@ -115,6 +136,72 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
         "message" -> "An unexpected error occurred")
+    }
+  }
+
+  "fetchApiDocumentationResource" should {
+    "return resource when found" in new Setup {
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+
+      val result: Future[Result] =
+        controller.fetchApiDocumentationResource(apiName,
+          version,
+          "some/resource")(request)
+
+      status(result) shouldEqual OK
+    }
+
+    "return resource using content type when no proxy safe content type is present" in new Setup {
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+
+      when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE)))
+        .thenReturn(None)
+      when(mockWSResponse.contentType).thenReturn("application/magic")
+
+      val result: Future[Result] =
+        controller.fetchApiDocumentationResource(apiName,
+          version,
+          "some/resource")(request)
+
+      contentType(result) shouldEqual Some("application/magic")
+    }
+
+    "return resource using proxy safe content type when present" in new Setup {
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+
+      when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE)))
+        .thenReturn(Some("application/zip"))
+
+      val result: Future[Result] =
+        controller.fetchApiDocumentationResource(apiName,
+          version,
+          "some/resource")(request)
+
+      contentType(result) shouldEqual Some("application/zip")
+    }
+
+    "throw NotFoundException when not found" in new Setup {
+      ApiDocumentationResourceFetcherMock.willThrowException(new NotFoundException("Not Found"))
+
+      intercept[NotFoundException] {
+        await(
+          controller.fetchApiDocumentationResource(
+            apiName,
+            version,
+            "some/resourceNotThere")(request))
+      }
+    }
+
+    "throw InternalServerException for any other response" in new Setup {
+      ApiDocumentationResourceFetcherMock.willThrowException(new InternalServerException("Unexpected Error"))
+
+      intercept[InternalServerException] {
+        await(
+          controller.fetchApiDocumentationResource(
+            apiName,
+            version,
+            "some/resourceInvalid")(request))
+      }
     }
   }
 }
