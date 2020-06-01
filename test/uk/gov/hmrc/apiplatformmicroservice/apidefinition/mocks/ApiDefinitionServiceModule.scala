@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
+import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
@@ -39,6 +40,24 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
       def willThrowException(e: Exception) = {
         when(aMock.fetchAllDefinitions(*, *)).thenReturn(Future.failed(e))
+      }
+    }
+
+    object FetchApiDocumentationResource {
+      def willReturnWsResponse(wsResponse: WSResponse) = {
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.successful(Some(wsResponse)))
+      }
+
+      def willReturnNoResponse() = {
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.successful(None))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.failed(e))
+      }
+
+      def verifyCalled(wantedNumberOfInvocations: Int) = {
+        verify(aMock, times(wantedNumberOfInvocations)).fetchApiDocumentationResource(*)(*, *)
       }
     }
   }

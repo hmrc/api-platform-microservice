@@ -62,6 +62,18 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       result mustBe Seq(helloApiDefinition)
     }
 
+    "prefer subordinate API when it is present in both environments" in new Setup {
+      val principalHelloApi = helloApiDefinition.withName("hello-principal")
+      val subordinateHelloApi = helloApiDefinition.withName("hello-subordinate")
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(principalHelloApi)
+      SubordinateApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(subordinateHelloApi)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result mustBe Seq(subordinateHelloApi)
+    }
+
     "filter out an api that requires trust" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(helloApiDefinition, requiresTrustApi)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)

@@ -26,13 +26,15 @@ trait ApiDefinitionTestDataHelper {
   }
 
   def extendedApiVersion(version: String = "1.0",
-                         status: APIStatus = STABLE): ExtendedAPIVersion = {
+                         status: APIStatus = STABLE,
+                         productionAvailability: Option[APIAvailability] = None,
+                         sandboxAvailability: Option[APIAvailability] = None): ExtendedAPIVersion = {
     ExtendedAPIVersion(version,
       status,
       NEL.of(endpoint("Today's Date", "/today"),
         endpoint("Yesterday's Date", "/yesterday")),
-      None,
-      None)
+      productionAvailability,
+      sandboxAvailability)
   }
 
   def combinedApiDefinition(
