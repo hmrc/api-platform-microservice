@@ -70,9 +70,10 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
       ApplicationIdsForCollaboratorFetcherMock
 
-      val result = await(underTest(helloApiDefinition.serviceName, None))
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
 
-      result mustBe Some(extendedAPIDefinition)
+      result.versions.head.productionAvailability mustBe None
+      result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
     }
 
   }

@@ -71,22 +71,35 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
 
   private def createExtendedApiVersions(principalVersions: Seq[APIVersion], subordinateVersions: Seq[APIVersion],
                                         applicationIds: Seq[String], email: Option[String]): Seq[ExtendedAPIVersion] = {
-    val combinedVersions = (subordinateVersions ++ principalVersions
-      .filterNot(pv => subordinateVersions.exists(sv => sv.version == pv.version)))
-      .filter(_.status != RETIRED)
-      .sortBy(_.version)
-    toExtendedApiVersion(combinedVersions, applicationIds, email)
+    val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
+    allVersions map { version =>
+      combineVersion(principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, email)
+    } filter { version =>
+      version.status != RETIRED
+    }
   }
 
-  private def toExtendedApiVersion(apiVersions: Seq[APIVersion], applicationIds: Seq[String], email: Option[String]): Seq[ExtendedAPIVersion] = {
-    apiVersions map { version =>
-      ExtendedAPIVersion(
-        version = version.version,
-        status = version.status,
-        endpoints = version.endpoints,
-        productionAvailability = availability(version, applicationIds, email),
-        sandboxAvailability = availability(version, applicationIds, email))
+  private def combineVersion(maybePrincipalVersion: Option[APIVersion], maybeSubordinateVersion: Option[APIVersion],
+                             applicationIds: Seq[String], email: Option[String]): ExtendedAPIVersion = {
+
+    (maybePrincipalVersion, maybeSubordinateVersion) match {
+      case (Some(principalVersion), None) =>
+        toExtendedApiVersion(principalVersion, availability(principalVersion, applicationIds, email), None)
+      case (None, Some(subordinateVersion)) =>
+        toExtendedApiVersion(subordinateVersion, None, availability(subordinateVersion, applicationIds, email))
+      case (Some(principalVersion), Some(subordinateVersion)) =>
+        toExtendedApiVersion(principalVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
     }
+  }
+
+  private def toExtendedApiVersion(apiVersion: APIVersion, productionAvailability: Option[APIAvailability],
+                                   sandboxAvailability: Option[APIAvailability]): ExtendedAPIVersion = {
+    ExtendedAPIVersion(
+      version = apiVersion.version,
+      status = apiVersion.status,
+      endpoints = apiVersion.endpoints,
+      productionAvailability = productionAvailability,
+      sandboxAvailability = sandboxAvailability)
   }
 
   private def availability(version: APIVersion, applicationIds: Seq[String], email: Option[String]): Option[APIAvailability] = {
