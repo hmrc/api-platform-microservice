@@ -37,13 +37,6 @@ trait ApiDefinitionTestDataHelper {
       sandboxAvailability)
   }
 
-  def combinedApiDefinition(
-                     name: String,
-                     principalVersions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE)),
-                     subordinateVersions: Seq[APIVersion] = Seq(apiVersion("2.0", STABLE))) = {
-    CombinedAPIDefinition(name, name, name, name, false, false, principalVersions, subordinateVersions)
-  }
-
   def apiDefinition(
       name: String,
       versions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE))) = {
