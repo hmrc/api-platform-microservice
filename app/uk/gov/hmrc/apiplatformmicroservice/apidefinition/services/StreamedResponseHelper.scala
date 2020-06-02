@@ -58,7 +58,6 @@ trait StreamedResponseHelper {
         case _ =>
           Ok.sendEntity(
             HttpEntity.Streamed(response.bodyAsSource, None, Some(contentType)))
-//          Ok.chunked(response.bodyAsSource).as(contentType)
       }
   }
 

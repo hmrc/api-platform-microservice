@@ -47,14 +47,19 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
       if (apiDefinition.requiresTrust) {
         None
       } else {
-        Some(ExtendedAPIDefinition(
-          apiDefinition.serviceName,
-          apiDefinition.name,
-          apiDefinition.description,
-          apiDefinition.context,
-          apiDefinition.requiresTrust,
-          apiDefinition.isTestSupport,
-          createExtendedApiVersions(principalVersions, subordinateVersions, applicationIds, email)))
+        val extendedVersions = createExtendedApiVersions(principalVersions, subordinateVersions, applicationIds, email)
+        if (extendedVersions.isEmpty) {
+          None
+        } else {
+          Some(ExtendedAPIDefinition(
+            apiDefinition.serviceName,
+            apiDefinition.name,
+            apiDefinition.description,
+            apiDefinition.context,
+            apiDefinition.requiresTrust,
+            apiDefinition.isTestSupport,
+            extendedVersions))
+        }
       }
     }
 
@@ -88,7 +93,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
       case (None, Some(subordinateVersion)) =>
         toExtendedApiVersion(subordinateVersion, None, availability(subordinateVersion, applicationIds, email))
       case (Some(principalVersion), Some(subordinateVersion)) =>
-        toExtendedApiVersion(principalVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
+        toExtendedApiVersion(subordinateVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
     }
   }
 

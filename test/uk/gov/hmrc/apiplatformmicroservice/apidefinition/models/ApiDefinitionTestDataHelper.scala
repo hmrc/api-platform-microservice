@@ -56,6 +56,8 @@ trait ApiDefinitionTestDataHelper {
     def trustNotSpecified(): APIDefinition = requiresTrust(false)
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
+
+    def withVersions(versions: Seq[APIVersion]): APIDefinition = inner.copy(versions = versions)
   }
 
   implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {

@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ExtendedAPIDefinition, PrivateApiAccess, PublicApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{BETA, RETIRED, STABLE}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, PrivateApiAccess, PublicApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,15 +41,12 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
       Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = apiAccess())))
 
-    val apiWithOnlyPrivateVersions = apiDefinition("api-with-private-versions",
-      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = PrivateApiAccess())))
-
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = PrivateApiAccess().asTrial)))
     val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
       Seq(apiVersion("1.0", access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
+
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(PrincipalApiDefinitionServiceMock.aMock,
       SubordinateApiDefinitionServiceMock.aMock ,ApplicationIdsForCollaboratorFetcherMock.aMock)
-    val extendedAPIDefinition = extendedApiDefinition("hello-api")
+
     val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
     val privateApiAvailability = APIAvailability(false,PrivateApiAccess(List(),false),false,false)
   }
@@ -81,8 +78,28 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
 
+      result.versions must have size 1
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
+    }
+
+    "prefer subordinate API when it exists in both environments" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withName("hello-principal"))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withName("hello-subordinate"))
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.name mustBe "hello-subordinate"
+    }
+
+    "prefer subordinate version when it exists in both environments" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion("1.0", BETA))))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion("1.0", STABLE))))
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions must have size 1
+      result.versions.head.status mustBe STABLE
     }
 
     "return none when api doesn't exist in any environments" in new Setup {
@@ -97,6 +114,25 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return none when apis requires trust" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
+
+      val result = await(underTest(helloApiDefinition.serviceName, None))
+
+      result mustBe None
+    }
+
+    "filter out retired versions" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithRetiredVersions)
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions must have size 1
+      result.versions.head.status mustBe STABLE
+    }
+
+    "return none if all verions are retired" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithOnlyRetiredVersions)
 
       val result = await(underTest(helloApiDefinition.serviceName, None))
 
@@ -118,7 +154,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
 
-      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, email))
 
       result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
     }
@@ -128,7 +164,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
 
-      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, email))
 
       result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
     }
