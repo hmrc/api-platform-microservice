@@ -1,4 +1,5 @@
 # microservice specific routes
 
-GET        /combined-api-definitions                 uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String])
-GET        /combined-api-definitions/:serviceName    uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String])
+GET        /combined-api-definitions                                                         uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String])
+GET        /combined-api-definitions/:serviceName                                            uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String])
+GET        /combined-api-definitions/:serviceName/:version/documentation/*resource           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchApiDocumentationResource(serviceName: String, version: String, resource: String)

@@ -60,6 +60,21 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
         verify(aMock, times(wantedNumberOfInvocations)).fetchApiDocumentationResource(*)(*, *)
       }
     }
+
+    object FetchDefinition {
+      def willReturnApiDefinition(apiDefinition: APIDefinition) = {
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.successful(Some(apiDefinition)))
+      }
+
+      def willReturnNoApiDefinition() = {
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.successful(None))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.failed(e))
+      }
+    }
+
   }
 
   object SubordinateApiDefinitionServiceMock extends ApiDefinitionServiceMock {
