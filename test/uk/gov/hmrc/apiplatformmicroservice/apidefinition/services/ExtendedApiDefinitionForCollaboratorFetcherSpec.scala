@@ -51,13 +51,13 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubordinateApiDefinitionServiceMock.aMock ,ApplicationIdsForCollaboratorFetcherMock.aMock)
     val extendedAPIDefinition = extendedApiDefinition("hello-api")
     val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
+    val privateApiAvailability = APIAvailability(false,PrivateApiAccess(List(),false),false,false)
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
     "return an extended api with only production availability when api only in principal" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds
 
       val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
 
@@ -68,12 +68,69 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return an extended api with only sandbox availability when api only in subordinate" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
-      ApplicationIdsForCollaboratorFetcherMock
 
       val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
 
       result.versions.head.productionAvailability mustBe None
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
+    }
+
+    "return an extended api with production and sandbox availability when api in both environments" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
+      result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
+    }
+
+    "return none when api doesn't exist in any environments" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+
+      val result = await(underTest(helloApiDefinition.serviceName, None))
+
+      result mustBe None
+    }
+
+    "return none when apis requires trust" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
+
+      val result = await(underTest(helloApiDefinition.serviceName, None))
+
+      result mustBe None
+    }
+
+    "return public and private availability for api public and private versions " in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithPublicAndPrivateVersions)
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions.map(_.sandboxAvailability) must contain only(Some(privateApiAvailability), Some(publicApiAvailability))
+      result.versions.map(_.productionAvailability) must contain only None
+    }
+
+    "return true when application ids are matching" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
+    }
+
+    "return false when applications ids are not matching" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
+
+      val Some(result) = await(underTest(helloApiDefinition.serviceName, None))
+
+      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
     }
 
   }
