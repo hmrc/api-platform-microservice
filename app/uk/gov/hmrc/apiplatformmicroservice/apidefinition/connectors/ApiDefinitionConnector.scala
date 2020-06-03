@@ -24,6 +24,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 trait ApiDefinitionConnector
     extends ApiDefinitionConnectorUtils
@@ -43,7 +44,7 @@ trait ApiDefinitionConnector
         case _: NotFoundException =>
           Logger.info("Not found")
           Seq.empty
-        case e =>
+        case NonFatal(e) =>
           Logger.error(s"Failed $e")
           throw e
       }
@@ -58,7 +59,7 @@ trait ApiDefinitionConnector
         case _: NotFoundException =>
           Logger.info("Not found")
           None
-        case e =>
+        case NonFatal(e) =>
           Logger.error(s"Failed $e")
           throw e
       }
