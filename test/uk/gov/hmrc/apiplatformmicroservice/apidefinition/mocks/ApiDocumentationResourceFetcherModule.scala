@@ -18,24 +18,26 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDocumentationResourceFetcher
 
 import scala.concurrent.Future
 
-trait ApiDefinitionConnectorModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait ApiDocumentationResourceFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
-  object ApiDefinitionConnectorMock {
-    val aMock = mock[ApiDefinitionConnector]
+  object ApiDocumentationResourceFetcherMock {
+    val aMock = mock[ApiDocumentationResourceFetcher]
 
-    object FetchAllApiDefinitions {
-      def willReturnApiDefinitions(apis: APIDefinition*) = {
-        when(aMock.fetchAllApiDefinitions(*)).thenReturn(Future.successful(apis.toSeq))
-      }
+    def willReturnWsResponse(wsResponse: WSResponse) = {
+      when(aMock(*)(*)).thenReturn(Future.successful(Some(wsResponse)))
+    }
 
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchAllApiDefinitions(*)).thenReturn(Future.failed(e))
-      }
+    def willReturnNone() = {
+      when(aMock(*)(*)).thenReturn(Future.successful(None))
+    }
+
+    def willThrowException(e: Exception) = {
+      when(aMock(*)(*)).thenReturn(Future.failed(e))
     }
   }
 

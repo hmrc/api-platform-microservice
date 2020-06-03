@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionConnectorModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{RETIRED, STABLE}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionConnectorModule with ApplicationIdsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
@@ -47,12 +47,14 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = PrivateApiAccess().asTrial)))
     val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
       Seq(apiVersion("1.0", access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
-    val underTest = new ApiDefinitionsForCollaboratorFetcher(ApiDefinitionConnectorMock.aMock, ApplicationIdsForCollaboratorFetcherMock.aMock)
+    val underTest = new ApiDefinitionsForCollaboratorFetcher(PrincipalApiDefinitionServiceMock.aMock,
+      SubordinateApiDefinitionServiceMock.aMock ,ApplicationIdsForCollaboratorFetcherMock.aMock)
+    SubordinateApiDefinitionServiceMock.FetchAllDefinitions.willReturnNoApiDefinitions()
   }
 
   "ApiDefinitionsForCollaboratorFetcher" should {
     "return the public APIs" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(helloApiDefinition)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(helloApiDefinition)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -60,8 +62,20 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       result mustBe Seq(helloApiDefinition)
     }
 
+    "prefer subordinate API when it is present in both environments" in new Setup {
+      val principalHelloApi = helloApiDefinition.withName("hello-principal")
+      val subordinateHelloApi = helloApiDefinition.withName("hello-subordinate")
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(principalHelloApi)
+      SubordinateApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(subordinateHelloApi)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
+
+      val result = await(underTest(email))
+
+      result mustBe Seq(subordinateHelloApi)
+    }
+
     "filter out an api that requires trust" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(helloApiDefinition, requiresTrustApi)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(helloApiDefinition, requiresTrustApi)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -70,7 +84,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "filter out an api that only has retired versions" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithRetiredVersions, apiWithOnlyRetiredVersions)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithRetiredVersions, apiWithOnlyRetiredVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -80,7 +94,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "filter out private versions for an api" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -89,7 +103,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "filter out private versions for an api if no email provided" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
 
       val result = await(underTest(None))
 
@@ -97,7 +111,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "filter out an api if it only has private versions" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithOnlyPrivateVersions)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithOnlyPrivateVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -106,7 +120,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "return api if it's private but with trials" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithPrivateTrials)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPrivateTrials)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest(email))
@@ -115,7 +129,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "return api if it's private but the user has a whitelisted application" in new Setup {
-      ApiDefinitionConnectorMock.FetchAllApiDefinitions.willReturnApiDefinitions(apiWithWhitelisting)
+      PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
 
       val result = await(underTest(email))

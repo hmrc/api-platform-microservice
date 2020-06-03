@@ -26,7 +26,10 @@ case class APIDefinition(serviceName: String,
                          requiresTrust: Boolean = false,
                          isTestSupport: Boolean = false,
                          versions: Seq[APIVersion],
-                         categories: Seq[APICategory] = Seq.empty)
+                         categories: Seq[APICategory] = Seq.empty) {
+
+  def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
+}
 
 sealed trait APICategory extends EnumEntry
 
@@ -63,7 +66,8 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 case class APIVersion(version: String,
                       status: APIStatus,
                       access: APIAccess,
-                      endpoints: NEL[Endpoint])
+                      endpoints: NEL[Endpoint],
+                      endpointsEnabled: Boolean = false)
 
 sealed trait APIStatus extends EnumEntry
 

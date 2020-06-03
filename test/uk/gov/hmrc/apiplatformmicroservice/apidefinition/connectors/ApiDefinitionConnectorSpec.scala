@@ -16,50 +16,101 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionTestDataHelper}
+import java.util.UUID
+
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.Future.successful
 
-class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
 
-  trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    val mockHttp: HttpClient = mock[HttpClient]
-    val baseUrl = "http://api-definition"
-    val config = ApiDefinitionConnectorConfig(baseUrl)
-    def endpoint(path: String) = s"$baseUrl/$path"
-    val helloApiDefinition = apiDefinition("hello-api")
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+  val UpstreamException = Upstream5xxResponse("Internal server error",
+                                              INTERNAL_SERVER_ERROR,
+                                              INTERNAL_SERVER_ERROR)
 
-    val connector = new ApiDefinitionConnector(mockHttp, config)
+  val bearer = "TestBearerToken"
+  val apiKeyTest = UUID.randomUUID().toString
+
+  val serviceName = "someService"
+  val userEmail = "3rdparty@example.com"
+
+  val apiName1 = "Calendar"
+  val apiName2 = "HelloWorld"
+
+  trait PrincipalSetup extends ApiDefinitionHttpMockingHelper {
+    import PrincipalApiDefinitionConnector._
+    val apiDefinitionUrl = "/mockUrl"
+    val config = Config(baseUrl = apiDefinitionUrl)
+
+    val mockHttpClient = mock[HttpClient with WSGet]
+
+    override val mockThisClient = mockHttpClient
+
+    val connector = new PrincipalApiDefinitionConnector(mockHttpClient, config)
+
   }
 
-  "fetchAllApiDefinitions" should {
-    "return API definitions" in new Setup {
-      when(mockHttp.GET[Seq[APIDefinition]](meq(endpoint("api-definition")), meq(Seq("filterApis" -> "false")))(any(), any(), any()))
-        .thenReturn(successful(Seq(helloApiDefinition)))
+  "principal api definition connector" should {
+    "when requesting an api definition" should {
 
-      val result: Seq[APIDefinition] = await(connector.fetchAllApiDefinitions)
+      "call the underlying http client" in new PrincipalSetup {
+        whenGetDefinition(serviceName)(apiDefinition(apiName1))
 
-      result shouldBe Seq(helloApiDefinition)
-    }
+        val result = await(connector.fetchApiDefinition(serviceName))
 
-    "propagate error when endpoint returns error" in new Setup {
-      val expectedException = "something went wrong"
-      when(mockHttp.GET[Seq[APIDefinition]](meq(endpoint("api-definition")), meq(Seq("filterApis" -> "false")))(any(), any(), any()))
-        .thenReturn(Future.failed(new RuntimeException(expectedException)))
-
-      val ex = intercept[RuntimeException] {
-        await(connector.fetchAllApiDefinitions)
+        result should be('defined)
+        result.head.name shouldEqual apiName1
       }
 
-      ex.getMessage shouldBe expectedException
+      "throw an exception correctly" in new PrincipalSetup {
+        whenGetDefinitionFails(serviceName)(UpstreamException)
+
+        intercept[UpstreamException.type] {
+          await(connector.fetchApiDefinition(serviceName))
+        }
+      }
+
+      "do not throw exception when not found but instead return None" in new PrincipalSetup {
+        whenGetDefinitionFails(serviceName)(new NotFoundException("Bang"))
+
+        val result = await(connector.fetchApiDefinition(serviceName))
+        result should not be 'defined
+      }
+    }
+
+    "when requesting all api definitions" should {
+
+      "call the underlying http client with the type argument set to all" in new PrincipalSetup {
+        whenGetAllDefinitions(apiDefinition(apiName1),
+                                              apiDefinition(apiName2))
+
+        val result = await(connector.fetchAllApiDefinitions)
+
+        result.size shouldEqual 2
+        result.map(_.name) shouldEqual Seq(apiName1, apiName2)
+      }
+
+      "do not throw exception when not found but instead return empty seq" in new PrincipalSetup {
+        whenGetAllDefinitionsFails(
+          new NotFoundException("Bang"))
+
+        val result = await(connector.fetchAllApiDefinitions)
+        result shouldEqual Seq.empty
+      }
+
+      "throw an exception correctly" in new PrincipalSetup {
+        whenGetAllDefinitionsFails(UpstreamException)
+
+        intercept[UpstreamException.type] {
+          await(connector.fetchAllApiDefinitions)
+        }
+      }
     }
   }
 }

@@ -16,22 +16,46 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
+import akka.stream.Materializer
+import cats.data.OptionT
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForCollaboratorFetcher
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
+import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiDefinitionController @Inject()(cc: ControllerComponents, apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher)
-                                       (implicit ec: ExecutionContext) extends BackendController(cc) {
+class ApiDefinitionController @Inject()(cc: ControllerComponents,
+                                        apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
+                                        extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
+                                        apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher)
+                                       (implicit override val ec: ExecutionContext, override val mat: Materializer)
+  extends BackendController(cc) with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
+  }
+
+  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    extendedApiDefinitionForCollaboratorFetcher(serviceName, collaboratorEmail) map {
+      case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
+      case _ => NotFound
+    } recover recovery
+  }
+
+  def fetchApiDocumentationResource(serviceName: String, version: String, resource: String): Action[AnyContent] = Action.async { implicit request =>
+    import cats.implicits._
+
+    val resourceId = ResourceId(serviceName, version, resource)
+    OptionT(apiDocumentationResourceFetcher.apply(resourceId))
+      .getOrElseF(failedDueToNotFoundException(resourceId))
+      .map(handler(resourceId))
   }
 }

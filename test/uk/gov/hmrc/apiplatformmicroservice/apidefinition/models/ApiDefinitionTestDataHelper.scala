@@ -20,6 +20,23 @@ import cats.data.{NonEmptyList => NEL}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
 
 trait ApiDefinitionTestDataHelper {
+  def extendedApiDefinition(name: String,
+                            versions: Seq[ExtendedAPIVersion] = Seq(extendedApiVersion("1.0", STABLE))) = {
+    ExtendedAPIDefinition(name, name, name, name, false, false, versions)
+  }
+
+  def extendedApiVersion(version: String = "1.0",
+                         status: APIStatus = STABLE,
+                         productionAvailability: Option[APIAvailability] = None,
+                         sandboxAvailability: Option[APIAvailability] = None): ExtendedAPIVersion = {
+    ExtendedAPIVersion(version,
+      status,
+      NEL.of(endpoint("Today's Date", "/today"),
+        endpoint("Yesterday's Date", "/yesterday")),
+      productionAvailability,
+      sandboxAvailability)
+  }
+
   def apiDefinition(
       name: String,
       versions: Seq[APIVersion] = Seq(apiVersion("1.0", STABLE))) = {
@@ -39,6 +56,8 @@ trait ApiDefinitionTestDataHelper {
     def trustNotSpecified(): APIDefinition = requiresTrust(false)
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
+
+    def withVersions(versions: Seq[APIVersion]): APIDefinition = inner.copy(versions = versions)
   }
 
   implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {

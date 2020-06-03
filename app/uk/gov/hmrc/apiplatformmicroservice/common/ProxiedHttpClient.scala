@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.http.ws.{WSProxy, WSProxyConfiguration}
 
 @Singleton
-private[connectors] class ProxiedHttpClient @Inject()(config: Configuration,
+class ProxiedHttpClient @Inject()(config: Configuration,
                                   httpAuditing: HttpAuditing,
                                   wsClient: WSClient,
                                   actorSystem: ActorSystem)

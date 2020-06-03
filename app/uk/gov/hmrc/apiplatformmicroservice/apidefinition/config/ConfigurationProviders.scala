@@ -16,20 +16,60 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
+import akka.pattern.FutureTimeoutSupport
 import com.google.inject.{AbstractModule, Provider}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorConfig
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApiDefinitionService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[ApiDefinitionConnectorConfig]).toProvider(classOf[ApiDefinitionConnectorConfigProvider])
+      bind(classOf[FutureTimeoutSupport]).to(classOf[FutureTimeoutSupportImpl])
+      bind(classOf[PrincipalApiDefinitionConnector.Config]).toProvider(classOf[PrincipalApiDefinitionConnectorConfigProvider])
+      bind(classOf[SubordinateApiDefinitionConnector.Config]).toProvider(classOf[SubordinateApiDefinitionConnectorConfigProvider])
+      bind(classOf[SubordinateApiDefinitionService.Config]).toProvider(classOf[SubordinateApiDefinitionServiceConfigProvider])
   }
 }
 
 @Singleton
-class ApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[ApiDefinitionConnectorConfig] {
-  override def get(): ApiDefinitionConnectorConfig = {
-    ApiDefinitionConnectorConfig(sc.baseUrl("combined-api-definition"))
+class PrincipalApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[PrincipalApiDefinitionConnector.Config] {
+  override def get(): PrincipalApiDefinitionConnector.Config = {
+    lazy val principalBaseUrl = sc.baseUrl("api-definition-principal")
+    PrincipalApiDefinitionConnector.Config(baseUrl = principalBaseUrl)
+  }
+}
+
+@Singleton
+class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+  extends Provider[SubordinateApiDefinitionConnector.Config] with ServicesConfigBridgeExtension {
+
+  override def get(): SubordinateApiDefinitionConnector.Config = {
+    val retryCount = sc.getConfInt("retryCount", 3)
+    val retryDelayMilliseconds = sc.getConfInt("retryDelayMilliseconds", 499)
+
+    val subordinateServiceName = "api-definition-subordinate"
+    val subordinateBaseUrl =
+      serviceUrl("api-definition")(subordinateServiceName)
+    val subordinateUseProxy = useProxy(subordinateServiceName)
+    val subordinateBearerToken = bearerToken(subordinateServiceName)
+    val subordiateApiKey = apiKey(subordinateServiceName)
+
+    SubordinateApiDefinitionConnector.Config(
+      serviceBaseUrl = subordinateBaseUrl,
+      useProxy = subordinateUseProxy,
+      bearerToken = subordinateBearerToken,
+      apiKey = subordiateApiKey,
+      retryCount = retryCount,
+      retryDelayMilliseconds = retryDelayMilliseconds
+    )
+  }
+}
+
+@Singleton
+class SubordinateApiDefinitionServiceConfigProvider @Inject()(sc: ServicesConfig) extends Provider[SubordinateApiDefinitionService.Config] {
+  override def get(): SubordinateApiDefinitionService.Config = {
+    val isSubordinateAvailable = sc.getConfBool("features.isSubordinateAvailable", false)
+    SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)
   }
 }

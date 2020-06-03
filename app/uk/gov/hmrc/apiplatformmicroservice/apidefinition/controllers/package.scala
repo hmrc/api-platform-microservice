@@ -20,7 +20,9 @@ import play.api.Logger
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Result
-import play.api.mvc.Results.InternalServerError
+import play.api.mvc.Results.{InternalServerError, NotFound}
+import uk.gov.hmrc.http.NotFoundException
+
 import scala.util.control.NonFatal
 
 package object controllers {
@@ -40,6 +42,7 @@ package object controllers {
   }
 
   def recovery: PartialFunction[Throwable, Result] = {
+    case _: NotFoundException => NotFound
     case NonFatal(e) =>
       Logger.error(s"Error occurred: ${e.getMessage}", e)
       handleException(e)
