@@ -56,7 +56,7 @@ class ApiMetricsProvider @Inject()(inboundMetrics: Metrics)
   def get(): ApiMetrics = {
     inboundMetrics match {
       case m: MetricsImpl     => new ApiMetricsImpl(m)
-      case m: DisabledMetrics => new NoopApiMetrics(m)
+      case _: DisabledMetrics => new NoopApiMetrics
     }
   }
 }
@@ -67,7 +67,7 @@ object NoopTimer extends Timer {
   def stop() = {}
 }
 
-class NoopApiMetrics(val metrics: Metrics) extends BaseApiMetrics {
+class NoopApiMetrics extends ApiMetrics {
   override def recordFailure(api: API) = ()
   override def recordSuccess(api: API) = ()
   override def startTimer(api: API) = NoopTimer
