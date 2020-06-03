@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
+import scala.concurrent.Future.fromTry
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 trait RecordMetrics {
   val apiMetrics: ApiMetrics
@@ -26,7 +27,7 @@ trait RecordMetrics {
   def record[A](f: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val timer = apiMetrics.startTimer(api)
 
-    f.andThen {
+    fromTry(Try(f)).flatten.andThen {
         case _ => timer.stop()
       }
       .andThen {
