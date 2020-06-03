@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import akka.stream.Materializer
 import play.api.Logger

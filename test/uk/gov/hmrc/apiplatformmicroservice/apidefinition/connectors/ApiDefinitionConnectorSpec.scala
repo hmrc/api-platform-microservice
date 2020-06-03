@@ -87,7 +87,7 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
     "when requesting all api definitions" should {
 
       "call the underlying http client with the type argument set to all" in new PrincipalSetup {
-        whenGetAllDefinitionsWithoutFiltering(apiDefinition(apiName1),
+        whenGetAllDefinitions(apiDefinition(apiName1),
                                               apiDefinition(apiName2))
 
         val result = await(connector.fetchAllApiDefinitions)
@@ -97,7 +97,7 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
       }
 
       "do not throw exception when not found but instead return empty seq" in new PrincipalSetup {
-        whenGetAllDefinitionsWithoutFilteringFails(
+        whenGetAllDefinitionsFails(
           new NotFoundException("Bang"))
 
         val result = await(connector.fetchAllApiDefinitions)
@@ -105,7 +105,7 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
       }
 
       "throw an exception correctly" in new PrincipalSetup {
-        whenGetAllDefinitionsWithoutFilteringFails(UpstreamException)
+        whenGetAllDefinitionsFails(UpstreamException)
 
         intercept[UpstreamException.type] {
           await(connector.fetchAllApiDefinitions)

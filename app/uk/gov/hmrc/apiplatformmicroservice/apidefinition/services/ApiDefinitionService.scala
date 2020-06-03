@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.common.LogWrapper
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 import uk.gov.hmrc.http.HeaderCarrier
 

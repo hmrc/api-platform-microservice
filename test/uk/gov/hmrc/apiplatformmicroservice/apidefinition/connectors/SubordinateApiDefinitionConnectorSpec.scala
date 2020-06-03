@@ -50,7 +50,6 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val apiKeyTest = UUID.randomUUID().toString
 
   private val serviceName = "someService"
-  private val userEmail = "3rdparty@example.com"
 
   private val apiName1 = "Calendar"
   private val apiName2 = "HelloWorld"

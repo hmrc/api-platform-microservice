@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result

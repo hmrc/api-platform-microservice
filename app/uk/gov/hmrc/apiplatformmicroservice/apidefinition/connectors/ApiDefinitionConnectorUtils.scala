@@ -19,21 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 
 trait ApiDefinitionConnectorUtils {
-  type Param = (String, String)
-  type Params = Seq[Param]
-
-  val includePrivateTrialsQueryParameter
-    : Param = "options" -> "alsoIncludePrivateTrials"
-
-  val defaultParams: Params = Seq(includePrivateTrialsQueryParameter)
-
-  def queryParams(oemail: Option[String]): Params =
-    oemail.fold(Seq.empty[Param])(email => Seq("email" -> email)) :+ includePrivateTrialsQueryParameter
 
   def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
-
-  def extendedDefinitionUrl(serviceBaseUrl: String, serviceName: String) =
-    s"$serviceBaseUrl/api-definition/$serviceName/extended"
 
   def definitionUrl(serviceBaseUrl: String, serviceName: String) =
     s"$serviceBaseUrl/api-definition/$serviceName"

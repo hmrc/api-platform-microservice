@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
