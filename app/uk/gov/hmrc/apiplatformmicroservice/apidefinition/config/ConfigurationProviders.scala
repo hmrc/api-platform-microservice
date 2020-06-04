@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 import akka.pattern.FutureTimeoutSupport
 import com.google.inject.{AbstractModule, Provider}
 import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApiDefinitionService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -41,12 +42,12 @@ class PrincipalApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig
 }
 
 @Singleton
-class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
+class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc: ServicesConfig, configuration: Configuration)
   extends Provider[SubordinateApiDefinitionConnector.Config] with ServicesConfigBridgeExtension {
 
   override def get(): SubordinateApiDefinitionConnector.Config = {
-    val retryCount = sc.getConfInt("retryCount", 3)
-    val retryDelayMilliseconds = sc.getConfInt("retryDelayMilliseconds", 499)
+    val retryCount = configuration.getOptional[Int]("retryCount").getOrElse(3)
+    val retryDelayMilliseconds = configuration.getOptional[Int]("retryDelayMilliseconds").getOrElse(499)
 
     val subordinateServiceName = "api-definition-subordinate"
     val subordinateBaseUrl =
@@ -67,9 +68,9 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc:
 }
 
 @Singleton
-class SubordinateApiDefinitionServiceConfigProvider @Inject()(sc: ServicesConfig) extends Provider[SubordinateApiDefinitionService.Config] {
+class SubordinateApiDefinitionServiceConfigProvider @Inject()(configuration: Configuration) extends Provider[SubordinateApiDefinitionService.Config] {
   override def get(): SubordinateApiDefinitionService.Config = {
-    val isSubordinateAvailable = sc.getConfBool("features.isSubordinateAvailable", false)
+    val isSubordinateAvailable = configuration.getOptional[Boolean]("features.isSubordinateAvailable").getOrElse(false)
     SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)
   }
 }
