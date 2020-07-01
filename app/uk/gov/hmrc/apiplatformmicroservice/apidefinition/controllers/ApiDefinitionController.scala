@@ -33,12 +33,19 @@ import scala.concurrent.ExecutionContext
 class ApiDefinitionController @Inject()(cc: ControllerComponents,
                                         apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
                                         extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
-                                        apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher)
+                                        apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
+                                        subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher)
                                        (implicit override val ec: ExecutionContext, override val mat: Materializer)
   extends BackendController(cc) with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
+      Ok(Json.toJson(definitions))
+    } recover recovery
+  }
+
+  def fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String) : Action[AnyContent] = Action.async { implicit request =>
+    subscribedApiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
