@@ -37,13 +37,12 @@ import scala.concurrent.Future
 class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule
-    with ApiDocumentationResourceFetcherModule {
+    with ApiDocumentationResourceFetcherModule with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     implicit val system = ActorSystem("test")
     implicit val mat = ActorMaterializer()
 
     val request = FakeRequest("GET", "/")
-    val email = Some("joebloggs@example.com")
     val apiName = "hello-api"
     val version = "1.0"
     val anApiDefinition = apiDefinition(apiName)
@@ -51,7 +50,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     val controller = new ApiDefinitionController(Helpers.stubControllerComponents(),
     ApiDefinitionsForCollaboratorFetcherMock.aMock,
     ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
-    ApiDocumentationResourceFetcherMock.aMock)
+    ApiDocumentationResourceFetcherMock.aMock, SubscribedApiDefinitionsForCollaboratorFetcherMock.aMock)
     val mockWSResponse = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     when(mockWSResponse.headers).thenReturn(
@@ -63,6 +62,8 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
   }
 
   "fetchApiDefinitionsForCollaborator" should {
+    val email = Some("joebloggs@example.com")
+
     "return the API definitions when email provided" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
 
@@ -101,7 +102,41 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     }
   }
 
+  "fetchSubscribedApiDefinitionsForCollaborator" should {
+    val email = "joebloggs@example.com"
+
+    "return the API definitions the user is subscribed to" in new Setup {
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
+
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
+    }
+
+    "return an empty sequence when there are no api definitions available" in new Setup {
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(Seq.empty: _*)
+
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.parse("[]")
+    }
+
+    "return error when the service throws and exception" in new Setup {
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
+
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
+        "message" -> "An unexpected error occurred")
+    }
+  }
+
   "fetchExtendedApiDefinitionForCollaborator" should {
+    val email = Some("joebloggs@example.com")
+
     "return the extended API definition when email provided" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 

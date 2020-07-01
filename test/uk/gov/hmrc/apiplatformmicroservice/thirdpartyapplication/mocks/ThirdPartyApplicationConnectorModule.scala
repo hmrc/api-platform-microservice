@@ -19,8 +19,9 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
 
-import scala.concurrent.Future
+import scala.concurrent.Future.{failed, successful}
 
 trait ThirdPartyApplicationConnectorModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -29,11 +30,21 @@ trait ThirdPartyApplicationConnectorModule extends PlaySpec with MockitoSugar wi
 
     object FetchApplicationsByEmail {
       def willReturnApplicationIds(applicationIds: String*) = {
-        when(aMock.fetchApplicationsByEmail(*)(*)).thenReturn(Future.successful(applicationIds))
+        when(aMock.fetchApplicationsByEmail(*)(*)).thenReturn(successful(applicationIds))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApplicationsByEmail(*)(*)).thenReturn(Future.failed(e))
+        when(aMock.fetchApplicationsByEmail(*)(*)).thenReturn(failed(e))
+      }
+    }
+
+    object FetchSubscriptionsByEmail {
+      def willReturnSubscriptions(subscriptions: APIIdentifier*) = {
+        when(aMock.fetchSubscriptionsByEmail(*)(*)).thenReturn(successful(subscriptions))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchSubscriptionsByEmail(*)(*)).thenReturn(failed(e))
       }
     }
   }

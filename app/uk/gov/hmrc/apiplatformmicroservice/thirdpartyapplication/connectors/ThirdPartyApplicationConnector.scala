@@ -21,6 +21,8 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.JsonFormatters.formatApiIdentifier
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -39,6 +41,10 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
 
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email)).map(_.map(_.id.toString))
+  }
+
+  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIIdentifier]] = {
+    http.GET[Seq[APIIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
   }
 }
 
