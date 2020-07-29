@@ -31,7 +31,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(principalDefinitionService:
                                                      appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
                                                     (implicit ec: ExecutionContext) extends Recoveries {
 
-  def apply(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions
     val subordinateDefinitionsFuture  = subordinateDefinitionService.fetchAllDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
 
@@ -39,7 +39,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(principalDefinitionService:
       principalDefinitions <- principalDefinitionsFuture
       subordinateDefinitions <- subordinateDefinitionsFuture
       combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
-      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
+      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher.fetch(_))
     } yield filterApis(combinedDefinitions, applicationIds)
   }
 

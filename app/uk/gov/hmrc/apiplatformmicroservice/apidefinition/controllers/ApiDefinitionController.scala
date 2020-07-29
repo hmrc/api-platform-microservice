@@ -39,19 +39,19 @@ class ApiDefinitionController @Inject()(cc: ControllerComponents,
   extends BackendController(cc) with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    apiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
+    apiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
   def fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String) : Action[AnyContent] = Action.async { implicit request =>
-    subscribedApiDefinitionsForCollaboratorFetcher(collaboratorEmail) map { definitions =>
+    subscribedApiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
   def fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    extendedApiDefinitionForCollaboratorFetcher(serviceName, collaboratorEmail) map {
+    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, collaboratorEmail) map {
       case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
       case _ => NotFound
     } recover recovery
@@ -61,7 +61,7 @@ class ApiDefinitionController @Inject()(cc: ControllerComponents,
     import cats.implicits._
 
     val resourceId = ResourceId(serviceName, version, resource)
-    OptionT(apiDocumentationResourceFetcher.apply(resourceId))
+    OptionT(apiDocumentationResourceFetcher.fetch(resourceId))
       .getOrElseF(failedDueToNotFoundException(resourceId))
       .map(handler(resourceId))
   }

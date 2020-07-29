@@ -35,7 +35,7 @@ class ApiDocumentationResourceFetcher @Inject()(principalDefinitionService: Prin
                                                (implicit override val ec: ExecutionContext, override val mat: Materializer)
   extends StreamedResponseResourceHelper {
 
-  def apply(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
+  def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
     for {
       apiVersion <- fetchApiVersion(resourceId)
       _ = Logger.info(
@@ -53,7 +53,7 @@ class ApiDocumentationResourceFetcher @Inject()(principalDefinitionService: Prin
       new IllegalArgumentException(
         s"Version ${resourceId.version} of ${resourceId.serviceName} not found"))
 
-    OptionT(extendedApiDefinitionFetcher(resourceId.serviceName, None))
+    OptionT(extendedApiDefinitionFetcher.fetch(resourceId.serviceName, None))
       .mapFilter(findVersion)
       .getOrElseF(error)
   }

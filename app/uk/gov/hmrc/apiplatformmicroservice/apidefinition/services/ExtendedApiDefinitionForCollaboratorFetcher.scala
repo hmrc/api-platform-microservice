@@ -31,11 +31,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
                                                             appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
                                                            (implicit ec: ExecutionContext) {
 
-  def apply(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetch(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
+      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher.fetch(_))
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
   }
 
@@ -94,6 +94,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
         toExtendedApiVersion(subordinateVersion, None, availability(subordinateVersion, applicationIds, email))
       case (Some(principalVersion), Some(subordinateVersion)) =>
         toExtendedApiVersion(subordinateVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
+      case (None, None) =>
+        throw new IllegalStateException("It's impossible to get here from the call site")
     }
   }
 

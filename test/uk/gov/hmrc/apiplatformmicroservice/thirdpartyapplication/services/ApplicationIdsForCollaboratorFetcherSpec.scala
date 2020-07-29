@@ -39,7 +39,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq("s1", "s2", "s3", "p1", "p2")
     }
@@ -48,7 +48,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe subordinateApplicationIds
     }
@@ -57,7 +57,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe principalApplicationIds
     }
@@ -66,7 +66,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq.empty
     }
@@ -76,7 +76,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe principalApplicationIds
     }
@@ -87,7 +87,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
-        await(underTest(email))
+        await(underTest.fetch(email))
       }
 
       ex.getMessage mustBe expectedExceptionMessage

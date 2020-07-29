@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttp
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
@@ -42,9 +42,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  private val UpstreamException = Upstream5xxResponse("Internal server error",
-                                                      INTERNAL_SERVER_ERROR,
-                                                      INTERNAL_SERVER_ERROR)
+  private val UpstreamException = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   private val bearer = "TestBearerToken"
   private val apiKeyTest = UUID.randomUUID().toString

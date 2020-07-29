@@ -21,7 +21,7 @@ import java.util.UUID
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
@@ -30,9 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  val UpstreamException = Upstream5xxResponse("Internal server error",
-                                              INTERNAL_SERVER_ERROR,
-                                              INTERNAL_SERVER_ERROR)
+  val UpstreamException = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   val bearer = "TestBearerToken"
   val apiKeyTest = UUID.randomUUID().toString

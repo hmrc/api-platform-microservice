@@ -29,11 +29,11 @@ trait ApplicationIdsForCollaboratorFetcherModule extends PlaySpec with MockitoSu
 
     object FetchAllApplicationIds {
       def willReturnApplicationIds(appIds: String*) = {
-        when(aMock(*)(*)).thenReturn(Future.successful(appIds.toSeq))
+        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSeq))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock(*)(*)).thenReturn(Future.failed(e))
+        when(aMock.fetch(*)(*)).thenReturn(Future.failed(e))
       }
     }
   }

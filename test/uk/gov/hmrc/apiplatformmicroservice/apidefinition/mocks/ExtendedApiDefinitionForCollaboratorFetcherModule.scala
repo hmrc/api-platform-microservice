@@ -29,15 +29,15 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
     val aMock = mock[ExtendedApiDefinitionForCollaboratorFetcher]
 
     def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
-      when(aMock(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
+      when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
     }
 
     def willReturnNoExtendedApiDefinition() = {
-      when(aMock(*, *)(*)).thenReturn(Future.successful(None))
+      when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(None))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock(*, *)(*)).thenReturn(Future.failed(e))
+      when(aMock.fetch(*, *)(*)).thenReturn(Future.failed(e))
     }
   }
 

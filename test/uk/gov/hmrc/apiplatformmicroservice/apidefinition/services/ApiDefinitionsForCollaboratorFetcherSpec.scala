@@ -57,7 +57,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(helloApiDefinition)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq(helloApiDefinition)
     }
@@ -69,7 +69,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(subordinateHelloApi)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq(subordinateHelloApi)
     }
@@ -78,7 +78,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(helloApiDefinition, requiresTrustApi)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq(helloApiDefinition)
     }
@@ -87,7 +87,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithRetiredVersions, apiWithOnlyRetiredVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result.map(_.name) mustBe Seq(apiWithRetiredVersions.name)
       result.head.versions.map(_.version) mustBe Seq("2.0")
@@ -97,7 +97,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
     }
@@ -105,7 +105,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     "filter out private versions for an api if no email provided" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPublicAndPrivateVersions)
 
-      val result = await(underTest(None))
+      val result = await(underTest.fetch(None))
 
       result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
     }
@@ -114,7 +114,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithOnlyPrivateVersions)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq.empty
     }
@@ -123,7 +123,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithPrivateTrials)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq(apiWithPrivateTrials)
     }
@@ -132,7 +132,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalApiDefinitionServiceMock.FetchAllDefinitions.willReturnApiDefinitions(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result mustBe Seq(apiWithWhitelisting)
     }
