@@ -28,7 +28,7 @@ class ApplicationIdsForCollaboratorFetcher @Inject()(subordinateTpaConnector: Su
                                                      principalTpaConnector: PrincipalThirdPartyApplicationConnector)
                                                     (implicit ec: ExecutionContext) extends Recoveries {
 
-  def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recoverWithDefault(Seq.empty[String])
     val principalAppIds = principalTpaConnector.fetchApplicationsByEmail(email)
 

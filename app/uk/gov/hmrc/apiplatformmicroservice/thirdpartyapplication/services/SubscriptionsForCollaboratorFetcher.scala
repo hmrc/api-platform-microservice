@@ -29,7 +29,7 @@ class SubscriptionsForCollaboratorFetcher @Inject()(subordinateTpaConnector: Sub
                                                     principalTpaConnector: PrincipalThirdPartyApplicationConnector)
                                                    (implicit ec: ExecutionContext) extends Recoveries {
 
-  def apply(email: String)(implicit hc: HeaderCarrier): Future[Set[APIIdentifier]] = {
+  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Set[APIIdentifier]] = {
     val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet) recover recoverWithDefault(Set.empty[APIIdentifier])
     val principalSubscriptions = principalTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet)
 

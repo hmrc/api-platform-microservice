@@ -57,7 +57,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     )
 
     def ensureResult: Assertion = {
-      val oresult: Option[WSResponse] = await(underTest(resourceId))
+      val oresult: Option[WSResponse] = await(underTest.fetch(resourceId))
 
       oresult mustBe 'defined
       oresult map (_.status) shouldEqual Some(OK)
@@ -82,7 +82,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       ExtendedApiDefinitionForCollaboratorFetcherMock.willThrowException(new RuntimeException("unexpected error"))
 
       private val ex = intercept[RuntimeException] {
-        await(underTest(resourceId))
+        await(underTest.fetch(resourceId))
       }
 
       ex.getMessage mustBe "unexpected error"
@@ -92,7 +92,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
 
       private val ex = intercept[IllegalArgumentException] {
-        await(underTest(resourceId))
+        await(underTest.fetch(resourceId))
       }
 
       ex.getMessage mustBe "Version 1.0 of api-example-microservice not found"
@@ -131,7 +131,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
 
       private val ex = intercept[NotFoundException] {
-        await(underTest(resourceId))
+        await(underTest.fetch(resourceId))
       }
 
       ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
@@ -143,7 +143,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
 
       private val ex = intercept[NotFoundException] {
-        await(underTest(resourceId))
+        await(underTest.fetch(resourceId))
       }
 
       ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
@@ -155,7 +155,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 
       private val ex = intercept[NotFoundException] {
-        await(underTest(resourceId))
+        await(underTest.fetch(resourceId))
       }
 
       ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"

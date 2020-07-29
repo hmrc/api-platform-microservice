@@ -29,11 +29,11 @@ trait SubscriptionsForCollaboratorFetcherModule extends PlaySpec with MockitoSug
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 
     def willReturnSubscriptions(subscriptions: APIIdentifier*) = {
-      when(aMock(*)(*)).thenReturn(successful(subscriptions.toSet))
+      when(aMock.fetch(*)(*)).thenReturn(successful(subscriptions.toSet))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock(*)(*)).thenReturn(failed(e))
+      when(aMock.fetch(*)(*)).thenReturn(failed(e))
     }
   }
 

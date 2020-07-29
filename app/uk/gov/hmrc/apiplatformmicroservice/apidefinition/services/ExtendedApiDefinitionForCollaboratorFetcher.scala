@@ -31,11 +31,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
                                                             appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
                                                            (implicit ec: ExecutionContext) {
 
-  def apply(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetch(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher(_))
+      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher.fetch(_))
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
   }
 

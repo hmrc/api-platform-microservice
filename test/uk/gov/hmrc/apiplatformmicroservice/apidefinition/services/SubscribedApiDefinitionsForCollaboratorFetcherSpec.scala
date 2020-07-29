@@ -45,7 +45,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
       SubscriptionsForCollaboratorFetcherMock
         .willReturnSubscriptions(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"), APIIdentifier("hello-vat", "1.0"))
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result shouldBe Seq(helloWorldDefinition, helloVatDefinition)
     }
@@ -54,7 +54,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(APIIdentifier("hello-world", "2.0"))
 
-      val result = await(underTest(email))
+      val result = await(underTest.fetch(email))
 
       result.head.versions.map(_.version) should contain only "2.0"
     }

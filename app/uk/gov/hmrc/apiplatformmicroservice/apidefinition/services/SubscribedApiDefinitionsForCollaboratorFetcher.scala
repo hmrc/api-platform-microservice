@@ -30,10 +30,10 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject()(apiDefinitionsFor
                                                                subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher)
                                                               (implicit ec: ExecutionContext) extends Recoveries {
 
-  def apply(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
-      apiDefinitions <- apiDefinitionsForCollaboratorFetcher(Some(email))
-      subscriptions <- subscriptionsForCollaboratorFetcher(email)
+      apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(email))
+      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(email)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 

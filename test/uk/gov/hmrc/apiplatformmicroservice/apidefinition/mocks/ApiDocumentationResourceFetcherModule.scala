@@ -29,15 +29,15 @@ trait ApiDocumentationResourceFetcherModule extends PlaySpec with MockitoSugar w
     val aMock = mock[ApiDocumentationResourceFetcher]
 
     def willReturnWsResponse(wsResponse: WSResponse) = {
-      when(aMock(*)(*)).thenReturn(Future.successful(Some(wsResponse)))
+      when(aMock.fetch(*)(*)).thenReturn(Future.successful(Some(wsResponse)))
     }
 
     def willReturnNone() = {
-      when(aMock(*)(*)).thenReturn(Future.successful(None))
+      when(aMock.fetch(*)(*)).thenReturn(Future.successful(None))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock(*)(*)).thenReturn(Future.failed(e))
+      when(aMock.fetch(*)(*)).thenReturn(Future.failed(e))
     }
   }
 
