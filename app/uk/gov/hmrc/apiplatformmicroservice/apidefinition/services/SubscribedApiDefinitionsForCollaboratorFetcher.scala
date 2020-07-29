@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, APIVersion, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher

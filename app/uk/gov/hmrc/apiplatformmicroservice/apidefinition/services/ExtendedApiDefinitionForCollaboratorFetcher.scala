@@ -94,6 +94,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject()(principalDefinitionS
         toExtendedApiVersion(subordinateVersion, None, availability(subordinateVersion, applicationIds, email))
       case (Some(principalVersion), Some(subordinateVersion)) =>
         toExtendedApiVersion(subordinateVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
+      case (None, None) =>
+        throw new IllegalStateException("It's impossible to get here from the call site")
     }
   }
 
