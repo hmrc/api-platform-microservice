@@ -26,6 +26,7 @@ trait JsonFormatters {
   import uk.gov.hmrc.play.json.Union
 
   implicit val formatApplicationId = Json.valueFormat[ApplicationId]
+  implicit val formatClientId = Json.valueFormat[ClientId]
 
   val readsOverrideFlag = Reads[OverrideFlag] {
     case JsString(value) => JsSuccess(OverrideFlag(value))

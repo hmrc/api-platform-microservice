@@ -42,7 +42,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val connector = new ThirdPartyApplicationConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
-      val config = ThirdPartyApplicationConnectorConfig (
+      val config = ThirdPartyApplicationConnector.Config (
         baseUrl, proxyEnabled, bearer, apiKeyTest)
     }
   }

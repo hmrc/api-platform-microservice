@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
+case class OverrideFlag(overrideType: String)
+
 sealed trait Access {
   val accessType: AccessType
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.common
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models
 
 import enumeratum.{Enum, EnumEntry}
 import enumeratum.PlayJsonEnum

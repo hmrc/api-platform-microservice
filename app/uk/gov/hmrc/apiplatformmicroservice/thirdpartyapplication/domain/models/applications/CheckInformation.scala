@@ -16,6 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
+import org.joda.time.DateTime
+
+case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
+
+case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
+
 case class CheckInformation(
     confirmedName: Boolean = false,
     apiSubscriptionsConfirmed: Boolean = false,
