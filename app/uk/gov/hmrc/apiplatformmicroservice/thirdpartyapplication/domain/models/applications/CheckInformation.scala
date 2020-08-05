@@ -25,9 +25,3 @@ case class CheckInformation(
     providedTermsAndConditionsURL: Boolean = false,
     teamConfirmed: Boolean = false,
     termsOfUseAgreements: Seq[TermsOfUseAgreement] = Seq.empty)
-
-object CheckInformation {
-  import play.api.libs.json._
-
-  implicit val format = Json.format[CheckInformation]
-}

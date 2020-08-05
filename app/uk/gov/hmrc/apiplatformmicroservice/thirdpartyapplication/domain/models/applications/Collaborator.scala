@@ -19,9 +19,3 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.common.Role
 
 case class Collaborator(emailAddress: String, role: Role)
-
-object Collaborator {
-  import play.api.libs.json.Json
-
-  implicit val format = Json.format[Collaborator]
-}

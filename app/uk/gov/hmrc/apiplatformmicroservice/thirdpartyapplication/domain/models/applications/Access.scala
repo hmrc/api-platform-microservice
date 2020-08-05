@@ -16,21 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-object Access {
-  import play.api.libs.json._
-  import uk.gov.hmrc.play.json.Union
-
-  implicit val formatStandard = Json.format[Standard]
-  implicit val formatPrivileged = Json.format[Privileged]
-  implicit val formatROPC = Json.format[ROPC]
-
-  implicit val formatAccessType = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[ROPC](AccessType.ROPC.toString)
-    .format
-}
-
 sealed trait Access {
   val accessType: AccessType
 }

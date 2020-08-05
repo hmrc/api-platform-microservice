@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 
 case class Application(
@@ -36,12 +35,5 @@ case class Application(
     ipWhitelist: Set[String] = Set.empty)
 
 object Application {
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
-  import play.api.libs.json._
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
-
-  implicit val applicationFormat = Json.format[Application]
-
   implicit val ordering: Ordering[Application] = Ordering.by(_.name)
 }

@@ -17,9 +17,3 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
-
-object ContactDetails {
-  import play.api.libs.json.Json
-
-  implicit val format = Json.format[ContactDetails]
-}

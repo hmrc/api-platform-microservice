@@ -26,12 +26,6 @@ case class ApplicationState(
     updatedOn: DateTime = DateTimeUtils.now)
 
 object ApplicationState {
-  import play.api.libs.json._
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
-
-  implicit val format = Json.format[ApplicationState]
-
   val testing = ApplicationState(State.TESTING, None)
 
   def pendingGatekeeperApproval(requestedBy: String) =

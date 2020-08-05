@@ -17,13 +17,13 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
-  protected val config: ThirdPartyApplicationConnectorConfig
+  protected val config: ThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
   // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
   lazy val useProxy: Boolean = config.applicationUseProxy
@@ -58,20 +58,21 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
 private[thirdpartyapplication] object ThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: String)
 
-  object JsonFormatters {
-    implicit val formatApplicationResponse: Format[ApplicationResponse] = Json.format[ApplicationResponse]
+  private[connectors] object JsonFormatters {
+    import play.api.libs.json._
+    implicit val formatApplicationResponse: Reads[ApplicationResponse] = Json.reads[ApplicationResponse]
   }
-}
 
-private[thirdpartyapplication] case class ThirdPartyApplicationConnectorConfig(
-    applicationBaseUrl: String,
-    applicationUseProxy: Boolean,
-    applicationBearerToken: String,
-    applicationApiKey: String)
+  case class Config(
+      applicationBaseUrl: String,
+      applicationUseProxy: Boolean,
+      applicationBearerToken: String,
+      applicationApiKey: String)
+}
 
 @Singleton
 private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") override val config: ThirdPartyApplicationConnectorConfig,
+    @Named("subordinate") override val config: ThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
@@ -79,7 +80,7 @@ private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @
 
 @Singleton
 private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject() (
-    @Named("principal") override val config: ThirdPartyApplicationConnectorConfig,
+    @Named("principal") override val config: ThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)

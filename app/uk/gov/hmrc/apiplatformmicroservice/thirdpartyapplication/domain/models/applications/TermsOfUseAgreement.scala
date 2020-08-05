@@ -23,9 +23,4 @@ case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, versio
 object TermsOfUseAgreement {
   import play.api.libs.json.Json
   import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites.JodaDateTimeNumberWrites
-
-  implicit val numberWrites = JodaDateTimeNumberWrites
-
-  implicit val format = Json.format[TermsOfUseAgreement]
 }

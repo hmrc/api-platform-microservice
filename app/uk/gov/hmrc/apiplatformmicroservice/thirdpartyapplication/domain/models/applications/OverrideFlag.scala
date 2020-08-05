@@ -17,16 +17,3 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 case class OverrideFlag(overrideType: String)
-
-object OverrideFlag {
-  import play.api.libs.json._
-
-  val reads = Reads[OverrideFlag] {
-    case JsString(value) => JsSuccess(OverrideFlag(value))
-    case o: JsObject     => Json.reads[OverrideFlag].reads(o)
-    case _               => JsError()
-  }
-
-  val writes = Json.writes[OverrideFlag]
-  implicit val format = Format(reads, writes)
-}
