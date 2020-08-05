@@ -16,5 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
-// TODO - context and version as anyvals
+case class ApiContext(value: String) extends AnyVal
+case class ApiVersion(value: String) extends AnyVal
+
+// TODO - use the above value classes
 case class ApiIdentifier(context: String, version: String)

@@ -22,7 +22,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Thir
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._

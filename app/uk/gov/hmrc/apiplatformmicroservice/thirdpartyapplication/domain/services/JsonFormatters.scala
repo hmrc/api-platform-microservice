@@ -17,12 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import play.api.libs.json.JodaWrites.JodaDateTimeNumberWrites
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 
-trait JsonFormatters {
+trait JsonFormatters extends CommonJsonFormatters {
   import play.api.libs.json._
   import play.api.libs.json.JodaReads._
   import play.api.libs.json.JodaWrites._
+  import play.api.libs.json.JodaWrites.JodaDateTimeNumberWrites
   import uk.gov.hmrc.play.json.Union
 
   implicit val formatApplicationId = Json.valueFormat[ApplicationId]
@@ -63,7 +65,21 @@ trait JsonFormatters {
     .and[ROPC](AccessType.ROPC.toString)
     .format
 
+  implicit val formatFieldName = Json.valueFormat[FieldName]
+  implicit val formatFieldvalue = Json.valueFormat[FieldValue]
+
+  implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
+  implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
+
+  implicit val keyReadsApiVersion: KeyReads[ApiVersion] = key => JsSuccess(ApiVersion(key))
+  implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
+
+  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
+  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
+
   implicit val formatApplication = Json.format[Application]
+
+  implicit val formatApplicationWithSubscriptionData = Json.format[ApplicationWithSubscriptionData]
 }
 
 object JsonFormatters extends JsonFormatters

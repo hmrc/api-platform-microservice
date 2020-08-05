@@ -16,21 +16,21 @@ lazy val scoverageSettings = {
 }
 
 lazy val compileDeps = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.13.0",
-  "com.beachape" %% "enumeratum-play-json" % "1.6.0",
-  "org.typelevel" %% "cats-core" % "2.1.0",
-  "com.typesafe.play" %% "play-json" % "2.7.4",
-  "com.typesafe.play" %% "play-json-joda" % "2.7.4",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.11.0",
+  "uk.gov.hmrc"       %% "bootstrap-play-26"         % "1.13.0",
+  "com.beachape"      %% "enumeratum-play-json"      % "1.6.0",
+  "org.typelevel"     %% "cats-core"                 % "2.1.0",
+  "com.typesafe.play" %% "play-json"                 % "2.8.1",
+  "com.typesafe.play" %% "play-json-joda"            % "2.8.1",
+  "uk.gov.hmrc"       %% "play-json-union-formatter" % "1.11.0"
 )
 
 def testDeps(scope: String) = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.8" % scope,
-  "org.mockito" % "mockito-core" % "3.1.0" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-  "org.mockito" %% "mockito-scala-scalatest" % "1.7.1" % scope,
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
+  "uk.gov.hmrc"            %% "hmrctest"                % "3.9.0-play-26"     % scope,
+  "org.scalatest"          %% "scalatest"               % "3.0.8"             % scope,
+  "org.mockito"             % "mockito-core"            % "3.1.0"             % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play"      % "3.1.3"             % scope,
+  "org.mockito"            %% "mockito-scala-scalatest" % "1.7.1"             % scope,
+  "com.typesafe.play"      %% "play-test"               % PlayVersion.current % scope
 )
 
 lazy val root = (project in file("."))
@@ -48,10 +48,9 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= compileDeps ++ testDeps("test"),
     publishingSettings,
-    scoverageSettings,
+    scoverageSettings
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
-
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin)
 
