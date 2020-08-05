@@ -19,14 +19,15 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import enumeratum._
 import cats.data.{NonEmptyList => NEL}
 
-case class APIDefinition(serviceName: String,
-                         name: String,
-                         description: String,
-                         context: String,
-                         requiresTrust: Boolean = false,
-                         isTestSupport: Boolean = false,
-                         versions: Seq[APIVersion],
-                         categories: Seq[APICategory] = Seq.empty) {
+case class APIDefinition(
+    serviceName: String,
+    name: String,
+    description: String,
+    context: String,
+    requiresTrust: Boolean = false,
+    isTestSupport: Boolean = false,
+    versions: Seq[APIVersion],
+    categories: Seq[APICategory] = Seq.empty) {
 
   def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
 }
@@ -63,11 +64,7 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 
 }
 
-case class APIVersion(version: String,
-                      status: APIStatus,
-                      access: APIAccess,
-                      endpoints: NEL[Endpoint],
-                      endpointsEnabled: Boolean = false)
+case class APIVersion(version: String, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
 
 sealed trait APIStatus extends EnumEntry
 
@@ -98,10 +95,7 @@ trait APIAccess
 case class PublicApiAccess() extends APIAccess
 case class PrivateApiAccess(whitelistedApplicationIds: Seq[String] = Seq.empty, isTrial: Boolean = false) extends APIAccess
 
-case class Endpoint(endpointName: String,
-                    uriPattern: String,
-                    method: HttpMethod,
-                    queryParameters: Seq[Parameter] = Seq.empty)
+case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, queryParameters: Seq[Parameter] = Seq.empty)
 
 sealed trait HttpMethod extends EnumEntry
 

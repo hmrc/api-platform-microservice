@@ -28,8 +28,8 @@ trait RecordMetrics {
     val timer = apiMetrics.startTimer(api)
 
     fromTry(Try(f)).flatten.andThen {
-        case _ => timer.stop()
-      }
+      case _ => timer.stop()
+    }
       .andThen {
         case Success(_) => apiMetrics.recordSuccess(api)
         case Failure(_) => apiMetrics.recordFailure(api)

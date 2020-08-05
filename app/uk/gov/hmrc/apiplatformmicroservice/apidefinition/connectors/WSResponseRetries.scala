@@ -49,20 +49,21 @@ private[connectors] trait WSResponseRetries {
   def retryWSResponse[A](block: => Future[A]): Future[A] = {
     def loop(previousRetryAttempts: Int = 0)(block: => Future[A]): Future[A] = {
       block.flatMap {
-        case Some(wsResponse: WSResponse)
-            if wsResponse.status == 400 && previousRetryAttempts < retryCount =>
+        case Some(wsResponse: WSResponse) if wsResponse.status == 400 && previousRetryAttempts < retryCount =>
           val retryAttempt = previousRetryAttempts + 1
 
           Logger.warn(
-            s"Retry attempt $retryAttempt of $retryCount in $delay due to Bad Request returned from proxy")
+            s"Retry attempt $retryAttempt of $retryCount in $delay due to Bad Request returned from proxy"
+          )
 
           // Force drain of source just to be sure
           wsResponse.bodyAsSource.runWith(Sink.ignore[ByteString])
 
           futureTimeout.after(delay, actorSystem.scheduler)(
-            loop(retryAttempt)(block))
+            loop(retryAttempt)(block)
+          )
 
-        case x => Future.successful(x)
+        case x                                                                                              => Future.successful(x)
       }
     }
 

@@ -51,8 +51,8 @@ trait BaseApiMetrics extends ApiMetrics {
 }
 
 @Singleton
-class ApiMetricsProvider @Inject()(inboundMetrics: Metrics)
-    extends Provider[ApiMetrics] {
+class ApiMetricsProvider @Inject() (inboundMetrics: Metrics) extends Provider[ApiMetrics] {
+
   def get(): ApiMetrics = {
     inboundMetrics match {
       case m: MetricsImpl     => new ApiMetricsImpl(m)

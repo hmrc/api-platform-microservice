@@ -58,22 +58,23 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
 }
 
 private[thirdpartyapplication] case class ThirdPartyApplicationConnectorConfig(
-             applicationBaseUrl: String, applicationUseProxy: Boolean,
-             applicationBearerToken: String, applicationApiKey: String
-             )
+    applicationBaseUrl: String,
+    applicationUseProxy: Boolean,
+    applicationBearerToken: String,
+    applicationApiKey: String)
 
 @Singleton
-private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject()(
-                                                      @Named("tpacc-subordinate") override val config: ThirdPartyApplicationConnectorConfig,
-                                                      override val httpClient: HttpClient,
-                                                      override val proxiedHttpClient: ProxiedHttpClient)
-                                                                                        (implicit override val ec: ExecutionContext)
-                                                      extends ThirdPartyApplicationConnector
+private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject() (
+    @Named("tpacc-subordinate") override val config: ThirdPartyApplicationConnectorConfig,
+    override val httpClient: HttpClient,
+    override val proxiedHttpClient: ProxiedHttpClient
+  )(implicit override val ec: ExecutionContext)
+    extends ThirdPartyApplicationConnector
 
 @Singleton
-private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject()(
-                                                         @Named("tpacc-principal") override val config: ThirdPartyApplicationConnectorConfig,
-                                                         override val httpClient: HttpClient,
-                                                         override val proxiedHttpClient: ProxiedHttpClient)
-                                                                                      (implicit override val ec: ExecutionContext)
-                                                         extends ThirdPartyApplicationConnector
+private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject() (
+    @Named("tpacc-principal") override val config: ThirdPartyApplicationConnectorConfig,
+    override val httpClient: HttpClient,
+    override val proxiedHttpClient: ProxiedHttpClient
+  )(implicit override val ec: ExecutionContext)
+    extends ThirdPartyApplicationConnector

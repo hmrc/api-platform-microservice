@@ -49,9 +49,11 @@ private[connectors] trait Retries {
           val retryAttempt = previousRetryAttempts + 1
           Logger.warn(
             s"Retry attempt $retryAttempt of $retryCount in $delay due to '${ex.getMessage}'",
-            ex)
+            ex
+          )
           futureTimeout.after(delay, actorSystem.scheduler)(
-            loop(retryAttempt)(block))
+            loop(retryAttempt)(block)
+          )
       }
     }
 

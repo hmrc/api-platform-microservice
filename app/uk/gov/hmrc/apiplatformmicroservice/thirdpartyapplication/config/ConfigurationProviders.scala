@@ -23,18 +23,22 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Thir
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {
+
   override def configure(): Unit = {
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
+      named("tpacc-principal")
+    ).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
 
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
+      named("tpacc-subordinate")
+    ).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
   }
 }
 
 @Singleton
-class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
-  extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
+class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
+    extends Provider[ThirdPartyApplicationConnectorConfig]
+    with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
     ThirdPartyApplicationConnectorConfig(
@@ -47,8 +51,9 @@ class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject()(override v
 }
 
 @Singleton
-class SubordinateThirdPartyApplicationConnectorConfigProvider @Inject()(override val sc: ServicesConfig)
-  extends Provider[ThirdPartyApplicationConnectorConfig] with ThirdPartyApplicationConnectorConfigProvider {
+class SubordinateThirdPartyApplicationConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
+    extends Provider[ThirdPartyApplicationConnectorConfig]
+    with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
     ThirdPartyApplicationConnectorConfig(

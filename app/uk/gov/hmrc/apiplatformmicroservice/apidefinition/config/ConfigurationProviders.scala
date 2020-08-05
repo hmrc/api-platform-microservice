@@ -25,16 +25,18 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApi
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {
+
   override def configure(): Unit = {
-      bind(classOf[FutureTimeoutSupport]).to(classOf[FutureTimeoutSupportImpl])
-      bind(classOf[PrincipalApiDefinitionConnector.Config]).toProvider(classOf[PrincipalApiDefinitionConnectorConfigProvider])
-      bind(classOf[SubordinateApiDefinitionConnector.Config]).toProvider(classOf[SubordinateApiDefinitionConnectorConfigProvider])
-      bind(classOf[SubordinateApiDefinitionService.Config]).toProvider(classOf[SubordinateApiDefinitionServiceConfigProvider])
+    bind(classOf[FutureTimeoutSupport]).to(classOf[FutureTimeoutSupportImpl])
+    bind(classOf[PrincipalApiDefinitionConnector.Config]).toProvider(classOf[PrincipalApiDefinitionConnectorConfigProvider])
+    bind(classOf[SubordinateApiDefinitionConnector.Config]).toProvider(classOf[SubordinateApiDefinitionConnectorConfigProvider])
+    bind(classOf[SubordinateApiDefinitionService.Config]).toProvider(classOf[SubordinateApiDefinitionServiceConfigProvider])
   }
 }
 
 @Singleton
-class PrincipalApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[PrincipalApiDefinitionConnector.Config] {
+class PrincipalApiDefinitionConnectorConfigProvider @Inject() (sc: ServicesConfig) extends Provider[PrincipalApiDefinitionConnector.Config] {
+
   override def get(): PrincipalApiDefinitionConnector.Config = {
     lazy val principalBaseUrl = sc.baseUrl("api-definition-principal")
     PrincipalApiDefinitionConnector.Config(baseUrl = principalBaseUrl)
@@ -42,8 +44,9 @@ class PrincipalApiDefinitionConnectorConfigProvider @Inject()(sc: ServicesConfig
 }
 
 @Singleton
-class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc: ServicesConfig, configuration: Configuration)
-  extends Provider[SubordinateApiDefinitionConnector.Config] with ServicesConfigBridgeExtension {
+class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc: ServicesConfig, configuration: Configuration)
+    extends Provider[SubordinateApiDefinitionConnector.Config]
+    with ServicesConfigBridgeExtension {
 
   override def get(): SubordinateApiDefinitionConnector.Config = {
     val retryCount = configuration.getOptional[Int]("retryCount").getOrElse(3)
@@ -68,7 +71,8 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject()(override val sc:
 }
 
 @Singleton
-class SubordinateApiDefinitionServiceConfigProvider @Inject()(configuration: Configuration) extends Provider[SubordinateApiDefinitionService.Config] {
+class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Configuration) extends Provider[SubordinateApiDefinitionService.Config] {
+
   override def get(): SubordinateApiDefinitionService.Config = {
     val isSubordinateAvailable = configuration.getOptional[Boolean]("features.isSubordinateAvailable").getOrElse(false)
     SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)

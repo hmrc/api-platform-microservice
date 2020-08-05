@@ -24,9 +24,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationIdsForCollaboratorFetcher @Inject()(subordinateTpaConnector: SubordinateThirdPartyApplicationConnector,
-                                                     principalTpaConnector: PrincipalThirdPartyApplicationConnector)
-                                                    (implicit ec: ExecutionContext) extends Recoveries {
+class ApplicationIdsForCollaboratorFetcher @Inject() (
+    subordinateTpaConnector: SubordinateThirdPartyApplicationConnector,
+    principalTpaConnector: PrincipalThirdPartyApplicationConnector
+  )(implicit ec: ExecutionContext)
+    extends Recoveries {
 
   def fetch(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recoverWithDefault(Seq.empty[String])

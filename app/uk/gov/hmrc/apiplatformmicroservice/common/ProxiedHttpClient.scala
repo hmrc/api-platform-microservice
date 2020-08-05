@@ -28,11 +28,9 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.http.ws.{WSProxy, WSProxyConfiguration}
 
 @Singleton
-class ProxiedHttpClient @Inject()(config: Configuration,
-                                  httpAuditing: HttpAuditing,
-                                  wsClient: WSClient,
-                                  actorSystem: ActorSystem)
-  extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem) with WSProxy {
+class ProxiedHttpClient @Inject() (config: Configuration, httpAuditing: HttpAuditing, wsClient: WSClient, actorSystem: ActorSystem)
+    extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem)
+    with WSProxy {
 
   val authorization: Option[Authorization] = None
   val apiKeyHeader: Option[(String, String)] = None

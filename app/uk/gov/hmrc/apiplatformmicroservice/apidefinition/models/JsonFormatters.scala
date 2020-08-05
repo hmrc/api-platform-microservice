@@ -46,31 +46,32 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
       (JsPath \ "uriPattern").read[String] and
       (JsPath \ "method").read[HttpMethod] and
       ((JsPath \ "queryParameters").read[Seq[Parameter]] or Reads.pure(Seq.empty[Parameter]))
-    )(Endpoint.apply _)
+  )(Endpoint.apply _)
 
-  implicit val endpointWrites : Writes[Endpoint] = Json.writes[Endpoint]
+  implicit val endpointWrites: Writes[Endpoint] = Json.writes[Endpoint]
 }
 
-trait ApiDefinitionJsonFormatters
-    extends EndpointJsonFormatters {
+trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
 
   implicit val apiAccessReads: Reads[APIAccess] = (
     (JsPath \ "type").read[APIAccessType] and
       ((JsPath \ "whitelistedApplicationIds").read[Seq[String]] or Reads.pure(Seq.empty[String])) and
-      ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled) map {
-    case (PUBLIC, _, _) => PublicApiAccess()
+      ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
+  ) map {
+    case (PUBLIC, _, _)                                => PublicApiAccess()
     case (PRIVATE, whitelistedApplicationIds, isTrial) => PrivateApiAccess(whitelistedApplicationIds, isTrial)
   }
 
   implicit object apiAccessWrites extends Writes[APIAccess] {
+
     private val privApiWrites: OWrites[(APIAccessType, Seq[String], Boolean)] = (
       (JsPath \ "type").write[APIAccessType] and
         (JsPath \ "whitelistedApplicationIds").write[Seq[String]] and
         (JsPath \ "isTrial").write[Boolean]
-      ).tupled
+    ).tupled
 
     override def writes(access: APIAccess) = access match {
-      case _: PublicApiAccess => Json.obj("type" -> PUBLIC)
+      case _: PublicApiAccess           => Json.obj("type" -> PUBLIC)
       case privateApi: PrivateApiAccess => privApiWrites.writes((PRIVATE, privateApi.whitelistedApplicationIds, privateApi.isTrial))
     }
   }
@@ -80,12 +81,12 @@ trait ApiDefinitionJsonFormatters
       (JsPath \ "status").read[APIStatus] and
       (JsPath \ "access").readNullable[APIAccess] and
       (JsPath \ "endpoints").read[NEL[Endpoint]] and
-      ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled)  map {
-      case (version, status, None, endpoints, endpointsEnabled) => APIVersion(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
+      ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled) map {
+      case (version, status, None, endpoints, endpointsEnabled)         => APIVersion(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
       case (version, status, Some(access), endpoints, endpointsEnabled) => APIVersion(version, status, access, endpoints, endpointsEnabled)
     }
 
-  implicit val apiVersionWrites : Writes[APIVersion] = Json.writes[APIVersion]
+  implicit val apiVersionWrites: Writes[APIVersion] = Json.writes[APIVersion]
 
   implicit val apiDefinitionReads: Reads[APIDefinition] = (
     (JsPath \ "serviceName").read[String] and
@@ -96,9 +97,9 @@ trait ApiDefinitionJsonFormatters
       ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
       (JsPath \ "versions").read[Seq[APIVersion]] and
       ((JsPath \ "categories").read[Seq[APICategory]] or Reads.pure(Seq.empty[APICategory]))
-    )(APIDefinition.apply _)
+  )(APIDefinition.apply _)
 
-  implicit val apiDefinitionWrites : Writes[APIDefinition] = Json.writes[APIDefinition]
+  implicit val apiDefinitionWrites: Writes[APIDefinition] = Json.writes[APIDefinition]
 
   implicit val formatApiAvailability = Json.format[APIAvailability]
   implicit val formatExtendedApiVersion = Json.format[ExtendedAPIVersion]
