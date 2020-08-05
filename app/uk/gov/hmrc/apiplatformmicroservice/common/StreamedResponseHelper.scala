@@ -52,12 +52,12 @@ trait StreamedResponseHelper {
       response.headers.get("Content-Length") match {
         case Some(Seq(length)) =>
           Ok.sendEntity(
-            HttpEntity.Streamed(response.bodyAsSource,
-                                Some(length.toLong),
-                                Some(contentType)))
-        case _ =>
+            HttpEntity.Streamed(response.bodyAsSource, Some(length.toLong), Some(contentType))
+          )
+        case _                 =>
           Ok.sendEntity(
-            HttpEntity.Streamed(response.bodyAsSource, None, Some(contentType)))
+            HttpEntity.Streamed(response.bodyAsSource, None, Some(contentType))
+          )
       }
   }
 
@@ -67,14 +67,17 @@ trait StreamedResponseHelper {
   }
 
   def handleErrorsAsInternalServerError(
-      msg: String): StreamedResponseHandlerPF = {
+      msg: String
+    ): StreamedResponseHandlerPF = {
     case response: WSResponse =>
       Logger.warn(s"Failed due to $msg with status ${response.status}")
       throw new InternalServerException(msg)
   }
 
-  def streamedResponseAsResult(handleError: StreamedResponseHandlerPF)(
-      streamedResponse: WSResponse): Result = {
+  def streamedResponseAsResult(
+      handleError: StreamedResponseHandlerPF
+    )(streamedResponse: WSResponse
+    ): Result = {
     Logger.info(s"Streamed Response status ${streamedResponse.status}")
     val fn = handleOkStreamedResponse orElse handleError
 

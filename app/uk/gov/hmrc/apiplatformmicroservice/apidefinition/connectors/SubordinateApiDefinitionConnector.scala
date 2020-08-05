@@ -32,13 +32,17 @@ import uk.gov.hmrc.play.http.ws.WSGet
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubordinateApiDefinitionConnector @Inject()(
+class SubordinateApiDefinitionConnector @Inject() (
     val config: Config,
     val httpClient: HttpClient with WSGet,
     val proxiedHttpClient: ProxiedHttpClient,
     val actorSystem: ActorSystem,
-    val futureTimeout: FutureTimeoutSupport)(
-    implicit val ec: ExecutionContext, val mat: Materializer) extends ApiDefinitionConnector with Retries with WSResponseRetries {
+    val futureTimeout: FutureTimeoutSupport
+  )(implicit val ec: ExecutionContext,
+    val mat: Materializer)
+    extends ApiDefinitionConnector
+    with Retries
+    with WSResponseRetries {
 
   val serviceBaseUrl: String = config.serviceBaseUrl
   val retryCount: Int = config.retryCount
@@ -85,12 +89,12 @@ class SubordinateApiDefinitionConnector @Inject()(
 }
 
 object SubordinateApiDefinitionConnector {
+
   case class Config(
       serviceBaseUrl: String,
       useProxy: Boolean,
       bearerToken: String,
       apiKey: String,
       retryCount: Int,
-      retryDelayMilliseconds: Int
-  )
+      retryDelayMilliseconds: Int)
 }

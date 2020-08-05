@@ -21,6 +21,7 @@ import play.api.Logger
 import scala.util.control.NonFatal
 
 trait Recoveries {
+
   def recoverWithDefault[T](default: T): PartialFunction[Throwable, T] = {
     case NonFatal(e) =>
       Logger.error(s"Error occurred: ${e.getMessage}", e)

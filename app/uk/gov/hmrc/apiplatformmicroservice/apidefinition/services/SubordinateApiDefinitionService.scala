@@ -22,11 +22,11 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateA
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
 
 @Singleton
-class SubordinateApiDefinitionService @Inject()(
+class SubordinateApiDefinitionService @Inject() (
     val connector: SubordinateApiDefinitionConnector,
     val config: SubordinateApiDefinitionService.Config,
-    val apiMetrics: ApiMetrics
-) extends ApiDefinitionService {
+    val apiMetrics: ApiMetrics)
+    extends ApiDefinitionService {
 
   val api: API = API("api-definition-subordinate")
 

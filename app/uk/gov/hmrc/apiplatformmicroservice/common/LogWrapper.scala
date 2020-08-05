@@ -24,11 +24,9 @@ trait AbstractLogWrapper {
 
   def logFn(message: => String, error: => Throwable): Unit
 
-  def log[A](failMessage: Throwable => String)(f: => Future[A])(
-      implicit ec: ExecutionContext): Future[A] = {
-
+  def log[A](failMessage: Throwable => String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     f.onComplete {
-      case Failure(throwable) if(NonFatal(throwable)) =>
+      case Failure(throwable) if (NonFatal(throwable)) =>
         logFn(failMessage(throwable), throwable)
     }
     f
@@ -36,6 +34,7 @@ trait AbstractLogWrapper {
 }
 
 trait LogWrapper extends AbstractLogWrapper {
+
   def logFn(message: => String, error: => Throwable): Unit =
     play.api.Logger.warn(message, error)
 }

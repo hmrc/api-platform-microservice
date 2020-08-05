@@ -34,6 +34,7 @@ package object controllers {
   }
 
   object JsErrorResponse {
+
     def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
       Json.obj(
         "code" -> errorCode.toString,
@@ -43,7 +44,7 @@ package object controllers {
 
   def recovery: PartialFunction[Throwable, Result] = {
     case _: NotFoundException => NotFound
-    case NonFatal(e) =>
+    case NonFatal(e)          =>
       Logger.error(s"Error occurred: ${e.getMessage}", e)
       handleException(e)
   }

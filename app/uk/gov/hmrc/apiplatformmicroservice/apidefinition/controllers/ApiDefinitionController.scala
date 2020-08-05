@@ -30,13 +30,16 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiDefinitionController @Inject()(cc: ControllerComponents,
-                                        apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
-                                        extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
-                                        apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
-                                        subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher)
-                                       (implicit override val ec: ExecutionContext, override val mat: Materializer)
-  extends BackendController(cc) with StreamedResponseResourceHelper {
+class ApiDefinitionController @Inject() (
+    cc: ControllerComponents,
+    apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
+    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
+    apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
+    subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher
+  )(implicit override val ec: ExecutionContext,
+    override val mat: Materializer)
+    extends BackendController(cc)
+    with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
@@ -44,7 +47,7 @@ class ApiDefinitionController @Inject()(cc: ControllerComponents,
     } recover recovery
   }
 
-  def fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String) : Action[AnyContent] = Action.async { implicit request =>
+  def fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String): Action[AnyContent] = Action.async { implicit request =>
     subscribedApiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
@@ -53,7 +56,7 @@ class ApiDefinitionController @Inject()(cc: ControllerComponents,
   def fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, collaboratorEmail) map {
       case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
-      case _ => NotFound
+      case _                        => NotFound
     } recover recovery
   }
 

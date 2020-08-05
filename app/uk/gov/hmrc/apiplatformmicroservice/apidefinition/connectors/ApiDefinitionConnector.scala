@@ -27,9 +27,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-trait ApiDefinitionConnector
-    extends ApiDefinitionConnectorUtils
-    with JsonFormatters {
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with JsonFormatters {
   def http: HttpClient with WSGet
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext
@@ -45,7 +43,7 @@ trait ApiDefinitionConnector
         case _: NotFoundException =>
           Logger.info("Not found")
           Seq.empty
-        case NonFatal(e) =>
+        case NonFatal(e)          =>
           Logger.error(s"Failed $e")
           throw e
       }
@@ -60,12 +58,11 @@ trait ApiDefinitionConnector
         case _: NotFoundException =>
           Logger.info("Not found")
           None
-        case NonFatal(e) =>
+        case NonFatal(e)          =>
           Logger.error(s"Failed $e")
           throw e
       }
   }
 
-  def fetchApiDocumentationResource(resourceId: ResourceId)(
-      implicit hc: HeaderCarrier): Future[Option[WSResponse]]
+  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
 }

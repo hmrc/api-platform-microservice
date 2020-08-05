@@ -29,17 +29,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDocumentationResourceFetcher @Inject()(principalDefinitionService: PrincipalApiDefinitionService,
-                                                subordinateDefinitionService: SubordinateApiDefinitionService,
-                                                extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher)
-                                               (implicit override val ec: ExecutionContext, override val mat: Materializer)
-  extends StreamedResponseResourceHelper {
+class ApiDocumentationResourceFetcher @Inject() (
+    principalDefinitionService: PrincipalApiDefinitionService,
+    subordinateDefinitionService: SubordinateApiDefinitionService,
+    extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
+  )(implicit override val ec: ExecutionContext,
+    override val mat: Materializer)
+    extends StreamedResponseResourceHelper {
 
   def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
     for {
       apiVersion <- fetchApiVersion(resourceId)
       _ = Logger.info(
-        s"Availability of $resourceId - Sandbox: ${apiVersion.sandboxAvailability.isDefined} Production: ${apiVersion.productionAvailability.isDefined}")
+            s"Availability of $resourceId - Sandbox: ${apiVersion.sandboxAvailability.isDefined} Production: ${apiVersion.productionAvailability.isDefined}"
+          )
       response <- fetchResource(apiVersion.sandboxAvailability.isDefined, resourceId)
     } yield response.some
   }
@@ -51,7 +54,9 @@ class ApiDocumentationResourceFetcher @Inject()(principalDefinitionService: Prin
 
     val error = Future.failed[ExtendedAPIVersion](
       new IllegalArgumentException(
-        s"Version ${resourceId.version} of ${resourceId.serviceName} not found"))
+        s"Version ${resourceId.version} of ${resourceId.serviceName} not found"
+      )
+    )
 
     OptionT(extendedApiDefinitionFetcher.fetch(resourceId.serviceName, None))
       .mapFilter(findVersion)
@@ -80,8 +85,10 @@ class ApiDocumentationResourceFetcher @Inject()(principalDefinitionService: Prin
       .getOrElseF(failedDueToNotFoundException(resourceId))
   }
 
-  private def mapStatusCodeToOption(connectorName: String)(
-    x: WSResponse): OptionT[Future, WSResponse] = {
+  private def mapStatusCodeToOption(
+      connectorName: String
+    )(x: WSResponse
+    ): OptionT[Future, WSResponse] = {
     Logger.info(s"$connectorName response code: ${x.status}")
     if (x.status >= 200 && x.status <= 299) {
       OptionT.some(x)

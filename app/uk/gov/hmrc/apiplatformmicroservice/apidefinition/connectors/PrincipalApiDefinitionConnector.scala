@@ -28,20 +28,23 @@ import uk.gov.hmrc.play.http.ws.WSGet
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PrincipalApiDefinitionConnector @Inject()(
+class PrincipalApiDefinitionConnector @Inject() (
     val http: HttpClient with WSGet,
     val config: Config
-)(implicit val ec: ExecutionContext)
+  )(implicit val ec: ExecutionContext)
     extends ApiDefinitionConnector {
 
   val serviceBaseUrl: String = config.baseUrl
 
-  override def fetchApiDocumentationResource(resourceId: ResourceId)(
-      implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
+  override def fetchApiDocumentationResource(
+      resourceId: ResourceId
+    )(implicit hc: HeaderCarrier
+    ): Future[Option[WSResponse]] = {
     val url = documentationUrl(serviceBaseUrl, resourceId)
 
     Logger.info(
-      s"${this.getClass.getSimpleName} - P - fetchApiDocumentationResource. Url: $url")
+      s"${this.getClass.getSimpleName} - P - fetchApiDocumentationResource. Url: $url"
+    )
 
     http
       .buildRequest(url)

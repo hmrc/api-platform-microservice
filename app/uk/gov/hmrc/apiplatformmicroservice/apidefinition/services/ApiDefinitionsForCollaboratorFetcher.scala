@@ -26,14 +26,16 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDefinitionsForCollaboratorFetcher @Inject()(principalDefinitionService: PrincipalApiDefinitionService,
-                                                     subordinateDefinitionService: SubordinateApiDefinitionService,
-                                                     appIdsFetcher: ApplicationIdsForCollaboratorFetcher)
-                                                    (implicit ec: ExecutionContext) extends Recoveries {
+class ApiDefinitionsForCollaboratorFetcher @Inject() (
+    principalDefinitionService: PrincipalApiDefinitionService,
+    subordinateDefinitionService: SubordinateApiDefinitionService,
+    appIdsFetcher: ApplicationIdsForCollaboratorFetcher
+  )(implicit ec: ExecutionContext)
+    extends Recoveries {
 
   def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions
-    val subordinateDefinitionsFuture  = subordinateDefinitionService.fetchAllDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
+    val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
 
     for {
       principalDefinitions <- principalDefinitionsFuture
@@ -55,10 +57,10 @@ class ApiDefinitionsForCollaboratorFetcher @Inject()(principalDefinitionService:
     def activeVersions(version: APIVersion): Boolean = version.status != APIStatus.RETIRED
 
     def visiblePrivateVersions(version: APIVersion): Boolean = version.access match {
-      case PrivateApiAccess( _, true) => true
+      case PrivateApiAccess(_, true)                      => true
       case PrivateApiAccess(whitelistedApplicationIds, _) =>
         whitelistedApplicationIds.exists(s => applicationIds.contains(s))
-      case _ => true
+      case _                                              => true
     }
 
     val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v))
