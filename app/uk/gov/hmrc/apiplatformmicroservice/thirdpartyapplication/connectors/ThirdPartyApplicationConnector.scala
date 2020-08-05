@@ -21,31 +21,37 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.JsonFormatters.formatApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
 private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   protected val config: ThirdPartyApplicationConnectorConfig
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
+  // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
   lazy val useProxy: Boolean = config.applicationUseProxy
   lazy val bearerToken: String = config.applicationBearerToken
   lazy val apiKey: String = config.applicationApiKey
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
+  def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
+    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
+  }
+
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email)).map(_.map(_.id.toString))
   }
 
-  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIIdentifier]] = {
-    http.GET[Seq[APIIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
+  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
+    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
   }
 }
 
@@ -65,7 +71,7 @@ private[thirdpartyapplication] case class ThirdPartyApplicationConnectorConfig(
 
 @Singleton
 private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject() (
-    @Named("tpacc-subordinate") override val config: ThirdPartyApplicationConnectorConfig,
+    @Named("subordinate") override val config: ThirdPartyApplicationConnectorConfig,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
@@ -73,7 +79,7 @@ private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @
 
 @Singleton
 private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject() (
-    @Named("tpacc-principal") override val config: ThirdPartyApplicationConnectorConfig,
+    @Named("principal") override val config: ThirdPartyApplicationConnectorConfig,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)

@@ -20,11 +20,11 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionsFor
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -43,7 +43,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
     "return only the APIs that the collaborator is subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
       SubscriptionsForCollaboratorFetcherMock
-        .willReturnSubscriptions(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"), APIIdentifier("hello-vat", "1.0"))
+        .willReturnSubscriptions(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"), ApiIdentifier("hello-vat", "1.0"))
 
       val result = await(underTest.fetch(email))
 
@@ -52,7 +52,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
     "filter out the versions that the collaborator is not subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(APIIdentifier("hello-world", "2.0"))
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(ApiIdentifier("hello-world", "2.0"))
 
       val result = await(underTest.fetch(email))
 

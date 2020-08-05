@@ -1,3 +1,4 @@
 # microservice specific routes
 
 ->       /combined-api-definitions         apidefinition.Routes
+->       /applications                     application.Routes

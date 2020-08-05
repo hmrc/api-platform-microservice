@@ -21,17 +21,26 @@ import com.google.inject.{AbstractModule, Provider}
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnectorConfig
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 
 class ConfigurationModule extends AbstractModule {
 
   override def configure(): Unit = {
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-principal")
+      named("principal")
     ).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
 
     bind(classOf[ThirdPartyApplicationConnectorConfig]).annotatedWith(
-      named("tpacc-subordinate")
+      named("subordinate")
     ).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
+
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(
+      named("subordinate")
+    ).to(classOf[SubordinateThirdPartyApplicationConnector])
+
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(
+      named("principal")
+    ).to(classOf[PrincipalThirdPartyApplicationConnector])
   }
 }
 
@@ -41,11 +50,12 @@ class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject() (override 
     with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
+    val serviceName = "third-party-application-principal"
     ThirdPartyApplicationConnectorConfig(
-      serviceUrl("third-party-application")("third-party-application-production"),
-      useProxy("third-party-application-production"),
-      bearerToken("third-party-application-production"),
-      apiKey("third-party-application-production")
+      serviceUrl("third-party-application")(serviceName),
+      useProxy(serviceName),
+      bearerToken(serviceName),
+      apiKey(serviceName)
     )
   }
 }
@@ -56,11 +66,12 @@ class SubordinateThirdPartyApplicationConnectorConfigProvider @Inject() (overrid
     with ThirdPartyApplicationConnectorConfigProvider {
 
   override def get(): ThirdPartyApplicationConnectorConfig = {
+    val serviceName = "third-party-application-subordinate"
     ThirdPartyApplicationConnectorConfig(
-      serviceUrl("third-party-application")("third-party-application-sandbox"),
-      useProxy("third-party-application-sandbox"),
-      bearerToken("third-party-application-sandbox"),
-      apiKey("third-party-application-sandbox")
+      serviceUrl("third-party-application")(serviceName),
+      useProxy(serviceName),
+      bearerToken(serviceName),
+      apiKey(serviceName)
     )
   }
 }

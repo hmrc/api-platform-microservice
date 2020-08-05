@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 import scala.concurrent.Future.{failed, successful}
@@ -28,7 +28,7 @@ trait SubscriptionsForCollaboratorFetcherModule extends PlaySpec with MockitoSug
   object SubscriptionsForCollaboratorFetcherMock {
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 
-    def willReturnSubscriptions(subscriptions: APIIdentifier*) = {
+    def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
       when(aMock.fetch(*)(*)).thenReturn(successful(subscriptions.toSet))
     }
 

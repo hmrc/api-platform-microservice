@@ -20,25 +20,9 @@ import cats.data.{NonEmptyList => NEL}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 
-trait NonEmptyListFormatters {
-
-  implicit def nelReads[A](implicit r: Reads[A]): Reads[NEL[A]] =
-    Reads
-      .of[List[A]]
-      .collect(
-        JsonValidationError("expected a NonEmptyList but got an empty list")
-      ) {
-        case head :: tail => NEL(head, tail)
-      }
-
-  implicit def nelWrites[A](implicit w: Writes[A]): Writes[NEL[A]] =
-    Writes
-      .of[List[A]]
-      .contramap(_.toList)
-}
-
-trait EndpointJsonFormatters extends NonEmptyListFormatters {
+trait EndpointJsonFormatters extends NonEmptyListFormatters with CommonJsonFormatters {
   implicit val formatParameter = Json.format[Parameter]
 
   implicit val endpointReads: Reads[Endpoint] = (

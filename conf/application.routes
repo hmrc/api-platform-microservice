@@ -1,0 +1,3 @@
+# microservice specific routes
+
+GET        /:id                                              uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchAppplicationById(id: String)

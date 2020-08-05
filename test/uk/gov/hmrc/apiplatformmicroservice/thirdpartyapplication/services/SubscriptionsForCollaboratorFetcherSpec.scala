@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -29,8 +29,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
   trait Setup extends ThirdPartyApplicationConnectorModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val subordinateSubscriptions = Seq(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"))
-    val principalSubscriptions = Seq(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-agents", "1.0"))
+    val subordinateSubscriptions = Seq(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"))
+    val principalSubscriptions = Seq(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-agents", "1.0"))
     val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock,
       PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
@@ -42,7 +42,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Set(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"), APIIdentifier("hello-agents", "1.0"))
+      result shouldBe Set(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"), ApiIdentifier("hello-agents", "1.0"))
     }
 
     "return subordinate subscriptions if there are no matching principal subscriptions" in new Setup {

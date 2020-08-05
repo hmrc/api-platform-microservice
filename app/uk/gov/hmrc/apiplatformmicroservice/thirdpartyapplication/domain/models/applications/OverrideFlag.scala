@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import play.api.libs.json._
+case class OverrideFlag(overrideType: String)
 
-object JsonFormatters {
-  implicit val formatApiIdentifier = Json.format[APIIdentifier]
+object OverrideFlag {
+  import play.api.libs.json._
+
+  val reads = Reads[OverrideFlag] {
+    case JsString(value) => JsSuccess(OverrideFlag(value))
+    case o: JsObject     => Json.reads[OverrideFlag].reads(o)
+    case _               => JsError()
+  }
+
+  val writes = Json.writes[OverrideFlag]
+  implicit val format = Format(reads, writes)
 }
