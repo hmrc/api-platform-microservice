@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -28,10 +29,9 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   trait Setup extends ThirdPartyApplicationConnectorModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val subordinateApplicationIds = Seq("s1", "s2", "s3")
-    val principalApplicationIds = Seq("p1", "p2")
-    val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock,
-      PrincipalThirdPartyApplicationConnectorMock.aMock)
+    val subordinateApplicationIds = Seq("s1", "s2", "s3").map(ApplicationId(_))
+    val principalApplicationIds = Seq("p1", "p2").map(ApplicationId(_))
+    val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "ApplicationIdsForCollaboratorFetcher" should {
@@ -41,7 +41,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result mustBe Seq("s1", "s2", "s3", "p1", "p2")
+      result mustBe Seq("s1", "s2", "s3", "p1", "p2").map(ApplicationId(_))
     }
 
     "return subordinate application Ids if there are no matching principal applications" in new Setup {

@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -36,14 +37,14 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher.fetch(_))
+      applicationIds <- email.fold(successful(Seq.empty[ApplicationId]))(appIdsFetcher.fetch(_))
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
   }
 
   private def createExtendedApiDefinition(
       maybePrincipalDefinition: Option[APIDefinition],
       maybeSubordinateDefinition: Option[APIDefinition],
-      applicationIds: Seq[String],
+      applicationIds: Seq[ApplicationId],
       email: Option[String]
     ): Option[ExtendedAPIDefinition] = {
 
@@ -82,7 +83,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def createExtendedApiVersions(
       principalVersions: Seq[APIVersion],
       subordinateVersions: Seq[APIVersion],
-      applicationIds: Seq[String],
+      applicationIds: Seq[ApplicationId],
       email: Option[String]
     ): Seq[ExtendedAPIVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
@@ -96,7 +97,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def combineVersion(
       maybePrincipalVersion: Option[APIVersion],
       maybeSubordinateVersion: Option[APIVersion],
-      applicationIds: Seq[String],
+      applicationIds: Seq[ApplicationId],
       email: Option[String]
     ): ExtendedAPIVersion = {
 
@@ -122,11 +123,10 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(version: APIVersion, applicationIds: Seq[String], email: Option[String]): Option[APIAvailability] = {
+  private def availability(version: APIVersion, applicationIds: Seq[ApplicationId], email: Option[String]): Option[APIAvailability] = {
     version.access match {
       case PrivateApiAccess(whitelist, isTrial) =>
         Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised = applicationIds.intersect(whitelist).nonEmpty))
-
       case _                                    => Some(APIAvailability(version.endpointsEnabled, PublicApiAccess(), email.isDefined, authorised = true))
     }
   }

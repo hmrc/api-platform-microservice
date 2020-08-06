@@ -20,7 +20,6 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
-case class ApplicationId(value: String) extends AnyVal
 case class ClientId(value: String) extends AnyVal
 
 case class Collaborator(emailAddress: String, role: Role)

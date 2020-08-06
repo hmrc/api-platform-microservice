@@ -54,10 +54,12 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
   }
 
-  private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
+  private def urlEncode(str: String): String = encode(str, "UTF-8")
+
+  private def urlEncode(apiIdentifier: ApiIdentifier): String = s"context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context)}/version/${urlEncode(apiIdentifier.version)}"
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/${urlEncode(apiIdentifier)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {

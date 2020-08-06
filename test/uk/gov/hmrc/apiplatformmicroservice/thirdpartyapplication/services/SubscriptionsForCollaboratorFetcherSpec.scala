@@ -23,16 +23,23 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiContext
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val subordinateSubscriptions = Seq(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"))
-    val principalSubscriptions = Seq(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-agents", "1.0"))
-    val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock,
-      PrincipalThirdPartyApplicationConnectorMock.aMock)
+
+    val apiContextHelloWorld = ApiContext("hello-world")
+    val apiContextHelloAgents = ApiContext("hello-agents")
+    val apiVersionOne = ApiVersion("1.0")
+    val apiVersionTwo = ApiVersion("2.0")
+
+    val subordinateSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
+    val principalSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloAgents, apiVersionOne))
+    val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "SubscriptionsForCollaboratorFetcher" should {
@@ -42,7 +49,11 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Set(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"), ApiIdentifier("hello-agents", "1.0"))
+      result shouldBe Set(
+        ApiIdentifier(apiContextHelloWorld, apiVersionOne),
+        ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
+        ApiIdentifier(apiContextHelloAgents, apiVersionOne)
+      )
     }
 
     "return subordinate subscriptions if there are no matching principal subscriptions" in new Setup {

@@ -24,26 +24,29 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+
+  private val helloWorldContext = ApiContext("hello-world")
+  private val versionOne = ApiVersion("1.0")
+  private val versionTwo = ApiVersion("2.0")
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val helloWorldDefinition = apiDefinition("hello-world", Seq(apiVersion("1.0", STABLE), apiVersion("2.0", STABLE)))
-    val helloAgentsDefinition = apiDefinition("hello-agents", Seq(apiVersion("1.0", STABLE), apiVersion("2.0", STABLE)))
-    val helloVatDefinition = apiDefinition("hello-vat", Seq(apiVersion("1.0", STABLE)))
+    val helloWorldDefinition = apiDefinition(helloWorldContext.value, Seq(apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE)))
+    val helloAgentsDefinition = apiDefinition("hello-agents", Seq(apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE)))
+    val helloVatDefinition = apiDefinition("hello-vat", Seq(apiVersion(versionOne, STABLE)))
 
-    val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock,
-      SubscriptionsForCollaboratorFetcherMock.aMock)
+    val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }
 
   "SubscribedApiDefinitionsForCollaboratorFetcher" should {
     "return only the APIs that the collaborator is subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
       SubscriptionsForCollaboratorFetcherMock
-        .willReturnSubscriptions(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"), ApiIdentifier("hello-vat", "1.0"))
+        .willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo), ApiIdentifier(ApiContext("hello-vat"), versionOne))
 
       val result = await(underTest.fetch(email))
 
@@ -52,11 +55,11 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
     "filter out the versions that the collaborator is not subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(ApiIdentifier("hello-world", "2.0"))
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionTwo))
 
       val result = await(underTest.fetch(email))
 
-      result.head.versions.map(_.version) should contain only "2.0"
+      result.head.versions.map(_.version) should contain only versionTwo
     }
   }
 }

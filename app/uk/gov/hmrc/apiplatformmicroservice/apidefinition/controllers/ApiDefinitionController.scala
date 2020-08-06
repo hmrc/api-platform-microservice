@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 @Singleton()
 class ApiDefinitionController @Inject() (
@@ -63,7 +64,7 @@ class ApiDefinitionController @Inject() (
   def fetchApiDocumentationResource(serviceName: String, version: String, resource: String): Action[AnyContent] = Action.async { implicit request =>
     import cats.implicits._
 
-    val resourceId = ResourceId(serviceName, version, resource)
+    val resourceId = ResourceId(serviceName, ApiVersion(version), resource)
     OptionT(apiDocumentationResourceFetcher.fetch(resourceId))
       .getOrElseF(failedDueToNotFoundException(resourceId))
       .map(handler(resourceId))

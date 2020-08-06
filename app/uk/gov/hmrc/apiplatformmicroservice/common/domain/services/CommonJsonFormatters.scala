@@ -22,6 +22,8 @@ import play.api.libs.json._
 
 trait CommonJsonFormatters {
 
+  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
+
   implicit val formatApiContext = Json.valueFormat[ApiContext]
   implicit val formatApiVersion = Json.valueFormat[ApiVersion]
   implicit val formatApiIdentifier = Json.format[ApiIdentifier]

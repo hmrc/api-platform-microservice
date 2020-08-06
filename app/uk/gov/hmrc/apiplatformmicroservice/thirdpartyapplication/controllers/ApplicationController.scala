@@ -20,8 +20,9 @@ import play.api.mvc._
 import play.api.libs.json._
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import javax.inject.{Inject, Named, Singleton}
 import play.api.http.Status
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationId}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
@@ -46,7 +46,7 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
     input
       .flatMap(ss => ss.versions.map(vs => (ss.context, vs.version, vs.subscribed)))
       .filter(_._3)
-      .map(t => ApiIdentifier(t._1.value, t._2.version.value))
+      .map(t => ApiIdentifier(t._1, t._2.version))
       .toSet
   }
 
@@ -83,9 +83,9 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
     http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
   }
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
     http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email))
-      .map(_.map(_.id.toString))
+      .map(_.map(_.id))
   }
 
   def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {

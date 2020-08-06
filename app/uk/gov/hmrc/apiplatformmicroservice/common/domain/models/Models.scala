@@ -16,8 +16,24 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
+case class ApplicationId(value: String) extends AnyVal
+
 case class ApiContext(value: String) extends AnyVal
 case class ApiVersion(value: String) extends AnyVal
 
-// TODO - use the above value classes
-case class ApiIdentifier(context: String, version: String)
+case class ApiIdentifier(context: ApiContext, version: ApiVersion)
+
+object ApiContext {
+
+  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
+    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
+
+  }
+}
+
+object ApiVersion {
+
+  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
+    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
+  }
+}

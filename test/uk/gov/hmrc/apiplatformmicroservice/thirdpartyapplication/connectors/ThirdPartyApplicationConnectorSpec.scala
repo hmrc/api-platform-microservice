@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ApplicationResponse
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApiIdentifier, ApplicationId, _}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -29,6 +29,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
+
+  private val helloWorldContext = ApiContext("hello-world")
+  private val versionOne = ApiVersion("1.0")
+  private val versionTwo = ApiVersion("2.0")
+
+  private val applicationIdOne = ApplicationId("app id 1")
+  private val applicationIdTwo = ApplicationId("app id 2")
 
   private val baseUrl = "https://example.com"
 
@@ -42,8 +49,13 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val connector = new ThirdPartyApplicationConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
-      val config = ThirdPartyApplicationConnector.Config (
-        baseUrl, proxyEnabled, bearer, apiKeyTest)
+
+      val config = ThirdPartyApplicationConnector.Config(
+        baseUrl,
+        proxyEnabled,
+        bearer,
+        apiKeyTest
+      )
     }
   }
 
@@ -68,7 +80,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   "fetchApplicationsByEmail" should {
     val email = "email@example.com"
     val url = baseUrl + "/application"
-    val applicationResponses = List(ApplicationResponse("app id 1"), ApplicationResponse("app id 2"))
+    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url), meq(Seq("emailAddress" -> email)))(any(), any(), any()))
@@ -77,7 +89,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       val result = await(connector.fetchApplicationsByEmail(email))
 
       result.size shouldBe 2
-      result should contain allOf ("app id 1", "app id 2")
+      result should contain allOf (applicationIdOne, applicationIdTwo)
     }
 
     "propagate error when endpoint returns error" in new Setup {
@@ -93,7 +105,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   "fetchSubscriptionsByEmail" should {
     val email = "email@example.com"
     val url = s"$baseUrl/developer/$email/subscriptions"
-    val expectedSubscriptions = Seq(ApiIdentifier("hello-world", "1.0"), ApiIdentifier("hello-world", "2.0"))
+    val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
       when(mockHttpClient.GET[Seq[ApiIdentifier]](meq(url))(any(), any(), any()))

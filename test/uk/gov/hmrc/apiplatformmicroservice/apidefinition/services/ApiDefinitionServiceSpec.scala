@@ -27,16 +27,17 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val serviceName = "test-service"
-  val version = "1.0"
-  val resource = "/mock/resourcename"
+  private val serviceName = "test-service"
+  private val versionOne = ApiVersion("1.0")
+  private val resource = "/mock/resourcename"
 
-  val resourceId = ResourceId(serviceName, version, resource)
+  val resourceId = ResourceId(serviceName, versionOne, resource)
 
   implicit val hc = HeaderCarrier()
 
@@ -81,6 +82,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar 
     val mockConnector = mock[SubordinateApiDefinitionConnector]
 
     val config = SubordinateApiDefinitionService.Config(enabled = isEnabled)
+
     val svc: ApiDefinitionService =
       new SubordinateApiDefinitionService(mockConnector, config, mockApiMetrics)
   }
@@ -121,7 +123,9 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar 
 
           val result = await(
             svc.fetchApiDocumentationResource(
-              ResourceId(serviceName, version, "/any/esource")))
+              ResourceId(serviceName, versionOne, "/any/esource")
+            )
+          )
 
           result shouldEqual None
         }
@@ -219,7 +223,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar 
           val mockFuture: Future[T] = Future.successful(result)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any))
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+          )
             .thenReturn(mockFuture)
 
           await(svc.fetchApiDocumentationResource(resourceId))
@@ -235,7 +240,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar 
           val mockFuture: Future[T] = Future.failed(new RuntimeException)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any))
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+          )
             .thenReturn(mockFuture)
 
           intercept[RuntimeException] {

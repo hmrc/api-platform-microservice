@@ -54,7 +54,7 @@ class ApiDocumentationResourceFetcher @Inject() (
 
     val error = Future.failed[ExtendedAPIVersion](
       new IllegalArgumentException(
-        s"Version ${resourceId.version} of ${resourceId.serviceName} not found"
+        s"Version ${resourceId.version.value} of ${resourceId.serviceName} not found"
       )
     )
 

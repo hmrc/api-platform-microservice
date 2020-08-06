@@ -27,7 +27,6 @@ trait JsonFormatters extends CommonJsonFormatters {
   import play.api.libs.json.JodaWrites.JodaDateTimeNumberWrites
   import uk.gov.hmrc.play.json.Union
 
-  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
   implicit val formatClientId = Json.valueFormat[ClientId]
 
   val readsOverrideFlag = Reads[OverrideFlag] {
