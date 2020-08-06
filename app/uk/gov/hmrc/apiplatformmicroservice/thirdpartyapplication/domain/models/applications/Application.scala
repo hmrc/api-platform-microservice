@@ -57,7 +57,7 @@ case class ApplicationWithSubscriptionData(
     checkInformation: Option[CheckInformation] = None,
     ipWhitelist: Set[String] = Set.empty,
     subscriptions: Set[ApiIdentifier] = Set.empty,
-    subscriptionData: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = Map.empty)
+    subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = Map.empty)
 
 object Application {
   implicit val ordering: Ordering[Application] = Ordering.by(_.name)
@@ -68,7 +68,7 @@ object ApplicationWithSubscriptionData {
   def fromApplication(
       app: Application,
       subscriptions: Set[ApiIdentifier],
-      subscriptionData: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]
+      subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]
     ): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
       app.id,
@@ -85,7 +85,7 @@ object ApplicationWithSubscriptionData {
       app.checkInformation,
       app.ipWhitelist,
       subscriptions,
-      subscriptionData
+      subscriptionFieldValues
     )
   }
 
