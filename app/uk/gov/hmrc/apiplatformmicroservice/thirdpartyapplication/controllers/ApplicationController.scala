@@ -37,6 +37,6 @@ class ApplicationController @Inject() (
   def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
     for {
       oApp <- applicationByIdFetcher.fetch(ApplicationId(id))
-    } yield oApp.fold[Result](NotFound)(app => Ok(Json.toJson(ApplicationWithSubscriptionData.fromApplication(app, Set.empty, Map.empty))))
+    } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 }

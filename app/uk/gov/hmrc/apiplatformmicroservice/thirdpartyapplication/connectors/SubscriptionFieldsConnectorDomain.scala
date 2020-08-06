@@ -20,48 +20,19 @@ import java.{util => ju}
 
 private[connectors] object SubscriptionFieldsConnectorDomain {
 
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.AccessRequirements
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService.DefinitionsByApiVersion
-  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
-
-  def toDomain(f: FieldDefinition): SubscriptionFieldDefinition = {
-    SubscriptionFieldDefinition(
-      name = f.name,
-      description = f.description,
-      shortDescription = f.shortDescription,
-      `type` = f.`type`,
-      hint = f.hint,
-      access = f.access
-    )
-  }
-
-  def toDomain(fs: AllApiFieldDefinitions): DefinitionsByApiVersion = {
-    fs.apis
-      .map(fd => ApiIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain))
-      .toMap
-  }
+  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApiContext, ApiVersion}
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldName, FieldValue}
 
   case class ApplicationApiFieldValues(
-      clientId: String,
-      apiContext: String,
-      apiVersion: String,
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
       fieldsId: ju.UUID,
-      fields: Map[String, String])
+      fields: Map[FieldName, FieldValue])
 
-  case class FieldDefinition(
-      name: String,
-      description: String,
-      shortDescription: String,
-      hint: String,
-      `type`: String,
-      access: AccessRequirements)
-
-  case class ApiFieldDefinitions(
-      apiContext: String,
-      apiVersion: String,
-      fieldDefinitions: List[FieldDefinition])
-
-  case class AllApiFieldDefinitions(apis: Seq[ApiFieldDefinitions])
-
+  object ApplicationApiFieldValues {
+    import play.api.libs.json.Json
+    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
+    implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
+  }
 }

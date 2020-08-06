@@ -27,18 +27,32 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApplicationByIdFetcher @Inject() (
     @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
-    @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector
+    @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector,
+    environmentAwareConnectorsSupplier: EnvironmentAwareConnectorsSupplier,
+    subscriptionFieldsService: SubscriptionFieldsService
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    val subordinateApp: Future[Option[Application]] = subordinateTpaConnector.fetchApplicationById(id) recover recoverWithDefault(None)
-    val principalApp: Future[Option[Application]] = principalTpaConnector.fetchApplicationById(id)
+  def fetch(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
+    import cats.data.OptionT
+    import cats.implicits._
 
-    for {
+    val subordinateApp: Future[Option[Application]] = subordinateTpaConnector.fetchApplication(id) recover recoverWithDefault(None)
+    val principalApp: Future[Option[Application]] = principalTpaConnector.fetchApplication(id)
+
+    val foapp = for {
       subordinate <- subordinateApp
       principal <- principalApp
-
     } yield principal.orElse(subordinate)
+
+    (
+      for {
+        app <- OptionT(foapp)
+        connector = environmentAwareConnectorsSupplier.forEnvironment(app.deployedTo).thirdPartyApplicationConnector
+        subs <- OptionT.liftF(connector.fetchSubscriptions(app.id))
+        // fields <- Future.sequence(subs.map(_ => subscriptionFieldsService.fetchFieldsValues(app, _.apiIdentifier)))
+      } yield ApplicationWithSubscriptionData.fromApplication(app, subs, Map.empty)
+    )
+      .value
   }
 }

@@ -23,26 +23,23 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService._
 import uk.gov.hmrc.http.HeaderCarrier
 import akka.pattern.FutureTimeoutSupport
 import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
-import play.api.http.Status
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 
-abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with FieldDefinitionFormatters {
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
 
   def http: HttpClient
 
@@ -50,72 +47,17 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       clientId: ClientId,
       apiIdentifier: ApiIdentifier
     )(implicit hc: HeaderCarrier
-    ): Future[Seq[SubscriptionFieldValue]] = {
+    ): Future[Map[FieldName, FieldValue]] = {
 
-    def getDefinitions() = fetchFieldDefinitions(apiIdentifier)
-
-    internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
-  }
-
-  def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
-    val url = s"$serviceBaseUrl/definition"
-    for {
-      response <- http.GET[AllApiFieldDefinitions](url)
-    } yield toDomain(response)
-  }
-
-  def fetchFieldDefinitions(apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Seq[SubscriptionFieldDefinition]] = {
-    val url = urlSubscriptionFieldDefinition(apiIdentifier)
-    http.GET[ApiFieldDefinitions](url).map(response => response.fieldDefinitions.map(toDomain)) recover recovery(Seq.empty)
-  }
-
-  private def internalFetchFieldValues(
-      getDefinitions: () => Future[Seq[SubscriptionFieldDefinition]]
-    )(clientId: ClientId,
-      apiIdentifier: ApiIdentifier
-    )(implicit hc: HeaderCarrier
-    ): Future[Seq[SubscriptionFieldValue]] = {
-
-    def joinFieldValuesToDefinitions(
-        defs: Seq[SubscriptionFieldDefinition],
-        fieldValues: Fields
-      ): Seq[SubscriptionFieldValue] = {
-      defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, "")))
-    }
-
-    def ifDefinitionsGetValues(
-        definitions: Seq[SubscriptionFieldDefinition]
-      ): Future[Option[ApplicationApiFieldValues]] = {
-      if (definitions.isEmpty) {
-        Future.successful(None)
-      } else {
-        fetchApplicationApiValues(clientId, apiIdentifier)
-      }
-    }
-
-    for {
-      definitions: Seq[SubscriptionFieldDefinition] <- getDefinitions()
-      subscriptionFields <- ifDefinitionsGetValues(definitions)
-      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
-  }
-
-  private def fetchApplicationApiValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
-    http.GET[Option[ApplicationApiFieldValues]](url) recover recovery(None)
+    http.GET[Option[ApplicationApiFieldValues]](url)
+      .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
   }
 
   private def urlEncode(str: String, encoding: String = "UTF-8") = encode(str, encoding)
 
-  private def urlSubscriptionFieldDefinition(apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/definition/context/${urlEncode(apiIdentifier.context)}/version/${urlEncode(apiIdentifier.version)}"
-
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context)}/version/${urlEncode(apiIdentifier.version)}"
-
-  private def recovery[T](defaultValue: T): PartialFunction[Throwable, T] = {
-    case WithStatusCode(Status.NOT_FOUND, _) => defaultValue
-  }
 }
 
 object SubordinateSubscriptionFieldsConnector {

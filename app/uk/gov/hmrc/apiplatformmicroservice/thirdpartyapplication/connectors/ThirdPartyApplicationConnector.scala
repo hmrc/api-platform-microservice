@@ -17,49 +17,46 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
+import play.api.http.Status
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters.formatApplicationResponse
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationId}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters._
+
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-
-private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
-  protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
-  protected val config: ThirdPartyApplicationConnector.Config
-  lazy val serviceBaseUrl: String = config.applicationBaseUrl
-  // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
-  lazy val useProxy: Boolean = config.applicationUseProxy
-  lazy val bearerToken: String = config.applicationBearerToken
-  lazy val apiKey: String = config.applicationApiKey
-
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-
-  def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
-  }
-
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email)).map(_.map(_.id.toString))
-  }
-
-  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
-  }
-}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 private[thirdpartyapplication] object ThirdPartyApplicationConnector {
-  private[connectors] case class ApplicationResponse(id: String)
+
+  private[connectors] case class ApplicationResponse(id: ApplicationId)
+
+  // N.B. This is a small subsection of the model that is normally returned
+  private[connectors] case class InnerVersion(version: ApiVersion)
+  private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
+  private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
+
+  def asSetOfSubscriptions(input: Seq[Subscription]): Set[ApiIdentifier] = {
+    input
+      .flatMap(ss => ss.versions.map(vs => (ss.context, vs.version, vs.subscribed)))
+      .filter(_._3)
+      .map(t => ApiIdentifier(t._1.value, t._2.version.value))
+      .toSet
+  }
 
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
-    implicit val formatApplicationResponse: Reads[ApplicationResponse] = Json.reads[ApplicationResponse]
+
+    implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
+    implicit val readsInnerVersion = Json.reads[InnerVersion]
+    implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
+    implicit val readsSubscription = Json.reads[Subscription]
   }
 
   case class Config(
@@ -67,6 +64,44 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
       applicationUseProxy: Boolean,
       applicationBearerToken: String,
       applicationApiKey: String)
+}
+
+private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
+  protected val httpClient: HttpClient
+  protected val proxiedHttpClient: ProxiedHttpClient
+  protected val config: ThirdPartyApplicationConnector.Config
+  lazy val serviceBaseUrl: String = config.applicationBaseUrl
+
+  // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
+  lazy val useProxy: Boolean = config.applicationUseProxy
+  lazy val bearerToken: String = config.applicationBearerToken
+  lazy val apiKey: String = config.applicationApiKey
+
+  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+
+  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
+    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
+  }
+
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[String]] = {
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email))
+      .map(_.map(_.id.toString))
+  }
+
+  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
+    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
+  }
+
+  class ApplicationNotFound extends RuntimeException
+
+  def fetchSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+    http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
+      .map(asSetOfSubscriptions)
+      .recover {
+        case Upstream5xxResponse(_, _, _, _)     => Set.empty // TODO - really mask this ?
+        case WithStatusCode(Status.NOT_FOUND, _) => throw new ApplicationNotFound
+      }
+  }
 }
 
 @Singleton

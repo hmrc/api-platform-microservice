@@ -17,76 +17,23 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
 import com.google.inject.name.Names.named
-import com.google.inject.{AbstractModule, Provider}
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
+import com.google.inject.AbstractModule
 
 class ConfigurationModule extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(
-      named("principal")
-    ).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(named("principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(named("subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
 
-    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(
-      named("subordinate")
-    ).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[PrincipalSubscriptionFieldsConnector.Config]).toProvider(classOf[PrincipalSubscriptionFieldsConnectorConfigProvider])
+    bind(classOf[SubordinateSubscriptionFieldsConnector.Config]).toProvider(classOf[SubordinateSubscriptionFieldsConnectorConfigProvider])
 
-    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(
-      named("subordinate")
-    ).to(classOf[SubordinateThirdPartyApplicationConnector])
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateThirdPartyApplicationConnector])
+    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("principal")).to(classOf[PrincipalThirdPartyApplicationConnector])
 
-    bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(
-      named("principal")
-    ).to(classOf[PrincipalThirdPartyApplicationConnector])
+    bind(classOf[SubscriptionFieldsService.SubscriptionFieldsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateSubscriptionFieldsConnector])
+    bind(classOf[SubscriptionFieldsService.SubscriptionFieldsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalSubscriptionFieldsConnector])
   }
-}
-
-@Singleton
-class PrincipalThirdPartyApplicationConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[ThirdPartyApplicationConnector.Config]
-    with ThirdPartyApplicationConnectorConfigProvider {
-
-  override def get(): ThirdPartyApplicationConnector.Config = {
-    val serviceName = "third-party-application-principal"
-    ThirdPartyApplicationConnector.Config(
-      serviceUrl("third-party-application")(serviceName),
-      useProxy(serviceName),
-      bearerToken(serviceName),
-      apiKey(serviceName)
-    )
-  }
-}
-
-@Singleton
-class SubordinateThirdPartyApplicationConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[ThirdPartyApplicationConnector.Config]
-    with ThirdPartyApplicationConnectorConfigProvider {
-
-  override def get(): ThirdPartyApplicationConnector.Config = {
-    val serviceName = "third-party-application-subordinate"
-    ThirdPartyApplicationConnector.Config(
-      serviceUrl("third-party-application")(serviceName),
-      useProxy(serviceName),
-      bearerToken(serviceName),
-      apiKey(serviceName)
-    )
-  }
-}
-
-trait ThirdPartyApplicationConnectorConfigProvider {
-  protected val sc: ServicesConfig
-
-  def serviceUrl(key: String)(serviceName: String): String = {
-    if (useProxy(serviceName)) s"${sc.baseUrl(serviceName)}/${sc.getConfString(s"$serviceName.context", key)}"
-    else sc.baseUrl(serviceName)
-  }
-
-  def useProxy(serviceName: String) = sc.getConfBool(s"$serviceName.use-proxy", false)
-
-  def bearerToken(serviceName: String) = sc.getConfString(s"$serviceName.bearer-token", "")
-
-  def apiKey(serviceName: String) = sc.getConfString(s"$serviceName.api-key", "")
 }
