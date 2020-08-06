@@ -20,11 +20,11 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.Logger
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+
 import scala.util.{Failure, Success}
 
 @Singleton

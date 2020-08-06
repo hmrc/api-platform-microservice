@@ -28,8 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import akka.pattern.FutureTimeoutSupport
 import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
-
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 

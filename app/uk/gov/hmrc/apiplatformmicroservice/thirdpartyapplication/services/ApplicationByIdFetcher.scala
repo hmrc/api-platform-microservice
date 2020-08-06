@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Named, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
@@ -24,9 +25,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiContext
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (

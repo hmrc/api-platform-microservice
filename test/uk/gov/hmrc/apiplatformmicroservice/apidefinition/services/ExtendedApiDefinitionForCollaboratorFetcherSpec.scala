@@ -18,13 +18,12 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{BETA, RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, PrivateApiAccess, PublicApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ApiVersion, PrivateApiAccess, PublicApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

@@ -21,13 +21,12 @@ import org.mockito.Mockito.{doNothing, verify, when}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
 

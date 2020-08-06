@@ -61,6 +61,10 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
     }
   }
 
+  implicit val formatApiContext = Json.valueFormat[ApiContext]
+  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
+  implicit val formatApiIdentifier = Json.format[ApiIdentifier]
+
   implicit val apiVersionReads: Reads[APIVersion] =
     ((JsPath \ "version").read[ApiVersion] and
       (JsPath \ "status").read[APIStatus] and

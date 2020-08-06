@@ -18,9 +18,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ApplicationResponse
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApiIdentifier, ApplicationId, _}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient

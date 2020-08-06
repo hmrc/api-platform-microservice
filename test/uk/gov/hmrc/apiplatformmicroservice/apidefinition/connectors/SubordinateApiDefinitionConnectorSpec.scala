@@ -26,7 +26,7 @@ import play.api.Environment
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.ws.{WSRequest, WSResponse}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, UpstreamErrorResponse}
@@ -35,7 +35,6 @@ import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
   private val environmentName = "ENVIRONMENT"

@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{JsonFormatters => ApiDefinitionJsonFormatters}
 
-trait JsonFormatters extends CommonJsonFormatters {
+trait JsonFormatters extends CommonJsonFormatters with ApiDefinitionJsonFormatters {
   import play.api.libs.json._
   import play.api.libs.json.JodaReads._
   import play.api.libs.json.JodaWrites._

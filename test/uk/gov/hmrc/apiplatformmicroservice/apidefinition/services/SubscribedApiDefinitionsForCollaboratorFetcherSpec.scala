@@ -17,8 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionsForCollaboratorFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,7 +47,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
     "return only the APIs that the collaborator is subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
       SubscriptionsForCollaboratorFetcherMock
-        .willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo), ApiIdentifier(ApiContext("hello-vat"), versionOne))
+        .willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionOne), models.ApiIdentifier(helloWorldContext, versionTwo), models.ApiIdentifier(ApiContext("hello-vat"), versionOne))
 
       val result = await(underTest.fetch(email))
 
@@ -55,7 +56,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
     "filter out the versions that the collaborator is not subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionTwo))
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(models.ApiIdentifier(helloWorldContext, versionTwo))
 
       val result = await(underTest.fetch(email))
 

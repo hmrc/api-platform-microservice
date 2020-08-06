@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiContext
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -37,8 +35,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     val apiVersionOne = ApiVersion("1.0")
     val apiVersionTwo = ApiVersion("2.0")
 
-    val subordinateSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
-    val principalSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloAgents, apiVersionOne))
+    val subordinateSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
+    val principalSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloAgents, apiVersionOne))
     val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
@@ -50,9 +48,9 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       val result = await(underTest.fetch(email))
 
       result shouldBe Set(
-        ApiIdentifier(apiContextHelloWorld, apiVersionOne),
-        ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
-        ApiIdentifier(apiContextHelloAgents, apiVersionOne)
+        models.ApiIdentifier(apiContextHelloWorld, apiVersionOne),
+        models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
+        models.ApiIdentifier(apiContextHelloAgents, apiVersionOne)
       )
     }
 

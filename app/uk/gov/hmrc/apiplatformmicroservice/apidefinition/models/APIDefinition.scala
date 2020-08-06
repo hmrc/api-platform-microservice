@@ -18,7 +18,28 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import enumeratum._
 import cats.data.{NonEmptyList => NEL}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApiContext, ApiVersion, ApplicationId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+
+case class ApiContext(value: String) extends AnyVal
+
+object ApiContext {
+
+  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
+    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
+
+  }
+}
+
+case class ApiVersion(value: String) extends AnyVal
+
+object ApiVersion {
+
+  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
+    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
+  }
+}
+
+case class ApiIdentifier(context: ApiContext, version: ApiVersion)
 
 case class APIDefinition(
     serviceName: String,

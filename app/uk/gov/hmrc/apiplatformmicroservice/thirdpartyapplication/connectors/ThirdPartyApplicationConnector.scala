@@ -18,13 +18,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
 import play.api.http.Status
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters._
-
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
@@ -46,7 +46,7 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
     input
       .flatMap(ss => ss.versions.map(vs => (ss.context, vs.version, vs.subscribed)))
       .filter(_._3)
-      .map(t => ApiIdentifier(t._1, t._2.version))
+      .map(t => models.ApiIdentifier(t._1, t._2.version))
       .toSet
   }
 

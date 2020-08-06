@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 

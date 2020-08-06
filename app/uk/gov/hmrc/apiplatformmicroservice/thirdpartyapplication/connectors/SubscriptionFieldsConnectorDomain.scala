@@ -18,9 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.{util => ju}
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+
 private[connectors] object SubscriptionFieldsConnectorDomain {
 
-  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApiContext, ApiVersion}
+  import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldName, FieldValue}
 
   case class ApplicationApiFieldValues(

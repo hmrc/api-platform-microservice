@@ -22,13 +22,12 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiVersion
 
 @Singleton()
 class ApiDefinitionController @Inject() (

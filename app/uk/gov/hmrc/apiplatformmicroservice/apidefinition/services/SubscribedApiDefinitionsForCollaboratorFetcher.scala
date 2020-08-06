@@ -17,9 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -44,7 +44,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   }
 
   private def filterVersions(api: APIDefinition, subscriptions: Set[ApiIdentifier]): Option[APIDefinition] = {
-    val filteredVersions = api.versions.filter(v => subscriptions.contains(ApiIdentifier(api.context, v.version)))
+    val filteredVersions = api.versions.filter(v => subscriptions.contains(models.ApiIdentifier(api.context, v.version)))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))
