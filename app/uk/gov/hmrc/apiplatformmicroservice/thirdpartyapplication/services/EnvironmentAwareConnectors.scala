@@ -37,15 +37,3 @@ trait EnvironmentAwareConnector[C] {
   def principal: C = principalConnector
 
 }
-
-@Singleton
-class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
-    @Named("subordinate") val subordinateConnector: SubscriptionFieldsConnector,
-    @Named("principal") val principalConnector: SubscriptionFieldsConnector)
-    extends EnvironmentAwareConnector[SubscriptionFieldsConnector]
-
-@Singleton
-class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") val subordinateConnector: ThirdPartyApplicationConnector,
-    @Named("principal") val principalConnector: ThirdPartyApplicationConnector)
-    extends EnvironmentAwareConnector[ThirdPartyApplicationConnector]

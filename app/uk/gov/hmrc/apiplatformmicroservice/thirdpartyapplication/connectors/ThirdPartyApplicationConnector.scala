@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.EnvironmentAwareConnector
 
 private[thirdpartyapplication] object ThirdPartyApplicationConnector {
 
@@ -119,3 +120,9 @@ private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @In
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
     extends ThirdPartyApplicationConnector
+
+@Singleton
+class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
+    @Named("subordinate") val subordinateConnector: ThirdPartyApplicationConnector,
+    @Named("principal") val principalConnector: ThirdPartyApplicationConnector)
+    extends EnvironmentAwareConnector[ThirdPartyApplicationConnector]

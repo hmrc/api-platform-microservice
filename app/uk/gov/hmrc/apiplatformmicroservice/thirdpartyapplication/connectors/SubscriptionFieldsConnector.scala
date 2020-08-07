@@ -18,24 +18,25 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.net.URLEncoder.encode
 
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 import akka.pattern.FutureTimeoutSupport
 import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
+import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.EnvironmentAwareConnector
 
-trait SubscriptionFieldsConnector {
+private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
 }
 
-abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   val environment: Environment
@@ -106,3 +107,9 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
   val environment: Environment = Environment.PRODUCTION
   val serviceBaseUrl: String = appConfig.serviceBaseUrl
 }
+
+@Singleton
+class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
+    @Named("subordinate") val subordinateConnector: SubscriptionFieldsConnector,
+    @Named("principal") val principalConnector: SubscriptionFieldsConnector)
+    extends EnvironmentAwareConnector[SubscriptionFieldsConnector]
