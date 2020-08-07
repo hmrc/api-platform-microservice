@@ -65,17 +65,17 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
   implicit val formatApiVersion = Json.valueFormat[ApiVersion]
   implicit val formatApiIdentifier = Json.format[ApiIdentifier]
 
-  implicit val apiVersionReads: Reads[APIVersion] =
+  implicit val apiVersionReads: Reads[ApiVersionDefinition] =
     ((JsPath \ "version").read[ApiVersion] and
       (JsPath \ "status").read[APIStatus] and
       (JsPath \ "access").readNullable[APIAccess] and
       (JsPath \ "endpoints").read[NEL[Endpoint]] and
       ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled) map {
-      case (version, status, None, endpoints, endpointsEnabled)         => APIVersion(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
-      case (version, status, Some(access), endpoints, endpointsEnabled) => APIVersion(version, status, access, endpoints, endpointsEnabled)
+      case (version, status, None, endpoints, endpointsEnabled)         => ApiVersionDefinition(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
+      case (version, status, Some(access), endpoints, endpointsEnabled) => ApiVersionDefinition(version, status, access, endpoints, endpointsEnabled)
     }
 
-  implicit val apiVersionWrites: Writes[APIVersion] = Json.writes[APIVersion]
+  implicit val apiVersionWrites: Writes[ApiVersionDefinition] = Json.writes[ApiVersionDefinition]
 
   implicit val apiDefinitionReads: Reads[APIDefinition] = (
     (JsPath \ "serviceName").read[String] and
@@ -84,7 +84,7 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
       (JsPath \ "context").read[ApiContext] and
       ((JsPath \ "requiresTrust").read[Boolean] or Reads.pure(false)) and
       ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "versions").read[Seq[APIVersion]] and
+      (JsPath \ "versions").read[Seq[ApiVersionDefinition]] and
       ((JsPath \ "categories").read[Seq[APICategory]] or Reads.pure(Seq.empty[APICategory]))
   )(APIDefinition.apply _)
 

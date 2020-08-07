@@ -48,7 +48,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       email: Option[String]
     ): Option[ExtendedAPIDefinition] = {
 
-    def toCombinedAPIDefinition(apiDefinition: APIDefinition, principalVersions: Seq[APIVersion], subordinateVersions: Seq[APIVersion]): Option[ExtendedAPIDefinition] = {
+    def toCombinedAPIDefinition(
+        apiDefinition: APIDefinition,
+        principalVersions: Seq[ApiVersionDefinition],
+        subordinateVersions: Seq[ApiVersionDefinition]
+      ): Option[ExtendedAPIDefinition] = {
       if (apiDefinition.requiresTrust) {
         None
       } else {
@@ -81,8 +85,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def createExtendedApiVersions(
-      principalVersions: Seq[APIVersion],
-      subordinateVersions: Seq[APIVersion],
+      principalVersions: Seq[ApiVersionDefinition],
+      subordinateVersions: Seq[ApiVersionDefinition],
       applicationIds: Seq[ApplicationId],
       email: Option[String]
     ): Seq[ExtendedAPIVersion] = {
@@ -95,8 +99,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def combineVersion(
-      maybePrincipalVersion: Option[APIVersion],
-      maybeSubordinateVersion: Option[APIVersion],
+      maybePrincipalVersion: Option[ApiVersionDefinition],
+      maybeSubordinateVersion: Option[ApiVersionDefinition],
       applicationIds: Seq[ApplicationId],
       email: Option[String]
     ): ExtendedAPIVersion = {
@@ -113,7 +117,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     }
   }
 
-  private def toExtendedApiVersion(apiVersion: APIVersion, productionAvailability: Option[APIAvailability], sandboxAvailability: Option[APIAvailability]): ExtendedAPIVersion = {
+  private def toExtendedApiVersion(
+      apiVersion: ApiVersionDefinition,
+      productionAvailability: Option[APIAvailability],
+      sandboxAvailability: Option[APIAvailability]
+    ): ExtendedAPIVersion = {
     ExtendedAPIVersion(
       version = apiVersion.version,
       status = apiVersion.status,
@@ -123,7 +131,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(version: APIVersion, applicationIds: Seq[ApplicationId], email: Option[String]): Option[APIAvailability] = {
+  private def availability(version: ApiVersionDefinition, applicationIds: Seq[ApplicationId], email: Option[String]): Option[APIAvailability] = {
     version.access match {
       case PrivateApiAccess(whitelist, isTrial) =>
         Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised = applicationIds.intersect(whitelist).nonEmpty))

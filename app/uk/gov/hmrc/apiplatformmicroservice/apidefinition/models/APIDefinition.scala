@@ -48,7 +48,7 @@ case class APIDefinition(
     context: ApiContext,
     requiresTrust: Boolean = false,
     isTestSupport: Boolean = false,
-    versions: Seq[APIVersion],
+    versions: Seq[ApiVersionDefinition],
     categories: Seq[APICategory] = Seq.empty) {
 
   def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
@@ -86,7 +86,7 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 
 }
 
-case class APIVersion(version: ApiVersion, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
+case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
 
 sealed trait APIStatus extends EnumEntry
 

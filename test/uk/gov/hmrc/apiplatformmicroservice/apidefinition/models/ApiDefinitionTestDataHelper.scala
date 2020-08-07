@@ -37,7 +37,7 @@ trait ApiDefinitionTestDataHelper {
 
   def apiDefinition(
       name: String,
-      versions: Seq[APIVersion] = Seq(apiVersion(ApiVersion("1.0"), STABLE))
+      versions: Seq[ApiVersionDefinition] = Seq(apiVersion(ApiVersion("1.0"), STABLE))
     ) = {
     APIDefinition(name, name, name, ApiContext(name), false, false, versions)
   }
@@ -57,7 +57,7 @@ trait ApiDefinitionTestDataHelper {
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
 
-    def withVersions(versions: Seq[APIVersion]): APIDefinition = inner.copy(versions = versions)
+    def withVersions(versions: Seq[ApiVersionDefinition]): APIDefinition = inner.copy(versions = versions)
   }
 
   implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {
@@ -85,44 +85,44 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(method = HttpMethod.POST)
   }
 
-  def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: APIStatus = STABLE, access: APIAccess = apiAccess()): APIVersion = {
-    APIVersion(version, status, access, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")))
+  def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: APIStatus = STABLE, access: APIAccess = apiAccess()): ApiVersionDefinition = {
+    ApiVersionDefinition(version, status, access, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")))
   }
 
-  implicit class ApiVersionModifier(val inner: APIVersion) {
+  implicit class ApiVersionModifier(val inner: ApiVersionDefinition) {
 
-    def asAlpha: APIVersion =
+    def asAlpha: ApiVersionDefinition =
       inner.copy(status = APIStatus.ALPHA)
 
-    def asBeta: APIVersion =
+    def asBeta: ApiVersionDefinition =
       inner.copy(status = APIStatus.BETA)
 
-    def asStable: APIVersion =
+    def asStable: ApiVersionDefinition =
       inner.copy(status = APIStatus.STABLE)
 
-    def asDeprecated: APIVersion =
+    def asDeprecated: ApiVersionDefinition =
       inner.copy(status = APIStatus.DEPRECATED)
 
-    def asRETIRED: APIVersion =
+    def asRETIRED: ApiVersionDefinition =
       inner.copy(status = APIStatus.RETIRED)
 
-    def asPublic: APIVersion =
+    def asPublic: ApiVersionDefinition =
       inner.copy(access = PublicApiAccess())
 
-    def asPrivate: APIVersion =
+    def asPrivate: ApiVersionDefinition =
       inner.copy(access = PrivateApiAccess())
 
-    def asTrial: APIVersion = inner.access match {
+    def asTrial: ApiVersionDefinition = inner.access match {
       case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.asTrial)
       case _                           => inner.copy(access = PrivateApiAccess(isTrial = true))
     }
 
-    def notTrial: APIVersion = inner.access match {
+    def notTrial: ApiVersionDefinition = inner.access match {
       case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.notTrial)
       case _                           => inner.copy(access = PrivateApiAccess())
     }
 
-    def withAccess(altAccess: APIAccess): APIVersion =
+    def withAccess(altAccess: APIAccess): ApiVersionDefinition =
       inner.copy(access = altAccess)
   }
 

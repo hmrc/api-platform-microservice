@@ -25,7 +25,6 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -47,7 +46,11 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
     "return only the APIs that the collaborator is subscribed to" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(helloWorldDefinition, helloAgentsDefinition, helloVatDefinition)
       SubscriptionsForCollaboratorFetcherMock
-        .willReturnSubscriptions(ApiIdentifier(helloWorldContext, versionOne), models.ApiIdentifier(helloWorldContext, versionTwo), models.ApiIdentifier(ApiContext("hello-vat"), versionOne))
+        .willReturnSubscriptions(
+          ApiIdentifier(helloWorldContext, versionOne),
+          models.ApiIdentifier(helloWorldContext, versionTwo),
+          models.ApiIdentifier(ApiContext("hello-vat"), versionOne)
+        )
 
       val result = await(underTest.fetch(email))
 

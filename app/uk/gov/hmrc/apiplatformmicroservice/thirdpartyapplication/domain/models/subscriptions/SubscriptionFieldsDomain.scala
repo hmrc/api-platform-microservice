@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 
 object SubscriptionFieldsDomain {
 
-  case class VersionSubscription(version: APIVersion, subscribed: Boolean)
+  case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean)
 
   case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription], requiresTrust: Option[Boolean], isTestSupport: Boolean = false)
 
@@ -30,7 +30,7 @@ object SubscriptionFieldsDomain {
       name: String,
       serviceName: String,
       context: String,
-      apiVersion: APIVersion,
+      apiVersion: ApiVersionDefinition,
       subscribed: Boolean,
       requiresTrust: Boolean,
       fields: SubscriptionFieldsWrapper,
@@ -41,7 +41,7 @@ object SubscriptionFieldsDomain {
     }
   }
 
-  case class APIVersion(version: String, status: APIStatus)
+  case class ApiVersionDefinition(version: String, status: APIStatus)
 
   sealed trait APIStatus extends EnumEntry
 
