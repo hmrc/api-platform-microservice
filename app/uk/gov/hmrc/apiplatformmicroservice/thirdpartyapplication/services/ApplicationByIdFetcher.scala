@@ -33,17 +33,25 @@ class ApplicationByIdFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
-    import cats.data.OptionT
-    import cats.implicits._
-
+  def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
     val subordinateApp: Future[Option[Application]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
     val principalApp: Future[Option[Application]] = thirdPartyApplicationConnector.principal.fetchApplication(id)
 
-    val foapp = for {
+    println(thirdPartyApplicationConnector)
+    println(thirdPartyApplicationConnector.subordinate)
+    println(thirdPartyApplicationConnector.principal)
+
+    for {
       subordinate <- subordinateApp
       principal <- principalApp
     } yield principal.orElse(subordinate)
+  }
+
+  def fetchApplicationWithSubscriptionData(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
+    import cats.data.OptionT
+    import cats.implicits._
+
+    val foapp = fetchApplication(id)
 
     def fetchFieldValuesForAllSubscribedApis(app: Application, ids: Set[ApiIdentifier]): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
       def byApiIdentifier(id: ApiIdentifier)(fields: Map[FieldName, FieldValue]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] =

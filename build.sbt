@@ -26,10 +26,8 @@ lazy val compileDeps = Seq(
 
 def testDeps(scope: String) = Seq(
   "uk.gov.hmrc"            %% "hmrctest"                % "3.9.0-play-26"     % scope,
-  "org.scalatest"          %% "scalatest"               % "3.0.8"             % scope,
-  "org.mockito"             % "mockito-core"            % "3.1.0"             % scope,
   "org.scalatestplus.play" %% "scalatestplus-play"      % "3.1.3"             % scope,
-  "org.mockito"            %% "mockito-scala-scalatest" % "1.7.1"             % scope,
+  "org.mockito"            %% "mockito-scala-scalatest" % "1.14.8"            % scope,
   "com.typesafe.play"      %% "play-test"               % PlayVersion.current % scope
 )
 

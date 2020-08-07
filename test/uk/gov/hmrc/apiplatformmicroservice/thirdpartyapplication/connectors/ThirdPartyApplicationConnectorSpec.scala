@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ApplicationResponse
@@ -85,7 +83,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url), meq(Seq("emailAddress" -> email)))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
         .thenReturn(Future.successful(applicationResponses))
 
       val result = await(connector.fetchApplicationsByEmail(email))
@@ -95,7 +93,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url), meq(Seq("emailAddress" -> email)))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
@@ -110,7 +108,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
-      when(mockHttpClient.GET[Seq[ApiIdentifier]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(expectedSubscriptions))
 
       val result = await(connector.fetchSubscriptionsByEmail(email))
@@ -119,7 +117,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[ApiIdentifier]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {

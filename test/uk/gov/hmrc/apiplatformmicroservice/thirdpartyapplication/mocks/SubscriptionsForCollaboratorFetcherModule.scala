@@ -17,13 +17,13 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 import scala.concurrent.Future.{failed, successful}
 
-trait SubscriptionsForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait SubscriptionsForCollaboratorFetcherModule {
+  self: MockitoSugar with ArgumentMatchersSugar =>
 
   object SubscriptionsForCollaboratorFetcherMock {
     val aMock = mock[SubscriptionsForCollaboratorFetcher]

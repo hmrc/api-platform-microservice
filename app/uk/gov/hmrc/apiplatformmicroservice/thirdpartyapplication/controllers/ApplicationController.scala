@@ -33,11 +33,9 @@ class ApplicationController @Inject() (
   )(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
-  // import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.SubscriptionFieldsFormatters._
-
   def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
     for {
-      oApp <- applicationByIdFetcher.fetch(ApplicationId(id))
+      oApp <- applicationByIdFetcher.fetchApplicationWithSubscriptionData(ApplicationId(id))
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 }

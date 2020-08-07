@@ -106,7 +106,8 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
 }
 
 @Singleton
-private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @Inject() (
+@Named("subordinate")
+class SubordinateThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") override val config: ThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
@@ -114,7 +115,8 @@ private[thirdpartyapplication] class SubordinateThirdPartyApplicationConnector @
     extends ThirdPartyApplicationConnector
 
 @Singleton
-private[thirdpartyapplication] class PrincipalThirdPartyApplicationConnector @Inject() (
+@Named("principal")
+class PrincipalThirdPartyApplicationConnector @Inject() (
     @Named("principal") override val config: ThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient

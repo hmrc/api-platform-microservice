@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import org.mockito.ArgumentMatchersSugar
-import org.mockito.Mockito.{doNothing, verify, when}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
@@ -28,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
+class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
