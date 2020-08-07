@@ -23,7 +23,6 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService._
 import uk.gov.hmrc.http.HeaderCarrier
 import akka.pattern.FutureTimeoutSupport
 import akka.actor.ActorSystem
@@ -31,6 +30,10 @@ import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+
+trait SubscriptionFieldsConnector {
+  def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
+}
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   protected val httpClient: HttpClient

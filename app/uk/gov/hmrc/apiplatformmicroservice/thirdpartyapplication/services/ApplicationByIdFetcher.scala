@@ -30,8 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApplicationByIdFetcher @Inject() (
     @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
     @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector,
-    environmentAwareConnectorsSupplier: EnvironmentAwareConnectorsSupplier,
-    subscriptionFieldsService: SubscriptionFieldsService
+    environmentAwareConnectorsSupplier: EnvironmentAwareConnectorsSupplier
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
@@ -54,11 +53,13 @@ class ApplicationByIdFetcher @Inject() (
         else
           Map(id.context -> Map(id.version -> fields))
 
+      val subscriptionFieldsConnector = environmentAwareConnectorsSupplier.forEnvironment(app.deployedTo).apiSubscriptionFieldsConnector
+
       Future.sequence(
         ids
           .toList
           .map(id =>
-            subscriptionFieldsService.fetchFieldsValues(app, id)
+            subscriptionFieldsConnector.fetchFieldValues(app.clientId, id)
               .map(fs => byApiIdentifier(id)(fs))
           )
       )

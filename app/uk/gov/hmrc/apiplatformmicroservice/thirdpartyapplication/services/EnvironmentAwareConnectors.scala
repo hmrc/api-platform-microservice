@@ -17,9 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Named, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{SubscriptionFieldsConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService.SubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
 
 @Singleton

@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
 import com.google.inject.name.Names.named
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
 import com.google.inject.AbstractModule
 
 class ConfigurationModule extends AbstractModule {
@@ -33,7 +32,7 @@ class ConfigurationModule extends AbstractModule {
     bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateThirdPartyApplicationConnector])
     bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("principal")).to(classOf[PrincipalThirdPartyApplicationConnector])
 
-    bind(classOf[SubscriptionFieldsService.SubscriptionFieldsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateSubscriptionFieldsConnector])
-    bind(classOf[SubscriptionFieldsService.SubscriptionFieldsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalSubscriptionFieldsConnector])
+    bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateSubscriptionFieldsConnector])
+    bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalSubscriptionFieldsConnector])
   }
 }

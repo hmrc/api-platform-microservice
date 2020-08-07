@@ -17,10 +17,3 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
 case class ApplicationId(value: String) extends AnyVal
-
-
-
-
-
-
-
