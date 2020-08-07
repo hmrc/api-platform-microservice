@@ -21,19 +21,31 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Sub
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
 
-@Singleton
-class EnvironmentAwareConnectorsSupplier @Inject() (
-    @Named("subordinate") val subordinateApplicationConnector: ThirdPartyApplicationConnector,
-    @Named("principal") val principalApplicationConnector: ThirdPartyApplicationConnector,
-    @Named("subordinate") val subordinateSubscriptionFieldsConnector: SubscriptionFieldsConnector,
-    @Named("principal") val principalSubscriptionFieldsConnector: SubscriptionFieldsConnector) {
+trait EnvironmentAwareConnector[C] {
+  def subordinateConnector: C
+  def principalConnector: C
 
-  def forEnvironment(environment: Environment): EnvironmentAwareConnectors = {
+  def apply(environment: Environment): C = {
     environment match {
-      case PRODUCTION => EnvironmentAwareConnectors(principalApplicationConnector, principalSubscriptionFieldsConnector)
-      case _          => EnvironmentAwareConnectors(subordinateApplicationConnector, subordinateSubscriptionFieldsConnector)
+      case PRODUCTION => principalConnector
+      case _          => subordinateConnector
     }
   }
+
+  def subordinate: C = subordinateConnector
+
+  def principal: C = principalConnector
+
 }
 
-case class EnvironmentAwareConnectors(thirdPartyApplicationConnector: ThirdPartyApplicationConnector, apiSubscriptionFieldsConnector: SubscriptionFieldsConnector)
+@Singleton
+class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
+    @Named("subordinate") val subordinateConnector: SubscriptionFieldsConnector,
+    @Named("principal") val principalConnector: SubscriptionFieldsConnector)
+    extends EnvironmentAwareConnector[SubscriptionFieldsConnector]
+
+@Singleton
+class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
+    @Named("subordinate") val subordinateConnector: ThirdPartyApplicationConnector,
+    @Named("principal") val principalConnector: ThirdPartyApplicationConnector)
+    extends EnvironmentAwareConnector[ThirdPartyApplicationConnector]

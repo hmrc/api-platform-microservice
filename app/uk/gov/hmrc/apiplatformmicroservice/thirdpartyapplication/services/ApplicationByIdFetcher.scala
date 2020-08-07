@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -28,9 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
-    @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
-    @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector,
-    environmentAwareConnectorsSupplier: EnvironmentAwareConnectorsSupplier
+    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
+    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
@@ -38,8 +36,8 @@ class ApplicationByIdFetcher @Inject() (
     import cats.data.OptionT
     import cats.implicits._
 
-    val subordinateApp: Future[Option[Application]] = subordinateTpaConnector.fetchApplication(id) recover recoverWithDefault(None)
-    val principalApp: Future[Option[Application]] = principalTpaConnector.fetchApplication(id)
+    val subordinateApp: Future[Option[Application]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
+    val principalApp: Future[Option[Application]] = thirdPartyApplicationConnector.principal.fetchApplication(id)
 
     val foapp = for {
       subordinate <- subordinateApp
@@ -53,13 +51,11 @@ class ApplicationByIdFetcher @Inject() (
         else
           Map(id.context -> Map(id.version -> fields))
 
-      val subscriptionFieldsConnector = environmentAwareConnectorsSupplier.forEnvironment(app.deployedTo).apiSubscriptionFieldsConnector
-
       Future.sequence(
         ids
           .toList
           .map(id =>
-            subscriptionFieldsConnector.fetchFieldValues(app.clientId, id)
+            subscriptionFieldsConnector(app.deployedTo).fetchFieldValues(app.clientId, id)
               .map(fs => byApiIdentifier(id)(fs))
           )
       )
@@ -70,8 +66,7 @@ class ApplicationByIdFetcher @Inject() (
     (
       for {
         app <- OptionT(foapp)
-        connector = environmentAwareConnectorsSupplier.forEnvironment(app.deployedTo).thirdPartyApplicationConnector
-        subs <- OptionT.liftF(connector.fetchSubscriptions(app.id))
+        subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptions(app.id))
         fields <- OptionT.liftF(fetchFieldValuesForAllSubscribedApis(app, subs)) // TODO - should we return all field values even for those not subscribed to
       } yield ApplicationWithSubscriptionData.fromApplication(app, subs, fields)
     )
