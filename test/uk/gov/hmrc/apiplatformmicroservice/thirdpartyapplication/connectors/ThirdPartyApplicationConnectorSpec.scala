@@ -27,6 +27,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import play.api.http.Status
 
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
@@ -46,7 +48,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer = "TestBearerToken"
 
-    val connector = new ThirdPartyApplicationConnector {
+    val connector = new AbstractThirdPartyApplicationConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
 
@@ -123,6 +125,86 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       intercept[NotFoundException] {
         await(connector.fetchSubscriptionsByEmail(email))
       }
+    }
+  }
+
+  // TODO - very little purpose to these tests - replace with wiremock integration asap
+  "fetchApplication" should {
+    val applicationId = ApplicationId("1234")
+    val url = s"$baseUrl/application/1234"
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(new RuntimeException("Bang")))
+
+      intercept[RuntimeException] {
+        await(connector.fetchApplication(applicationId))
+      }.getMessage() shouldBe "Bang"
+    }
+
+    "return None when appropriate" in new Setup {
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(None))
+
+      await(connector.fetchApplication(applicationId)) shouldBe None
+    }
+
+    "return the application" in new Setup {
+      val mockApp = mock[Application]
+
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Some(mockApp)))
+
+      await(connector.fetchApplication(applicationId)) shouldBe Some(mockApp)
+    }
+  }
+
+  // TODO - very little purpose to these tests - replace with wiremock integration asap
+  "fetchSubscriptions" should {
+    import ThirdPartyApplicationConnector._
+    import SubscriptionsHelper._
+    val applicationId = ApplicationId("1234")
+    val url = s"$baseUrl/application/1234/subscription"
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(new RuntimeException("Bang")))
+
+      intercept[RuntimeException] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }.getMessage() shouldBe "Bang"
+    }
+
+    "handle 5xx" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "handle Not Found" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.NOT_FOUND)))
+
+      intercept[ApplicationNotFound] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }
+    }
+
+    "return None when appropriate" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Seq.empty))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "return the subscription versions that are subscribed to" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(MixedSubscriptions))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
+        ApiIdentifier(ContextA, VersionOne),
+        ApiIdentifier(ContextB, VersionTwo)
+      )
     }
   }
 }

@@ -32,9 +32,26 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
       fieldsId: ju.UUID,
       fields: Map[FieldName, FieldValue])
 
-  object ApplicationApiFieldValues {
+  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields]) {
+
+    def asMapOfMaps: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
+      subscriptions
+        .map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
+        .foldLeft(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])((acc, m) => acc ++ m)
+    }
+
+  }
+
+  case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
+
+  trait JsonFormatters {
     import play.api.libs.json.Json
     import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
     implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
+
+    implicit val readsSubscriptionFields = Json.reads[SubscriptionFields]
+    implicit val readsBulkSubscriptionFieldsResponse = Json.reads[BulkSubscriptionFieldsResponse]
   }
+
+  object JsonFormatters extends JsonFormatters
 }

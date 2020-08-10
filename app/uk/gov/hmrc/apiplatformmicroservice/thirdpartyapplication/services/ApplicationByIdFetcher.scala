@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -37,10 +36,6 @@ class ApplicationByIdFetcher @Inject() (
     val subordinateApp: Future[Option[Application]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
     val principalApp: Future[Option[Application]] = thirdPartyApplicationConnector.principal.fetchApplication(id)
 
-    println(thirdPartyApplicationConnector)
-    println(thirdPartyApplicationConnector.subordinate)
-    println(thirdPartyApplicationConnector.principal)
-
     for {
       subordinate <- subordinateApp
       principal <- principalApp
@@ -53,30 +48,12 @@ class ApplicationByIdFetcher @Inject() (
 
     val foapp = fetchApplication(id)
 
-    def fetchFieldValuesForAllSubscribedApis(app: Application, ids: Set[ApiIdentifier]): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
-      def byApiIdentifier(id: ApiIdentifier)(fields: Map[FieldName, FieldValue]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] =
-        if (fields.isEmpty)
-          Map.empty
-        else
-          Map(id.context -> Map(id.version -> fields))
-
-      Future.sequence(
-        ids
-          .toList
-          .map(id =>
-            subscriptionFieldsConnector(app.deployedTo).fetchFieldValues(app.clientId, id)
-              .map(fs => byApiIdentifier(id)(fs))
-          )
-      )
-      // roll up all the maps into one big map
-        .map(ms => ms.foldLeft(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])((acc, m) => acc ++ m))
-    }
-
     (
       for {
         app <- OptionT(foapp)
-        subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptions(app.id))
-        fields <- OptionT.liftF(fetchFieldValuesForAllSubscribedApis(app, subs)) // TODO - should we return all field values even for those not subscribed to
+        subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
+        connector = subscriptionFieldsConnector(app.deployedTo)
+        fields <- OptionT.liftF(connector.bulkFetchFieldValues(app.clientId))
       } yield ApplicationWithSubscriptionData.fromApplication(app, subs, fields)
     )
       .value

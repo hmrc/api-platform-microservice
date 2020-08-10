@@ -27,13 +27,15 @@ import akka.pattern.FutureTimeoutSupport
 import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.EnvironmentAwareConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
-  def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
+  // def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
+
+  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -43,6 +45,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
+  import SubscriptionFieldsConnectorDomain.JsonFormatters._
 
   def http: HttpClient
 
@@ -57,9 +60,23 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
       .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
   }
 
+  def bulkFetchFieldValues(
+      clientId: ClientId
+    )(implicit hc: HeaderCarrier
+    ): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
+
+    val url = urlBulkSubscriptionFieldValues(clientId)
+    http.GET[Option[BulkSubscriptionFieldsResponse]](url)
+      .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(_.asMapOfMaps))
+
+  }
+
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
   private def urlEncode(apiIdentifier: ApiIdentifier): String = s"context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
+
+  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/${urlEncode(apiIdentifier)}"
@@ -110,6 +127,6 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
 
 @Singleton
 class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
-    @Named("subordinate") val subordinateConnector: SubscriptionFieldsConnector,
-    @Named("principal") val principalConnector: SubscriptionFieldsConnector)
+    @Named("subordinate") val subordinate: SubscriptionFieldsConnector,
+    @Named("principal") val principal: SubscriptionFieldsConnector)
     extends EnvironmentAwareConnector[SubscriptionFieldsConnector]

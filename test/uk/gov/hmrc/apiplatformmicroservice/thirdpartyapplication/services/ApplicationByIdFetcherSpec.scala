@@ -19,60 +19,103 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.time.DateTimeUtils
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+  implicit val hc = HeaderCarrier()
 
-    implicit val hc = HeaderCarrier()
+  val id: ApplicationId = ApplicationId("one")
+  val clientId: ClientId = ClientId("123")
+  val application: Application = Application(id, clientId, "name", DateTimeUtils.now, DateTimeUtils.now, None, Environment.SANDBOX, Some("description"))
+  val BANG = new RuntimeException("BANG")
 
-    val id: ApplicationId = ApplicationId("one")
-    val application: Application = mock[Application]
-    val BANG = new RuntimeException("BANG")
-    val underTest = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mock[EnvironmentAwareSubscriptionFieldsConnector])
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+
+    val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance)
   }
 
   "ApplicationByIdFetcher" when {
     "fetchApplicationId is called" should {
-      "return None if absent" in new Setup {
+      "return None if absent from principal and subordinate" in new Setup {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
 
-        await(underTest.fetchApplication(id)) shouldBe None
+        await(fetcher.fetchApplication(id)) shouldBe None
       }
 
       "return an application from subordinate if present" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnApplication(application)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
 
-        await(underTest.fetchApplication(id)) shouldBe Some(application)
+        await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an application from principal if present" in new Setup {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnApplication(application)
-        await(underTest.fetchApplication(id)) shouldBe Some(application)
+        await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an application from principal if present even when subordinate throws" in new Setup {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willThrowException(BANG)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnApplication(application)
-        await(underTest.fetchApplication(id)) shouldBe Some(application)
+        await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an exception if principal throws even if subordinate has the application" in new Setup {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willThrowException(BANG)
         intercept[Exception] {
-          await(underTest.fetchApplication(id)) shouldBe Some(application)
+          await(fetcher.fetchApplication(id)) shouldBe Some(application)
         }.shouldBe(BANG)
+      }
+    }
+
+    "fetchApplicationWithSubscriptionData" should {
+      import SubscriptionsHelper._
+
+      // def fetchApplicationWithSubscriptionData(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
+
+      "return None when application is not found" in new Setup {
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
+
+        await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe None
+      }
+
+      "return an application with subscritions from subordinate if present" in new Setup {
+        val fieldsForAOne = (FieldNameOne -> "oneValue".asFieldValue)
+        val fieldsForATwo = (FieldNameTwo -> "twoValue".asFieldValue)
+
+        val subsFields =
+          Map(ContextA -> Map(
+            VersionOne -> Map(fieldsForAOne),
+            VersionTwo -> Map(fieldsForATwo)
+          ))
+
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
+        EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.BulkFetchFieldValues.willReturnFields(subsFields)
+
+        val expect = ApplicationWithSubscriptionData
+          .fromApplication(
+            application,
+            Set(ApiIdentifierAOne),
+            subsFields
+          )
+        await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe Some(expect)
       }
     }
   }

@@ -32,9 +32,11 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.EnvironmentAwareConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
 
 private[thirdpartyapplication] object ThirdPartyApplicationConnector {
+
+  class ApplicationNotFound extends RuntimeException
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
 
@@ -67,7 +69,20 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
       applicationApiKey: String)
 }
 
-private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(implicit val ec: ExecutionContext) {
+trait ThirdPartyApplicationConnector {
+  def http: HttpClient
+
+  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
+
+  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
+
+  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
+
+  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
+
+}
+
+private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
   protected val config: ThirdPartyApplicationConnector.Config
@@ -93,9 +108,7 @@ private[thirdpartyapplication] abstract class ThirdPartyApplicationConnector(imp
     http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
   }
 
-  class ApplicationNotFound extends RuntimeException
-
-  def fetchSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .map(asSetOfSubscriptions)
       .recover {
@@ -112,7 +125,7 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends ThirdPartyApplicationConnector
+    extends AbstractThirdPartyApplicationConnector
 
 @Singleton
 @Named("principal")
@@ -121,10 +134,10 @@ class PrincipalThirdPartyApplicationConnector @Inject() (
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends ThirdPartyApplicationConnector
+    extends AbstractThirdPartyApplicationConnector
 
 @Singleton
 class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") val subordinateConnector: ThirdPartyApplicationConnector,
-    @Named("principal") val principalConnector: ThirdPartyApplicationConnector)
+    @Named("subordinate") val subordinate: ThirdPartyApplicationConnector,
+    @Named("principal") val principal: ThirdPartyApplicationConnector)
     extends EnvironmentAwareConnector[ThirdPartyApplicationConnector]

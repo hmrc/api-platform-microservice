@@ -68,21 +68,34 @@ trait ThirdPartyApplicationConnectorModule {
         when(aMock.fetchSubscriptionsByEmail(*)(*)).thenReturn(failed(e))
       }
     }
+
+    object FetchSubscriptionsById {
+
+      def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
+        when(aMock.fetchSubscriptionsById(*[ApplicationId])(*)).thenReturn(successful(subscriptions.toSet[ApiIdentifier]))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchSubscriptionsById(*[ApplicationId])(*)).thenReturn(failed(e))
+      }
+    }
   }
 
   object SubordinateThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
-    override val aMock = mock[SubordinateThirdPartyApplicationConnector]
+    override val aMock: ThirdPartyApplicationConnector = mock[SubordinateThirdPartyApplicationConnector]
   }
 
   object PrincipalThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
-    override val aMock = mock[PrincipalThirdPartyApplicationConnector]
+    override val aMock: ThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
   }
 
   object EnvironmentAwareThirdPartyApplicationConnectorMock {
     private val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock
     private val principalConnector = PrincipalThirdPartyApplicationConnectorMock
 
-    lazy val instance = new EnvironmentAwareThirdPartyApplicationConnector(subordinateConnector.aMock, principalConnector.aMock)
+    lazy val instance = {
+      new EnvironmentAwareThirdPartyApplicationConnector(subordinateConnector.aMock, principalConnector.aMock)
+    }
 
     lazy val Principal = principalConnector
 

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
 
 trait EnvironmentAwareConnector[C] {
-  def subordinateConnector: C
-  def principalConnector: C
 
   def apply(environment: Environment): C = {
     environment match {
-      case PRODUCTION => principalConnector
-      case _          => subordinateConnector
+      case PRODUCTION => principal
+      case _          => subordinate
     }
   }
 
-  def subordinate: C = subordinateConnector
+  def subordinate: C
 
-  def principal: C = principalConnector
+  def principal: C
 
 }
