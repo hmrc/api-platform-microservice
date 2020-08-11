@@ -59,7 +59,7 @@ trait ApiDefinitionService extends LogWrapper with RecordMetrics {
 
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[WSResponse]] = {
     import resourceId._
-    lazy val failFn = (e: Throwable) => s"fetchApiDocumentationResource($serviceName, $version, $resource) failed $e"
+    lazy val failFn = (e: Throwable) => s"fetchApiDocumentationResource($serviceName, ${version.value}, $resource) failed $e"
 
     if (enabled) {
       record {
