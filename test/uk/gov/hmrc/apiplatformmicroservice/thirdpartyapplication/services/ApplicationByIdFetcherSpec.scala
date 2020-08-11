@@ -95,8 +95,8 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
       }
 
       "return an application with subscritions from subordinate if present" in new Setup {
-        val fieldsForAOne = (FieldNameOne -> "oneValue".asFieldValue)
-        val fieldsForATwo = (FieldNameTwo -> "twoValue".asFieldValue)
+        val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
+        val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
 
         val subsFields =
           Map(ContextA -> Map(

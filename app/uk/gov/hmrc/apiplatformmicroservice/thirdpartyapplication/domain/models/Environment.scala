@@ -20,9 +20,9 @@ import enumeratum.{Enum, EnumEntry}
 import enumeratum.PlayJsonEnum
 
 sealed trait Environment extends EnumEntry {
-  def isSandbox(): Boolean = this == Environment.SANDBOX
+  def isSandbox: Boolean = this == Environment.SANDBOX
 
-  def isProduction(): Boolean = this == Environment.PRODUCTION
+  def isProduction: Boolean = this == Environment.PRODUCTION
 }
 
 object Environment extends Enum[Environment] with PlayJsonEnum[Environment] {

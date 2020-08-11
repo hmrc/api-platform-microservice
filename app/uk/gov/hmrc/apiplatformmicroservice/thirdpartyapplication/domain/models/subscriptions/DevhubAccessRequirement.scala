@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Role
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 
 sealed trait DevhubAccessRequirement
 
@@ -29,8 +29,8 @@ object DevhubAccessRequirement {
 }
 
 case class DevhubAccessRequirements(
-    val read: DevhubAccessRequirement,
-    val write: DevhubAccessRequirement) {
+    read: DevhubAccessRequirement,
+    write: DevhubAccessRequirement) {
   def satisfiesRead(dal: DevhubAccessLevel): Boolean = dal.satisfiesRequirement(read) // ReadWrite will be at least as strict.
   def satisfiesWrite(dal: DevhubAccessLevel): Boolean = dal.satisfiesRequirement(write)
 }

@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment._
+import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 
 class EnvironmentAwareConnectorSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
 

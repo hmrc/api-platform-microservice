@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import scala.util.Failure
+import scala.util.{Failure, Success}
 
 trait AbstractLogWrapper {
 
@@ -26,8 +26,8 @@ trait AbstractLogWrapper {
 
   def log[A](failMessage: Throwable => String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     f.onComplete {
-      case Failure(throwable) if (NonFatal(throwable)) =>
-        logFn(failMessage(throwable), throwable)
+      case Failure(throwable) if NonFatal(throwable) => logFn(failMessage(throwable), throwable)
+      case Success(_)                                => ()
     }
     f
   }

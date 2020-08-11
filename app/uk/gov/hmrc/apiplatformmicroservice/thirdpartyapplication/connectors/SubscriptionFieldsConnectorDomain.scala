@@ -36,6 +36,24 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
 
   case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
 
+  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
+    import cats._
+    import cats.implicits._
+
+    // Shortcut combining as we know there will never be records for the same version for the same context
+    implicit def monoidVersions: Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] =
+      new Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] {
+
+        override def combine(x: Map[ApiVersion, Map[FieldName, FieldValue]], y: Map[ApiVersion, Map[FieldName, FieldValue]]): Map[ApiVersion, Map[FieldName, FieldValue]] = x ++ y
+
+        override def empty: Map[ApiVersion, Map[FieldName, FieldValue]] = Map.empty
+      }
+
+    Monoid.combineAll(
+      subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
+    )
+  }
+
   trait JsonFormatters {
     import play.api.libs.json.Json
     import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._

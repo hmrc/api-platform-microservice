@@ -31,28 +31,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
-  import SubscriptionFieldsConnectorDomain._
-  // def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
-
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
-
-  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
-    import cats._
-    import cats.implicits._
-
-    // Shortcut combining as we know there will never be records for the same version for the same context
-    implicit def monoidVersions: Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] =
-      new Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] {
-
-        override def combine(x: Map[ApiVersion, Map[FieldName, FieldValue]], y: Map[ApiVersion, Map[FieldName, FieldValue]]): Map[ApiVersion, Map[FieldName, FieldValue]] = x ++ y
-
-        override def empty: Map[ApiVersion, Map[FieldName, FieldValue]] = Map.empty
-      }
-
-    Monoid.combineAll(
-      subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
-    )
-  }
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -64,18 +43,6 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   import SubscriptionFieldsConnectorDomain.JsonFormatters._
 
   def http: HttpClient
-
-  // Will be needed by the remainder of the ticket
-  // def fetchFieldValues(
-  //     clientId: ClientId,
-  //     apiIdentifier: ApiIdentifier
-  //   )(implicit hc: HeaderCarrier
-  //   ): Future[Map[FieldName, FieldValue]] = {
-
-  //   val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
-  //   http.GET[Option[ApplicationApiFieldValues]](url)
-  //     .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
-  // }
 
   def bulkFetchFieldValues(
       clientId: ClientId
@@ -89,13 +56,8 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  // private def urlEncode(apiIdentifier: ApiIdentifier): String = s"context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
-
   private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
-
-  // private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-  //   s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/${urlEncode(apiIdentifier)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {

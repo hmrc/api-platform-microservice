@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 
 class SubscriptionFieldsConnectorSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
@@ -31,9 +31,9 @@ class SubscriptionFieldsConnectorSpec extends AsyncHmrcSpec with MockitoSugar wi
 
   private val baseUrl = "https://example.com"
 
-  val fieldsForAOne = (FieldNameOne -> "oneValue".asFieldValue)
-  val fieldsForATwo = (FieldNameTwo -> "twoValue".asFieldValue)
-  val fieldsForBOne = (FieldNameTwo -> "twoValueB".asFieldValue)
+  val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
+  val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
+  val fieldsForBOne = FieldNameTwo -> "twoValueB".asFieldValue
 
   val subsFields =
     Map(

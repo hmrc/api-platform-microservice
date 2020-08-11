@@ -51,9 +51,9 @@ trait ApiDefinitionTestDataHelper {
     def requiresTrust(is: Boolean): APIDefinition =
       inner.copy(requiresTrust = is)
 
-    def doesRequireTrust(): APIDefinition = requiresTrust(true)
-    def doesNotRequireTrust(): APIDefinition = requiresTrust(false)
-    def trustNotSpecified(): APIDefinition = requiresTrust(false)
+    def doesRequireTrust: APIDefinition = requiresTrust(true)
+    def doesNotRequireTrust: APIDefinition = requiresTrust(false)
+    def trustNotSpecified: APIDefinition = requiresTrust(false)
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
 

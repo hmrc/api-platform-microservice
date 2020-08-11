@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 
@@ -24,39 +24,7 @@ object SubscriptionFieldsDomain {
 
   case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean)
 
-  case class APISubscription(name: String, serviceName: String, context: String, versions: Seq[VersionSubscription], requiresTrust: Option[Boolean], isTestSupport: Boolean = false)
-
-  case class APISubscriptionStatus(
-      name: String,
-      serviceName: String,
-      context: String,
-      apiVersion: ApiVersionDefinition,
-      subscribed: Boolean,
-      requiresTrust: Boolean,
-      fields: SubscriptionFieldsWrapper,
-      isTestSupport: Boolean = false) {
-
-    def canUnsubscribe: Boolean = {
-      apiVersion.status != APIStatus.DEPRECATED
-    }
-  }
-
   case class ApiVersionDefinition(version: String, status: APIStatus)
-
-  sealed trait APIStatus extends EnumEntry
-
-  object APIStatus extends Enum[APIStatus] with PlayJsonEnum[APIStatus] {
-
-    val values = findValues
-
-    case object PROTOTYPED extends APIStatus
-    case object PUBLISHED extends APIStatus
-    case object ALPHA extends APIStatus
-    case object BETA extends APIStatus
-    case object STABLE extends APIStatus
-    case object DEPRECATED extends APIStatus
-    case object RETIRED extends APIStatus
-  }
 
   case class SubscriptionFieldDefinition(
       name: String,
