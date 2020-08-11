@@ -16,23 +16,23 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubscriptionsForCollaboratorFetcher @Inject() (
-    subordinateTpaConnector: SubordinateThirdPartyApplicationConnector,
-    principalTpaConnector: PrincipalThirdPartyApplicationConnector
+    @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
+    @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Set[APIIdentifier]] = {
-    val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet) recover recoverWithDefault(Set.empty[APIIdentifier])
+  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+    val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet) recover recoverWithDefault(Set.empty[ApiIdentifier])
     val principalSubscriptions = principalTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet)
 
     for {

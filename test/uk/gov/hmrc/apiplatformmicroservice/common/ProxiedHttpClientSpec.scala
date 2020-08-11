@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.when
 import play.api.Configuration
 import play.api.libs.ws.{WSClient, WSRequest}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
+import play.api.ConfigLoader
+import com.typesafe.config.Config
 
 class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
@@ -38,6 +38,8 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
     val bearerToken: String = UUID.randomUUID().toString
     val url = "http://example.com"
     val mockConfig: Configuration = mock[Configuration]
+    when(mockConfig.underlying).thenReturn(mock[Config])
+
     val mockHttpAuditing: HttpAuditing = mock[HttpAuditing]
     val mockWsClient: WSClient = mock[WSClient]
     val mockWSRequest: WSRequest = mock[WSRequest]
@@ -73,9 +75,9 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
   "buildRequest" should {
     "build request" in new Setup {
-      when(mockConfig.getOptional[Boolean](meq("proxy.proxyRequiredForThisEnvironment"))(any())).thenReturn(Some(false))
-      when(mockWSRequest.withHttpHeaders(any())).thenReturn(mockWSRequest)
-      when(mockWSRequest.addHttpHeaders(any())).thenReturn(mockWSRequest)
+      when(mockConfig.getOptional[Boolean](eqTo("proxy.proxyRequiredForThisEnvironment"))(*[ConfigLoader[Boolean]])).thenReturn(Some(false))
+      when(mockWSRequest.withHttpHeaders(any)).thenReturn(mockWSRequest)
+      when(mockWSRequest.addHttpHeaders(any)).thenReturn(mockWSRequest)
 
       private val result = underTest.buildRequest(url, Seq.empty)
 

@@ -17,19 +17,21 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatestplus.play.PlaySpec
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 
 import scala.concurrent.Future
 
-trait ApplicationIdsForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait ApplicationIdsForCollaboratorFetcherModule {
+  self: MockitoSugar with ArgumentMatchersSugar =>
 
   object ApplicationIdsForCollaboratorFetcherMock {
     val aMock = mock[ApplicationIdsForCollaboratorFetcher]
 
     object FetchAllApplicationIds {
+
       def willReturnApplicationIds(appIds: String*) = {
-        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSeq))
+        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSeq.map(ApplicationId(_))))
       }
 
       def willThrowException(e: Exception) = {

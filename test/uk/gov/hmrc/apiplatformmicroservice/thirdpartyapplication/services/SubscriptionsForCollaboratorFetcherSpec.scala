@@ -16,23 +16,30 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ThirdPartyApplicationConnectorModule {
+  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val subordinateSubscriptions = Seq(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"))
-    val principalSubscriptions = Seq(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-agents", "1.0"))
-    val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock,
-      PrincipalThirdPartyApplicationConnectorMock.aMock)
+
+    val apiContextHelloWorld = ApiContext("hello-world")
+    val apiContextHelloAgents = ApiContext("hello-agents")
+    val apiVersionOne = ApiVersion("1.0")
+    val apiVersionTwo = ApiVersion("2.0")
+
+    val subordinateSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
+    val principalSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloAgents, apiVersionOne))
+    val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "SubscriptionsForCollaboratorFetcher" should {
@@ -42,7 +49,11 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Set(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"), APIIdentifier("hello-agents", "1.0"))
+      result shouldBe Set(
+        models.ApiIdentifier(apiContextHelloWorld, apiVersionOne),
+        models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
+        models.ApiIdentifier(apiContextHelloAgents, apiVersionOne)
+      )
     }
 
     "return subordinate subscriptions if there are no matching principal subscriptions" in new Setup {

@@ -20,25 +20,9 @@ import cats.data.{NonEmptyList => NEL}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 
-trait NonEmptyListFormatters {
-
-  implicit def nelReads[A](implicit r: Reads[A]): Reads[NEL[A]] =
-    Reads
-      .of[List[A]]
-      .collect(
-        JsonValidationError("expected a NonEmptyList but got an empty list")
-      ) {
-        case head :: tail => NEL(head, tail)
-      }
-
-  implicit def nelWrites[A](implicit w: Writes[A]): Writes[NEL[A]] =
-    Writes
-      .of[List[A]]
-      .contramap(_.toList)
-}
-
-trait EndpointJsonFormatters extends NonEmptyListFormatters {
+trait EndpointJsonFormatters extends NonEmptyListFormatters with CommonJsonFormatters {
   implicit val formatParameter = Json.format[Parameter]
 
   implicit val endpointReads: Reads[Endpoint] = (
@@ -52,10 +36,11 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
 }
 
 trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
+  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
   implicit val apiAccessReads: Reads[APIAccess] = (
     (JsPath \ "type").read[APIAccessType] and
-      ((JsPath \ "whitelistedApplicationIds").read[Seq[String]] or Reads.pure(Seq.empty[String])) and
+      ((JsPath \ "whitelistedApplicationIds").read[Seq[ApplicationId]] or Reads.pure(Seq.empty[ApplicationId])) and
       ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
   ) map {
     case (PUBLIC, _, _)                                => PublicApiAccess()
@@ -64,9 +49,9 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
 
   implicit object apiAccessWrites extends Writes[APIAccess] {
 
-    private val privApiWrites: OWrites[(APIAccessType, Seq[String], Boolean)] = (
+    private val privApiWrites: OWrites[(APIAccessType, Seq[ApplicationId], Boolean)] = (
       (JsPath \ "type").write[APIAccessType] and
-        (JsPath \ "whitelistedApplicationIds").write[Seq[String]] and
+        (JsPath \ "whitelistedApplicationIds").write[Seq[ApplicationId]] and
         (JsPath \ "isTrial").write[Boolean]
     ).tupled
 
@@ -76,26 +61,30 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
     }
   }
 
-  implicit val apiVersionReads: Reads[APIVersion] =
-    ((JsPath \ "version").read[String] and
+  implicit val formatApiContext = Json.valueFormat[ApiContext]
+  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
+  implicit val formatApiIdentifier = Json.format[ApiIdentifier]
+
+  implicit val apiVersionReads: Reads[ApiVersionDefinition] =
+    ((JsPath \ "version").read[ApiVersion] and
       (JsPath \ "status").read[APIStatus] and
       (JsPath \ "access").readNullable[APIAccess] and
       (JsPath \ "endpoints").read[NEL[Endpoint]] and
       ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled) map {
-      case (version, status, None, endpoints, endpointsEnabled)         => APIVersion(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
-      case (version, status, Some(access), endpoints, endpointsEnabled) => APIVersion(version, status, access, endpoints, endpointsEnabled)
+      case (version, status, None, endpoints, endpointsEnabled)         => ApiVersionDefinition(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
+      case (version, status, Some(access), endpoints, endpointsEnabled) => ApiVersionDefinition(version, status, access, endpoints, endpointsEnabled)
     }
 
-  implicit val apiVersionWrites: Writes[APIVersion] = Json.writes[APIVersion]
+  implicit val apiVersionWrites: Writes[ApiVersionDefinition] = Json.writes[ApiVersionDefinition]
 
   implicit val apiDefinitionReads: Reads[APIDefinition] = (
     (JsPath \ "serviceName").read[String] and
       (JsPath \ "name").read[String] and
       (JsPath \ "description").read[String] and
-      (JsPath \ "context").read[String] and
+      (JsPath \ "context").read[ApiContext] and
       ((JsPath \ "requiresTrust").read[Boolean] or Reads.pure(false)) and
       ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "versions").read[Seq[APIVersion]] and
+      (JsPath \ "versions").read[Seq[ApiVersionDefinition]] and
       ((JsPath \ "categories").read[Seq[APICategory]] or Reads.pure(Seq.empty[APICategory]))
   )(APIDefinition.apply _)
 

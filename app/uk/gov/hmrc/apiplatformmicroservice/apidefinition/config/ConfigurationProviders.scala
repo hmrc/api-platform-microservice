@@ -22,6 +22,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApiDefinitionService
+import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ConfigurationModule extends AbstractModule {

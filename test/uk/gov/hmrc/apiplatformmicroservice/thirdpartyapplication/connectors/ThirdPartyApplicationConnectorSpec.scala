@@ -16,19 +16,28 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ApplicationResponse
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import play.api.http.Status
 
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
+
+  private val helloWorldContext = ApiContext("hello-world")
+  private val versionOne = ApiVersion("1.0")
+  private val versionTwo = ApiVersion("2.0")
+
+  private val applicationIdOne = ApplicationId("app id 1")
+  private val applicationIdTwo = ApplicationId("app id 2")
 
   private val baseUrl = "https://example.com"
 
@@ -39,11 +48,16 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer = "TestBearerToken"
 
-    val connector = new ThirdPartyApplicationConnector {
+    val connector = new AbstractThirdPartyApplicationConnector {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
-      val config = ThirdPartyApplicationConnectorConfig (
-        baseUrl, proxyEnabled, bearer, apiKeyTest)
+
+      val config = ThirdPartyApplicationConnector.Config(
+        baseUrl,
+        proxyEnabled,
+        bearer,
+        apiKeyTest
+      )
     }
   }
 
@@ -68,20 +82,20 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   "fetchApplicationsByEmail" should {
     val email = "email@example.com"
     val url = baseUrl + "/application"
-    val applicationResponses = List(ApplicationResponse("app id 1"), ApplicationResponse("app id 2"))
+    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url), meq(Seq("emailAddress" -> email)))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
         .thenReturn(Future.successful(applicationResponses))
 
       val result = await(connector.fetchApplicationsByEmail(email))
 
       result.size shouldBe 2
-      result should contain allOf ("app id 1", "app id 2")
+      result should contain allOf (applicationIdOne, applicationIdTwo)
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](meq(url), meq(Seq("emailAddress" -> email)))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
@@ -93,10 +107,10 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   "fetchSubscriptionsByEmail" should {
     val email = "email@example.com"
     val url = s"$baseUrl/developer/$email/subscriptions"
-    val expectedSubscriptions = Seq(APIIdentifier("hello-world", "1.0"), APIIdentifier("hello-world", "2.0"))
+    val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
-      when(mockHttpClient.GET[Seq[APIIdentifier]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(expectedSubscriptions))
 
       val result = await(connector.fetchSubscriptionsByEmail(email))
@@ -105,12 +119,92 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[APIIdentifier]](meq(url))(any(), any(), any()))
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
         await(connector.fetchSubscriptionsByEmail(email))
       }
+    }
+  }
+
+  // TODO - very little purpose to these tests - replace with wiremock integration asap
+  "fetchApplication" should {
+    val applicationId = ApplicationId("1234")
+    val url = s"$baseUrl/application/1234"
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(new RuntimeException("Bang")))
+
+      intercept[RuntimeException] {
+        await(connector.fetchApplication(applicationId))
+      }.getMessage() shouldBe "Bang"
+    }
+
+    "return None when appropriate" in new Setup {
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(None))
+
+      await(connector.fetchApplication(applicationId)) shouldBe None
+    }
+
+    "return the application" in new Setup {
+      val mockApp = mock[Application]
+
+      when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Some(mockApp)))
+
+      await(connector.fetchApplication(applicationId)) shouldBe Some(mockApp)
+    }
+  }
+
+  // TODO - very little purpose to these tests - replace with wiremock integration asap
+  "fetchSubscriptions" should {
+    import ThirdPartyApplicationConnector._
+    import SubscriptionsHelper._
+    val applicationId = ApplicationId("1234")
+    val url = s"$baseUrl/application/1234/subscription"
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(new RuntimeException("Bang")))
+
+      intercept[RuntimeException] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }.getMessage() shouldBe "Bang"
+    }
+
+    "handle 5xx" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "handle Not Found" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.NOT_FOUND)))
+
+      intercept[ApplicationNotFound] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }
+    }
+
+    "return None when appropriate" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Seq.empty))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "return the subscription versions that are subscribed to" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(MixedSubscriptions))
+
+      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
+        ApiIdentifier(ContextA, VersionOne),
+        ApiIdentifier(ContextB, VersionTwo)
+      )
     }
   }
 }

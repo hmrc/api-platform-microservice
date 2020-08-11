@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models
+package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
-import play.api.libs.json._
-
-object JsonFormatters {
-  implicit val formatApiIdentifier = Json.format[APIIdentifier]
-}
+case class ApplicationId(value: String) extends AnyVal

@@ -23,7 +23,7 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, PublicApiAccess, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ApiVersion, PublicApiAccess, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
@@ -36,24 +36,33 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     implicit val system = ActorSystem("test")
     implicit val mat = ActorMaterializer()
     val serviceName = "api-example-microservice"
-    val version = "1.0"
+    val versionOne = ApiVersion("1.0")
     val resource = "someResource"
-    val resourceId = ResourceId(serviceName, version, resource)
+    val resourceId = ResourceId(serviceName, versionOne, resource)
     val mockWSResponse = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     val mockErrorWSResponse = mock[WSResponse]
     when(mockErrorWSResponse.status).thenReturn(INTERNAL_SERVER_ERROR)
     val apiName = "hello-api"
-    val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(apiName,
-      Seq(extendedApiVersion("1.0", STABLE, None, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)))))
-    val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(apiName,
-      Seq(extendedApiVersion("1.0", STABLE, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None)))
+
+    val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
+      apiName,
+      Seq(extendedApiVersion(versionOne, STABLE, None, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
+    )
+
+    val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
+      apiName,
+      Seq(extendedApiVersion(versionOne, STABLE, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
+    )
+
     val anExtendedApiDefinitionWithPrincipalAndSubordinate = extendedApiDefinition(
       apiName,
-      Seq(extendedApiVersion("1.0", STABLE,
+      Seq(extendedApiVersion(
+        versionOne,
+        STABLE,
         Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),
-        Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)))
-      )
+        Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))
+      ))
     )
 
     def ensureResult: Assertion = {
@@ -64,8 +73,8 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       oresult mustBe Some(mockWSResponse)
     }
 
-    val underTest = new ApiDocumentationResourceFetcher(PrincipalApiDefinitionServiceMock.aMock,
-      SubordinateApiDefinitionServiceMock.aMock, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
+    val underTest =
+      new ApiDocumentationResourceFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }
 
   "ApiDocumentationResourceFetcher" should {

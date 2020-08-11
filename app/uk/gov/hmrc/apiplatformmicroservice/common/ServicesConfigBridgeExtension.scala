@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

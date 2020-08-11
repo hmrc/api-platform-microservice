@@ -22,13 +22,13 @@ case class ExtendedAPIDefinition(
     serviceName: String,
     name: String,
     description: String,
-    context: String,
+    context: ApiContext,
     requiresTrust: Boolean,
     isTestSupport: Boolean,
     versions: Seq[ExtendedAPIVersion])
 
 case class ExtendedAPIVersion(
-    version: String,
+    version: ApiVersion,
     status: APIStatus,
     endpoints: NEL[Endpoint],
     productionAvailability: Option[APIAvailability],

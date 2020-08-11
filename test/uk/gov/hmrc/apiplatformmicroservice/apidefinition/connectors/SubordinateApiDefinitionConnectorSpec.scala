@@ -26,7 +26,7 @@ import play.api.Environment
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.ws.{WSRequest, WSResponse}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, UpstreamErrorResponse}
@@ -39,6 +39,7 @@ import scala.concurrent.Future
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
   private val environmentName = "ENVIRONMENT"
 
+  private val versionOne = ApiVersion("1.0")
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -52,13 +53,15 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val apiName1 = "Calendar"
   private val apiName2 = "HelloWorld"
 
-  class Setup(proxyEnabled: Boolean = true)
-      extends ApiDefinitionHttpMockingHelper {
+  class Setup(proxyEnabled: Boolean = true) extends ApiDefinitionHttpMockingHelper {
+
     private implicit val actorSystemTest: ActorSystem = ActorSystem(
-      "test-actor-system")
+      "test-actor-system"
+    )
     private implicit val materializer: ActorMaterializer = ActorMaterializer()
 
     val apiDefinitionUrl = "/mockUrl"
+
     val config = SubordinateApiDefinitionConnector.Config(
       serviceBaseUrl = apiDefinitionUrl,
       useProxy = proxyEnabled,
@@ -151,7 +154,8 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
       when(
         mockProxiedHttpClient
-          .GET[Seq[APIDefinition]](any[String], any)(any, any, any)).thenReturn(
+          .GET[Seq[APIDefinition]](any[String], any)(any, any, any)
+      ).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response),
         Future.successful(response),
@@ -161,12 +165,15 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
     }
 
     "when retry logic is enabled should retry on failure wsResponse BadRequest results" in new Setup(
-      true) {
+      true
+    ) {
       val wsRequest: WSRequest = mock[play.api.libs.ws.WSRequest]
 
       when(
         mockProxiedHttpClient.buildRequest(any[String], any)(
-          any[HeaderCarrier]))
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(wsRequest)
 
       val mockWSResponseBadRequest: WSResponse =
@@ -182,10 +189,9 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
         mock[play.api.libs.ws.WSResponse]("Success Request WSResponse")
 
       when(wsRequest.stream())
-        .thenReturn(Future.successful(mockWSResponseBadRequest),
-                    Future.successful(mockWSResponseSuccess))
+        .thenReturn(Future.successful(mockWSResponseBadRequest), Future.successful(mockWSResponseSuccess))
 
-      val resource = ResourceId("my-service", "my-version", "my-resource")
+      val resource = ResourceId("my-service", versionOne, "my-resource")
       await(connector.fetchApiDocumentationResource(resource))
         .shouldEqual(Some(mockWSResponseSuccess))
     }
@@ -199,7 +205,8 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
       "configured to use the proxy" should {
         "use the ProxiedHttpClient with the correct authorisation" in new Setup(
-          proxyEnabled = true) {
+          proxyEnabled = true
+        ) {
           connector.http shouldEqual mockProxiedHttpClient
 
           verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)

@@ -17,8 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, APIVersion, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, ApiVersionDefinition, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -41,7 +42,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
       principalDefinitions <- principalDefinitionsFuture
       subordinateDefinitions <- subordinateDefinitionsFuture
       combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
-      applicationIds <- email.fold(successful(Seq.empty[String]))(appIdsFetcher.fetch(_))
+      applicationIds <- email.fold(successful(Seq.empty[ApplicationId]))(appIdsFetcher.fetch(_))
     } yield filterApis(combinedDefinitions, applicationIds)
   }
 
@@ -49,14 +50,14 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     subordinateDefinitions ++ principalDefinitions.filterNot(pd => subordinateDefinitions.exists(sd => sd.serviceName == pd.serviceName))
   }
 
-  private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[String]): Seq[APIDefinition] = {
+  private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[ApplicationId]): Seq[APIDefinition] = {
     apis.filterNot(_.requiresTrust).flatMap(filterVersions(_, applicationIds))
   }
 
-  private def filterVersions(api: APIDefinition, applicationIds: Seq[String]): Option[APIDefinition] = {
-    def activeVersions(version: APIVersion): Boolean = version.status != APIStatus.RETIRED
+  private def filterVersions(api: APIDefinition, applicationIds: Seq[ApplicationId]): Option[APIDefinition] = {
+    def activeVersions(version: ApiVersionDefinition): Boolean = version.status != APIStatus.RETIRED
 
-    def visiblePrivateVersions(version: APIVersion): Boolean = version.access match {
+    def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
       case PrivateApiAccess(_, true)                      => true
       case PrivateApiAccess(whitelistedApplicationIds, _) =>
         whitelistedApplicationIds.exists(s => applicationIds.contains(s))

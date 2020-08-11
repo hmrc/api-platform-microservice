@@ -28,9 +28,9 @@ trait StreamedResponseResourceHelper extends StreamedResponseHelper {
   def handler(resourceId: ResourceId): WSResponse => Result = {
     import resourceId._
     streamedResponseAsResult(
-      handleNotFoundResponse(s"$resource not found for $serviceName $version")
+      handleNotFoundResponse(s"$resource not found for $serviceName ${version.value}")
         orElse handleErrorsAsInternalServerError(
-          s"Error downloading $resource for $serviceName $version"
+          s"Error downloading $resource for $serviceName ${version.value}"
         )
     )(_)
   }
@@ -38,7 +38,7 @@ trait StreamedResponseResourceHelper extends StreamedResponseHelper {
   def failedDueToNotFoundException(resourceId: ResourceId): Future[Nothing] = {
     import resourceId._
     Future.failed(
-      new NotFoundException(s"$resource not found for $serviceName $version")
+      new NotFoundException(s"$resource not found for $serviceName ${version.value}")
     )
   }
 }

@@ -18,15 +18,37 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import enumeratum._
 import cats.data.{NonEmptyList => NEL}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+
+case class ApiContext(value: String) extends AnyVal
+
+object ApiContext {
+
+  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
+    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
+
+  }
+}
+
+case class ApiVersion(value: String) extends AnyVal
+
+object ApiVersion {
+
+  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
+    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
+  }
+}
+
+case class ApiIdentifier(context: ApiContext, version: ApiVersion)
 
 case class APIDefinition(
     serviceName: String,
     name: String,
     description: String,
-    context: String,
+    context: ApiContext,
     requiresTrust: Boolean = false,
     isTestSupport: Boolean = false,
-    versions: Seq[APIVersion],
+    versions: Seq[ApiVersionDefinition],
     categories: Seq[APICategory] = Seq.empty) {
 
   def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
@@ -64,7 +86,7 @@ object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
 
 }
 
-case class APIVersion(version: String, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
+case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
 
 sealed trait APIStatus extends EnumEntry
 
@@ -93,7 +115,7 @@ object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType
 
 trait APIAccess
 case class PublicApiAccess() extends APIAccess
-case class PrivateApiAccess(whitelistedApplicationIds: Seq[String] = Seq.empty, isTrial: Boolean = false) extends APIAccess
+case class PrivateApiAccess(whitelistedApplicationIds: Seq[ApplicationId] = Seq.empty, isTrial: Boolean = false) extends APIAccess
 
 case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, queryParameters: Seq[Parameter] = Seq.empty)
 

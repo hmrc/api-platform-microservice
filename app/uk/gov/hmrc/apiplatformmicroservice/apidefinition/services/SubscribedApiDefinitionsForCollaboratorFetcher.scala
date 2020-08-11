@@ -17,9 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.models.APIIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,12 +39,12 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
     } yield filterApis(apiDefinitions, subscriptions)
   }
 
-  private def filterApis(apis: Seq[APIDefinition], subscriptions: Set[APIIdentifier]): Seq[APIDefinition] = {
+  private def filterApis(apis: Seq[APIDefinition], subscriptions: Set[ApiIdentifier]): Seq[APIDefinition] = {
     apis.flatMap(filterVersions(_, subscriptions))
   }
 
-  private def filterVersions(api: APIDefinition, subscriptions: Set[APIIdentifier]): Option[APIDefinition] = {
-    val filteredVersions = api.versions.filter(v => subscriptions.contains(APIIdentifier(api.context, v.version)))
+  private def filterVersions(api: APIDefinition, subscriptions: Set[ApiIdentifier]): Option[APIDefinition] = {
+    val filteredVersions = api.versions.filter(v => subscriptions.contains(models.ApiIdentifier(api.context, v.version)))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))

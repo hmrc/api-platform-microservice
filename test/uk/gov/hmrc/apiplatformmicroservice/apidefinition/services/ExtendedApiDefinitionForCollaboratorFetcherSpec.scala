@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{BETA, RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, PrivateApiAccess, PublicApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ApiVersion, PrivateApiAccess, PublicApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,28 +27,32 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
+  private val versionOne = ApiVersion("1.0")
+  private val versionTwo = ApiVersion("2.0")
+
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
     val helloApiDefinition = apiDefinition("hello-api")
     val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
-    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
-      apiVersion("2.0", RETIRED)))
+    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED)))
 
-    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
-      apiVersion("2.0", STABLE)))
-    val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
-      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = apiAccess())))
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE)))
 
-    val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
-      Seq(apiVersion("1.0", access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
+    val apiWithPublicAndPrivateVersions =
+      apiDefinition("api-with-public-and-private-versions", Seq(apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = apiAccess())))
 
-    val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(PrincipalApiDefinitionServiceMock.aMock,
-      SubordinateApiDefinitionServiceMock.aMock ,ApplicationIdsForCollaboratorFetcherMock.aMock)
+    val apiWithWhitelisting = apiDefinition("api-with-whitelisting", Seq(apiVersion(versionOne, access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
+
+    val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
+      PrincipalApiDefinitionServiceMock.aMock,
+      SubordinateApiDefinitionServiceMock.aMock,
+      ApplicationIdsForCollaboratorFetcherMock.aMock
+    )
 
     val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
-    val privateApiAvailability = APIAvailability(false,PrivateApiAccess(List(),false),false,false)
+    val privateApiAvailability = APIAvailability(false, PrivateApiAccess(List(), false), false, false)
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
@@ -93,8 +97,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "prefer subordinate version when it exists in both environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion("1.0", BETA))))
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion("1.0", STABLE))))
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion(versionOne, BETA))))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(Seq(apiVersion(versionOne, STABLE))))
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -145,7 +149,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.map(_.sandboxAvailability) must contain only(Some(privateApiAvailability), Some(publicApiAvailability))
+      result.versions.map(_.sandboxAvailability) must contain only (Some(privateApiAvailability), Some(publicApiAvailability))
       result.versions.map(_.productionAvailability) must contain only None
     }
 

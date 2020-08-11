@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
 import org.mockito.ArgumentMatchersSugar
-import org.mockito.Mockito.verify
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,6 +27,7 @@ class RecordMetricsSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
   trait Setup {
     val testApi = API("test-metrics")
     val apiMetricsMock = mock[ApiMetrics]
+
     val recordMetrics: RecordMetrics = new RecordMetrics {
       override val apiMetrics: ApiMetrics = apiMetricsMock
       override val api: API = testApi
@@ -35,12 +35,12 @@ class RecordMetricsSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
   }
 
   "Record" should {
-     "record success when future succeeds" in new Setup {
-       val result = await(recordMetrics.record(Future.successful("Success")))
+    "record success when future succeeds" in new Setup {
+      val result = await(recordMetrics.record(Future.successful("Success")))
 
-       result shouldBe "Success"
-       verify(apiMetricsMock).recordSuccess(testApi)
-     }
+      result shouldBe "Success"
+      verify(apiMetricsMock).recordSuccess(testApi)
+    }
 
     "record failure when future fails" in new Setup {
       val result = intercept[RuntimeException] {
@@ -49,7 +49,7 @@ class RecordMetricsSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
 
       result.getMessage shouldBe "Failed"
       verify(apiMetricsMock).recordFailure(testApi)
-     }
+    }
 
     "record failure when future throws exception" in new Setup {
       lazy val willThrowException = throw new RuntimeException("Failed")

@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ApiVersion, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,28 +27,30 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
+  private val versionOne = ApiVersion("1.0")
+  private val versionTwo = ApiVersion("2.0")
+
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
     val helloApiDefinition = apiDefinition("hello-api")
     val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
-    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
-                                                                                       apiVersion("2.0", RETIRED)))
+    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED)))
 
-    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion("1.0", RETIRED),
-                                                                                       apiVersion("2.0", STABLE)))
-    val apiWithPublicAndPrivateVersions = apiDefinition("api-with-public-and-private-versions",
-      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = apiAccess())))
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", Seq(apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE)))
 
-    val apiWithOnlyPrivateVersions = apiDefinition("api-with-private-versions",
-      Seq(apiVersion("1.0", access = PrivateApiAccess()), apiVersion("2.0", access = PrivateApiAccess())))
+    val apiWithPublicAndPrivateVersions =
+      apiDefinition("api-with-public-and-private-versions", Seq(apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = apiAccess())))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion("1.0", access = PrivateApiAccess().asTrial)))
-    val apiWithWhitelisting = apiDefinition("api-with-whitelisting",
-      Seq(apiVersion("1.0", access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
-    val underTest = new ApiDefinitionsForCollaboratorFetcher(PrincipalApiDefinitionServiceMock.aMock,
-      SubordinateApiDefinitionServiceMock.aMock ,ApplicationIdsForCollaboratorFetcherMock.aMock)
+    val apiWithOnlyPrivateVersions =
+      apiDefinition("api-with-private-versions", Seq(apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = PrivateApiAccess())))
+
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", Seq(apiVersion(versionOne, access = PrivateApiAccess().asTrial)))
+    val apiWithWhitelisting = apiDefinition("api-with-whitelisting", Seq(apiVersion(versionOne, access = PrivateApiAccess().withWhitelistedAppIds(applicationId))))
+
+    val underTest =
+      new ApiDefinitionsForCollaboratorFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock, ApplicationIdsForCollaboratorFetcherMock.aMock)
     SubordinateApiDefinitionServiceMock.FetchAllDefinitions.willReturnNoApiDefinitions()
   }
 
@@ -90,7 +92,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       val result = await(underTest.fetch(email))
 
       result.map(_.name) mustBe Seq(apiWithRetiredVersions.name)
-      result.head.versions.map(_.version) mustBe Seq("2.0")
+      result.head.versions.map(_.version) mustBe Seq(versionTwo)
     }
 
     "filter out private versions for an api" in new Setup {
@@ -99,7 +101,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
+      result.head.versions mustBe Seq(apiVersion(versionTwo, access = apiAccess()))
     }
 
     "filter out private versions for an api if no email provided" in new Setup {
@@ -107,7 +109,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(None))
 
-      result.head.versions mustBe Seq(apiVersion("2.0", access = apiAccess()))
+      result.head.versions mustBe Seq(apiVersion(versionTwo, access = apiAccess()))
     }
 
     "filter out an api if it only has private versions" in new Setup {
