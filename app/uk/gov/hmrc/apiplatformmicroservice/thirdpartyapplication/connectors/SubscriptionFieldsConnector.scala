@@ -23,24 +23,40 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
-import akka.pattern.FutureTimeoutSupport
-import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
+  import SubscriptionFieldsConnectorDomain._
   // def fetchFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Map[FieldName, FieldValue]]
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
+
+  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
+    import cats._
+    import cats.implicits._
+
+    // Shortcut combining as we know there will never be records for the same version for the same context
+    implicit def monoidVersions: Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] =
+      new Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] {
+
+        override def combine(x: Map[ApiVersion, Map[FieldName, FieldValue]], y: Map[ApiVersion, Map[FieldName, FieldValue]]): Map[ApiVersion, Map[FieldName, FieldValue]] = x ++ y
+
+        override def empty: Map[ApiVersion, Map[FieldName, FieldValue]] = Map.empty
+      }
+
+    Monoid.combineAll(
+      subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
+    )
+  }
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
-  protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
+
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -49,16 +65,17 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   def http: HttpClient
 
-  def fetchFieldValues(
-      clientId: ClientId,
-      apiIdentifier: ApiIdentifier
-    )(implicit hc: HeaderCarrier
-    ): Future[Map[FieldName, FieldValue]] = {
+  // Will be needed by the remainder of the ticket
+  // def fetchFieldValues(
+  //     clientId: ClientId,
+  //     apiIdentifier: ApiIdentifier
+  //   )(implicit hc: HeaderCarrier
+  //   ): Future[Map[FieldName, FieldValue]] = {
 
-    val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
-    http.GET[Option[ApplicationApiFieldValues]](url)
-      .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
-  }
+  //   val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
+  //   http.GET[Option[ApplicationApiFieldValues]](url)
+  //     .map(_.fold(Map.empty[FieldName, FieldValue])(_.fields))
+  // }
 
   def bulkFetchFieldValues(
       clientId: ClientId
@@ -67,19 +84,18 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
-      .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(_.asMapOfMaps))
-
+      .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private def urlEncode(apiIdentifier: ApiIdentifier): String = s"context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
+  // private def urlEncode(apiIdentifier: ApiIdentifier): String = s"context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
 
   private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 
-  private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/${urlEncode(apiIdentifier)}"
+  // private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
+  //   s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/${urlEncode(apiIdentifier)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {
@@ -88,19 +104,17 @@ object SubordinateSubscriptionFieldsConnector {
 
 @Singleton
 class SubordinateSubscriptionFieldsConnector @Inject() (
-    val appConfig: SubordinateSubscriptionFieldsConnector.Config,
+    val config: SubordinateSubscriptionFieldsConnector.Config,
     val httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient,
-    val actorSystem: ActorSystem,
-    val futureTimeout: FutureTimeoutSupport
+    val proxiedHttpClient: ProxiedHttpClient
   )(implicit val ec: ExecutionContext)
     extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
-  val serviceBaseUrl: String = appConfig.serviceBaseUrl
-  val useProxy: Boolean = appConfig.useProxy
-  val bearerToken: String = appConfig.bearerToken
-  val apiKey: String = appConfig.apiKey
+  val serviceBaseUrl: String = config.serviceBaseUrl
+  val useProxy: Boolean = config.useProxy
+  val bearerToken: String = config.bearerToken
+  val apiKey: String = config.apiKey
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
@@ -111,18 +125,13 @@ object PrincipalSubscriptionFieldsConnector {
 
 @Singleton
 class PrincipalSubscriptionFieldsConnector @Inject() (
-    val appConfig: PrincipalSubscriptionFieldsConnector.Config,
-    val httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient,
-    val actorSystem: ActorSystem,
-    val futureTimeout: FutureTimeoutSupport
+    val config: PrincipalSubscriptionFieldsConnector.Config,
+    val http: HttpClient
   )(implicit val ec: ExecutionContext)
     extends AbstractSubscriptionFieldsConnector {
 
-  def http: HttpClient = httpClient
-
   val environment: Environment = Environment.PRODUCTION
-  val serviceBaseUrl: String = appConfig.serviceBaseUrl
+  val serviceBaseUrl: String = config.serviceBaseUrl
 }
 
 @Singleton

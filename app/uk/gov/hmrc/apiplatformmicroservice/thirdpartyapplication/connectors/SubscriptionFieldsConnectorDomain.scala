@@ -32,15 +32,7 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
       fieldsId: ju.UUID,
       fields: Map[FieldName, FieldValue])
 
-  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields]) {
-
-    def asMapOfMaps: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
-      subscriptions
-        .map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
-        .foldLeft(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])((acc, m) => acc ++ m)
-    }
-
-  }
+  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
   case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
 
