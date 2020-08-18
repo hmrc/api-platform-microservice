@@ -109,12 +109,11 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
         EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.BulkFetchFieldValues.willReturnFields(subsFields)
 
-        val expect = ApplicationWithSubscriptionData
-          .fromApplication(
-            application,
-            Set(ApiIdentifierAOne),
-            subsFields
-          )
+        val expect = ApplicationWithSubscriptionData(
+          application,
+          Set(ApiIdentifierAOne),
+          subsFields
+        )
         await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe Some(expect)
       }
     }
