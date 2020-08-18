@@ -44,50 +44,10 @@ case class Application(
     ipWhitelist: Set[String] = Set.empty)
 
 case class ApplicationWithSubscriptionData(
-    id: ApplicationId,
-    clientId: ClientId,
-    name: String,
-    createdOn: DateTime,
-    lastAccess: DateTime,
-    lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
-    deployedTo: Environment,
-    description: Option[String] = None,
-    collaborators: Set[Collaborator] = Set.empty,
-    access: Access = Standard(),
-    state: ApplicationState = ApplicationState.testing,
-    checkInformation: Option[CheckInformation] = None,
-    ipWhitelist: Set[String] = Set.empty,
+    application: Application,
     subscriptions: Set[ApiIdentifier] = Set.empty,
     subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = Map.empty)
 
 object Application {
   implicit val ordering: Ordering[Application] = Ordering.by(_.name)
-}
-
-object ApplicationWithSubscriptionData {
-
-  def fromApplication(
-      app: Application,
-      subscriptions: Set[ApiIdentifier],
-      subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]
-    ): ApplicationWithSubscriptionData = {
-    ApplicationWithSubscriptionData(
-      app.id,
-      app.clientId,
-      app.name,
-      app.createdOn,
-      app.lastAccess,
-      app.lastAccessTokenUsage,
-      app.deployedTo,
-      app.description,
-      app.collaborators,
-      app.access,
-      app.state,
-      app.checkInformation,
-      app.ipWhitelist,
-      subscriptions,
-      subscriptionFieldValues
-    )
-  }
-
 }
