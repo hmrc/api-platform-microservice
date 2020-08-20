@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundExcepti
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule
     with ApiDocumentationResourceFetcherModule with SubscribedApiDefinitionsForCollaboratorFetcherModule {
@@ -47,7 +47,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     val version = "1.0"
     val anApiDefinition = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
-    val controller = new ApiDefinitionController(Helpers.stubControllerComponents(),
+    val controller = new ExtendedApiDefinitionController(Helpers.stubControllerComponents(),
     ApiDefinitionsForCollaboratorFetcherMock.aMock,
     ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
     ApiDocumentationResourceFetcherMock.aMock, SubscribedApiDefinitionsForCollaboratorFetcherMock.aMock)

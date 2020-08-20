@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models
+package uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain
 
-import enumeratum.{Enum, EnumEntry}
-import enumeratum.PlayJsonEnum
+import play.api.mvc._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
-sealed trait Environment extends EnumEntry {
-  def isSandbox: Boolean = this == Environment.SANDBOX
+case class ApplicationRequest[A](application: Application, deployedTo: Environment, request: Request[A]) extends WrappedRequest[A](request)
 
-  def isProduction: Boolean = this == Environment.PRODUCTION
-}
-
-object Environment extends Enum[Environment] with PlayJsonEnum[Environment] {
-  val values = findValues
-
-  final case object PRODUCTION extends Environment
-  final case object SANDBOX extends Environment
-
-  def from(env: String) = values.find(e => e.toString == env.toUpperCase)
-}

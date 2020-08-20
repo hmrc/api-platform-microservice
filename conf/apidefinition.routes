@@ -1,6 +1,1 @@
-# microservice specific routes
-
-GET        /                                                        uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String])
-GET        /subscribed                                              uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String)
-GET        /:serviceName                                            uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String])
-GET        /:serviceName/:version/documentation/*resource           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchApiDocumentationResource(serviceName: String, version: String, resource: String)
+GET        /           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllSubscribeableApis(applicationId: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)

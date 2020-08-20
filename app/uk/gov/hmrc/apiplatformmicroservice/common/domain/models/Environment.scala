@@ -16,5 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
-case class ApplicationId(value: String) extends AnyVal
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
+sealed trait Environment extends EnumEntry {
+  def isSandbox: Boolean = this == Environment.SANDBOX
+
+  def isProduction: Boolean = this == Environment.PRODUCTION
+}
+
+object Environment extends Enum[Environment] with PlayJsonEnum[Environment] {
+  val values = findValues
+
+  final case object PRODUCTION extends Environment
+  final case object SANDBOX extends Environment
+
+  def from(env: String) = values.find(e => e.toString == env.toUpperCase)
+}

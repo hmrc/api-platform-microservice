@@ -46,7 +46,11 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= compileDeps ++ testDeps("test"),
     publishingSettings,
-    scoverageSettings
+    scoverageSettings,
+    routesImport ++= Seq(
+      "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._"
+    )
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)

@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment._
 
-trait EnvironmentAwareConnector[C] {
+trait EnvironmentAware[C] {
 
   def apply(environment: Environment): C = {
     environment match {

@@ -24,6 +24,9 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeo
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApiDefinitionService
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionService
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.PrincipalApiDefinitionService
+import com.google.inject.name.Names.named
 
 class ConfigurationModule extends AbstractModule {
 
@@ -32,6 +35,10 @@ class ConfigurationModule extends AbstractModule {
     bind(classOf[PrincipalApiDefinitionConnector.Config]).toProvider(classOf[PrincipalApiDefinitionConnectorConfigProvider])
     bind(classOf[SubordinateApiDefinitionConnector.Config]).toProvider(classOf[SubordinateApiDefinitionConnectorConfigProvider])
     bind(classOf[SubordinateApiDefinitionService.Config]).toProvider(classOf[SubordinateApiDefinitionServiceConfigProvider])
+
+    bind(classOf[ApiDefinitionService]).annotatedWith(named("subordinate")).to(classOf[SubordinateApiDefinitionService])
+    bind(classOf[ApiDefinitionService]).annotatedWith(named("principal")).to(classOf[PrincipalApiDefinitionService])
+
   }
 }
 

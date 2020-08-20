@@ -27,8 +27,9 @@ import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
@@ -100,4 +101,4 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
 class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
     @Named("subordinate") val subordinate: SubscriptionFieldsConnector,
     @Named("principal") val principal: SubscriptionFieldsConnector)
-    extends EnvironmentAwareConnector[SubscriptionFieldsConnector]
+    extends EnvironmentAware[SubscriptionFieldsConnector]
