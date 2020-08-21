@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
 
 case class AccessRequirements(devhub: DevhubAccessRequirements)
 
 object AccessRequirements {
   final val Default = AccessRequirements(devhub = DevhubAccessRequirements.Default)
 }
-

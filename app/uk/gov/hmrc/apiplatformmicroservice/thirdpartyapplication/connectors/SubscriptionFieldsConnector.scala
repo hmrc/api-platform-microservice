@@ -25,12 +25,16 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
+
+  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
+
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
 }
 
@@ -42,7 +46,12 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   import SubscriptionFieldsConnectorDomain._
   import SubscriptionFieldsConnectorDomain.SubscriptionJsonFormatters._
 
-  def http: HttpClient
+  protected def http: HttpClient
+
+  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
+    http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefintions)
+      .map(r => asMapOfMapsOfFieldDefns(r.apis))
+  }
 
   def bulkFetchFieldValues(
       clientId: ClientId
@@ -56,8 +65,9 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
+  private lazy val urlBulkSubscriptionFieldDefintions = s"$serviceBaseUrl/definition"
+
+  private def urlBulkSubscriptionFieldValues(clientId: ClientId) = s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {
@@ -78,7 +88,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
   val bearerToken: String = config.bearerToken
   val apiKey: String = config.apiKey
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  protected def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 object PrincipalSubscriptionFieldsConnector {

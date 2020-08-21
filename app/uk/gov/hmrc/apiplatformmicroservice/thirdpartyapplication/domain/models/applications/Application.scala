@@ -24,7 +24,6 @@ case class ClientId(value: String) extends AnyVal
 
 case class Collaborator(emailAddress: String, role: Role)
 
-
 case class FieldValue(value: String) extends AnyVal
 
 case class Application(

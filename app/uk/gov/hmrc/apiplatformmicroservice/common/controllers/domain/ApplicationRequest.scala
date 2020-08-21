@@ -21,4 +21,3 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 case class ApplicationRequest[A](application: Application, deployedTo: Environment, request: Request[A]) extends WrappedRequest[A](request)
-

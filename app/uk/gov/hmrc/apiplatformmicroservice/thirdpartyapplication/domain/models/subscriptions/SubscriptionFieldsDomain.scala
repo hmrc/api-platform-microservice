@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
 object SubscriptionFieldsDomain {
 

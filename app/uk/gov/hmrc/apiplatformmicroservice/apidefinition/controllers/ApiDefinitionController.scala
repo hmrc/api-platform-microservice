@@ -27,6 +27,8 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterApis
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+import play.api.libs.json._
 
 @Singleton
 class ApiDefinitionController @Inject() (
@@ -39,16 +41,15 @@ class ApiDefinitionController @Inject() (
     with FilterApis {
 
   import ApiDefinitionController._
+  import ApiDefinitionController.JsonFormatters._
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
     ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
-      import play.api.libs.json._
-
       for {
         defs <- fetcher.fetch(applicationId, request.deployedTo)
         filtered = filterApis(Seq(applicationId))(defs)
         converted = convert(filtered)
-      } yield Ok(Json.toJson("hello"))
+      } yield Ok(Json.toJson(Response(converted)))
     }
 }
 
@@ -57,12 +58,10 @@ object ApiDefinitionController {
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
   def convert(in: Seq[APIDefinition]): Map[ApiContext, ApiData] = {
-    ApiData("bob", "bob", false, Map.empty)
     in.map(d => (d.context -> ApiData(d))).toMap
   }
 
-  case class AResponse(s: String)
-                       //apiDefinitions: Map[ApiContext, ApiData], fieldDefinitions: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldData]]])
+  case class Response(apiDefinitions: Map[ApiContext, ApiData])
 
   case class FieldData(name: String) // TODO
 
@@ -86,10 +85,12 @@ object ApiDefinitionController {
     def apply(in: ApiVersionDefinition): VersionData = VersionData(in.status, in.access)
   }
 
-    import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+  object JsonFormatters extends ApiDefinitionJsonFormatters {
     import play.api.libs.json._
-    implicit val writeVersionData = Json.writes[VersionData]
-    implicit val writeApiData = Json.writes[ApiData]
-    implicit val writeFieldData = Json.writes[FieldData]
-    implicit val writeResponse = Json.writes[AResponse]
+    implicit val writesVersionData = Json.writes[VersionData]
+    implicit val writesApiData = Json.writes[ApiData]
+    implicit val writesFieldData = Json.writes[FieldData]
+
+    implicit val writesMyResponse: OWrites[ApiDefinitionController.Response] = Json.writes[Response]
+  }
 }

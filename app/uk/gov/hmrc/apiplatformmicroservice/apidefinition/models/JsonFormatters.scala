@@ -23,9 +23,9 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{P
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 
 trait BasicApiDefinitionJsonFormatters extends CommonJsonFormatters {
-  implicit val formatApiContext = Json.valueFormat[ApiContext]
-  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
-  implicit val formatApiIdentifier = Json.format[ApiIdentifier]
+  implicit val formatApiContext: Format[ApiContext] = Json.valueFormat[ApiContext]
+  implicit val formatApiVersion: Format[ApiVersion] = Json.valueFormat[ApiVersion]
+  implicit val formatApiIdentifier: Format[ApiIdentifier] = Json.format[ApiIdentifier]
 
   implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
   implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value

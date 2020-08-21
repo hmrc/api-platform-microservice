@@ -46,7 +46,7 @@ package object binders {
     }
 
     override def unbind(key: String, context: ApplicationId): String = {
-      textBinder.unbind("context", context.value)
+      textBinder.unbind(key, context.value)
     }
   }
 
@@ -63,4 +63,23 @@ package object binders {
       env.toString.toLowerCase
     }
   }
+
+  implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[Environment] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Environment]] = {
+      for {
+        text <- textBinder.bind(key, params)
+      } yield {
+        text match {
+          case Right(env) => Environment.from(env).toRight("Not a valid environment")
+          case _          => Left("Unable to bind an application ID")
+        }
+      }
+    }
+
+    override def unbind(key: String, environment: Environment): String = {
+      textBinder.unbind(key, environment.entryName)
+    }
+  }
+
 }

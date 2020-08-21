@@ -21,11 +21,19 @@ import java.{util => ju}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters
 
 private[connectors] object SubscriptionFieldsConnectorDomain {
+  import cats.data.{NonEmptyList => NEL}
 
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldValue}
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
+
+  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
+
+  case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
 
   case class ApplicationApiFieldValues(
       clientId: ClientId,
@@ -34,21 +42,41 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
       fieldsId: ju.UUID,
       fields: Map[FieldName, FieldValue])
 
+  case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
+
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
-  case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
+  def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]] = {
+    import cats._
+    import cats.implicits._
+    type MapType = Map[ApiVersion, Map[FieldName, FieldDefinition]]
+
+    // Shortcut combining as we know there will never be records for the same version for the same context
+    implicit def monoidVersions: Monoid[MapType] =
+      new Monoid[MapType] {
+
+        override def combine(x: MapType, y: MapType): MapType = x ++ y
+
+        override def empty: MapType = Map.empty
+      }
+
+    Monoid.combineAll(
+      fieldDefs.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fieldDefinitions.map(fd => fd.name -> fd).toList.toMap)))
+    )
+  }
 
   def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
     import cats._
     import cats.implicits._
+    type MapType = Map[ApiVersion, Map[FieldName, FieldValue]]
 
     // Shortcut combining as we know there will never be records for the same version for the same context
-    implicit def monoidVersions: Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] =
-      new Monoid[Map[ApiVersion, Map[FieldName, FieldValue]]] {
+    implicit def monoidVersions: Monoid[MapType] =
+      new Monoid[MapType] {
 
-        override def combine(x: Map[ApiVersion, Map[FieldName, FieldValue]], y: Map[ApiVersion, Map[FieldName, FieldValue]]): Map[ApiVersion, Map[FieldName, FieldValue]] = x ++ y
+        override def combine(x: MapType, y: MapType): MapType = x ++ y
 
-        override def empty: Map[ApiVersion, Map[FieldName, FieldValue]] = Map.empty
+        override def empty: MapType = Map.empty
       }
 
     Monoid.combineAll(
@@ -56,17 +84,17 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters {
-    import play.api.libs.json._
+  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters with FieldsJsonFormatters {
+    import play.api.libs.json.Json
 
-//    implicit val readsClientId = Json.reads[ClientId]
-//    implicit val readsFN = Json.reads[FieldName]
-//    implicit val readsFV = Json.reads[FieldValue]
-//    implicit val keyReadsFieldName2: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
     implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
 
     implicit val readsSubscriptionFields = Json.reads[SubscriptionFields]
     implicit val readsBulkSubscriptionFieldsResponse = Json.reads[BulkSubscriptionFieldsResponse]
+
+    implicit val readsApiFieldDefinitions = Json.reads[ApiFieldDefinitions]
+    implicit val readsBulkApiFieldDefinitionsResponse = Json.reads[BulkApiFieldDefinitionsResponse]
+
   }
 
   object SubscriptionJsonFormatters extends SubscriptionJsonFormatters

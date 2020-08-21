@@ -45,7 +45,7 @@ package object binders {
     }
 
     override def unbind(key: String, context: ApiContext): String = {
-      textBinder.unbind("context", context.value)
+      textBinder.unbind(key, context.value)
     }
   }
 
@@ -74,7 +74,7 @@ package object binders {
     }
 
     override def unbind(key: String, version: ApiVersion): String = {
-      textBinder.unbind("version", version.value)
+      textBinder.unbind(key, version.value)
     }
   }
 }
