@@ -23,8 +23,8 @@ import com.google.inject.AbstractModule
 class ConfigurationModule extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(named("principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
-    bind(classOf[ThirdPartyApplicationConnector.Config]).annotatedWith(named("subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[AbstractThirdPartyApplicationConnector.Config]).annotatedWith(named("principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
+    bind(classOf[AbstractThirdPartyApplicationConnector.Config]).annotatedWith(named("subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
 
     bind(classOf[PrincipalSubscriptionFieldsConnector.Config]).toProvider(classOf[PrincipalSubscriptionFieldsConnectorConfigProvider])
     bind(classOf[SubordinateSubscriptionFieldsConnector.Config]).toProvider(classOf[SubordinateSubscriptionFieldsConnectorConfigProvider])

@@ -32,8 +32,7 @@ class SubordinateApiDefinitionService @Inject() (
 
   val enabled: Boolean = config.enabled
 
-  Logger.info(s"Subordinate Api Definition Service is ${if (enabled) "enabled"
-  else "disabled"}")
+  Logger.info(s"Subordinate Api Definition Service is ${if (enabled) "enabled" else "disabled"}")
 }
 
 object SubordinateApiDefinitionService {

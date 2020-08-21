@@ -17,10 +17,11 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{FieldName, FieldValue}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
 
 object SubscriptionsHelper {
-  import ThirdPartyApplicationConnector._
+  import AbstractThirdPartyApplicationConnector._
 
   val ContextA = ApiContext("A")
   val ContextB = ApiContext("B")

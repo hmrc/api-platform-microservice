@@ -17,9 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ExtendedAPIDefinition, JsonFormatters}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionJsonFormatters, ExtendedAPIDefinition}
 
-trait DefinitionsFromJson extends JsonFormatters {
+trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
 
   //noinspection ScalaStyle
   def extendedApiDefinition(name: String): ExtendedAPIDefinition = {

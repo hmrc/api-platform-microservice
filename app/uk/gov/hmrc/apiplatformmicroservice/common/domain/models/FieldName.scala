@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.services
+package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import play.api.libs.json._
-
-trait CommonJsonFormatters {
-  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
-  implicit val formatFieldName = Json.valueFormat[FieldName]
-
-  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
-  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
-
-}
-
-object CommonJsonFormatters extends CommonJsonFormatters
+case class FieldName(value: String) extends AnyVal

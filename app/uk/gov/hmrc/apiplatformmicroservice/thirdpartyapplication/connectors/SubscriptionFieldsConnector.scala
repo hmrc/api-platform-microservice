@@ -25,11 +25,10 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
@@ -41,7 +40,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
-  import SubscriptionFieldsConnectorDomain.JsonFormatters._
+  import SubscriptionFieldsConnectorDomain.SubscriptionJsonFormatters._
 
   def http: HttpClient
 

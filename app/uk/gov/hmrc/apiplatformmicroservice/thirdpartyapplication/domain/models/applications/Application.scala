@@ -18,14 +18,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 case class ClientId(value: String) extends AnyVal
 
 case class Collaborator(emailAddress: String, role: Role)
 
-case class FieldName(value: String) extends AnyVal
+
 case class FieldValue(value: String) extends AnyVal
 
 case class Application(

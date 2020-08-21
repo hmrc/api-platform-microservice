@@ -18,12 +18,14 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.{util => ju}
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 private[connectors] object SubscriptionFieldsConnectorDomain {
 
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldName, FieldValue}
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldValue}
 
   case class ApplicationApiFieldValues(
       clientId: ClientId,
@@ -54,14 +56,18 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  trait JsonFormatters {
-    import play.api.libs.json.Json
-    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
+  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters {
+    import play.api.libs.json._
+
+//    implicit val readsClientId = Json.reads[ClientId]
+//    implicit val readsFN = Json.reads[FieldName]
+//    implicit val readsFV = Json.reads[FieldValue]
+//    implicit val keyReadsFieldName2: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
     implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
 
     implicit val readsSubscriptionFields = Json.reads[SubscriptionFields]
     implicit val readsBulkSubscriptionFieldsResponse = Json.reads[BulkSubscriptionFieldsResponse]
   }
 
-  object JsonFormatters extends JsonFormatters
+  object SubscriptionJsonFormatters extends SubscriptionJsonFormatters
 }

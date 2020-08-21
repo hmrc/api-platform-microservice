@@ -19,37 +19,19 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 @Singleton
 class ApiDefinitionsForApplicationFetcher @Inject() (
-    principalDefinitionService: PrincipalApiDefinitionService,
-    subordinateDefinitionService: SubordinateApiDefinitionService
-  )(implicit ec: ExecutionContext) {
+    apiDefinitionService: EnvironmentAwareApiDefinitionService
+  )(implicit ec: ExecutionContext)
+    extends FilterApis {
 
-  def fetch(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    ???
-  }
-
-  private def filterApis(apis: Seq[APIDefinition], applicationId: ApplicationId): Seq[APIDefinition] = {
-    apis.filterNot(_.requiresTrust).flatMap(filterVersions(_, applicationId))
-  }
-
-  private def filterVersions(api: APIDefinition, applicationId: ApplicationId): Option[APIDefinition] = {
-    def activeVersions(version: ApiVersionDefinition): Boolean = version.status != APIStatus.RETIRED
-
-    def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
-      case PrivateApiAccess(_, true)                      => true
-      case PrivateApiAccess(whitelistedApplicationIds, _) =>
-        whitelistedApplicationIds.contains(applicationId)
-      case _                                              => true
-    }
-
-    val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v))
-
-    if (filteredVersions.isEmpty) None
-    else Some(api.copy(versions = filteredVersions))
+  def fetch(applicationId: ApplicationId, environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    for {
+      defs <- apiDefinitionService(environment).fetchAllDefinitions
+    } yield filterApis(Seq(applicationId))(defs)
   }
 }
