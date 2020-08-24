@@ -6,12 +6,7 @@ import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{status => wmStatus, _}
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.test.Helpers.await
 import play.api.http.Status._
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
@@ -19,6 +14,15 @@ import org.scalatest.OptionValues
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.test.DefaultAwaitTimeout
 import play.api.test.FutureAwaits
+import play.api.Configuration
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.Mode
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldsMock
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.ws.WSClient
+import play.api.http.HeaderNames
+import uk.gov.hmrc.http.HeaderCarrier
 
 class SubscriptionFieldDefinitionsSpec
     extends WordSpec
@@ -30,13 +34,36 @@ class SubscriptionFieldDefinitionsSpec
     with DefaultAwaitTimeout
     with FutureAwaits
     with BeforeAndAfterEach
-    with GuiceOneAppPerSuite {
+    with GuiceOneServerPerSuite
+    with SubscriptionFieldsMock {
 
-  val Port = 11111
   val Host = "localhost"
+  val Port = 11111
   val wireMockServer = new WireMockServer(wireMockConfig().port(Port))
-  val http = fakeApplication().injector.instanceOf[HttpClient]
   implicit val hc: HeaderCarrier = HeaderCarrier()
+  val baseUrl = "http://localhost:19001"
+
+  private val stubConfig = Configuration(
+    "microservice.services.api-definition-principal.host" -> Host,
+    "microservice.services.api-definition-subordinate.host" -> Host,
+    "microservice.services.third-party-application-principal.host" -> Host,
+    "microservice.services.third-party-application-subordinate.host" -> Host,
+    "microservice.services.subscription-fields-principal.host" -> Host,
+    "microservice.services.subscription-fields-subordinate.host" -> Host,
+    "microservice.services.api-definition-principal.port" -> Port,
+    "microservice.services.api-definition-subordinate.port" -> Port,
+    "microservice.services.third-party-application-principal.port" -> Port,
+    "microservice.services.third-party-application-subordinate.port" -> Port,
+    "microservice.services.subscription-fields-principal.port" -> Port,
+    "microservice.services.subscription-fields-subordinate.port" -> Port,
+    "metrics.jvm" -> false
+  )
+
+  override def fakeApplication(): Application =
+    GuiceApplicationBuilder()
+      .configure(stubConfig)
+      .in(Mode.Test)
+      .build()
 
   override def beforeEach {
     wireMockServer.start()
@@ -48,16 +75,15 @@ class SubscriptionFieldDefinitionsSpec
   }
 
   "WireMock" should {
-    "stub get request" in {
-      val path = "/my/resource"
-      stubFor(get(urlEqualTo(path))
-        .willReturn(
-          aResponse()
-            .withBody("bob")
-            .withStatus(OK)
-        ))
+    // val http = app.injector.instanceOf[HttpClient]
+    val wsClient = app.injector.instanceOf[WSClient]
 
-      val responseFuture = await(http.GET(s"http://$Host:$Port$path"))
+    "stub get request" in {
+      mockBulkFetchFieldDefintions()
+      val responseFuture = await(wsClient.url(s"$baseUrl/subscription-fields")
+        .withQueryStringParameters("environment" -> "PRODUCTION")
+        .withHttpHeaders(HeaderNames.ACCEPT -> "application/json")
+        .get())
 
       responseFuture.status shouldBe OK
     }
