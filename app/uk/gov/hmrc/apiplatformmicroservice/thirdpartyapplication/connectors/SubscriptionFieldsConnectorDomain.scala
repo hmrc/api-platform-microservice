@@ -23,8 +23,11 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters
+import play.api.libs.json.JsPath
+import play.api.libs.json.Reads
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 
-private[connectors] object SubscriptionFieldsConnectorDomain {
+object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
 
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
@@ -84,7 +87,7 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters with FieldsJsonFormatters {
+  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters with FieldsJsonFormatters with NonEmptyListFormatters {
     import play.api.libs.json.Json
 
     implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
@@ -92,8 +95,10 @@ private[connectors] object SubscriptionFieldsConnectorDomain {
     implicit val readsSubscriptionFields = Json.reads[SubscriptionFields]
     implicit val readsBulkSubscriptionFieldsResponse = Json.reads[BulkSubscriptionFieldsResponse]
 
-    implicit val readsApiFieldDefinitions = Json.reads[ApiFieldDefinitions]
-    implicit val readsBulkApiFieldDefinitionsResponse = Json.reads[BulkApiFieldDefinitionsResponse]
+    implicit val x: Reads[NEL[FieldDefinition]] = nelReads[FieldDefinition]
+    implicit val readsApiFieldDefinitions: Reads[SubscriptionFieldsConnectorDomain.ApiFieldDefinitions] = Json.reads[ApiFieldDefinitions]
+
+    implicit val readsBulkApiFieldDefinitionsResponse: Reads[SubscriptionFieldsConnectorDomain.BulkApiFieldDefinitionsResponse] = Json.reads[BulkApiFieldDefinitionsResponse]
 
   }
 

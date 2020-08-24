@@ -41,5 +41,5 @@ case class FieldDefinition(
     hint: String = "",
     `type`: FieldDefinitionType.FieldDefinitionType,
     shortDescription: String,
-    validation: Option[ValidationGroup] = None,
+    validation: Option[ValidationGroup],
     access: AccessRequirements = AccessRequirements.Default)

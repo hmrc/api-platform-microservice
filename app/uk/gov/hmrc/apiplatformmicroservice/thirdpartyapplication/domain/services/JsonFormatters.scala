@@ -20,7 +20,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonForm
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import play.api.libs.json.Json.JsValueWrapper
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import akka.http.javadsl.model.DateTime
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._
@@ -139,7 +138,7 @@ trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with CommonJ
       (JsPath \ "description").read[String] and
       ((JsPath \ "hint").read[String] or Reads.pure("")) and
       (JsPath \ "type").read[FieldDefinitionType.FieldDefinitionType] and
-      ((JsPath \ "shortDescription").read[String] or Reads.pure("")) and
+      ((JsPath \ "shortDescription2").read[String] or Reads.pure("")) and
       (JsPath \ "validation").readNullable[ValidationGroup] and
       ((JsPath \ "access").read[AccessRequirements] or Reads.pure(AccessRequirements.Default))
   )(FieldDefinition.apply _)
@@ -166,8 +165,6 @@ trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with CommonJ
        }).writes(o)
     }
   }
-
-  implicit val formatFieldDefinition = Json.format[FieldDefinition]
 }
 
 object FieldsJsonFormatters extends FieldsJsonFormatters

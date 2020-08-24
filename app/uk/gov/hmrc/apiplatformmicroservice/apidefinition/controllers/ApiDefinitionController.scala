@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, FieldName}
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
@@ -29,6 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterApis
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
 import play.api.libs.json._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 @Singleton
 class ApiDefinitionController @Inject() (
@@ -49,7 +49,7 @@ class ApiDefinitionController @Inject() (
         defs <- fetcher.fetch(applicationId, request.deployedTo)
         filtered = filterApis(Seq(applicationId))(defs)
         converted = convert(filtered)
-      } yield Ok(Json.toJson(Response(converted)))
+      } yield Ok(Json.toJson(converted))
     }
 }
 
@@ -60,10 +60,6 @@ object ApiDefinitionController {
   def convert(in: Seq[APIDefinition]): Map[ApiContext, ApiData] = {
     in.map(d => (d.context -> ApiData(d))).toMap
   }
-
-  case class Response(apiDefinitions: Map[ApiContext, ApiData])
-
-  case class FieldData(name: String) // TODO
 
   case class ApiData(
       serviceName: String,
@@ -87,10 +83,7 @@ object ApiDefinitionController {
 
   object JsonFormatters extends ApiDefinitionJsonFormatters {
     import play.api.libs.json._
-    implicit val writesVersionData = Json.writes[VersionData]
-    implicit val writesApiData = Json.writes[ApiData]
-    implicit val writesFieldData = Json.writes[FieldData]
-
-    implicit val writesMyResponse: OWrites[ApiDefinitionController.Response] = Json.writes[Response]
+    implicit val writesVersionData: OWrites[VersionData] = Json.writes[VersionData]
+    implicit val writesApiData: OWrites[ApiData] = Json.writes[ApiData]
   }
 }
