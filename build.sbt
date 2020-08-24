@@ -3,6 +3,8 @@ import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
 
+import bloop.integrations.sbt.BloopDefaults
+
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -32,6 +34,10 @@ def testDeps(scope: String) = Seq(
   "com.typesafe.play"      %% "play-test"               % PlayVersion.current % scope
 )
 
+def itDeps(scope: String) = Seq(
+  "com.github.tomakehurst" % "wiremock-jre8-standalone" % "2.27.1" % scope
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "api-platform-microservice",
@@ -45,13 +51,22 @@ lazy val root = (project in file("."))
       Resolver.typesafeRepo("releases"),
       Resolver.jcenterRepo
     ),
-    libraryDependencies ++= compileDeps ++ testDeps("test"),
+    libraryDependencies ++= compileDeps ++ testDeps("test,it") ++ itDeps("test,it"),
     publishingSettings,
     scoverageSettings,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
       "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._"
     )
+  )
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
+  .settings(
+    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    IntegrationTest / unmanagedSourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
+    // IntegrationTest / unmanagedResourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "test")).value,
+    IntegrationTest / parallelExecution := false
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)

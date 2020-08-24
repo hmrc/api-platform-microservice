@@ -23,7 +23,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters
-import play.api.libs.json.JsPath
 import play.api.libs.json.Reads
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 
