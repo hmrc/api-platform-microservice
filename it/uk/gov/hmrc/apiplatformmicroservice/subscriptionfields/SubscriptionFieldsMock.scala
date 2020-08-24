@@ -6,14 +6,14 @@ import play.api.http.Status._
 import play.api.http._
 
 trait SubscriptionFieldsMock {
-  def Port: Int
-  def Host: String
 
   def mockBulkFetchFieldDefintions() {
-    stubFor(get(urlEqualTo(s"/definition"))
+    stubFor(get(urlEqualTo("/definition"))
       .willReturn(
         aResponse()
-          .withBody("""{"apis": []}""")
+          .withBody("""{
+                      | "apis" : []
+                      |}""".stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
       ))

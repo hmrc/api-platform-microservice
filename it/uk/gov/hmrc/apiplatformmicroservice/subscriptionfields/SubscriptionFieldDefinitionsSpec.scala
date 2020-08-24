@@ -21,8 +21,10 @@ import play.api.Mode
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldsMock
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.WSClient
-import play.api.http.HeaderNames
+import play.api.http.HeaderNames._
+import play.api.http.MimeTypes._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 class SubscriptionFieldDefinitionsSpec
     extends WordSpec
@@ -37,25 +39,24 @@ class SubscriptionFieldDefinitionsSpec
     with GuiceOneServerPerSuite
     with SubscriptionFieldsMock {
 
-  val Host = "localhost"
-  val Port = 11111
-  val wireMockServer = new WireMockServer(wireMockConfig().port(Port))
+  val WireMockHost = "localhost"
+  val WireMockPort = 11111
+  val wireMockServer = new WireMockServer(wireMockConfig().port(WireMockPort))
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  val baseUrl = "http://localhost:19001"
 
   private val stubConfig = Configuration(
-    "microservice.services.api-definition-principal.host" -> Host,
-    "microservice.services.api-definition-subordinate.host" -> Host,
-    "microservice.services.third-party-application-principal.host" -> Host,
-    "microservice.services.third-party-application-subordinate.host" -> Host,
-    "microservice.services.subscription-fields-principal.host" -> Host,
-    "microservice.services.subscription-fields-subordinate.host" -> Host,
-    "microservice.services.api-definition-principal.port" -> Port,
-    "microservice.services.api-definition-subordinate.port" -> Port,
-    "microservice.services.third-party-application-principal.port" -> Port,
-    "microservice.services.third-party-application-subordinate.port" -> Port,
-    "microservice.services.subscription-fields-principal.port" -> Port,
-    "microservice.services.subscription-fields-subordinate.port" -> Port,
+    "microservice.services.api-definition-principal.host" -> WireMockHost,
+    "microservice.services.api-definition-subordinate.host" -> WireMockHost,
+    "microservice.services.third-party-application-principal.host" -> WireMockHost,
+    "microservice.services.third-party-application-subordinate.host" -> WireMockHost,
+    "microservice.services.subscription-fields-principal.host" -> WireMockHost,
+    "microservice.services.subscription-fields-subordinate.host" -> WireMockHost,
+    "microservice.services.api-definition-principal.port" -> WireMockPort,
+    "microservice.services.api-definition-subordinate.port" -> WireMockPort,
+    "microservice.services.third-party-application-principal.port" -> WireMockPort,
+    "microservice.services.third-party-application-subordinate.port" -> WireMockPort,
+    "microservice.services.subscription-fields-principal.port" -> WireMockPort,
+    "microservice.services.subscription-fields-subordinate.port" -> WireMockPort,
     "metrics.jvm" -> false
   )
 
@@ -65,9 +66,13 @@ class SubscriptionFieldDefinitionsSpec
       .in(Mode.Test)
       .build()
 
+  override lazy val port = 8080
+
+  lazy val baseUrl = s"http://localhost:$port"
+
   override def beforeEach {
     wireMockServer.start()
-    WireMock.configureFor(Host, Port)
+    WireMock.configureFor(WireMockHost, WireMockPort)
   }
 
   override def afterEach {
@@ -75,14 +80,13 @@ class SubscriptionFieldDefinitionsSpec
   }
 
   "WireMock" should {
-    // val http = app.injector.instanceOf[HttpClient]
     val wsClient = app.injector.instanceOf[WSClient]
 
     "stub get request" in {
       mockBulkFetchFieldDefintions()
       val responseFuture = await(wsClient.url(s"$baseUrl/subscription-fields")
-        .withQueryStringParameters("environment" -> "PRODUCTION")
-        .withHttpHeaders(HeaderNames.ACCEPT -> "application/json")
+        .withQueryStringParameters("environment" -> Environment.PRODUCTION.toString())
+        .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
       responseFuture.status shouldBe OK
