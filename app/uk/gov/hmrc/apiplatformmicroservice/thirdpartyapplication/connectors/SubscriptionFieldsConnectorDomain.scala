@@ -33,10 +33,6 @@ object SubscriptionFieldsConnectorDomain {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldValue}
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
-  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
-
-  case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
-
   case class ApplicationApiFieldValues(
       clientId: ClientId,
       apiContext: ApiContext,
@@ -47,6 +43,10 @@ object SubscriptionFieldsConnectorDomain {
   case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
 
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
+
+  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
+
+  case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
 
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]] = {
     import cats._
@@ -61,6 +61,13 @@ object SubscriptionFieldsConnectorDomain {
 
         override def empty: MapType = Map.empty
       }
+
+    for {
+      fds <- fieldDefs
+      fd <- fds.fieldDefinitions.toList
+      a = fd.access
+      _ = println(a)
+    } yield ()
 
     Monoid.combineAll(
       fieldDefs.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fieldDefinitions.map(fd => fd.name -> fd).toList.toMap)))
@@ -98,7 +105,6 @@ object SubscriptionFieldsConnectorDomain {
     implicit val readsApiFieldDefinitions: Reads[SubscriptionFieldsConnectorDomain.ApiFieldDefinitions] = Json.reads[ApiFieldDefinitions]
 
     implicit val readsBulkApiFieldDefinitionsResponse: Reads[SubscriptionFieldsConnectorDomain.BulkApiFieldDefinitionsResponse] = Json.reads[BulkApiFieldDefinitionsResponse]
-
   }
 
   object SubscriptionJsonFormatters extends SubscriptionJsonFormatters
