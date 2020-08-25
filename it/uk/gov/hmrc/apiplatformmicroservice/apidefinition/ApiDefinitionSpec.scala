@@ -68,6 +68,8 @@ class ApiDefinitionSpec
       }
 
       result should not be empty
+      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == APIStatus.RETIRED) shouldBe false }
+      withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
     }
   }
 }

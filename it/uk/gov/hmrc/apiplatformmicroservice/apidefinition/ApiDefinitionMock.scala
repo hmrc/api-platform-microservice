@@ -21,7 +21,7 @@ trait ApiDefinitionMock {
                       |      "versions": [
                       |          {
                       |              "version": "0.5",
-                      |              "status": "ALPHA",
+                      |              "status": "RETIRED",
                       |              "endpoints": [
                       |                  {
                       |                      "uriPattern": "/world",
@@ -101,6 +101,31 @@ trait ApiDefinitionMock {
                       |          }
                       |      ],
                       |      "lastPublishedAt": "2018-07-13T13:18:06.124Z"
+                      |  },
+                      |  {
+                      |      "serviceName": "api-example-trusted",
+                      |      "serviceBaseUrl": "http://localhost:9603",
+                      |      "name": "Hello Trust",
+                      |      "description": "A 'hello another' example of an API on the HMRC API Developer Hub.",
+                      |      "context": "trusted",
+                      |      "versions": [
+                      |          {
+                      |              "version": "1.0",
+                      |              "status": "STABLE",
+                      |              "endpoints": [
+                      |                  {
+                      |                      "uriPattern": "/world",
+                      |                      "endpointName": "Say hello world",
+                      |                      "method": "GET",
+                      |                      "authType": "NONE",
+                      |                      "throttlingTier": "UNLIMITED"
+                      |                  }
+                      |              ],
+                      |              "endpointsEnabled": true
+                      |          }
+                      |      ],
+                      |      "lastPublishedAt": "2018-07-13T13:18:06.124Z",
+                      |      "requiresTrust": true
                       |  }
                       |]""".stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
