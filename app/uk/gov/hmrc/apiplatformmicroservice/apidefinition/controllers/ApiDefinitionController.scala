@@ -58,7 +58,13 @@ object ApiDefinitionController {
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
   def convert(in: Seq[APIDefinition]): Map[ApiContext, ApiData] = {
-    in.map(d => (d.context -> ApiData(d))).toMap
+    in.map(d => (d.context -> ApiData.fromDefinition(d))).toMap
+  }
+
+  case class VersionData(status: APIStatus, access: APIAccess)
+
+  object VersionData {
+    def fromDefinition(in: ApiVersionDefinition): VersionData = VersionData(in.status, in.access)
   }
 
   case class ApiData(
@@ -69,16 +75,10 @@ object ApiDefinitionController {
 
   object ApiData {
 
-    def apply(in: APIDefinition): ApiData = {
-      val versionData = in.versions.map(v => (v.version -> VersionData(v))).toMap
+    def fromDefinition(in: APIDefinition): ApiData = {
+      val versionData = in.versions.map(v => (v.version -> VersionData.fromDefinition(v))).toMap
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData)
     }
-  }
-
-  case class VersionData(status: APIStatus, access: APIAccess)
-
-  object VersionData {
-    def apply(in: ApiVersionDefinition): VersionData = VersionData(in.status, in.access)
   }
 
   object JsonFormatters extends ApiDefinitionJsonFormatters {

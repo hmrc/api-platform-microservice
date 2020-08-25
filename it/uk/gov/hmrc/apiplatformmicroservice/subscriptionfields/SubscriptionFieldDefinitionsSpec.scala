@@ -12,18 +12,15 @@ import org.scalatest.OptionValues
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.test.DefaultAwaitTimeout
 import play.api.test.FutureAwaits
-import play.api.Configuration
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.Mode
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldsMock
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.WSClient
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
+import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
 
 class SubscriptionFieldDefinitionsSpec
     extends WordSpec
@@ -36,47 +33,13 @@ class SubscriptionFieldDefinitionsSpec
     with FutureAwaits
     with BeforeAndAfterEach
     with GuiceOneServerPerSuite
-    with SubscriptionFieldsMock {
-
-  val WireMockHost = "localhost"
-  val WireMockPort = 11111
-  val wireMockServer = new WireMockServer(wireMockConfig().port(WireMockPort))
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
-  private val stubConfig = Configuration(
-    "microservice.services.api-definition-principal.host" -> WireMockHost,
-    "microservice.services.api-definition-subordinate.host" -> WireMockHost,
-    "microservice.services.third-party-application-principal.host" -> WireMockHost,
-    "microservice.services.third-party-application-subordinate.host" -> WireMockHost,
-    "microservice.services.subscription-fields-principal.host" -> WireMockHost,
-    "microservice.services.subscription-fields-subordinate.host" -> WireMockHost,
-    "microservice.services.api-definition-principal.port" -> WireMockPort,
-    "microservice.services.api-definition-subordinate.port" -> WireMockPort,
-    "microservice.services.third-party-application-principal.port" -> WireMockPort,
-    "microservice.services.third-party-application-subordinate.port" -> WireMockPort,
-    "microservice.services.subscription-fields-principal.port" -> WireMockPort,
-    "microservice.services.subscription-fields-subordinate.port" -> WireMockPort,
-    "metrics.jvm" -> false
-  )
-
-  override def fakeApplication(): Application =
-    GuiceApplicationBuilder()
-      .configure(stubConfig)
-      .in(Mode.Test)
-      .build()
+    with SubscriptionFieldsMock
+    with ConfigBuilder
+    with WiremockSetup {
 
   override lazy val port = 8080
 
   lazy val baseUrl = s"http://localhost:$port"
-
-  override def beforeEach {
-    wireMockServer.start()
-    WireMock.configureFor(WireMockHost, WireMockPort)
-  }
-
-  override def afterEach {
-    wireMockServer.stop()
-  }
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]

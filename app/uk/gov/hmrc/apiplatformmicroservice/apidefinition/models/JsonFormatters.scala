@@ -34,6 +34,8 @@ trait BasicApiDefinitionJsonFormatters extends CommonJsonFormatters {
   implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
 }
 
+object BasicApiDefinitionJsonFormatters extends BasicApiDefinitionJsonFormatters
+
 trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val formatParameter = Json.format[Parameter]
 
