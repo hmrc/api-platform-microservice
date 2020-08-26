@@ -1,13 +1,5 @@
 package uk.gov.hrmc.apiplatformmicroservice.apiplatformmicroservice
 
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import org.scalatest.OptionValues
-import org.scalatestplus.play.WsScalaTestClient
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import play.api.test.DefaultAwaitTimeout
-import play.api.test.FutureAwaits
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.ApiDefinitionMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.ApplicationMock
 import java.{util => ju}
@@ -21,25 +13,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController
 
-class ApiDefinitionSpec
-    extends WordSpec
-    with Matchers
-    with OptionValues
-    with WsScalaTestClient
-    with MockitoSugar
-    with ArgumentMatchersSugar
-    with DefaultAwaitTimeout
-    with FutureAwaits
-    with BeforeAndAfterEach
-    with GuiceOneServerPerSuite
-    with ApiDefinitionMock
-    with ApplicationMock
-    with WiremockSetup
-    with ConfigBuilder {
-
-  override lazy val port = 8080
-
-  lazy val baseUrl = s"http://localhost:$port"
+class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
@@ -47,8 +21,8 @@ class ApiDefinitionSpec
     "stub get request" in {
       val applicationId = ApplicationId(ju.UUID.randomUUID.toString())
 
-      mockFetchApplication(applicationId, Environment.PRODUCTION)
-      mockFetchApiDefinition()
+      mockFetchApplication(Environment.PRODUCTION, applicationId)
+      mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
         .withQueryStringParameters("applicationId" -> applicationId.value)

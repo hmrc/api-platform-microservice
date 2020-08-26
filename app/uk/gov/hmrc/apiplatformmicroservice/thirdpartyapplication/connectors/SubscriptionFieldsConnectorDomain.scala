@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import java.{util => ju}
-
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
@@ -25,22 +23,20 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.f
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters
 import play.api.libs.json.Reads
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
+import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
 
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ClientId, FieldValue}
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
-  case class ApplicationApiFieldValues(
-      clientId: ClientId,
+  case class SubscriptionFields(
       apiContext: ApiContext,
       apiVersion: ApiVersion,
-      fieldsId: ju.UUID,
       fields: Map[FieldName, FieldValue])
-
-  case class SubscriptionFields(apiContext: ApiContext, apiVersion: ApiVersion, fields: Map[FieldName, FieldValue])
 
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
@@ -93,19 +89,32 @@ object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  trait SubscriptionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters with FieldsJsonFormatters with NonEmptyListFormatters {
-    import play.api.libs.json.Json
+  trait SubscriptionFieldValuesJsonFormatters extends ApplicationJsonFormatters with CommonJsonFormatters {
+    import play.api.libs.json._
 
-    implicit val readsApplicationApiFieldValues = Json.reads[ApplicationApiFieldValues]
+    implicit val writeSubscriptionFields: OWrites[SubscriptionFields] = Json.writes[SubscriptionFields]
 
-    implicit val readsSubscriptionFields = Json.reads[SubscriptionFields]
-    implicit val readsBulkSubscriptionFieldsResponse = Json.reads[BulkSubscriptionFieldsResponse]
+    import play.api.libs.functional.syntax._
 
-    implicit val x: Reads[NEL[FieldDefinition]] = nelReads[FieldDefinition]
-    implicit val readsApiFieldDefinitions: Reads[SubscriptionFieldsConnectorDomain.ApiFieldDefinitions] = Json.reads[ApiFieldDefinitions]
+    implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
+      ((JsPath \ "apiContext").read[ApiContext]) and
+        ((JsPath \ "apiVersion").read[ApiVersion]) and
+        ((JsPath \ "fields").read[Map[FieldName, FieldValue]])
+    )(SubscriptionFields.apply _)
 
-    implicit val readsBulkApiFieldDefinitionsResponse: Reads[SubscriptionFieldsConnectorDomain.BulkApiFieldDefinitionsResponse] = Json.reads[BulkApiFieldDefinitionsResponse]
+    implicit val readsBulkSubscriptionFieldsResponse: Reads[BulkSubscriptionFieldsResponse] = Json.reads[BulkSubscriptionFieldsResponse]
   }
 
-  object SubscriptionJsonFormatters extends SubscriptionJsonFormatters
+  object SubscriptionFieldValuesJsonFormatters extends SubscriptionFieldValuesJsonFormatters
+
+  trait SubscriptionFieldDefinitionJsonFormatters extends ApiDefinitionJsonFormatters with ApplicationJsonFormatters with FieldsJsonFormatters with NonEmptyListFormatters {
+    import play.api.libs.json._
+
+    implicit val x: Reads[NEL[FieldDefinition]] = nelReads[FieldDefinition]
+    implicit val readsApiFieldDefinitions: Reads[ApiFieldDefinitions] = Json.reads[ApiFieldDefinitions]
+
+    implicit val readsBulkApiFieldDefinitionsResponse: Reads[BulkApiFieldDefinitionsResponse] = Json.reads[BulkApiFieldDefinitionsResponse]
+  }
+
+  object SubscriptionFieldDefinitionJsonFormatters extends SubscriptionFieldDefinitionJsonFormatters
 }

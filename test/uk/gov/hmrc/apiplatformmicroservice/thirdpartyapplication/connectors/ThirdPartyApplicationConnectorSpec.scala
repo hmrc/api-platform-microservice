@@ -61,6 +61,22 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
   }
 
+  class SubordinateSetup(proxyEnabled: Boolean = false) extends Setup(proxyEnabled) {
+
+    val config = AbstractThirdPartyApplicationConnector.Config(
+      baseUrl,
+      proxyEnabled,
+      bearer,
+      apiKeyTest
+    )
+
+    override val connector = new SubordinateThirdPartyApplicationConnector(
+      config,
+      mockHttpClient,
+      mockProxiedHttpClient
+    ) {}
+  }
+
   "http" when {
     "configured not to use the proxy" should {
       "use the HttpClient" in new Setup(proxyEnabled = false) {
@@ -175,11 +191,20 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       }.getMessage() shouldBe "Bang"
     }
 
-    "handle 5xx" in new Setup {
+    "handle 5xx from subordinate" in new SubordinateSetup {
       when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "handle 5xx from principal" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }
     }
 
     "handle Not Found" in new Setup {

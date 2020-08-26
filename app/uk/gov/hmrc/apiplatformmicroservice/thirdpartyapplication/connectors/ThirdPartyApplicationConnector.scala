@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.http.Status
+import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
@@ -77,7 +77,6 @@ trait ThirdPartyApplicationConnector {
   def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
-
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -113,8 +112,7 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
     http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .map(asSetOfSubscriptions)
       .recover {
-        case Upstream5xxResponse(_, _, _, _)     => Set.empty // TODO - really mask this ?
-        case WithStatusCode(Status.NOT_FOUND, _) => throw new ApplicationNotFound
+        case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
       }
   }
 }
@@ -126,7 +124,15 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyApplicationConnector
+    extends AbstractThirdPartyApplicationConnector {
+
+  override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+    super.fetchSubscriptionsById(applicationId)
+      .recover {
+        case Upstream5xxResponse(_, _, _, _) => Set.empty // TODO - really mask this ?
+      }
+  }
+}
 
 @Singleton
 @Named("principal")

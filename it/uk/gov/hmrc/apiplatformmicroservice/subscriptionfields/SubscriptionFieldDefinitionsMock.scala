@@ -4,11 +4,14 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
 import play.api.http._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
 
-trait SubscriptionFieldsMock {
+trait SubscriptionFieldDefinitionsMock {
+  self: WiremockSetup => // To allow for stubFor to work with environment
 
-  def mockBulkFetchFieldDefintions() {
-    stubFor(get(urlEqualTo("/definition"))
+  def mockBulkFetchFieldDefintions(env: Environment) {
+    stubFor(env)(get(urlEqualTo("/definition"))
       .willReturn(
         aResponse()
           .withBody("""{

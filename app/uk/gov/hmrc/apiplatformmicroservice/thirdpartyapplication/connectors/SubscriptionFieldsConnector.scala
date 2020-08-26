@@ -44,11 +44,12 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
-  import SubscriptionFieldsConnectorDomain.SubscriptionJsonFormatters._
 
   protected def http: HttpClient
 
   def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
+    import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
+
     http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefintions)
       .map(r => asMapOfMapsOfFieldDefns(r.apis))
   }
@@ -57,6 +58,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
       clientId: ClientId
     )(implicit hc: HeaderCarrier
     ): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
+    import SubscriptionFieldsConnectorDomain.SubscriptionFieldValuesJsonFormatters._
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
