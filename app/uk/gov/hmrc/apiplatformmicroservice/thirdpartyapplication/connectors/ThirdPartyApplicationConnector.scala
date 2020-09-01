@@ -17,24 +17,22 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.http.Status
+import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
 
-private[thirdpartyapplication] object ThirdPartyApplicationConnector {
+private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 
   class ApplicationNotFound extends RuntimeException
 
@@ -53,9 +51,10 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
       .toSet
   }
 
-  private[connectors] object JsonFormatters {
+  private[connectors] object JsonFormatters extends CommonJsonFormatters {
     import play.api.libs.json._
 
+    implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
     implicit val readsInnerVersion = Json.reads[InnerVersion]
     implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
@@ -70,8 +69,6 @@ private[thirdpartyapplication] object ThirdPartyApplicationConnector {
 }
 
 trait ThirdPartyApplicationConnector {
-  def http: HttpClient
-
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
 
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
@@ -79,13 +76,15 @@ trait ThirdPartyApplicationConnector {
   def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
-
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
+  import AbstractThirdPartyApplicationConnector.JsonFormatters._
+
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
-  protected val config: ThirdPartyApplicationConnector.Config
+  protected val config: AbstractThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
   // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
@@ -112,8 +111,7 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
     http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .map(asSetOfSubscriptions)
       .recover {
-        case Upstream5xxResponse(_, _, _, _)     => Set.empty // TODO - really mask this ?
-        case WithStatusCode(Status.NOT_FOUND, _) => throw new ApplicationNotFound
+        case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
       }
   }
 }
@@ -121,16 +119,24 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
 @Singleton
 @Named("subordinate")
 class SubordinateThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") override val config: ThirdPartyApplicationConnector.Config,
+    @Named("subordinate") override val config: AbstractThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyApplicationConnector
+    extends AbstractThirdPartyApplicationConnector {
+
+  override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+    super.fetchSubscriptionsById(applicationId)
+      .recover {
+        case Upstream5xxResponse(_, _, _, _) => Set.empty // TODO - really mask this ?
+      }
+  }
+}
 
 @Singleton
 @Named("principal")
 class PrincipalThirdPartyApplicationConnector @Inject() (
-    @Named("principal") override val config: ThirdPartyApplicationConnector.Config,
+    @Named("principal") override val config: AbstractThirdPartyApplicationConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
@@ -140,4 +146,4 @@ class PrincipalThirdPartyApplicationConnector @Inject() (
 class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") val subordinate: ThirdPartyApplicationConnector,
     @Named("principal") val principal: ThirdPartyApplicationConnector)
-    extends EnvironmentAwareConnector[ThirdPartyApplicationConnector]
+    extends EnvironmentAware[ThirdPartyApplicationConnector]

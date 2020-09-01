@@ -24,8 +24,11 @@ import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
+import com.google.inject.name.Named
+import com.google.inject.{Inject, Singleton}
 
-trait ApiDefinitionService extends LogWrapper with RecordMetrics {
+abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
@@ -72,3 +75,9 @@ trait ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 }
+
+@Singleton
+class EnvironmentAwareApiDefinitionService @Inject() (
+    @Named("subordinate") val subordinate: ApiDefinitionService,
+    @Named("principal") val principal: ApiDefinitionService)
+    extends EnvironmentAware[ApiDefinitionService]

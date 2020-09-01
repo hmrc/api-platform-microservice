@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
@@ -34,10 +34,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundExcepti
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with ExtendedApiDefinitionForCollaboratorFetcherModule
-    with ApiDocumentationResourceFetcherModule with SubscribedApiDefinitionsForCollaboratorFetcherModule {
+  trait Setup
+      extends ApiDefinitionsForCollaboratorFetcherModule
+      with ExtendedApiDefinitionForCollaboratorFetcherModule
+      with ApiDocumentationResourceFetcherModule
+      with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     implicit val system = ActorSystem("test")
     implicit val mat = ActorMaterializer()
@@ -47,16 +50,21 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
     val version = "1.0"
     val anApiDefinition = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
-    val controller = new ApiDefinitionController(Helpers.stubControllerComponents(),
-    ApiDefinitionsForCollaboratorFetcherMock.aMock,
-    ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
-    ApiDocumentationResourceFetcherMock.aMock, SubscribedApiDefinitionsForCollaboratorFetcherMock.aMock)
+
+    val controller = new ExtendedApiDefinitionController(
+      Helpers.stubControllerComponents(),
+      ApiDefinitionsForCollaboratorFetcherMock.aMock,
+      ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
+      ApiDocumentationResourceFetcherMock.aMock,
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.aMock
+    )
     val mockWSResponse = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     when(mockWSResponse.headers).thenReturn(
       Map(
         "Content-Length" -> Seq("500")
-      ))
+      )
+    )
     when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
     when(mockWSResponse.contentType).thenReturn("application/json")
   }
@@ -97,8 +105,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
-                                                   "message" -> "An unexpected error occurred")
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
     }
   }
 
@@ -129,8 +136,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
-        "message" -> "An unexpected error occurred")
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
     }
   }
 
@@ -169,8 +175,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR",
-        "message" -> "An unexpected error occurred")
+      contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
     }
   }
 
@@ -179,9 +184,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName,
-          version,
-          "some/resource")(request)
+        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
 
       status(result) shouldEqual OK
     }
@@ -194,9 +197,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
       when(mockWSResponse.contentType).thenReturn("application/magic")
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName,
-          version,
-          "some/resource")(request)
+        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
 
       contentType(result) shouldEqual Some("application/magic")
     }
@@ -208,9 +209,7 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
         .thenReturn(Some("application/zip"))
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName,
-          version,
-          "some/resource")(request)
+        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
 
       contentType(result) shouldEqual Some("application/zip")
     }
@@ -223,7 +222,9 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
           controller.fetchApiDocumentationResource(
             apiName,
             version,
-            "some/resourceNotThere")(request))
+            "some/resourceNotThere"
+          )(request)
+        )
       }
     }
 
@@ -235,7 +236,9 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
           controller.fetchApiDocumentationResource(
             apiName,
             version,
-            "some/resourceInvalid")(request))
+            "some/resourceInvalid"
+          )(request)
+        )
       }
     }
   }

@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment
+case class AccessRequirements(devhub: DevhubAccessRequirements)
 
-trait EnvironmentAwareConnector[C] {
-
-  def apply(environment: Environment): C = {
-    environment match {
-      case PRODUCTION => principal
-      case _          => subordinate
-    }
-  }
-
-  def subordinate: C
-
-  def principal: C
-
+object AccessRequirements {
+  final val Default = AccessRequirements(devhub = DevhubAccessRequirements.Default)
 }

@@ -22,7 +22,21 @@ import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 
-trait EndpointJsonFormatters extends NonEmptyListFormatters with CommonJsonFormatters {
+trait BasicApiDefinitionJsonFormatters extends CommonJsonFormatters {
+  implicit val formatApiContext: Format[ApiContext] = Json.valueFormat[ApiContext]
+  implicit val formatApiVersion: Format[ApiVersion] = Json.valueFormat[ApiVersion]
+  implicit val formatApiIdentifier: Format[ApiIdentifier] = Json.format[ApiIdentifier]
+
+  implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
+  implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
+
+  implicit val keyReadsApiVersion: KeyReads[ApiVersion] = key => JsSuccess(ApiVersion(key))
+  implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
+}
+
+object BasicApiDefinitionJsonFormatters extends BasicApiDefinitionJsonFormatters
+
+trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val formatParameter = Json.format[Parameter]
 
   implicit val endpointReads: Reads[Endpoint] = (
@@ -35,7 +49,7 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters with CommonJsonForma
   implicit val endpointWrites: Writes[Endpoint] = Json.writes[Endpoint]
 }
 
-trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
+trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters with CommonJsonFormatters {
   import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
   implicit val apiAccessReads: Reads[APIAccess] = (
@@ -60,10 +74,6 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
       case privateApi: PrivateApiAccess => privApiWrites.writes((PRIVATE, privateApi.whitelistedApplicationIds, privateApi.isTrial))
     }
   }
-
-  implicit val formatApiContext = Json.valueFormat[ApiContext]
-  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
-  implicit val formatApiIdentifier = Json.format[ApiIdentifier]
 
   implicit val apiVersionReads: Reads[ApiVersionDefinition] =
     ((JsPath \ "version").read[ApiVersion] and
@@ -95,6 +105,4 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters {
   implicit val formatExtendedApiDefinition = Json.format[ExtendedAPIDefinition]
 }
 
-trait JsonFormatters extends ApiDefinitionJsonFormatters
-
-object JsonFormatters extends JsonFormatters
+object ApiDefinitionJsonFormatters extends ApiDefinitionJsonFormatters

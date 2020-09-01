@@ -1,4 +1,6 @@
 # microservice specific routes
 
-->       /combined-api-definitions         apidefinition.Routes
+->       /combined-api-definitions         extendedapidefinition.Routes
+->       /api-definitions                  apidefinition.Routes
 ->       /applications                     application.Routes
+->       /subscription-fields              subscriptionfields.Routes

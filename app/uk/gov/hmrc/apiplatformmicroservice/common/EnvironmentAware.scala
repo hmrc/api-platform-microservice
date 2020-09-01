@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
+package uk.gov.hmrc.apiplatformmicroservice.common
 
-case class ApplicationId(value: String) extends AnyVal
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment._
+
+trait EnvironmentAware[C] {
+
+  def apply(environment: Environment): C = {
+    environment match {
+      case PRODUCTION => principal
+      case _          => subordinate
+    }
+  }
+
+  def subordinate: C
+
+  def principal: C
+}

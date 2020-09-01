@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 

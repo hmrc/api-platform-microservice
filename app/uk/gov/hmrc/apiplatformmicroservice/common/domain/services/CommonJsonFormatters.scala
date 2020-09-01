@@ -16,11 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import play.api.libs.json._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 trait CommonJsonFormatters {
   implicit val formatApplicationId = Json.valueFormat[ApplicationId]
+  implicit val formatFieldName = Json.valueFormat[FieldName]
+
+  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
+  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
+
 }
 
 object CommonJsonFormatters extends CommonJsonFormatters

@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector.ApplicationResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.ApplicationResponse
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
@@ -52,13 +52,29 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       val httpClient = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
 
-      val config = ThirdPartyApplicationConnector.Config(
+      val config = AbstractThirdPartyApplicationConnector.Config(
         baseUrl,
         proxyEnabled,
         bearer,
         apiKeyTest
       )
     }
+  }
+
+  class SubordinateSetup(proxyEnabled: Boolean = false) extends Setup(proxyEnabled) {
+
+    val config = AbstractThirdPartyApplicationConnector.Config(
+      baseUrl,
+      proxyEnabled,
+      bearer,
+      apiKeyTest
+    )
+
+    override val connector = new SubordinateThirdPartyApplicationConnector(
+      config,
+      mockHttpClient,
+      mockProxiedHttpClient
+    ) {}
   }
 
   "http" when {
@@ -161,7 +177,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   // TODO - very little purpose to these tests - replace with wiremock integration asap
   "fetchSubscriptions" should {
-    import ThirdPartyApplicationConnector._
+    import AbstractThirdPartyApplicationConnector._
     import SubscriptionsHelper._
     val applicationId = ApplicationId("1234")
     val url = s"$baseUrl/application/1234/subscription"
@@ -175,11 +191,20 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       }.getMessage() shouldBe "Bang"
     }
 
-    "handle 5xx" in new Setup {
+    "handle 5xx from subordinate" in new SubordinateSetup {
       when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+    }
+
+    "handle 5xx from principal" in new Setup {
+      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchSubscriptionsById(applicationId))
+      }
     }
 
     "handle Not Found" in new Setup {

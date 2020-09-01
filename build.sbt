@@ -3,6 +3,8 @@ import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
 
+import bloop.integrations.sbt.BloopDefaults
+
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -21,7 +23,8 @@ lazy val compileDeps = Seq(
   "org.typelevel"     %% "cats-core"                 % "2.0.0",
   "com.typesafe.play" %% "play-json"                 % "2.8.1",
   "com.typesafe.play" %% "play-json-joda"            % "2.8.1",
-  "uk.gov.hmrc"       %% "play-json-union-formatter" % "1.11.0"
+  "uk.gov.hmrc"       %% "play-json-union-formatter" % "1.11.0",
+  "org.julienrf"      %% "play-json-derived-codecs"  % "6.0.0"
 )
 
 def testDeps(scope: String) = Seq(
@@ -29,6 +32,10 @@ def testDeps(scope: String) = Seq(
   "org.scalatestplus.play" %% "scalatestplus-play"      % "3.1.3"             % scope,
   "org.mockito"            %% "mockito-scala-scalatest" % "1.7.1"             % scope,
   "com.typesafe.play"      %% "play-test"               % PlayVersion.current % scope
+)
+
+def itDeps(scope: String) = Seq(
+  "com.github.tomakehurst" % "wiremock-jre8-standalone" % "2.27.1" % scope
 )
 
 lazy val root = (project in file("."))
@@ -44,9 +51,21 @@ lazy val root = (project in file("."))
       Resolver.typesafeRepo("releases"),
       Resolver.jcenterRepo
     ),
-    libraryDependencies ++= compileDeps ++ testDeps("test"),
+    libraryDependencies ++= compileDeps ++ testDeps("test,it") ++ itDeps("test,it"),
     publishingSettings,
-    scoverageSettings
+    scoverageSettings,
+    routesImport ++= Seq(
+      "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._"
+    )
+  )
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
+  .settings(
+    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    IntegrationTest / unmanagedSourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
+    IntegrationTest / parallelExecution := false
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)

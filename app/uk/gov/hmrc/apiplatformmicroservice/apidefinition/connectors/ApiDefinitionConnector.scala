@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.Logger
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, JsonFormatters, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionJsonFormatters, ResourceId}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.http.ws.WSGet
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with JsonFormatters {
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters {
   def http: HttpClient with WSGet
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext

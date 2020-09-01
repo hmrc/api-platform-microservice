@@ -18,10 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
 import akka.pattern.FutureTimeoutSupport
 import com.google.inject.{AbstractModule, Provider}
+import com.google.inject.name.Names.named
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubordinateApiDefinitionService
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -32,12 +33,14 @@ class ConfigurationModule extends AbstractModule {
     bind(classOf[PrincipalApiDefinitionConnector.Config]).toProvider(classOf[PrincipalApiDefinitionConnectorConfigProvider])
     bind(classOf[SubordinateApiDefinitionConnector.Config]).toProvider(classOf[SubordinateApiDefinitionConnectorConfigProvider])
     bind(classOf[SubordinateApiDefinitionService.Config]).toProvider(classOf[SubordinateApiDefinitionServiceConfigProvider])
+
+    bind(classOf[ApiDefinitionService]).annotatedWith(named("subordinate")).to(classOf[SubordinateApiDefinitionService])
+    bind(classOf[ApiDefinitionService]).annotatedWith(named("principal")).to(classOf[PrincipalApiDefinitionService])
   }
 }
 
 @Singleton
 class PrincipalApiDefinitionConnectorConfigProvider @Inject() (sc: ServicesConfig) extends Provider[PrincipalApiDefinitionConnector.Config] {
-
   override def get(): PrincipalApiDefinitionConnector.Config = {
     lazy val principalBaseUrl = sc.baseUrl("api-definition-principal")
     PrincipalApiDefinitionConnector.Config(baseUrl = principalBaseUrl)
@@ -73,7 +76,6 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc
 
 @Singleton
 class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Configuration) extends Provider[SubordinateApiDefinitionService.Config] {
-
   override def get(): SubordinateApiDefinitionService.Config = {
     val isSubordinateAvailable = configuration.getOptional[Boolean]("features.isSubordinateAvailable").getOrElse(false)
     SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)

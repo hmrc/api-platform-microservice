@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.common
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.Environment._
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment._
+import uk.gov.hmrc.apiplatformmicroservice.util.HmrcSpec
 
-class EnvironmentAwareConnectorSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
+class EnvironmentAwareSpec extends HmrcSpec with MockitoSugar with ArgumentMatchersSugar {
 
   trait Setup {
 
@@ -29,7 +29,7 @@ class EnvironmentAwareConnectorSpec extends AsyncHmrcSpec with MockitoSugar with
     val subordinateSomething = mock[Something]
     val principalSomething = mock[Something]
 
-    val eatpac = new EnvironmentAwareConnector[Something] {
+    val eatpac = new EnvironmentAware[Something] {
       def subordinate: Something = subordinateSomething
       def principal: Something = principalSomething
     }

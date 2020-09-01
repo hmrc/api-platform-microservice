@@ -18,19 +18,23 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.net.URLEncoder.encode
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.HeaderCarrier
 import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAwareConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+
+import scala.concurrent.{ExecutionContext, Future}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
+
+  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
+
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
 }
 
@@ -40,14 +44,21 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
-  import SubscriptionFieldsConnectorDomain.JsonFormatters._
 
-  def http: HttpClient
+  protected def http: HttpClient
+
+  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
+    import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
+
+    http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefintions)
+      .map(r => asMapOfMapsOfFieldDefns(r.apis))
+  }
 
   def bulkFetchFieldValues(
       clientId: ClientId
     )(implicit hc: HeaderCarrier
     ): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
+    import SubscriptionFieldsConnectorDomain.SubscriptionFieldValuesJsonFormatters._
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
@@ -56,8 +67,9 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
+  private lazy val urlBulkSubscriptionFieldDefintions = s"$serviceBaseUrl/definition"
+
+  private def urlBulkSubscriptionFieldValues(clientId: ClientId) = s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {
@@ -78,7 +90,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
   val bearerToken: String = config.bearerToken
   val apiKey: String = config.apiKey
 
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  protected def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 object PrincipalSubscriptionFieldsConnector {
@@ -100,4 +112,4 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
 class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
     @Named("subordinate") val subordinate: SubscriptionFieldsConnector,
     @Named("principal") val principal: SubscriptionFieldsConnector)
-    extends EnvironmentAwareConnector[SubscriptionFieldsConnector]
+    extends EnvironmentAware[SubscriptionFieldsConnector]

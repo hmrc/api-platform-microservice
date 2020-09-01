@@ -23,6 +23,7 @@ import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 
 trait SubscriptionFieldsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

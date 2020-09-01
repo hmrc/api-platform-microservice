@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
+package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
-case class AccessRequirements(devhub: DevhubAccessRequirements)
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-object AccessRequirements {
-  final val Default = AccessRequirements(devhub = DevhubAccessRequirements.Default)
+sealed trait Environment extends EnumEntry {
+  def isSandbox: Boolean = this == Environment.SANDBOX
+
+  def isProduction: Boolean = this == Environment.PRODUCTION
 }
 
+object Environment extends Enum[Environment] with PlayJsonEnum[Environment] {
+  val values = findValues
+
+  final case object PRODUCTION extends Environment
+  final case object SANDBOX extends Environment
+
+  def from(env: String) = values.find(e => e.toString == env.toUpperCase)
+}
