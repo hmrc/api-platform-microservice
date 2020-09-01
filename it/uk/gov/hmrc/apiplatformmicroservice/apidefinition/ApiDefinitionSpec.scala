@@ -32,8 +32,8 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       import play.api.libs.json._
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
-      implicit val readsVersionData: Reads[ApiDefinitionController.VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiDefinitionController.ApiData] = Json.reads[ApiData]
+      implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
+      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
 
       response.status shouldBe OK
       val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {

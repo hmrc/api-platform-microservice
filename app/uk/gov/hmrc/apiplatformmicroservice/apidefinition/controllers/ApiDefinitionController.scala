@@ -74,7 +74,7 @@ object ApiDefinitionController {
   object ApiData {
 
     def fromDefinition(in: APIDefinition): ApiData = {
-      val versionData = in.versions.map(v => (v.version -> VersionData.fromDefinition(v))).toMap
+      val versionData = in.versions.map(v => v.version -> VersionData.fromDefinition(v)).toMap
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData)
     }
   }
