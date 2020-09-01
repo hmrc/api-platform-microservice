@@ -45,8 +45,7 @@ class ApiDefinitionController @Inject() (
     ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
       for {
         defs <- fetcher.fetch(applicationId, request.deployedTo)
-        filtered = filterApis(Seq(applicationId))(defs)
-        converted = convert(filtered)
+        converted = convert(defs)
       } yield Ok(Json.toJson(converted))
     }
 }
@@ -56,7 +55,7 @@ object ApiDefinitionController {
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
   def convert(in: Seq[APIDefinition]): Map[ApiContext, ApiData] = {
-    in.map(d => (d.context -> ApiData.fromDefinition(d))).toMap
+    in.map(d => d.context -> ApiData.fromDefinition(d)).toMap
   }
 
   case class VersionData(status: APIStatus, access: APIAccess)

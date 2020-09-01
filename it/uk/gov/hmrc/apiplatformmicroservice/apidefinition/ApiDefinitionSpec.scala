@@ -6,7 +6,6 @@ import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
