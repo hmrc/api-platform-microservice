@@ -46,18 +46,9 @@ object SubscriptionFieldsConnectorDomain {
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
-
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-
         override def empty: MapType = Map.empty
       }
-
-    for {
-      fds <- fieldDefs
-      fd <- fds.fieldDefinitions.toList
-      a = fd.access
-      _ = println(a)
-    } yield ()
 
     Monoid.combineAll(
       fieldDefs.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fieldDefinitions.map(fd => fd.name -> fd).toList.toMap)))
@@ -72,9 +63,7 @@ object SubscriptionFieldsConnectorDomain {
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
-
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-
         override def empty: MapType = Map.empty
       }
 
@@ -91,9 +80,9 @@ object SubscriptionFieldsConnectorDomain {
     import play.api.libs.functional.syntax._
 
     implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
-      ((JsPath \ "apiContext").read[ApiContext]) and
-        ((JsPath \ "apiVersion").read[ApiVersion]) and
-        ((JsPath \ "fields").read[Map[FieldName, FieldValue]])
+      (JsPath \ "apiContext").read[ApiContext] and
+        (JsPath \ "apiVersion").read[ApiVersion] and
+        (JsPath \ "fields").read[Map[FieldName, FieldValue]]
     )(SubscriptionFields.apply _)
 
     implicit val readsBulkSubscriptionFieldsResponse: Reads[BulkSubscriptionFieldsResponse] = Json.reads[BulkSubscriptionFieldsResponse]
