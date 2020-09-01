@@ -65,7 +65,6 @@ lazy val root = (project in file("."))
   .settings(
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
-    // IntegrationTest / unmanagedResourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "test")).value,
     IntegrationTest / parallelExecution := false
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
