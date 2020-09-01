@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
-import play.api.mvc._
-import play.api.libs.json._
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import javax.inject.{Inject, Singleton}
-
-import scala.concurrent.ExecutionContext
+import play.api.libs.json._
+import play.api.mvc._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
+
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class FieldDefinitionsController @Inject() (

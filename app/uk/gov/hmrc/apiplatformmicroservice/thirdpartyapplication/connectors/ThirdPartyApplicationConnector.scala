@@ -20,7 +20,9 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
@@ -29,9 +31,6 @@ import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 

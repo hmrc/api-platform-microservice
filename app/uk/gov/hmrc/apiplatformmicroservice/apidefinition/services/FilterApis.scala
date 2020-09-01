@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, ApiVersionDefinition, PrivateApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersionDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.PrivateApiAccess
 
 trait FilterApis {
 

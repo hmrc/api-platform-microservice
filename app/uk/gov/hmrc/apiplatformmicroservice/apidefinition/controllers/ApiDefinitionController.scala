@@ -17,18 +17,16 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import javax.inject.{Inject, Singleton}
+import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterApis}
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterApis
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-import play.api.libs.json._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 @Singleton
 class ApiDefinitionController @Inject() (

@@ -31,5 +31,4 @@ trait EnvironmentAware[C] {
   def subordinate: C
 
   def principal: C
-
 }

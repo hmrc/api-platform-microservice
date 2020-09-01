@@ -18,17 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters
-import play.api.libs.json.Reads
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.{ApplicationJsonFormatters, FieldsJsonFormatters}
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
-
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._

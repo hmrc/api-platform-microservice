@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
 import com.google.inject.name.Names.named
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import com.google.inject.AbstractModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 
 class ConfigurationModule extends AbstractModule {
 

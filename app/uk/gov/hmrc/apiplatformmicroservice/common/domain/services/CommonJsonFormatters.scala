@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import play.api.libs.json._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 trait CommonJsonFormatters {
   implicit val formatApplicationId = Json.valueFormat[ApplicationId]

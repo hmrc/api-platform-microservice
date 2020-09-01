@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import play.api.libs.json.Json.JsValueWrapper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._
   import play.api.libs.json.JodaReads._
   import play.api.libs.json.JodaWrites._
-  import uk.gov.hmrc.play.json.Union
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+  import uk.gov.hmrc.play.json.Union
 
   implicit val formatClientId = Json.valueFormat[ClientId]
 
@@ -82,7 +82,6 @@ trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with NonEmpt
   import julienrf.json.derived
   import julienrf.json.derived.TypeTagSetting.ShortClassName
   import play.api.libs.functional.syntax._
-
   import play.api.libs.json._
 
   def ignoreDefaultField[T](value: T, default: T, jsonFieldName: String)(implicit w: Writes[T]) =
