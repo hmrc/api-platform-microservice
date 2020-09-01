@@ -1,25 +1,25 @@
-package uk.gov.hrmc.apiplatformmicroservice.apiplatformmicroservice
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.ApiDefinitionMock
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.ApplicationMock
 import java.{util => ju}
-import play.api.http.Status._
+
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import play.api.http.Status._
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
+import uk.gov.hmrc.apiplatformmicroservice.utils._
 
 class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
 
-    "stub get request" in {
-      val applicationId = ApplicationId(ju.UUID.randomUUID.toString())
+    "stub get request for fetch api definitions" in {
+      val applicationId = ApplicationId(ju.UUID.randomUUID.toString)
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApiDefinition(Environment.PRODUCTION)
@@ -29,8 +29,8 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
       import play.api.libs.json._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[ApiDefinitionController.VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiDefinitionController.ApiData] = Json.reads[ApiData]

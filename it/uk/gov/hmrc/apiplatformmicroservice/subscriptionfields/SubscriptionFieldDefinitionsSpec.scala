@@ -1,27 +1,26 @@
-package uk.gov.hrmc.apiplatformmicroservice.subscriptionfields
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields
 
-import play.api.http.Status._
-import play.api.libs.ws.WSClient
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
+import play.api.libs.ws.WSClient
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldDefinitionsMock
+import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 
 class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFieldDefinitionsMock {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
 
-    "stub get request" in {
+    "stub get request for fetching subscription fields" in {
       val testingIn: Environment = PRODUCTION
 
       mockBulkFetchFieldDefintions(PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields")
-        .withQueryStringParameters("environment" -> testingIn.toString())
+        .withQueryStringParameters("environment" -> testingIn.toString)
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 

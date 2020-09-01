@@ -1,15 +1,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.utils
 
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import org.scalatest.OptionValues
-import org.scalatestplus.play.WsScalaTestClient
-import play.api.test.DefaultAwaitTimeout
-import play.api.test.FutureAwaits
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.scalatest._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import org.scalatestplus.play.FakeApplicationFactory
-import org.scalatest.BeforeAndAfterAll
+import org.scalatestplus.play.{FakeApplicationFactory, WsScalaTestClient}
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 trait WireMockSpec
     extends WordSpec

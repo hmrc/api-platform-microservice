@@ -1,11 +1,10 @@
-package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
 import play.api.http._
-import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
+import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
 
 trait ApiDefinitionMock {
   self: WiremockSetup => // To allow for stubFor to work with environment

@@ -1,19 +1,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.Application
-import play.api.Mode
-import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatestplus.play.FakeApplicationFactory
-import play.api.inject.guice.GuiceApplicationBuilder
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import org.scalatest.BeforeAndAfter
-import org.scalatest.BeforeAndAfterAll
-import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatestplus.play.FakeApplicationFactory
+import play.api.{Application, Mode}
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait WiremockSetup {
   self: ConfigBuilder with FakeApplicationFactory with BeforeAndAfterEach with BeforeAndAfterAll =>
@@ -33,9 +29,9 @@ trait WiremockSetup {
     case _                      => subordinateWireMock.register(mappingBuilder)
   }
 
-  def stubForProd: MappingBuilder => StubMapping = stubFor(Environment.PRODUCTION) _
+  def stubForProd: MappingBuilder => StubMapping = stubFor(Environment.PRODUCTION)
 
-  def stubForSandbox: MappingBuilder => StubMapping = stubFor(Environment.SANDBOX) _
+  def stubForSandbox: MappingBuilder => StubMapping = stubFor(Environment.SANDBOX)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
