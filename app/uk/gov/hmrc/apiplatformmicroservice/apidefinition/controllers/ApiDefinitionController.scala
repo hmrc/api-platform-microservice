@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
+import scala.collection.immutable.ListMap
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -71,9 +72,12 @@ object ApiDefinitionController {
       versions: Map[ApiVersion, VersionData])
 
   object ApiData {
+    implicit val ordering: Ordering[(ApiVersion, VersionData)] = new Ordering[(ApiVersion, VersionData)] {
+      override def compare(x: (ApiVersion, VersionData), y: (ApiVersion, VersionData)): Int = y._1.value.compareTo(x._1.value)
+    }
 
     def fromDefinition(in: APIDefinition): ApiData = {
-      val versionData = in.versions.map(v => v.version -> VersionData.fromDefinition(v)).toMap
+      val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted:_*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData)
     }
   }
