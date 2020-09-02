@@ -43,6 +43,14 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       result should not be empty
       withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == APIStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
+
+      val context = result(ApiContext("hello"))
+      val versionKeys = context.versions.keys.toList
+
+      versionKeys.head shouldBe ApiVersion("3.0")
+      versionKeys(1) shouldBe ApiVersion("2.5rc")
+      versionKeys(2) shouldBe ApiVersion("2.0")
+      versionKeys(3) shouldBe ApiVersion("1.0")
     }
   }
 }

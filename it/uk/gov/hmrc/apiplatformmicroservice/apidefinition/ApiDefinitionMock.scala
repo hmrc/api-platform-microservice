@@ -37,7 +37,21 @@ trait ApiDefinitionMock {
                         |              "endpointsEnabled": true
                         |          },
                         |          {
-                        |              "version": "1.0",
+                        |              "version": "3.0",
+                        |              "status": "STABLE",
+                        |              "endpoints": [
+                        |                  {
+                        |                      "uriPattern": "/world",
+                        |                      "endpointName": "Say hello world",
+                        |                      "method": "GET",
+                        |                      "authType": "NONE",
+                        |                      "throttlingTier": "UNLIMITED"
+                        |                  }
+                        |              ],
+                        |              "endpointsEnabled": true
+                        |          },
+                        |          {
+                        |              "version": "2.5rc",
                         |              "status": "STABLE",
                         |              "endpoints": [
                         |                  {
