@@ -10,17 +10,22 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefiniti
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 
-class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock {
+class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
 
     "stub get request for fetch api definitions" in {
       val applicationId = ApplicationId(ju.UUID.randomUUID.toString)
+      val clientId = ClientId(ju.UUID.randomUUID.toString)
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
+      mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
+      mockBulkFetchFieldValues(Environment.PRODUCTION, clientId)
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
@@ -47,10 +52,12 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       val context = result(ApiContext("hello"))
       val versionKeys = context.versions.keys.toList
 
-      versionKeys.head shouldBe ApiVersion("3.0")
-      versionKeys(1) shouldBe ApiVersion("2.5rc")
-      versionKeys(2) shouldBe ApiVersion("2.0")
-      versionKeys(3) shouldBe ApiVersion("1.0")
+      versionKeys should contain(ApiVersion("3.0"))
+      versionKeys should contain(ApiVersion("2.5rc"))
+      versionKeys should contain(ApiVersion("2.0"))
+      versionKeys should contain(ApiVersion("1.0"))
+
+      versionKeys shouldNot contain(ApiVersion("4.0"))
     }
   }
 }

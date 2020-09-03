@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,9 +30,9 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends FilterApis {
 
-  def fetch(applicationId: ApplicationId, environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
-    } yield filterApis(Seq(applicationId))(defs)
+    } yield filterApis(application, subscriptions)(defs)
   }
 }
