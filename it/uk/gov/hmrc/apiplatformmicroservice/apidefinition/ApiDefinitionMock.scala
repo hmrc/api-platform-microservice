@@ -91,6 +91,20 @@ trait ApiDefinitionMock {
                         |                  }
                         |              ],
                         |              "endpointsEnabled": true
+                        |          },
+                        |          {
+                        |              "version": "4.0",
+                        |              "status": "DEPRECATED",
+                        |              "endpoints": [
+                        |                  {
+                        |                      "uriPattern": "/world2",
+                        |                      "endpointName": "Say hello world",
+                        |                      "method": "GET",
+                        |                      "authType": "NONE",
+                        |                      "throttlingTier": "UNLIMITED"
+                        |                  }
+                        |              ],
+                        |              "endpointsEnabled": true
                         |          }
                         |      ],
                         |      "lastPublishedAt": "2018-07-13T13:18:06.124Z"

@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterApis}
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
@@ -43,9 +43,9 @@ class ApiDefinitionController @Inject() (
   import ApiDefinitionController.JsonFormatters._
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
-    ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
+    ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
       for {
-        defs <- fetcher.fetch(applicationId, request.deployedTo)
+        defs <- fetcher.fetch(request.application, request.subscriptions, request.deployedTo)
         converted = convert(defs)
       } yield Ok(Json.toJson(converted))
     }

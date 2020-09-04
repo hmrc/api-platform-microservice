@@ -16,25 +16,31 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, ApiVersionDefinition, PrivateApiAccess}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait FilterApis {
 
-  def filterApis(applicationIds: Seq[ApplicationId])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
-    apis.filterNot(_.requiresTrust).flatMap(filterVersions(applicationIds))
+  def filterApis(application: Application, subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+    apis.filterNot(_.requiresTrust).flatMap(filterVersions(application, subscriptions))
   }
 
-  private def filterVersions(applicationIds: Seq[ApplicationId])(api: APIDefinition): Option[APIDefinition] = {
-    def activeVersions(version: ApiVersionDefinition): Boolean = version.status != APIStatus.RETIRED
+  private def filterVersions(application: Application, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
+    def retiredVersions(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
+
+    def deprecatedAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) =
+      versionDefinition.status == APIStatus.DEPRECATED && !subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
 
     def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
       case PrivateApiAccess(_, true)                      => true
-      case PrivateApiAccess(whitelistedApplicationIds, _) => whitelistedApplicationIds.exists(applicationIds.contains(_))
+      case PrivateApiAccess(whitelistedApplicationIds, _) => whitelistedApplicationIds.contains(application.id)
       case _                                              => true
     }
 
-    val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v))
+    val filteredVersions = api.versions
+      .filterNot(v => retiredVersions(v))
+      .filterNot(v => deprecatedAndNotSubscribed(api.context, v))
+      .filter(v => visiblePrivateVersions(v))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))

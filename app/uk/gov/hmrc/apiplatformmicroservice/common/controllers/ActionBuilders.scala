@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
 import cats.data.OptionT
 import play.api.mvc._
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -48,5 +48,29 @@ trait ActionBuilders {
 
   def ApplicationAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationRequest, AnyContent] =
     Action.andThen(applicationRefiner(applicationId))
+
+  private def applicationWithSubscriptionDataRefiner(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionRefiner[Request, ApplicationWithSubscriptionDataRequest] =
+    new ActionRefiner[Request, ApplicationWithSubscriptionDataRequest] {
+      override protected def executionContext: ExecutionContext = ec
+
+      override def refine[A](request: Request[A]): Future[Either[Result, ApplicationWithSubscriptionDataRequest[A]]] = {
+        implicit val r: Request[A] = request
+        import cats.implicits._
+
+        (for {
+          applicationWithSubscriptionData <- OptionT(applicationService.fetchApplicationWithSubscriptionData(applicationId))
+        } yield {
+          ApplicationWithSubscriptionDataRequest(
+            applicationWithSubscriptionData.application,
+            applicationWithSubscriptionData.subscriptions,
+            applicationWithSubscriptionData.application.deployedTo,
+            request
+          )
+        }).toRight(NotFound).value
+      }
+    }
+
+  def ApplicationWithSubscriptionDataAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
+    Action.andThen(applicationWithSubscriptionDataRefiner(applicationId))
 
 }
