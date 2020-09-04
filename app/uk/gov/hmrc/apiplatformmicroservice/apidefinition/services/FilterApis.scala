@@ -28,8 +28,10 @@ trait FilterApis {
   private def filterVersions(application: Application, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
     def activeVersions(version: ApiVersionDefinition): Boolean = version.status != APIStatus.RETIRED
 
-    def deprecatedAndSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) =
-      versionDefinition.status == APIStatus.DEPRECATED && subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
+    def deprecatedAndSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) = {
+      versionDefinition.status != APIStatus.DEPRECATED ||
+        (versionDefinition.status == APIStatus.DEPRECATED && subscriptions.contains(ApiIdentifier(context, versionDefinition.version)))
+    }
 
     def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
       case PrivateApiAccess(_, true)                      => true
@@ -37,7 +39,7 @@ trait FilterApis {
       case _                                              => true
     }
 
-    val filteredVersions = api.versions.filter(v => activeVersions(v) && deprecatedAndSubscribed(api.context, v) && visiblePrivateVersions(v))
+    val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v) && deprecatedAndSubscribed(api.context, v))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))
