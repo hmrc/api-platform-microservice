@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.LogWrapper
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 import uk.gov.hmrc.http.HeaderCarrier
@@ -53,6 +53,20 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
       record {
         log(failFn) {
           connector.fetchAllApiDefinitions
+        }
+      }
+    } else {
+      Future.successful(Seq.empty)
+    }
+  }
+
+  def fetchAllAPICategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APICategoryDetails]] = {
+    lazy val failFn = (e: Throwable) => s"fetchAllAPICategoryDetails failed $e"
+
+    if (enabled) {
+      record {
+        log(failFn) {
+          connector.fetchApiCategoryDetails()
         }
       }
     } else {

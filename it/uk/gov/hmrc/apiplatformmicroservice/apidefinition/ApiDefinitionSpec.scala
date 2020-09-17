@@ -2,6 +2,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
 import java.{util => ju}
 
+import play.api.libs.json._
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._
@@ -33,7 +34,6 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import play.api.libs.json._
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
@@ -58,6 +58,30 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       versionKeys should contain(ApiVersion("1.0"))
 
       versionKeys shouldNot contain(ApiVersion("4.0"))
+    }
+
+    "stub requests to fetch all API Category details" in {
+      val category1 = APICategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
+      val category2 = APICategoryDetails("AGENTS", "Agents")
+      val category3 = APICategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
+
+      mockFetchAPICategoryDetails(Environment.SANDBOX, Seq(category1, category2, category3))
+      mockFetchAPICategoryDetails(Environment.PRODUCTION, Seq(category1, category2))
+
+      val response = await(wsClient.url(s"$baseUrl/api-categories")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+
+      response.status shouldBe OK
+      val result: Seq[APICategoryDetails] = Json.parse(response.body).validate[Seq[APICategoryDetails]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+
+      result.size should be (3)
+      result should contain only (category1, category2, category3)
     }
   }
 }

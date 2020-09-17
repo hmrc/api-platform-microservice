@@ -2,5 +2,6 @@
 
 ->       /combined-api-definitions         extendedapidefinition.Routes
 ->       /api-definitions                  apidefinition.Routes
+->       /api-categories                   apicategories.Routes
 ->       /applications                     application.Routes
 ->       /subscription-fields              subscriptionfields.Routes

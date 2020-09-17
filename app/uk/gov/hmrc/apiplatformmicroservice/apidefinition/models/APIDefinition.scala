@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import enumeratum._
 import cats.data.{NonEmptyList => NEL}
+import enumeratum._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 case class ApiContext(value: String) extends AnyVal
@@ -52,36 +52,10 @@ case class APIDefinition(
   def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
 }
 
-sealed trait APICategory extends EnumEntry
+case class APICategory(value: String) extends AnyVal
 
-object APICategory extends Enum[APICategory] with PlayJsonEnum[APICategory] {
-
-  val values = findValues
-
-  case object EXAMPLE extends APICategory
-  case object AGENTS extends APICategory
-  case object BUSINESS_RATES extends APICategory
-  case object CHARITIES extends APICategory
-  case object CONSTRUCTION_INDUSTRY_SCHEME extends APICategory
-  case object CORPORATION_TAX extends APICategory
-  case object CUSTOMS extends APICategory
-  case object ESTATES extends APICategory
-  case object HELP_TO_SAVE extends APICategory
-  case object INCOME_TAX_MTD extends APICategory
-  case object LIFETIME_ISA extends APICategory
-  case object MARRIAGE_ALLOWANCE extends APICategory
-  case object NATIONAL_INSURANCE extends APICategory
-  case object PAYE extends APICategory
-  case object PENSIONS extends APICategory
-  case object PRIVATE_GOVERNMENT extends APICategory
-  case object RELIEF_AT_SOURCE extends APICategory
-  case object SELF_ASSESSMENT extends APICategory
-  case object STAMP_DUTY extends APICategory
-  case object TRUSTS extends APICategory
-  case object VAT extends APICategory
-  case object VAT_MTD extends APICategory
-  case object OTHER extends APICategory
-
+case class APICategoryDetails(category: String, name: String) {
+  def asAPICategory(): APICategory = APICategory(category)
 }
 
 case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)

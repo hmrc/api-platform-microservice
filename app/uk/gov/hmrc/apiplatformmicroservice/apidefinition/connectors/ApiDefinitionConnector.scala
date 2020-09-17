@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.Logger
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionJsonFormatters, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiDefinitionJsonFormatters, ResourceId}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
@@ -58,6 +58,17 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
           Logger.info("Not found")
           None
         case NonFatal(e)          =>
+          Logger.error(s"Failed $e")
+          throw e
+      }
+  }
+
+  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[Seq[APICategoryDetails]] = {
+    Logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
+
+    http.GET[Seq[APICategoryDetails]](categoriesUrl(serviceBaseUrl))
+      .recover {
+        case NonFatal(e) =>
           Logger.error(s"Failed $e")
           throw e
       }
