@@ -135,7 +135,7 @@ trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with NonEmpt
       (JsPath \ "description").read[String] and
       ((JsPath \ "hint").read[String] or Reads.pure("")) and
       (JsPath \ "type").read[FieldDefinitionType.FieldDefinitionType] and
-      ((JsPath \ "shortDescription2").read[String] or Reads.pure("")) and
+      ((JsPath \ "shortDescription").read[String] or Reads.pure("")) and
       (JsPath \ "validation").readNullable[ValidationGroup] and
       ((JsPath \ "access").read[AccessRequirements] or Reads.pure(AccessRequirements.Default))
   )(FieldDefinition.apply _)
