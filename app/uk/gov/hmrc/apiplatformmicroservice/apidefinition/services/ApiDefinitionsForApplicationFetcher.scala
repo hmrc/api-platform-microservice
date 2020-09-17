@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.http.HeaderCarrier
 

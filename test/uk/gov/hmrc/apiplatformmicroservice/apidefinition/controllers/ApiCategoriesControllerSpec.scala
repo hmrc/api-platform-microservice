@@ -16,18 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import play.api.http.Status.OK
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.{JsResult, Json}
+import play.api.http.Status.OK
+import play.api.libs.json.Json
 import play.api.test.Helpers.{contentAsJson, status}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiCategoryDetailsFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiVersion, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -246,6 +246,23 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
           }
 
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
+        }
+
+        "return the API Category details in a call to fetchAllAPICategoryDetails" in {
+          val obj = setupFn()
+          import obj._
+
+          type T = Seq[APICategoryDetails]
+          val expected = mock[Seq[APICategoryDetails]]
+          val mockFuture: Future[T] = Future.successful(expected)
+
+          when(mockConnector.fetchApiCategoryDetails()(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchAllAPICategoryDetails)
+          actual shouldBe expected
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
       }
     }

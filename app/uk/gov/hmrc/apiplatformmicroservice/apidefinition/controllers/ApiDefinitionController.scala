@@ -20,8 +20,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterApis}
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -39,8 +39,8 @@ class ApiDefinitionController @Inject() (
     with ActionBuilders
     with FilterApis {
 
-  import ApiDefinitionController._
   import ApiDefinitionController.JsonFormatters._
+  import ApiDefinitionController._
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
     ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
