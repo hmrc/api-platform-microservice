@@ -34,21 +34,21 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What is your name?",
                     "hint": "You could be Arthur, King of the Britons",
                     "type": "STRING",
-                    "shortDescription": ""
+                    "shortDescription": "Field 1"
                 },
                 "helloworldFieldTwo": {
                     "name": "helloworldFieldTwo",
                     "description": "What is your quest?",
                     "hint": "Seeking Holy Grails is a popular pass time",
                     "type": "STRING",
-                    "shortDescription": ""
+                    "shortDescription": "Field 2"
                 },
                 "helloworldFieldThree": {
                     "name": "helloworldFieldThree",
                     "description": "What is the airspeed velocity of an unladen swallow?",
                     "hint": "African Swallow",
                     "type": "STRING",
-                    "shortDescription": ""
+                    "shortDescription": "Field 3"
                 }
             }
         },
@@ -59,7 +59,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What's your callback URL for declaration submissions?",
                     "hint": "This is how we'll notify you when we've processed them. It must include https and port 443",
                     "type": "URL",
-                    "shortDescription": "",
+                    "shortDescription": "Callback URL",
                     "validation": {
                         "errorMessage": "Callback URL must be a valid URL",
                         "rules": [
@@ -75,7 +75,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What's the value of the HTTP Authorization header we should use to notify you?",
                     "hint": "For example: Basic YXNkZnNhZGZzYWRmOlZLdDVOMVhk",
                     "type": "SecureToken",
-                    "shortDescription": "",
+                    "shortDescription": "Security Token",
                     "validation": {
                         "errorMessage": "Security Token must be alphanumeric",
                         "rules": [
@@ -92,7 +92,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What's your Economic Operator Registration and Identification (EORI) number?",
                     "hint": "This is your EORI that will associate your application with you as a CSP",
                     "type": "STRING",
-                    "shortDescription": "",
+                    "shortDescription": "Authenticated Eori",
                     "validation": {
                         "errorMessage": "EORI must be 5 to 10 digits long",
                         "rules": [
