@@ -25,6 +25,8 @@ trait ApiDefinitionConnectorUtils {
   def definitionUrl(serviceBaseUrl: String, serviceName: String) =
     s"$serviceBaseUrl/api-definition/$serviceName"
 
+  def categoriesUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-categories"
+
   def documentationUrl(serviceBaseUrl: String, resourceId: ResourceId): String = {
     import resourceId._
     s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/documentation/$resource"

@@ -17,22 +17,21 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiDefinitionsForApplicationFetcher @Inject() (
-    apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext)
-    extends FilterApis {
+class APICategoryDetailsFetcher @Inject()(apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
 
-  def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch()(implicit hc: HeaderCarrier): Future[Seq[APICategoryDetails]] = {
+    val principalAPICategoriesCall = apiDefinitionService.principal.fetchAllAPICategoryDetails
+    val subordinateAPICategoriesCall = apiDefinitionService.subordinate.fetchAllAPICategoryDetails
+
     for {
-      defs <- apiDefinitionService(environment).fetchAllDefinitions
-    } yield filterApis(application, subscriptions)(defs)
+      principalAPICategories <- principalAPICategoriesCall
+      subordinateAPICategories <- subordinateAPICategoriesCall
+    } yield (principalAPICategories ++ subordinateAPICategories).distinct
   }
 }

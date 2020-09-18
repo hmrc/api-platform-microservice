@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 import scala.concurrent.Future
@@ -75,6 +75,11 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
       }
     }
 
+    object FetchApiCategoryDetails {
+      def willReturnAPICategoryDetails(apiCategoryDetails: APICategoryDetails*) = {
+        when(aMock.fetchAllAPICategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails))
+      }
+    }
   }
 
   object SubordinateApiDefinitionServiceMock extends ApiDefinitionServiceMock {

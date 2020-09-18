@@ -20,6 +20,7 @@ import java.util.UUID
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -109,6 +110,28 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
           await(connector.fetchAllApiDefinitions)
         }
       }
+    }
+
+    "when requesting API Category details" should {
+      val category1 = APICategoryDetails("API_CATEGORY_1", "API Category 1")
+      val category2 = APICategoryDetails("API_CATEGORY_2", "API Category 2")
+
+      "call the underlying http client" in new PrincipalSetup {
+        whenGetAPICategoryDetails()(category1, category2)
+
+        val result = await(connector.fetchApiCategoryDetails())
+
+        result should contain only (category1, category2)
+      }
+
+      "throw an exception correctly" in new PrincipalSetup {
+        whenGetAPICategoryDetailsFails(UpstreamException)
+
+        intercept[UpstreamException.type] {
+          await(connector.fetchApiCategoryDetails())
+        }
+      }
+
     }
   }
 }
