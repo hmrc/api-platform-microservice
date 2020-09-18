@@ -21,14 +21,15 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, Api
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 case class ClientId(value: String) extends AnyVal
-
 case class Collaborator(emailAddress: String, role: Role)
 
 case class FieldValue(value: String) extends AnyVal
 
+
 case class Application(
     id: ApplicationId,
     clientId: ClientId,
+    gatewayId: String,
     name: String,
     createdOn: DateTime,
     lastAccess: DateTime,
@@ -38,6 +39,8 @@ case class Application(
     collaborators: Set[Collaborator] = Set.empty,
     access: Access = Standard(),
     state: ApplicationState = ApplicationState.testing,
+    rateLimitTier: String = "BRONZE",
+    blocked: Boolean = false,
     checkInformation: Option[CheckInformation] = None,
     ipWhitelist: Set[String] = Set.empty)
 
