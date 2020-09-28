@@ -16,7 +16,29 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-case class OverrideFlag(overrideType: String)
+sealed trait OverrideFlag {
+  val overrideType: OverrideType
+}
+
+case class PersistLogin() extends OverrideFlag {
+  val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
+}
+
+case class SuppressIvForAgents(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_AGENTS
+}
+
+case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
+}
+
+case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
+}
+
+case class SuppressIvForIndividuals(scopes: Set[String]) extends OverrideFlag {
+  val overrideType = OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
+}
 
 sealed trait Access {
   val accessType: AccessType

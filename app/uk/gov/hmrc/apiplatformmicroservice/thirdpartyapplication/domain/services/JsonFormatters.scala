@@ -29,15 +29,21 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 
   implicit val formatClientId = Json.valueFormat[ClientId]
 
-  val readsOverrideFlag: Reads[OverrideFlag] = Reads[OverrideFlag] {
-    case JsString(value) => JsSuccess(OverrideFlag(value))
-    case o: JsObject     => Json.reads[OverrideFlag].reads(o)
-    case _               => JsError()
-  }
+  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
+  private implicit val formatPersistLogin = Format[PersistLogin](
+    Reads { _ => JsSuccess(PersistLogin()) },
+    Writes { _ => Json.obj() })
+  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
+  private implicit val formatSuppressIvForIndividuals = Json.format[SuppressIvForIndividuals]
 
-  val writesOverrideFlag: OWrites[OverrideFlag] = Json.writes[OverrideFlag]
-
-  implicit val formatOverrideFlag = Format(readsOverrideFlag, writesOverrideFlag)
+  implicit val formatOverrideType: Format[OverrideFlag] = Union.from[OverrideFlag]("overrideType")
+    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
+    .and[PersistLogin](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
+    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
+    .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
+    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
+    .format
 
   implicit val formatStandard = Json.format[Standard]
   implicit val formatPrivileged = Json.format[Privileged]
