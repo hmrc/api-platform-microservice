@@ -50,10 +50,14 @@ trait FilterApis {
     def deprecatedAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
       versionDefinition.status == APIStatus.DEPRECATED && !isSubscribed(context, versionDefinition)
 
+    def alphaAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.status == APIStatus.ALPHA && !isSubscribed(context, versionDefinition)
+
     val filteredVersions = api.versions
       .filterNot(v => 
         retiredVersions(v) || 
-        deprecatedAndNotSubscribed(api.context, v)     // Probably need to allow GK to see this
+        deprecatedAndNotSubscribed(api.context, v) ||  // Probably need to allow GK to see this
+        alphaAndNotSubscribed(api.context, v)
       )
       .filter(v => 
         isPublicAccess(v) ||
