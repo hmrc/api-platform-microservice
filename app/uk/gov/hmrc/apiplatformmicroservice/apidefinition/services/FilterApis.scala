@@ -27,9 +27,7 @@ trait FilterApis {
     apis.filterNot(_.requiresTrust).flatMap(filterVersions(applicationId, subscriptions))
   }
 
-  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: 
-  APIDefinition): Option[
-  APIDefinition] = {
+  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
     def isRetired(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
 
     def isSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition): Boolean = 
