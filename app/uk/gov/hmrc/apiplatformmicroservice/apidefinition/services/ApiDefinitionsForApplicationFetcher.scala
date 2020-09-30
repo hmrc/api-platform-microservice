@@ -30,9 +30,9 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends FilterApis {
 
-  def fetch(application: Application, excludePrivateTrialsUnlessSubscribed: Boolean, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
-    } yield filterApis(application, excludePrivateTrialsUnlessSubscribed, subscriptions)(defs)
+    } yield filterApis(application.id, subscriptions)(defs)
   }
 }

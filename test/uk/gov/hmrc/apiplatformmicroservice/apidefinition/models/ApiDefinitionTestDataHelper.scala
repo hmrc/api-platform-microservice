@@ -35,9 +35,11 @@ trait ApiDefinitionTestDataHelper {
     ExtendedAPIVersion(version, status, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
   }
 
+  def apiDefinition(name: String): APIDefinition = apiDefinition(name, apiVersion(ApiVersion("1.0"), STABLE))
+
   def apiDefinition(
       name: String,
-      versions: Seq[ApiVersionDefinition] = Seq(apiVersion(ApiVersion("1.0"), STABLE))
+      versions: ApiVersionDefinition*
     ) = {
     APIDefinition(name, name, name, ApiContext(name), false, false, versions)
   }
@@ -57,7 +59,23 @@ trait ApiDefinitionTestDataHelper {
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
 
-    def withVersions(versions: Seq[ApiVersionDefinition]): APIDefinition = inner.copy(versions = versions)
+    def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions)
+
+    def asAlpha: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asAlpha))
+
+    def asBeta: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asBeta))
+
+    def asStable: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asStable))
+
+    def asDeprecated: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asDeprecated))
+
+    def asRETIRED: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asRETIRED))
+
   }
 
   implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {
@@ -72,6 +90,10 @@ trait ApiDefinitionTestDataHelper {
 
     def withWhitelistedAppIds(appId: String*): APIAccess = {
       inner.copy(whitelistedApplicationIds = appId.toSeq.map(ApplicationId(_)))
+    }
+
+    def addAllowList(appIds: ApplicationId*): APIAccess = {
+      inner.copy(whitelistedApplicationIds = inner.whitelistedApplicationIds ++ appIds)
     }
   }
 
@@ -117,6 +139,11 @@ trait ApiDefinitionTestDataHelper {
       case _                           => inner.copy(access = PrivateApiAccess(isTrial = true))
     }
 
+    def addAllowList(applicationId: ApplicationId) = 
+      inner.access match {
+        case p @ PrivateApiAccess(_,_) => inner.copy(access = p.addAllowList(applicationId))
+        case _ => inner
+      }
     def notTrial: ApiVersionDefinition = inner.access match {
       case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.notTrial)
       case _                           => inner.copy(access = PrivateApiAccess())

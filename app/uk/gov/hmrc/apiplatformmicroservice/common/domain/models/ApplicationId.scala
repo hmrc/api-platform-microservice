@@ -16,5 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
+import java.{util => ju}
+
 case class ApplicationId(value: String) extends AnyVal
+
+object ApplicationId {
+  def random: ApplicationId = ApplicationId(ju.UUID.randomUUID().toString())
+}
 

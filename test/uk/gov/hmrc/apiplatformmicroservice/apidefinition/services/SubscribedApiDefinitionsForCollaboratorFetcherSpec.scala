@@ -35,9 +35,9 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val helloWorldDefinition = apiDefinition(helloWorldContext.value, Seq(apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE)))
-    val helloAgentsDefinition = apiDefinition("hello-agents", Seq(apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE)))
-    val helloVatDefinition = apiDefinition("hello-vat", Seq(apiVersion(versionOne, STABLE)))
+    val helloWorldDefinition = apiDefinition(helloWorldContext.value, apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
+    val helloAgentsDefinition = apiDefinition("hello-agents", apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
+    val helloVatDefinition = apiDefinition("hello-vat", apiVersion(versionOne, STABLE))
 
     val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }
