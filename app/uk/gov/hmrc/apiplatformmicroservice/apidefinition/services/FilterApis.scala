@@ -30,7 +30,7 @@ trait FilterApis {
   private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: 
   APIDefinition): Option[
   APIDefinition] = {
-    def retiredVersions(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
+    def isRetired(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
 
     def isSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition): Boolean = 
       subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
@@ -47,23 +47,13 @@ trait FilterApis {
         case _                                                                    => false
       }
 
-    def deprecatedAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.status == APIStatus.DEPRECATED && !isSubscribed(context, versionDefinition)
-
-    def alphaAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.status == APIStatus.ALPHA && !isSubscribed(context, versionDefinition)
+    def isAlphaOrDeprecated(versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.status == APIStatus.ALPHA || versionDefinition.status == APIStatus.DEPRECATED
 
     val filteredVersions = api.versions
-      .filterNot(v => 
-        retiredVersions(v) || 
-        deprecatedAndNotSubscribed(api.context, v) ||  // Probably need to allow GK to see this
-        alphaAndNotSubscribed(api.context, v)
-      )
-      .filter(v => 
-        isPublicAccess(v) ||
-        isPrivateButAllowListed(api.context, v) ||
-        isSubscribed(api.context, v)
-      )
+      .filterNot(v => isRetired(v))
+      .filterNot(v => isAlphaOrDeprecated(v) && isSubscribed(api.context,v) == false )
+      .filter(v => isSubscribed(api.context, v) || isPublicAccess(v) || isPrivateButAllowListed(api.context, v) )
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))
