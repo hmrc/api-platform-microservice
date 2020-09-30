@@ -42,10 +42,10 @@ class ApiDefinitionController @Inject() (
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
+  def fetchAllSubscribeableApis(applicationId: ApplicationId, excludePrivateTrialsUnlessSubscribed: Option[Boolean]): Action[AnyContent] =
     ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
       for {
-        defs <- fetcher.fetch(request.application, request.subscriptions, request.deployedTo)
+        defs <- fetcher.fetch(request.application, excludePrivateTrialsUnlessSubscribed.getOrElse(true), request.subscriptions, request.deployedTo)
         converted = convert(defs)
       } yield Ok(Json.toJson(converted))
     }
