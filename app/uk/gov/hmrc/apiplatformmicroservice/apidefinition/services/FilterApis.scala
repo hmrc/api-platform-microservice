@@ -21,11 +21,15 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait FilterApis {
 
-  def filterApis(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApis(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(apis: Seq[
+  APIDefinition]): Seq[
+  APIDefinition] = {
     apis.filterNot(_.requiresTrust).flatMap(filterVersions(applicationId, subscriptions))
   }
 
-  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
+  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: 
+  APIDefinition): Option[
+  APIDefinition] = {
     def retiredVersions(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
 
     def isSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition): Boolean = 

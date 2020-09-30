@@ -61,6 +61,10 @@ trait ApiDefinitionTestDataHelper {
 
     def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions)
 
+    def asTrial: APIDefinition = {
+      inner.copy(versions = inner.versions.map(_.asTrial))
+    }
+
     def asAlpha: APIDefinition =
       inner.copy(versions = inner.versions.map(_.asAlpha))
 

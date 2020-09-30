@@ -29,7 +29,7 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
   val filter = new FilterApis {}
   val api = apiDefinition("test")
   val apiId = ApiIdentifier(api.context, apiVersion().version)
-  val publicStableApi = apiDefinition("test", apiVersion().asStable.asPublic)
+  val publicApi = apiDefinition("test", apiVersion().asStable.asPublic)
   val publicDeprecatedApi = api.withVersions(apiVersion().asDeprecated)
   val privateApi = apiDefinition("test", apiVersion().asStable.asPrivate)
   val privateAllowListApi = apiDefinition("test", apiVersion().asStable.asPrivate.addAllowList(appId))
@@ -45,8 +45,15 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
   "filterApis" when {
     "filtering public api" should {
       "allow stable" in {
-        testFilter(publicStableApi) should contain only publicStableApi
+        testFilter(
+          publicApi.asAlpha, 
+          publicApi.asBeta, 
+          publicApi.asStable, 
+          publicApi.asDeprecated, 
+          publicApi.asRETIRED
+        ) should contain only (publicApi.asAlpha, publicApi.asBeta, publicApi.asStable)
       }
+
       "reject retired" in {
         testFilter(api.withVersions(apiVersion().asRETIRED)) shouldBe empty
       }
@@ -59,28 +66,65 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
     }
 
     "filtering private apis where the app is not in the allow list" should {
-      "reject any state" in {
-        testFilter(
-          privateApi, 
+      val allPrivateApis = Seq(
           privateApi.asAlpha, 
           privateApi.asBeta, 
+          privateApi.asStable, 
           privateApi.asDeprecated, 
           privateApi.asRETIRED
-        ) shouldBe empty
+      )
+
+      "reject any state" in {
+        testFilter(allPrivateApis:_*) shouldBe empty
+       }
+
+      // Currently an illegal state that some Apps find themselves in.
+      "allow when subscribed" in {
+        testFilter(apiId)(allPrivateApis:_*) should contain only(
+          privateApi.asAlpha, 
+          privateApi.asBeta, 
+          privateApi.asStable, 
+          privateApi.asDeprecated
+        )
+      } 
+    }
+
+    "filtering private trial apis where the app is not in the allow list" should {
+      val allPrivateTrialApis = Seq(
+        privateApi.asTrial.asAlpha, 
+        privateApi.asTrial.asBeta, 
+        privateApi.asTrial.asStable, 
+        privateApi.asTrial.asDeprecated, 
+        privateApi.asTrial.asRETIRED
+      )
+
+      "reject any state" in {
+        testFilter(allPrivateTrialApis:_*) shouldBe empty
+      }
+
+      // Currently an illegal state that some Apps find themselves in.
+      "show when subscribed" in {
+        testFilter(apiId)(allPrivateTrialApis:_*) should contain only(
+          privateApi.asTrial.asAlpha, 
+          privateApi.asTrial.asBeta, 
+          privateApi.asTrial.asStable, 
+          privateApi.asTrial.asDeprecated, 
+        )
       }
     }
+
     "filtering private apis where the app is in the allow list" should {
       "allow stable" in {
         testFilter(privateAllowListApi) should contain only privateAllowListApi
       }
       "allow where the app is in the allow list unless either retired or deprecated but not subscribed" in {
         testFilter(
-          privateAllowListApi, 
           privateAllowListApi.asAlpha, 
           privateAllowListApi.asBeta, 
+          privateAllowListApi.asStable, 
           privateAllowListApi.asDeprecated, 
           privateAllowListApi.asRETIRED
-        ) should contain allOf(privateAllowListApi.asAlpha, privateAllowListApi, privateAllowListApi.asBeta)
+        ) should contain allOf(privateAllowListApi.asAlpha, privateAllowListApi.asBeta, privateAllowListApi.asStable)
       }
       "allow where the app is in the allow list and deprecated but also subscribed" in {
         val local = privateAllowListApi.asDeprecated
@@ -89,3 +133,14 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
     }
   }
 }
+
+
+// ArrayBuffer(
+  
+//   APIDefinition(test,test,test,ApiContext(test),false,false,ArrayBuffer(ApiVersionDefinition(ApiVersion(1.0),ALPHA,PublicApiAccess(),NonEmptyList(Endpoint(Today's Date,/today,GET,List()), Endpoint(Yesterday's Date,/yesterday,GET,List())),false)),List()), 
+//   APIDefinition(test,test,test,ApiContext(test),false,false,ArrayBuffer(ApiVersionDefinition(ApiVersion(1.0),BETA,PublicApiAccess(),NonEmptyList(Endpoint(Today's Date,/today,GET,List()), Endpoint(Yesterday's Date,/yesterday,GET,List())),false)),List()), 
+//   APIDefinition(test,test,test,ApiContext(test),false,false,ArrayBuffer(ApiVersionDefinition(ApiVersion(1.0),STABLE,PublicApiAccess(),NonEmptyList(Endpoint(Today's Date,/today,GET,List()), Endpoint(Yesterday's Date,/yesterday,GET,List())),false)),List())) 
+//   did not contain only (
+//   APIDefinition(test,test,test,ApiContext(test),false,false,ArrayBuffer(ApiVersionDefinition(ApiVersion(1.0),BETA,PublicApiAccess(),NonEmptyList(Endpoint(Today's Date,/today,GET,List()), Endpoint(Yesterday's Date,/yesterday,GET,List())),false)),List()), 
+//   APIDefinition(test,test,test,ApiContext(test),false,false,ArrayBuffer(ApiVersionDefinition(ApiVersion(1.0),STABLE,PublicApiAccess(),NonEmptyList(Endpoint(Today's Date,/today,GET,List()), Endpoint(Yesterday's Date,/yesterday,GET,List())),false)),List()))
+//   (FilterApisSpec.scala:48)
