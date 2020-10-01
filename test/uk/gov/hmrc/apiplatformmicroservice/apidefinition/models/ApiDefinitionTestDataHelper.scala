@@ -77,8 +77,8 @@ trait ApiDefinitionTestDataHelper {
     def asDeprecated: APIDefinition =
       inner.copy(versions = inner.versions.map(_.asDeprecated))
 
-    def asRETIRED: APIDefinition =
-      inner.copy(versions = inner.versions.map(_.asRETIRED))
+    def asRetired: APIDefinition =
+      inner.copy(versions = inner.versions.map(_.asRetired))
 
   }
 
@@ -129,7 +129,7 @@ trait ApiDefinitionTestDataHelper {
     def asDeprecated: ApiVersionDefinition =
       inner.copy(status = APIStatus.DEPRECATED)
 
-    def asRETIRED: ApiVersionDefinition =
+    def asRetired: ApiVersionDefinition =
       inner.copy(status = APIStatus.RETIRED)
 
     def asPublic: ApiVersionDefinition =

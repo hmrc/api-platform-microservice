@@ -49,12 +49,12 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
           publicApi.asBeta, 
           publicApi.asStable, 
           publicApi.asDeprecated, 
-          publicApi.asRETIRED
+          publicApi.asRetired
         ) should contain only (publicApi.asBeta, publicApi.asStable)
       }
 
       "reject retired" in {
-        testFilter(api.withVersions(apiVersion().asRETIRED)) shouldBe empty
+        testFilter(api.withVersions(apiVersion().asRetired)) shouldBe empty
       }
       "reject alpha when not subscribed to" in {
         testFilter(publicApi.asAlpha) shouldBe empty
@@ -73,7 +73,7 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
           privateApi.asBeta, 
           privateApi.asStable, 
           privateApi.asDeprecated, 
-          privateApi.asRETIRED
+          privateApi.asRetired
       )
 
       "reject any state" in {
@@ -96,7 +96,7 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
         privateApi.asTrial.asBeta, 
         privateApi.asTrial.asStable, 
         privateApi.asTrial.asDeprecated, 
-        privateApi.asTrial.asRETIRED
+        privateApi.asTrial.asRetired
       )
 
       "reject any state when not subscribed" in {
@@ -119,7 +119,7 @@ class FilterApisSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
           privateAllowListApi.asBeta, 
           privateAllowListApi.asStable, 
           privateAllowListApi.asDeprecated, 
-          privateAllowListApi.asRETIRED
+          privateAllowListApi.asRetired
       )
 
       "allow when not subscribed for beta or stable" in {
