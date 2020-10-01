@@ -17,30 +17,41 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait FilterApis {
 
-  def filterApis(application: Application, subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
-    apis.filterNot(_.requiresTrust).flatMap(filterVersions(application, subscriptions))
+  def filterApis(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(apis: Seq[
+  APIDefinition]): Seq[
+  APIDefinition] = {
+    apis.filterNot(_.requiresTrust).flatMap(filterVersions(applicationId, subscriptions))
   }
 
-  private def filterVersions(application: Application, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
-    def retiredVersions(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
+  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
+    def isRetired(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
 
-    def deprecatedAndNotSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition) =
-      versionDefinition.status == APIStatus.DEPRECATED && !subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
+    def isSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition): Boolean = 
+      subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
+    
+    def isPublicAccess(versionDefinition: ApiVersionDefinition): Boolean = 
+      versionDefinition.access match {
+        case PublicApiAccess() => true
+        case _                 => false
+      }
 
-    def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
-      case PrivateApiAccess(_, true)                      => true
-      case PrivateApiAccess(whitelistedApplicationIds, _) => whitelistedApplicationIds.contains(application.id)
-      case _                                              => true
-    }
+    def isPrivateButAllowListed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.access match {
+        case PrivateApiAccess(allowList, _) if allowList.contains(applicationId) => true
+        case _                                                                    => false
+      }
+
+    def isAlphaOrDeprecated(versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.status == APIStatus.ALPHA || versionDefinition.status == APIStatus.DEPRECATED
 
     val filteredVersions = api.versions
-      .filterNot(v => retiredVersions(v))
-      .filterNot(v => deprecatedAndNotSubscribed(api.context, v))
-      .filter(v => visiblePrivateVersions(v))
+      .filterNot(v => isRetired(v))
+      .filterNot(v => isAlphaOrDeprecated(v) && isSubscribed(api.context,v) == false )
+      .filter(v => isSubscribed(api.context, v) || isPublicAccess(v) || isPrivateButAllowListed(api.context, v) )
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))

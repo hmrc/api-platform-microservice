@@ -24,7 +24,7 @@ package object binders {
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
 
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).map(ApplicationId)
+      textBinder.bind(key, value).map(ApplicationId(_))
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
