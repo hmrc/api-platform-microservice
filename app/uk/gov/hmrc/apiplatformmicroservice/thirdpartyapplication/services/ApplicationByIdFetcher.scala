@@ -59,7 +59,7 @@ class ApplicationByIdFetcher @Inject() (
         app <- OptionT(foapp)
         subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
         filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
-      } yield ApplicationWithSubscriptionData(app, subs, Map.empty)
+      } yield ApplicationWithSubscriptionData(app, subs, filledFields)
     ).value
   }
 }
