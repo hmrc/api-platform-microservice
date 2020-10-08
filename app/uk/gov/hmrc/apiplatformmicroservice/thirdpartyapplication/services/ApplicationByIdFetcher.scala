@@ -24,11 +24,17 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Env
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
+    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
+    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
@@ -52,10 +58,8 @@ class ApplicationByIdFetcher @Inject() (
       for {
         app <- OptionT(foapp)
         subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
-        connector = subscriptionFieldsConnector(app.deployedTo)
-        fields <- OptionT.liftF(connector.bulkFetchFieldValues(app.clientId))
-      } yield ApplicationWithSubscriptionData(app, subs, fields)
-    )
-      .value
+        filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
+      } yield ApplicationWithSubscriptionData(app, subs, Map.empty)
+    ).value
   }
 }

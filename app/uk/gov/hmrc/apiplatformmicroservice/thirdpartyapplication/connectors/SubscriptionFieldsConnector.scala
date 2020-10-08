@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
-  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
 }
@@ -47,7 +47,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   protected def http: HttpClient
 
-  def bulkFetchFieldDefintions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
     import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
 
     http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefintions)
