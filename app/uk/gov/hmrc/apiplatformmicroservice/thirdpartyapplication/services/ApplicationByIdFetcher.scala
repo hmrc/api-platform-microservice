@@ -24,11 +24,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Env
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (

@@ -50,7 +50,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
     import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
 
-    http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefintions)
+    http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefinitions)
       .map(r => asMapOfMapsOfFieldDefns(r.apis))
   }
 
@@ -67,7 +67,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private lazy val urlBulkSubscriptionFieldDefintions = s"$serviceBaseUrl/definition"
+  private lazy val urlBulkSubscriptionFieldDefinitions = s"$serviceBaseUrl/definition"
 
   private def urlBulkSubscriptionFieldValues(clientId: ClientId) = s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 }
