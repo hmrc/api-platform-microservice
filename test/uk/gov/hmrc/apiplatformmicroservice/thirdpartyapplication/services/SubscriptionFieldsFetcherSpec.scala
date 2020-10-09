@@ -28,7 +28,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinitionType
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 
@@ -46,7 +45,6 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   private val fieldName1 = FieldName("F1")
   private val fieldName2 = FieldName("F2")
   private val fieldName3 = FieldName("F3")
-  private val fieldName4 = FieldName("F4")
 
   def fieldDef(c: Int, v: Int, f: Int) = FieldDefinition(FieldName(s"F$c-$v-$f"), s"field $f", "", FieldDefinitionType.STRING, s"short $f", None)
   
@@ -182,17 +180,17 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
         )
     }
 
-    "fetch value where field value are missing field definitions" in new Setup(defns, values) {
+    "fetch value where field definitions are missing field values" in new Setup(defns, values) {
         val subs: Set[ApiIdentifier] = Set(
           ApiIdentifier(context1, version1),
           ApiIdentifier(context2, version1),
           ApiIdentifier(context3, version1)
         )
-    
 
         val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
 
-        result.keys should contain allOf (context1, context2, context3)
+        // Subscribed to contexts
+        contexts(result) should contain allOf (context1, context2, context3)
 
         // Note the blank field for absent field value
         flattenOut(result) should contain allOf (
@@ -201,7 +199,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
             (context2, version1, fieldName1, fv(2,1,1)),
             (context3, version1, fieldName1, fv(3,1,1)),
             (context3, version1, fieldName2, fv(3,1,2)),
-            (context3, version1, fieldName3, FieldValue("")),
+            (context3, version1, fieldName3, FieldValue(""))
         )
 
         // Not subscribed to these contexts
@@ -211,6 +209,27 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
         versions(result) should contain noneOf (
             (context1, version2),
             (context2, version2)
+        )
+    }
+    
+    "fetch value where all field values are missing" in new Setup(defns, values) {
+        val subs: Set[ApiIdentifier] = Set(
+          ApiIdentifier(context4, version1)
+        )
+
+        val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
+
+        // Subscribed to contexts
+        contexts(result) should contain (context4)
+
+        // Not subscribed to these contexts
+        contexts(result) should contain noneOf (context1, context2, context3)
+
+        // Note the blank field for absent field value
+        flattenOut(result) should contain allOf (
+            (context4, version1, fieldName1, FieldValue("")),
+            (context4, version1, fieldName2, FieldValue("")),
+            (context4, version1, fieldName3, FieldValue(""))
         )
     }
   }
