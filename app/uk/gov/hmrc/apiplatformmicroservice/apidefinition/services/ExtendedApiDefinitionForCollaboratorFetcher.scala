@@ -37,14 +37,14 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- email.fold(successful(Seq.empty[ApplicationId]))(appIdsFetcher.fetch(_))
+      applicationIds <- email.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch(_))
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
   }
 
   private def createExtendedApiDefinition(
       maybePrincipalDefinition: Option[APIDefinition],
       maybeSubordinateDefinition: Option[APIDefinition],
-      applicationIds: Seq[ApplicationId],
+      applicationIds: Set[ApplicationId],
       email: Option[String]
     ): Option[ExtendedAPIDefinition] = {
 
@@ -87,7 +87,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def createExtendedApiVersions(
       principalVersions: Seq[ApiVersionDefinition],
       subordinateVersions: Seq[ApiVersionDefinition],
-      applicationIds: Seq[ApplicationId],
+      applicationIds: Set[ApplicationId],
       email: Option[String]
     ): Seq[ExtendedAPIVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
@@ -101,7 +101,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def combineVersion(
       maybePrincipalVersion: Option[ApiVersionDefinition],
       maybeSubordinateVersion: Option[ApiVersionDefinition],
-      applicationIds: Seq[ApplicationId],
+      applicationIds: Set[ApplicationId],
       email: Option[String]
     ): ExtendedAPIVersion = {
 
@@ -131,10 +131,10 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(version: ApiVersionDefinition, applicationIds: Seq[ApplicationId], email: Option[String]): Option[APIAvailability] = {
+  private def availability(version: ApiVersionDefinition, applicationIds: Set[ApplicationId], email: Option[String]): Option[APIAvailability] = {
     version.access match {
       case PrivateApiAccess(whitelist, isTrial) =>
-        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised = applicationIds.intersect(whitelist).nonEmpty))
+        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised = applicationIds.intersect(whitelist.toSet).nonEmpty))
       case _                                    => Some(APIAvailability(version.endpointsEnabled, PublicApiAccess(), email.isDefined, authorised = true))
     }
   }

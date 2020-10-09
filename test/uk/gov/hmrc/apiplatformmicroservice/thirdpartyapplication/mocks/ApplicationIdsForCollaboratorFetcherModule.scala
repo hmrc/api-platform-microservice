@@ -31,7 +31,7 @@ trait ApplicationIdsForCollaboratorFetcherModule {
     object FetchAllApplicationIds {
 
       def willReturnApplicationIds(appIds: String*) = {
-        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSeq.map(ApplicationId(_))))
+        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSet.map(ApplicationId(_))))
       }
 
       def willThrowException(e: Exception) = {

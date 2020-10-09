@@ -33,6 +33,6 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
-    } yield filterApis(application.id, subscriptions)(defs)
+    } yield filterApisForDevHubSubscription(Set(application.id), subscriptions)(defs)
   }
 }

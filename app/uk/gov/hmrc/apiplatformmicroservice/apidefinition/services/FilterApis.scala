@@ -21,63 +21,84 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait FilterApis {
 
-  def filterApis(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(apis: Seq[
-  APIDefinition]): Seq[
-  APIDefinition] = {
-    apis.filterNot(_.requiresTrust).flatMap(filterVersions(applicationId, subscriptions))
+  private type ApiFilterFn = ((ApiContext, ApiVersionDefinition)) => Boolean
+
+  private def filterApis(filterFn: (ApiContext, Seq[ApiVersionDefinition]) => Seq[ApiVersionDefinition])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+    def filterVersion(filterFn: (ApiContext, Seq[ApiVersionDefinition]) => Seq[ApiVersionDefinition])(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
+      filterFn(apiContext, versions)
+    }
+
+    apis
+      .filterNot(_.requiresTrust)
+      .map(api => api.copy(versions = filterVersion(filterFn)(api.context, api.versions)))
+      .filter(_.versions.isEmpty)
   }
 
-  private def filterVersions(applicationId: ApplicationId, subscriptions: Set[ApiIdentifier])(api: APIDefinition): Option[APIDefinition] = {
-    def isRetired(version: ApiVersionDefinition): Boolean = version.status == APIStatus.RETIRED
+  // TRY TO REMOVE COMMON versions.map line and COMMON map(_._2) lines into filterApis fn
+  private def filterForApiDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
+    versions.map(v => ((apiContext, v)) )
+      .filterNot(isRetired)
+      .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
+      .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t) )
+      .map(_._2)
+    }
 
-    def isSubscribed(context: ApiContext, versionDefinition: ApiVersionDefinition): Boolean = 
-      subscriptions.contains(ApiIdentifier(context, versionDefinition.version))
-    
-    def isPublicAccess(versionDefinition: ApiVersionDefinition): Boolean = 
-      versionDefinition.access match {
-        case PublicApiAccess() => true
-        case _                 => false
-      }
+  def filterApisForDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+    filterApis(
+      filterForApiDocumentation(applicationIds,subscriptions)
+    )(apis)
+  }
 
-    def isPrivateButAllowListed(context: ApiContext, versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.access match {
-        case PrivateApiAccess(allowList, _) if allowList.contains(applicationId) => true
-        case _                                                                    => false
-      }
+  // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
 
-    def isDeprecated(versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.status == APIStatus.DEPRECATED
+  def filterApisForDevHubSubscription(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+    def myFilter(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
+      versions.map(v => ((apiContext, v)) )
+      .filterNot(isRetired)
+      .filterNot(isAlpha)
+      .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
+      .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t) )
+      .map(_._2)
+    }
 
-    def isAlpha(versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.status == APIStatus.ALPHA
+    filterApis(myFilter)(apis)
+  }
 
-    val filteredVersions = canISeeThisApiOnSubscriptionsPage
-
-    // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
-
-    val canISeeThisApiVersionInGateKeeperOnSubscriptionsPage = api.versions
-      .filterNot(v => isRetired(v))
+  def filterApisForGateKeeperSubscription(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+    def myFilter(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
+      versions.map(v => ((apiContext, v)) )
+      .filterNot(isRetired)
       // This is ignored because you may need to be subscribed to see alpha docs (private apis for example)
       // .filterNot(v => isAlpha(v))
       // This is ingored becuase you may need to correct a user error where they unsubscribed by mistake
       // .filterNot(v => isDeprecated(v))
+      .map(_._2)
+    }
 
-      
-    val canISeeTheDocsInDevHub = api.versions
-      .filterNot(v => isRetired(v))
-      .filterNot(v => isDeprecated(v) && isSubscribed(api.context,v) == false )
-      .filter(v => isSubscribed(api.context, v) || isPublicAccess(v) || isPrivateButAllowListed(api.context, v) )
-
-    val canISeeThisApiVersionInDevHubApiOnSubscriptionsPage = canISeeTheDocs  
-      .filterNot(v => isAlpha(v)) // You may be subscribed, but you cant see it on the subs page.
-    
-
-
-
-
-    def x = canGKSubscribeTheAppToThisApi || canISeeTheDocs || canDevHubSubscribeTheAppToThisApi
-
-      if (filteredVersions.isEmpty) None
-    else Some(api.copy(versions = filteredVersions))
+    filterApis(myFilter)(apis)
   }
+
+  private val isRetired: ApiFilterFn = t => t._2.status == APIStatus.RETIRED
+
+  private val isDeprecated: ApiFilterFn = t => t._2.status == APIStatus.DEPRECATED
+
+  private val isAlpha: ApiFilterFn = t => t._2.status == APIStatus.ALPHA
+
+  private val isPublicAccess: ApiFilterFn = t => t._2.access match {
+    case PublicApiAccess() => true
+    case _                 => false
+  }
+
+  private def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
+    t._2.access match {
+      case PrivateApiAccess(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
+      case _                              => false
+    }
+  }
+
+  private def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
+    subscriptions.contains(ApiIdentifier(t._1, t._2.version))
+
+  private def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
+    isSubscribed(subscriptions)(t) == false
 }

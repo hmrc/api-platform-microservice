@@ -31,13 +31,13 @@ class ApplicationIdsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recoverWithDefault(Seq.empty[ApplicationId])
+  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Set[ApplicationId]] = {
+    val subordinateAppIds = subordinateTpaConnector.fetchApplicationsByEmail(email) recover recoverWithDefault(Set.empty[ApplicationId])
     val principalAppIds = principalTpaConnector.fetchApplicationsByEmail(email)
 
     for {
       subordinate <- subordinateAppIds
       principal <- principalAppIds
-    } yield subordinate ++ principal
+    } yield (subordinate ++ principal).toSet
   }
 }
