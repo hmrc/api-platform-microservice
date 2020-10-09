@@ -28,7 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApplicationByIdFetcher @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
+    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
+    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
@@ -52,10 +53,8 @@ class ApplicationByIdFetcher @Inject() (
       for {
         app <- OptionT(foapp)
         subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
-        connector = subscriptionFieldsConnector(app.deployedTo)
-        fields <- OptionT.liftF(connector.bulkFetchFieldValues(app.clientId))
-      } yield ApplicationWithSubscriptionData(app, subs, fields)
-    )
-      .value
+        filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
+      } yield ApplicationWithSubscriptionData(app, subs, filledFields)
+    ).value
   }
 }

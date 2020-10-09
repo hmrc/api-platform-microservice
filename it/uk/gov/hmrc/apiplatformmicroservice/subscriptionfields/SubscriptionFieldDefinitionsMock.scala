@@ -9,7 +9,7 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
 trait SubscriptionFieldDefinitionsMock {
   self: WiremockSetup => // To allow for stubFor to work with environment
 
-  def mockBulkFetchFieldDefintions(env: Environment) {
+  def mockbulkFetchFieldDefinitions(env: Environment) {
     stubFor(env)(get(urlEqualTo("/definition"))
       .willReturn(
         aResponse()

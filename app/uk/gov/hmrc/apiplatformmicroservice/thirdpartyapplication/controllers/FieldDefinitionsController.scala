@@ -35,7 +35,7 @@ class FieldDefinitionsController @Inject() (
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters._
 
   def fetchFieldDefinitions(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    subscriptionsFieldsConnector(environment).bulkFetchFieldDefintions.map(fds => Ok(Json.toJson(fds)))
+    subscriptionsFieldsConnector(environment).bulkFetchFieldDefinitions.map(fds => Ok(Json.toJson(fds)))
   }
 
 }

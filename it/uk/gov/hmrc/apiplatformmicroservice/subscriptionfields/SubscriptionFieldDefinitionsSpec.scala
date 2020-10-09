@@ -17,7 +17,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
     "stub get request for fetching subscription fields" in {
       val testingIn: Environment = PRODUCTION
 
-      mockBulkFetchFieldDefintions(PRODUCTION)
+      mockbulkFetchFieldDefinitions(PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields")
         .withQueryStringParameters("environment" -> testingIn.toString)
