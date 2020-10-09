@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import scala.concurrent.ExecutionContext
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{FieldValue, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import scala.concurrent.Future
 
 @Singleton
