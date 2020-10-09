@@ -45,15 +45,39 @@ trait FilterApis {
         case _                                                                    => false
       }
 
-    def isAlphaOrDeprecated(versionDefinition: ApiVersionDefinition) = 
-      versionDefinition.status == APIStatus.ALPHA || versionDefinition.status == APIStatus.DEPRECATED
+    def isDeprecated(versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.status == APIStatus.DEPRECATED
 
-    val filteredVersions = api.versions
+    def isAlpha(versionDefinition: ApiVersionDefinition) = 
+      versionDefinition.status == APIStatus.ALPHA
+
+    val filteredVersions = canISeeThisApiOnSubscriptionsPage
+
+    // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
+
+    val canISeeThisApiVersionInGateKeeperOnSubscriptionsPage = api.versions
       .filterNot(v => isRetired(v))
-      .filterNot(v => isAlphaOrDeprecated(v) && isSubscribed(api.context,v) == false )
+      // This is ignored because you may need to be subscribed to see alpha docs (private apis for example)
+      // .filterNot(v => isAlpha(v))
+      // This is ingored becuase you may need to correct a user error where they unsubscribed by mistake
+      // .filterNot(v => isDeprecated(v))
+
+      
+    val canISeeTheDocsInDevHub = api.versions
+      .filterNot(v => isRetired(v))
+      .filterNot(v => isDeprecated(v) && isSubscribed(api.context,v) == false )
       .filter(v => isSubscribed(api.context, v) || isPublicAccess(v) || isPrivateButAllowListed(api.context, v) )
 
-    if (filteredVersions.isEmpty) None
+    val canISeeThisApiVersionInDevHubApiOnSubscriptionsPage = canISeeTheDocs  
+      .filterNot(v => isAlpha(v)) // You may be subscribed, but you cant see it on the subs page.
+    
+
+
+
+
+    def x = canGKSubscribeTheAppToThisApi || canISeeTheDocs || canDevHubSubscribeTheAppToThisApi
+
+      if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))
   }
 }
