@@ -36,7 +36,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher,
     
   )(implicit ec: ExecutionContext)
-    extends Recoveries with FilterApis {
+    extends Recoveries with FilterApiDocumentation {
 
   def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions

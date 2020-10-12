@@ -20,10 +20,9 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait FilterApis {
+  type ApiFilterFn = ((ApiContext, ApiVersionDefinition)) => Boolean
 
-  private type ApiFilterFn = ((ApiContext, ApiVersionDefinition)) => Boolean
-
-  private def filterApis(filterFn: ApiFilterFn)(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApis(filterFn: ApiFilterFn)(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
     
     def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
       versions
@@ -38,7 +37,37 @@ trait FilterApis {
       .filterNot(_.versions.isEmpty)
   }
 
-  // TRY TO REMOVE COMMON versions.map line and COMMON map(_._2) lines into filterApis fn
+  protected val isRetired: ApiFilterFn = t => t._2.status == APIStatus.RETIRED
+
+  protected val isDeprecated: ApiFilterFn = t => t._2.status == APIStatus.DEPRECATED
+
+  protected val isAlpha: ApiFilterFn = t => t._2.status == APIStatus.ALPHA
+
+  protected val isPrivateTrial: ApiFilterFn = t => t._2.access match {
+    case PrivateApiAccess(_, true) => true
+    case _ => false 
+  }
+
+  protected val isPublicAccess: ApiFilterFn = t => t._2.access match {
+    case PublicApiAccess() => true
+    case _                 => false
+  }
+
+  protected def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
+    t._2.access match {
+      case PrivateApiAccess(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
+      case _                              => false
+    }
+  }
+
+  protected def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
+    subscriptions.contains(ApiIdentifier(t._1, t._2.version))
+
+  protected def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
+    isSubscribed(subscriptions)(t) == false
+}
+
+trait FilterApiDocumentation extends FilterApis {
   def filterApisForDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
     filterApis(
       Some(_)
@@ -48,10 +77,12 @@ trait FilterApis {
       .isDefined
     )(apis)
   }
+}
 
+trait FilterDevHubSubscriptions extends FilterApis {
   // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
 
-  def filterApisForDevHubSubscription(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApisForDevHubSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)
@@ -61,41 +92,14 @@ trait FilterApis {
       .isDefined
     )(apis)
   }
+}
 
-  def filterApisForGateKeeperSubscription(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+trait FilterGateKeeperSubscriptions extends FilterApis {
+  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)
       .isDefined
     )(apis)
   }
-
-  private val isRetired: ApiFilterFn = t => t._2.status == APIStatus.RETIRED
-
-  private val isDeprecated: ApiFilterFn = t => t._2.status == APIStatus.DEPRECATED
-
-  private val isAlpha: ApiFilterFn = t => t._2.status == APIStatus.ALPHA
-
-  private val isPrivateTrial: ApiFilterFn = t => t._2.access match {
-    case PrivateApiAccess(_, true) => true
-    case _ => false 
-  }
-
-  private val isPublicAccess: ApiFilterFn = t => t._2.access match {
-    case PublicApiAccess() => true
-    case _                 => false
-  }
-
-  private def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
-    t._2.access match {
-      case PrivateApiAccess(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
-      case _                              => false
-    }
-  }
-
-  private def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    subscriptions.contains(ApiIdentifier(t._1, t._2.version))
-
-  private def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    isSubscribed(subscriptions)(t) == false
 }
