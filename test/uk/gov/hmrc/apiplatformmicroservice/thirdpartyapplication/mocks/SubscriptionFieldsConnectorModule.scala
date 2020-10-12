@@ -24,6 +24,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 
 trait SubscriptionFieldsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -33,12 +35,18 @@ trait SubscriptionFieldsConnectorModule {
 
     object BulkFetchFieldValues {
 
-      def willReturnFields(subs: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(implicit hc: HeaderCarrier) = {
+      def willReturnFields(subs: ApiFieldMap[FieldValue])(implicit hc: HeaderCarrier) = {
         when(aMock.bulkFetchFieldValues(*[ClientId])(eqTo(hc))).thenReturn(successful(subs))
       }
 
       def willThrowException(e: Exception) =
         when(aMock.bulkFetchFieldValues(*[ClientId])(*[HeaderCarrier])).thenReturn(failed(e))
+    }
+
+    object BulkFetchFieldDefinitions {
+      def willReturnDefinitions(defns: ApiFieldMap[FieldDefinition]) = {
+        when(aMock.bulkFetchFieldDefinitions(*)).thenReturn(successful(defns))
+      }
     }
   }
 

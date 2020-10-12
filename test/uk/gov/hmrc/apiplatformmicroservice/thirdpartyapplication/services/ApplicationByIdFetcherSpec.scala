@@ -40,9 +40,8 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
   val application: Application = Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, DateTimeUtils.now, None, Environment.SANDBOX, Some("description"))
   val BANG = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with MockitoSugar with ArgumentMatchersSugar {
-
-    val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance)
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
+    val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
   }
 
   "ApplicationByIdFetcher" when {
@@ -85,8 +84,6 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
     "fetchApplicationWithSubscriptionData" should {
       import SubscriptionsHelper._
 
-      // def fetchApplicationWithSubscriptionData(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
-
       "return None when application is not found" in new Setup {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
@@ -99,15 +96,17 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
         val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
 
         val subsFields =
-          Map(ContextA -> Map(
-            VersionOne -> Map(fieldsForAOne),
-            VersionTwo -> Map(fieldsForATwo)
-          ))
+          Map(
+            ContextA -> Map(
+              VersionOne -> Map(fieldsForAOne),
+              VersionTwo -> Map(fieldsForATwo)
+            )
+          )
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
-        EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.BulkFetchFieldValues.willReturnFields(subsFields)
+        SubscriptionFieldsFetcherMock.fetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
         val expect = ApplicationWithSubscriptionData(
           application,

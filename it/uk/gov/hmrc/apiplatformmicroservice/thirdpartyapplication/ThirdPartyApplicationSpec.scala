@@ -23,7 +23,7 @@ class ThirdPartyApplicationSpec extends WireMockSpec with ApplicationMock with S
       mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
       mockFetchApplicationNotFound(Environment.SANDBOX, applicationId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
-      mockBulkFetchFieldValues(Environment.PRODUCTION, clientId)
+      mockBulkFetchFieldValuesAndDefinitions(Environment.PRODUCTION, clientId)
 
       val response = await(wsClient.url(s"$baseUrl/applications/${applicationId.value}")
         .withHttpHeaders(ACCEPT -> JSON)

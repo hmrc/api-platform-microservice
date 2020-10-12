@@ -20,6 +20,10 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 
 object SubscriptionFieldsDomain {
 
@@ -49,4 +53,6 @@ object SubscriptionFieldsDomain {
   object Fields {
     val empty = Map.empty[String, String]
   }
+    
+  type ApiFieldMap[V] = ThreeDMap.Type[ApiContext, ApiVersion, FieldName,V]
 }
