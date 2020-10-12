@@ -33,8 +33,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
-    subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher,
-    
+    subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher    
   )(implicit ec: ExecutionContext)
     extends Recoveries with FilterApiDocumentation {
 
