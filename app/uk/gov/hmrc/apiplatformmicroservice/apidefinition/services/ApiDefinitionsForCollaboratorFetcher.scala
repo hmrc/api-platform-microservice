@@ -25,14 +25,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 @Singleton
 class ApiDefinitionsForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
-    appIdsFetcher: ApplicationIdsForCollaboratorFetcher
+    appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
+    subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher,
+    
   )(implicit ec: ExecutionContext)
-    extends Recoveries {
+    extends Recoveries with FilterApiDocumentation {
 
   def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions
@@ -42,31 +46,12 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
       principalDefinitions <- principalDefinitionsFuture
       subordinateDefinitions <- subordinateDefinitionsFuture
       combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
-      applicationIds <- email.fold(successful(Seq.empty[ApplicationId]))(appIdsFetcher.fetch(_))
-    } yield filterApis(combinedDefinitions, applicationIds)
+      collaboratorApplicationIds <- email.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
+      collaboratorSubscriptions <- email.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
+    } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
   }
 
   private def combineDefinitions(principalDefinitions: Seq[APIDefinition], subordinateDefinitions: Seq[APIDefinition]): Seq[APIDefinition] = {
     subordinateDefinitions ++ principalDefinitions.filterNot(pd => subordinateDefinitions.exists(sd => sd.serviceName == pd.serviceName))
-  }
-
-  private def filterApis(apis: Seq[APIDefinition], applicationIds: Seq[ApplicationId]): Seq[APIDefinition] = {
-    apis.filterNot(_.requiresTrust).flatMap(filterVersions(_, applicationIds))
-  }
-
-  private def filterVersions(api: APIDefinition, applicationIds: Seq[ApplicationId]): Option[APIDefinition] = {
-    def activeVersions(version: ApiVersionDefinition): Boolean = version.status != APIStatus.RETIRED
-
-    def visiblePrivateVersions(version: ApiVersionDefinition): Boolean = version.access match {
-      case PrivateApiAccess(_, true)                      => true
-      case PrivateApiAccess(whitelistedApplicationIds, _) =>
-        whitelistedApplicationIds.exists(s => applicationIds.contains(s))
-      case _                                              => true
-    }
-
-    val filteredVersions = api.versions.filter(v => activeVersions(v) && visiblePrivateVersions(v))
-
-    if (filteredVersions.isEmpty) None
-    else Some(api.copy(versions = filteredVersions))
   }
 }
