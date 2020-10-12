@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, APIStatus, ApiVersionDefinition, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
@@ -33,7 +33,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
-    subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher,
+    subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher
     
   )(implicit ec: ExecutionContext)
     extends Recoveries with FilterApiDocumentation {
