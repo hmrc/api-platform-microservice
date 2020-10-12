@@ -1,1 +1,1 @@
-GET        /           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllSubscribeableApis(applicationId: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
+GET        /           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllSubscribeableApis(applicationId: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, unrestricted: Option[Boolean])

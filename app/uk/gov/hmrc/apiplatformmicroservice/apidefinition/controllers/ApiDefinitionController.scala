@@ -37,15 +37,15 @@ class ApiDefinitionController @Inject() (
   )(implicit ec: ExecutionContext)
     extends BackendController(controllerComponents)
     with ActionBuilders
-    with FilterApis {
+ {
 
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
+  def fetchAllSubscribeableApis(applicationId: ApplicationId, unrestricted: Option[Boolean] = Some(false)): Action[AnyContent] =
     ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
       for {
-        defs <- fetcher.fetch(request.application, request.subscriptions, request.deployedTo)
+        defs <- fetcher.fetch(request.application, request.subscriptions, request.deployedTo, unrestricted.getOrElse(false))
         converted = convert(defs)
       } yield Ok(Json.toJson(converted))
     }
