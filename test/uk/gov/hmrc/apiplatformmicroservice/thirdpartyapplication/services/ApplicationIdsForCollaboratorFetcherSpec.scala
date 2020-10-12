@@ -43,7 +43,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Seq("s1", "s2", "s3", "p1", "p2").map(ApplicationId(_))
+      result should contain only(Seq("s1", "s2", "s3", "p1", "p2").map(ApplicationId(_)):_*)
     }
 
     "return subordinate application Ids if there are no matching principal applications" in new Setup {
@@ -52,7 +52,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe subordinateApplicationIds
+      result should contain only(subordinateApplicationIds:_*)
     }
 
     "return principal application Ids if there are no matching subordinate applications" in new Setup {
@@ -61,7 +61,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe principalApplicationIds
+      result should contain only(principalApplicationIds:_*)
     }
 
     "return an empty sequence if there are no matching applications in any environment" in new Setup {
@@ -70,7 +70,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Seq.empty
+      result shouldBe empty
     }
 
     "return principal application Ids if something goes wrong in subordinate" in new Setup {
@@ -80,7 +80,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe principalApplicationIds
+      result should contain only(principalApplicationIds:_*)
     }
 
     "throw exception if something goes wrong in principal" in new Setup {

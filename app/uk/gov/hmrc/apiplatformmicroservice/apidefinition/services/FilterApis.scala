@@ -31,15 +31,16 @@ trait FilterApis {
     apis
       .filterNot(_.requiresTrust)
       .map(api => api.copy(versions = filterVersion(filterFn)(api.context, api.versions)))
-      .filter(_.versions.isEmpty)
+      .filterNot(_.versions.isEmpty)
   }
 
   // TRY TO REMOVE COMMON versions.map line and COMMON map(_._2) lines into filterApis fn
   private def filterForApiDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
-    versions.map(v => ((apiContext, v)) )
+    versions
+      .map(v => ((apiContext, v)) )
       .filterNot(isRetired)
       .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
-      .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t) )
+      .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t) || isPrivateTrial(t) )
       .map(_._2)
     }
 
@@ -83,6 +84,11 @@ trait FilterApis {
   private val isDeprecated: ApiFilterFn = t => t._2.status == APIStatus.DEPRECATED
 
   private val isAlpha: ApiFilterFn = t => t._2.status == APIStatus.ALPHA
+
+  private val isPrivateTrial: ApiFilterFn = t => t._2.access match {
+    case PrivateApiAccess(_, true) => true
+    case _ => false 
+  }
 
   private val isPublicAccess: ApiFilterFn = t => t._2.access match {
     case PublicApiAccess() => true
