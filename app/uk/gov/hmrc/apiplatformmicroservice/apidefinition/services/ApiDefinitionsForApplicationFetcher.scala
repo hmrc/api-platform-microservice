@@ -30,13 +30,15 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment, unrestricted: Boolean)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchRestricted(application: Application, environment: Environment, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
-      filterFn =  if(unrestricted) 
-                    filterApisForGateKeeperSubscriptions(Set(application.id)) _
-                  else
-                    filterApisForDevHubSubscriptions(Set(application.id), subscriptions) _
-    } yield filterFn(defs)
+    } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
+  }
+
+  def fetchUnrestricted(application: Application, environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    for {
+      defs <- apiDefinitionService(environment).fetchAllDefinitions
+    } yield filterApisForGateKeeperSubscriptions(Set(application.id))(defs)
   }
 }
