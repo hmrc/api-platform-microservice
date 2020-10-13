@@ -95,7 +95,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
 }
 
 trait FilterGateKeeperSubscriptions extends FilterApis {
-  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)

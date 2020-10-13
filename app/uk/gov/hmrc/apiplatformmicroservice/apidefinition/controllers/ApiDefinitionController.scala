@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterApis}
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
@@ -28,6 +27,8 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.collection.immutable.ListMap
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 
 @Singleton
 class ApiDefinitionController @Inject() (
@@ -37,17 +38,26 @@ class ApiDefinitionController @Inject() (
   )(implicit ec: ExecutionContext)
     extends BackendController(controllerComponents)
     with ActionBuilders
-    with FilterApis {
+ {
 
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  def fetchAllSubscribeableApis(applicationId: ApplicationId): Action[AnyContent] =
-    ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
-      for {
-        defs <- fetcher.fetch(request.application, request.subscriptions, request.deployedTo)
-        converted = convert(defs)
-      } yield Ok(Json.toJson(converted))
+  def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
+    if(restricted.getOrElse(true)) {
+      ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
+        for {
+          defs <- fetcher.fetchRestricted(request.application, request.deployedTo, request.subscriptions)
+          converted = convert(defs)
+        } yield Ok(Json.toJson(converted))
+      }
+    } else {
+      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
+        for {
+          defs <- fetcher.fetchUnrestricted(request.application, request.deployedTo)
+          converted = convert(defs)
+        } yield Ok(Json.toJson(converted))
+      }
     }
 }
 

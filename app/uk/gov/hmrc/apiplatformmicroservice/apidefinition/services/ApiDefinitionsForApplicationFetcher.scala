@@ -28,11 +28,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApiDefinitionsForApplicationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
   )(implicit ec: ExecutionContext)
-    extends FilterDevHubSubscriptions {
+    extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetch(application: Application, subscriptions: Set[ApiIdentifier], environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchRestricted(application: Application, environment: Environment, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
     } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
+  }
+
+  def fetchUnrestricted(application: Application, environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    for {
+      defs <- apiDefinitionService(environment).fetchAllDefinitions
+    } yield filterApisForGateKeeperSubscriptions(Set(application.id))(defs)
   }
 }

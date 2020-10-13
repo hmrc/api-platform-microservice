@@ -38,6 +38,20 @@ trait ApiDefinitionMock {
                         |              "endpointsEnabled": true
                         |          },
                         |          {
+                        |              "version": "5.0",
+                        |              "status": "ALPHA",
+                        |              "endpoints": [
+                        |                  {
+                        |                      "uriPattern": "/world",
+                        |                      "endpointName": "Say hello world",
+                        |                      "method": "GET",
+                        |                      "authType": "NONE",
+                        |                      "throttlingTier": "UNLIMITED"
+                        |                  }
+                        |              ],
+                        |              "endpointsEnabled": false
+                        |          },
+                        |          {
                         |              "version": "3.0",
                         |              "status": "STABLE",
                         |              "endpoints": [
