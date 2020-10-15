@@ -35,14 +35,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.Application
 class ApplicationController @Inject() (
     subscriptionService: SubscriptionService,
     val applicationService: ApplicationByIdFetcher,
-    cc: ControllerComponents,
-    applicationByIdFetcher: ApplicationByIdFetcher
+    cc: ControllerComponents
   )(implicit ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders {
 
   def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
     for {
-      oApp <- applicationByIdFetcher.fetchApplicationWithSubscriptionData(ApplicationId(id))
+      oApp <- applicationService.fetchApplicationWithSubscriptionData(ApplicationId(id))
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 
@@ -51,7 +50,7 @@ class ApplicationController @Inject() (
 
       implicit val httpRequest : Request[JsValue] = request.request
 
-    // requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request =>
+    // TODO : requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request =>
       withJsonBody[ApiIdentifier] { api =>
           subscriptionService
             .createSubscriptionForApplication(request.application, request.subscriptions, api)
