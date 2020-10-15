@@ -71,6 +71,6 @@ trait ActionBuilders {
     }
 
   def ApplicationWithSubscriptionDataAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
-    Action.andThen(applicationWithSubscriptionDataRefiner(applicationId))
+    Action andThen applicationWithSubscriptionDataRefiner(applicationId)
 
 }

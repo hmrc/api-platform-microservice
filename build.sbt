@@ -42,7 +42,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "api-platform-microservice",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.10",
+    scalaVersion := "2.12.12",
     majorVersion := 0,
     PlayKeys.playDefaultPort := 6700,
     resolvers := Seq(
