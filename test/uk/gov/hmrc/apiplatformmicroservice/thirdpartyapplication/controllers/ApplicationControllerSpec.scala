@@ -38,6 +38,7 @@ import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import play.api.libs.json.JsDefined
 import play.api.libs.json.JsLookupResult
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -49,6 +50,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     val applicationId = ApplicationId.random
     val context = ApiContext("hello")
     val version = ApiVersion("1.0")
+    val apiIdentifier = ApiIdentifier(context, version)
 
     val controller = new ApplicationController(
       SubscriptionServiceMock.aMock,
@@ -58,7 +60,6 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   }
 
   "createSubscriptionForApplication" should {
-
     "return NO CONTENT when successfully subscribing to API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
@@ -72,8 +73,21 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       status(result) shouldBe NO_CONTENT
     }
 
-    "return ??? when the application cannot subscribe to the API" in new Setup() {
+    "return NOT FOUND when the application cannot subscribe to the API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
+      val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDenied
+
+      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj(
+        "code" -> "APPLICATION_NOT_FOUND",
+        "message" -> s"API $apiIdentifier is not available for application $applicationId"
+      )
     }
 
     "return CONFLICT when the application is already subscribed to the API" in new Setup() {

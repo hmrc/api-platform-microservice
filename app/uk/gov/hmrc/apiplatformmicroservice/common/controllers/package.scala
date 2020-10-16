@@ -32,6 +32,8 @@ package object controllers {
 
     val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
     val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
+    val APPLICATION_NOT_FOUND = Value("APPLICATION_NOT_FOUND")
+    val SUBSCRIPTION_DENIED = Value("SUBSCRIPTION_DENIED")
   }
 
   object JsErrorResponse {

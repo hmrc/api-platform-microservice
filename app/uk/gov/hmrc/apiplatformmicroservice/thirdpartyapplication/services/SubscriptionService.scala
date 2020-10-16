@@ -35,29 +35,6 @@ class SubscriptionService @Inject()(
   apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
-    // def versionSubscriptionFuture: Future[Option[VersionSubscription]] = 
-    //   fetchAllSubscriptionsForApplication(applicationId) map { apis =>
-    //     apis.find(_.context == apiIdentifier.context) flatMap (_.versions.find(_.version.version == apiIdentifier.version))
-    //   }
-
-    // def fetchAppFuture = fetchApp(applicationId)
-
-    // def checkVersionSubscription(app: ApplicationData, versionSubscriptionMaybe: Option[VersionSubscription]): Unit = {
-    //   versionSubscriptionMaybe match {
-    //     case None => throw new NotFoundException(s"API $apiIdentifier is not available for application $applicationId")
-    //     case Some(versionSubscription) if versionSubscription.subscribed => throw SubscriptionAlreadyExistsException(app.name, apiIdentifier)
-    //     case _ =>
-    //   }
-    // }
-
-    // are we allowed to subscribe to api context and version
-    // have we already subscribed to ^
-
-
-    // 1. Get the app with it's actual subs (use pimper) - DONE
-
-    // 2. ApiDefinitionsForApplicationFetcher.fetchUnrestricted
-
     def allowdToSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.map(api => api.versions.map(version => ApiIdentifier(api.context, version.version))).flatten
       allVersions.contains(newSubscriptionApiIdentifier)
@@ -72,7 +49,7 @@ class SubscriptionService @Inject()(
         (allowdToSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), amISubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => CreateSubscriptionDuplicate
           case (false, _) => CreateSubscriptionDenied
-          case _ => CreateSubscriptionSuccess
+          case _ => CreateSubscriptionSuccess // TODO - Call TPA to create subscription here
       })
 
     // 3. Does remaining apis contain the new subscription

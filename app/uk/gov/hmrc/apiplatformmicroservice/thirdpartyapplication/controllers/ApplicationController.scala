@@ -61,7 +61,7 @@ class ApplicationController @Inject() (
             .createSubscriptionForApplication(request.application, request.subscriptions, api)
             .map {
               case CreateSubscriptionSuccess => NoContent
-              case CreateSubscriptionDenied => ???
+              case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application $applicationId"))
               case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
             }
       }
