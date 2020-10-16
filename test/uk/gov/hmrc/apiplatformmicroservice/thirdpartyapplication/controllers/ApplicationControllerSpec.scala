@@ -36,6 +36,8 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import play.api.http.Status.OK
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
+import play.api.libs.json.JsDefined
+import play.api.libs.json.JsLookupResult
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -56,15 +58,15 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   }
 
   "createSubscriptionForApplication" should {
+
     "return NO CONTENT when successfully subscribing to API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
-    
       val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
-
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
+    
       val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe NO_CONTENT
@@ -77,17 +79,18 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return CONFLICT when the application is already subscribed to the API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
-
       val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
-
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
+
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
 
       val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe CONFLICT
-
-      println(contentAsJson(result))
+      contentAsJson(result) shouldBe Json.obj(
+        "code" -> "SUBSCRIPTION_ALREADY_EXISTS",
+        "message" -> s"Application: '${application.name}' is already Subscribed to API: ${context.value}: ${version.value}"
+      )
     }
   }
 }
