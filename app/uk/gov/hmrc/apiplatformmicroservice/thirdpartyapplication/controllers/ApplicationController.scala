@@ -45,7 +45,7 @@ class ApplicationController @Inject() (
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 
-  def createSubscriptionForApplication(applicationId: ApplicationId) =
+  def createSubscriptionForApplication(applicationId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
 
       implicit val httpRequest : Request[JsValue] = request.request
@@ -54,7 +54,7 @@ class ApplicationController @Inject() (
       withJsonBody[ApiIdentifier] { api =>
           subscriptionService
             .createSubscriptionForApplication(request.application, request.subscriptions, api)
-            .map(res => Ok(Json.obj("text" -> res)))
+            .map(_ => NoContent)
       }
   }
 }

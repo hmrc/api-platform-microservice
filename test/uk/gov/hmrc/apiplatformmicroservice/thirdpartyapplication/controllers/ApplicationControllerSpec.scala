@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
@@ -30,35 +29,53 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import play.api.http.Status.OK
+import play.api.test.Helpers.{contentAsJson, status}
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
     implicit val headerCarrier = HeaderCarrier()
     implicit val system = ActorSystem("test")
     implicit val mat = ActorMaterializer()
 
-    val request = FakeRequest("GET", "/")
-    val apiName = "hello-api"
-    val version = "1.0"
-    val anApiDefinition = apiDefinition(apiName)
-    val anExtendedApiDefinition = extendedApiDefinition(apiName)
+    val applicationId = ApplicationId.random
+    val context = ApiContext.random
+    val version = ApiVersion.random
 
     val controller = new ApplicationController(
       SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
       Helpers.stubControllerComponents()
     )
-    val mockWSResponse = mock[WSResponse]
-    when(mockWSResponse.status).thenReturn(OK)
-    when(mockWSResponse.headers).thenReturn(
-      Map(
-        "Content-Length" -> Seq("500")
-      )
-    )
-    when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
-    when(mockWSResponse.contentType).thenReturn("application/json")
   }
 
+  "createSubscriptionForApplication" should {
+    "return NO CONTENT when successfully subscribing to API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      SubscriptionServiceMock.willReturnSomething("")
+    
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
 
+      val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
+
+      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+
+      status(result) shouldBe NO_CONTENT
+    }
+
+    "return ??? when the application cannt subscribe to the API" in new Setup() {
+
+    }
+
+    "return ??? when the application is already subscribed to the API" in new Setup() {
+      
+    }
+  }
 }

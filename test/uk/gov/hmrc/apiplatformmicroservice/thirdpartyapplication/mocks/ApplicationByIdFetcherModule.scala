@@ -20,6 +20,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Applic
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
   object ApplicationByIdFetcherMock {
@@ -27,11 +29,18 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
 
     object FetchApplication {
       def willReturnApplication(app: Application) = {
-        when(aMock.fetchApplication(*)(*)).thenReturn(Future.successful(Some(app)))
+        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(Future.successful(Some(app)))
       }
 
       def willThrowException(e: Exception) = {
         when(aMock.fetchApplication(*)(*)).thenReturn(Future.failed(e))
+      }
+    }
+
+    object FetchApplicationWithSubscriptionData {
+      
+      def willReturnApplicationWithSubscriptionData(app: Application) = {
+        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(app))))
       }
     }
   }
