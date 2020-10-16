@@ -19,13 +19,24 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 
 trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar {
   object SubscriptionServiceMock {
     val aMock = mock[SubscriptionService]
 
-    def willReturnSomething(result: String) = {
-      when(aMock.createSubscriptionForApplication(*, *, *)(*)).thenReturn(Future.successful(result))
+    object CreateSubscriptionForApplication {
+      def willReturnSuccess = {
+        when(aMock.createSubscriptionForApplication(*, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionSuccess))
+      }
+      def willReturnDenied = {
+        when(aMock.createSubscriptionForApplication(*, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionDenied))
+      }
+      def willReturnDuplicate = {
+        when(aMock.createSubscriptionForApplication(*, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionDuplicate))
+      }
     }
   }
 }

@@ -43,7 +43,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       id = appId,
       clientId = clientId,
       gatewayId = "",
-      name = s"$appId-name",
+      name = s"${appId.value}-name",
       createdOn = createdOn,
       lastAccess = lastAccess,
       lastAccessTokenUsage = None,

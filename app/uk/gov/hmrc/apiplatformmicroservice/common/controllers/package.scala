@@ -31,10 +31,10 @@ package object controllers {
     type ErrorCode = Value
 
     val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
+    val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
   }
 
   object JsErrorResponse {
-
     def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
       Json.obj(
         "code" -> errorCode.toString,

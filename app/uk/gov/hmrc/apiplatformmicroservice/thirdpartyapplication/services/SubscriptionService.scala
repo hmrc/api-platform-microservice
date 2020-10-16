@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
@@ -26,12 +25,16 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionResult
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 
 @Singleton
 class SubscriptionService @Inject()(
   apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
-  def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[String] = {
+  def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     // def versionSubscriptionFuture: Future[Option[VersionSubscription]] = 
     //   fetchAllSubscriptionsForApplication(applicationId) map { apis =>
     //     apis.find(_.context == apiIdentifier.context) flatMap (_.versions.find(_.version.version == apiIdentifier.version))
@@ -67,9 +70,9 @@ class SubscriptionService @Inject()(
     apiDefinitionsForApplicationFetcher.fetchUnrestricted(application, application.deployedTo)
       .map(allowedSubscriptions =>
         (allowdToSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), amISubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
-          case (_, true) => "You're already subscribed"
-          case (false, _) => "case None => throw new NotFoundException(s API $apiIdentifier is not available for application $applicationId)"
-          case _ => "Do it"
+          case (_, true) => CreateSubscriptionDuplicate
+          case (false, _) => CreateSubscriptionDenied
+          case _ => CreateSubscriptionSuccess
       })
 
     // 3. Does remaining apis contain the new subscription
@@ -87,4 +90,12 @@ class SubscriptionService @Inject()(
     //   _ <- auditSubscription(Subscribed, applicationId, apiIdentifier)
     // } yield HasSucceeded
   }
+}
+
+object SubscriptionService {
+  trait CreateSubscriptionResult
+
+  case object CreateSubscriptionSuccess extends CreateSubscriptionResult
+  case object CreateSubscriptionDenied extends CreateSubscriptionResult
+  case object CreateSubscriptionDuplicate extends CreateSubscriptionResult
 }

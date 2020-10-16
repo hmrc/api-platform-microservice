@@ -30,6 +30,11 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.JsErrorResponse
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ErrorCode
 
 @Singleton
 class ApplicationController @Inject() (
@@ -54,7 +59,11 @@ class ApplicationController @Inject() (
       withJsonBody[ApiIdentifier] { api =>
           subscriptionService
             .createSubscriptionForApplication(request.application, request.subscriptions, api)
-            .map(_ => NoContent)
+            .map {
+              case CreateSubscriptionSuccess => NoContent
+              case CreateSubscriptionDenied => ???
+              case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
+            }
       }
   }
 }

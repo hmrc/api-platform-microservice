@@ -45,8 +45,8 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     implicit val mat = ActorMaterializer()
 
     val applicationId = ApplicationId.random
-    val context = ApiContext.random
-    val version = ApiVersion.random
+    val context = ApiContext("hello")
+    val version = ApiVersion("1.0")
 
     val controller = new ApplicationController(
       SubscriptionServiceMock.aMock,
@@ -59,7 +59,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return NO CONTENT when successfully subscribing to API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      SubscriptionServiceMock.willReturnSomething("")
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
     
       val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
 
@@ -70,12 +70,24 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       status(result) shouldBe NO_CONTENT
     }
 
-    "return ??? when the application cannt subscribe to the API" in new Setup() {
+    "return ??? when the application cannot subscribe to the API" in new Setup() {
 
     }
 
-    "return ??? when the application is already subscribed to the API" in new Setup() {
-      
+    "return CONFLICT when the application is already subscribed to the API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
+
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
+
+      val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
+
+      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+
+      status(result) shouldBe CONFLICT
+
+      println(contentAsJson(result))
     }
   }
 }
