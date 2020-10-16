@@ -19,27 +19,21 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup
-      extends ApplicationByIdFetcherModule {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule {
     implicit val headerCarrier = HeaderCarrier()
     implicit val system = ActorSystem("test")
     implicit val mat = ActorMaterializer()
