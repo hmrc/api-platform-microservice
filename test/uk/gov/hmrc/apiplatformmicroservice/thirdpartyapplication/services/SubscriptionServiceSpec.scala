@@ -32,11 +32,18 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionUpdateSuccessResult
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class SubscriptionServiceSpec extends AsyncHmrcSpec {
-  trait Setup extends ApplicationBuilder with ApiDefinitionTestDataHelper {
+  trait Setup extends ApplicationBuilder with ApiDefinitionTestDataHelper with ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     val mockApiDefinitionsForApplicationFetcher = mock[ApiDefinitionsForApplicationFetcher]
-    val underTest = new SubscriptionService(mockApiDefinitionsForApplicationFetcher)
+    val underTest = new SubscriptionService(mockApiDefinitionsForApplicationFetcher, EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
 
     implicit val hc = HeaderCarrier()
     
@@ -56,9 +63,8 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
     val application = buildApplication(appId = applicationId)
   }
 
-
   "createSubscriptionForApplication" should {
-    "CreateSubscriptionDuplicate when tApiContexttion is already subscribed to the API " in new Setup {
+    "CreateSubscriptionDuplicate when application is already subscribed to the API " in new Setup {
       val duplicateApi = apiIdentifierOne
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
@@ -79,6 +85,8 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
     "CreateSubscriptionSuccess when successfully subscribing to API " in new Setup {
       val goodApi = apiIdentifierThree
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
+
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi))
 

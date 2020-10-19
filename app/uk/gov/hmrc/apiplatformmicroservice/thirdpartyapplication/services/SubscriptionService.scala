@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterGateKeeperSubscriptions
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
@@ -29,11 +30,14 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 
 @Singleton
 class SubscriptionService @Inject()(
-  apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher
+  val apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
+  val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
+
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     def allowdToSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.map(api => api.versions.map(version => ApiIdentifier(api.context, version.version))).flatten
@@ -45,27 +49,12 @@ class SubscriptionService @Inject()(
     }
     
     apiDefinitionsForApplicationFetcher.fetchUnrestricted(application, application.deployedTo)
-      .map(allowedSubscriptions =>
+      .flatMap(allowedSubscriptions =>
         (allowdToSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), amISubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
-          case (_, true) => CreateSubscriptionDuplicate
-          case (false, _) => CreateSubscriptionDenied
-          case _ => CreateSubscriptionSuccess // TODO - Call TPA to create subscription here
+          case (_, true) => successful(CreateSubscriptionDuplicate)
+          case (false, _) => successful(CreateSubscriptionDenied)
+          case _ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess)
       })
-
-    // 3. Does remaining apis contain the new subscription
-
-    
-
-    // 4. Do the change - call to TPA!
-
-    // for {
-    //   versionSubscription <- versionSubscriptionFuture
-    //   app <- fetchAppFuture
-    //   _ = checkVersionSubscription(app, versionSubscription)
-    //   _ <- subscriptionRepository.add(applicationId, apiIdentifier)
-    //   _ <- apiPlatformEventService.sendApiSubscribedEvent(app, apiIdentifier.context, apiIdentifier.version)
-    //   _ <- auditSubscription(Subscribed, applicationId, apiIdentifier)
-    // } yield HasSucceeded
   }
 }
 

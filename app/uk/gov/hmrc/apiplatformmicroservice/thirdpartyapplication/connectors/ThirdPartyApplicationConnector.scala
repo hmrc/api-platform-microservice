@@ -17,6 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
+import play.api.http.ContentTypes._
+import play.api.http.HeaderNames._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
@@ -76,6 +78,8 @@ trait ThirdPartyApplicationConnector {
   def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
+
+  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -114,6 +118,12 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
         case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
       }
   }
+
+  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
+    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+      SubscriptionUpdateSuccessResult
+    }
+  }
 }
 
 @Singleton
@@ -147,3 +157,7 @@ class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") val subordinate: ThirdPartyApplicationConnector,
     @Named("principal") val principal: ThirdPartyApplicationConnector)
     extends EnvironmentAware[ThirdPartyApplicationConnector]
+
+sealed trait SubscriptionUpdateResult
+case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
+case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult

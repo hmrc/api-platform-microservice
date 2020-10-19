@@ -79,6 +79,12 @@ trait ThirdPartyApplicationConnectorModule {
         when(aMock.fetchSubscriptionsById(*[ApplicationId])(*)).thenReturn(failed(e))
       }
     }
+
+    object SubscribeToApi {
+      def willReturnSuccess = {
+        when(aMock.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(SubscriptionUpdateSuccessResult))
+      }
+    }
   }
 
   object SubordinateThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
