@@ -22,7 +22,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
@@ -33,12 +32,10 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
-import play.api.http.Status.OK
 import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import play.api.libs.json.JsDefined
-import play.api.libs.json.JsLookupResult
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -52,9 +49,14 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     val version = ApiVersion("1.0")
     val apiIdentifier = ApiIdentifier(context, version)
 
+    val mockAuthConfig = mock[AuthConnector.Config]
+    val mockAuthConnector = mock[AuthConnector]
+
     val controller = new ApplicationController(
       SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
+      mockAuthConfig,
+      mockAuthConnector,
       Helpers.stubControllerComponents()
     )
   }

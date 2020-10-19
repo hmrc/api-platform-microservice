@@ -25,6 +25,8 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeo
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.play.bootstrap.config.RunMode
 
 class ConfigurationModule extends AbstractModule {
 
@@ -36,6 +38,8 @@ class ConfigurationModule extends AbstractModule {
 
     bind(classOf[ApiDefinitionService]).annotatedWith(named("subordinate")).to(classOf[SubordinateApiDefinitionService])
     bind(classOf[ApiDefinitionService]).annotatedWith(named("principal")).to(classOf[PrincipalApiDefinitionService])
+
+    bind(classOf[AuthConnector.Config]).toProvider(classOf[AuthConfigProvider])
   }
 }
 
@@ -81,3 +85,28 @@ class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Co
     SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)
   }
 }
+
+@Singleton
+class AuthConfigProvider @Inject()(val runModeConfiguration: Configuration, runMode: RunMode)
+  extends ServicesConfig(runModeConfiguration, runMode)
+  with Provider[AuthConnector.Config] {
+
+  override def get() = {
+    val url = baseUrl("auth")
+    val userRole = getString("roles.user")
+    val superUserRole = getString("roles.super-user")
+    val adminRole = getString("roles.admin")
+    val enabled = getConfBool("auth.enabled", true)
+    val canDeleteApplications: Boolean = ConfigHelper.getConfig("canDeleteApplications", runModeConfiguration.getOptional[Boolean])
+    val authorisationKey = getString("authorisationKey")
+
+    AuthConnector.Config(url, userRole, superUserRole, adminRole, enabled, canDeleteApplications, authorisationKey)
+  }
+}
+
+object ConfigHelper {
+  def getConfig[T](key: String, f: String => Option[T]): T = {
+    f(key).getOrElse(throw new RuntimeException(s"[$key] is not configured!"))
+  }
+}
+

@@ -29,13 +29,17 @@ import scala.collection.immutable.ListMap
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+
 
 @Singleton
 class ApiDefinitionController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     fetcher: ApiDefinitionsForApplicationFetcher,
+    val authConfig: AuthConnector.Config,
+    val authConnector: AuthConnector,
     controllerComponents: ControllerComponents
-  )(implicit ec: ExecutionContext)
+  )(implicit val ec: ExecutionContext)
     extends BackendController(controllerComponents)
     with ActionBuilders
  {

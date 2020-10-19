@@ -33,15 +33,18 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.JsErrorResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ErrorCode
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.JsErrorResponse
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ErrorCode
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 
 @Singleton
 class ApplicationController @Inject() (
     subscriptionService: SubscriptionService,
     val applicationService: ApplicationByIdFetcher,
+    val authConfig: AuthConnector.Config,
+    val authConnector: AuthConnector,
     cc: ControllerComponents
-  )(implicit ec: ExecutionContext)
+  )(implicit val ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders {
 
   def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
@@ -51,11 +54,7 @@ class ApplicationController @Inject() (
   }
 
   def createSubscriptionForApplication(applicationId: ApplicationId): Action[JsValue] =
-    ApplicationWithSubscriptionDataAction(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
-
-      implicit val httpRequest : Request[JsValue] = request.request
-
-    // TODO : requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request =>
+    RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>
           subscriptionService
             .createSubscriptionForApplication(request.application, request.subscriptions, api)

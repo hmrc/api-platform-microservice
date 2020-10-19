@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJso
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 
 import scala.concurrent.ExecutionContext
 

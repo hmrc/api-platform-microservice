@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
