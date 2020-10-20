@@ -39,18 +39,18 @@ class SubscriptionService @Inject()(
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
-    def allowdToSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
+    def canSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.map(api => api.versions.map(version => ApiIdentifier(api.context, version.version))).flatten
       allVersions.contains(newSubscriptionApiIdentifier)
     }
 
-    def amISubscribed(existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
+    def isSubscribed(existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       existingSubscriptions.contains(newSubscriptionApiIdentifier)
     }
     
     apiDefinitionsForApplicationFetcher.fetchUnrestricted(application, application.deployedTo)
       .flatMap(allowedSubscriptions =>
-        (allowdToSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), amISubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
+        (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => successful(CreateSubscriptionDuplicate)
           case (false, _) => successful(CreateSubscriptionDenied)
           case _ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess)
