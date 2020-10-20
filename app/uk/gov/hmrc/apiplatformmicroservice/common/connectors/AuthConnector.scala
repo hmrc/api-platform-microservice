@@ -36,6 +36,5 @@ object AuthConnector {
                     superUserRole: String,
                     adminRole: String,
                     enabled: Boolean,
-                    canDeleteApplications: Boolean,
                     authorisationKey: String)
 }
