@@ -65,7 +65,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return NO CONTENT when successfully subscribing to API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
@@ -78,7 +78,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return NOT FOUND when the application cannot subscribe to the API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDenied
@@ -95,7 +95,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return CONFLICT when the application is already subscribed to the API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscription")
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
