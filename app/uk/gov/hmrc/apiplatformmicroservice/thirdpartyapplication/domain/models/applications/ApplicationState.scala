@@ -27,6 +27,7 @@ case class ApplicationState(
 
 object ApplicationState {
   val testing = ApplicationState(State.TESTING, None)
+  val production = ApplicationState(State.PRODUCTION, None)
 
   def pendingGatekeeperApproval(requestedBy: String) =
     ApplicationState(State.PENDING_GATEKEEPER_APPROVAL, Some(requestedBy))

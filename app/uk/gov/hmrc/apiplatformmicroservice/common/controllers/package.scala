@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition
+package uk.gov.hmrc.apiplatformmicroservice.common
 
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
@@ -31,10 +31,12 @@ package object controllers {
     type ErrorCode = Value
 
     val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
+    val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
+    val APPLICATION_NOT_FOUND = Value("APPLICATION_NOT_FOUND")
+    val SUBSCRIPTION_DENIED = Value("SUBSCRIPTION_DENIED")
   }
 
   object JsErrorResponse {
-
     def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
       Json.obj(
         "code" -> errorCode.toString,

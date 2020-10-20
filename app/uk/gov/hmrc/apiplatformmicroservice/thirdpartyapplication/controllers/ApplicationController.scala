@@ -23,19 +23,46 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.successful
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.JsErrorResponse
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ErrorCode
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 
 @Singleton
 class ApplicationController @Inject() (
-    cc: ControllerComponents,
-    applicationByIdFetcher: ApplicationByIdFetcher
-  )(implicit ec: ExecutionContext)
-    extends BackendController(cc) {
+    subscriptionService: SubscriptionService,
+    val applicationService: ApplicationByIdFetcher,
+    val authConfig: AuthConnector.Config,
+    val authConnector: AuthConnector,
+    cc: ControllerComponents
+  )(implicit val ec: ExecutionContext)
+    extends BackendController(cc) with ActionBuilders {
 
   def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
     for {
-      oApp <- applicationByIdFetcher.fetchApplicationWithSubscriptionData(ApplicationId(id))
+      oApp <- applicationService.fetchApplicationWithSubscriptionData(ApplicationId(id))
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
+  }
+
+  def createSubscriptionForApplication(applicationId: ApplicationId): Action[JsValue] =
+    RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
+      withJsonBody[ApiIdentifier] { api =>
+          subscriptionService
+            .createSubscriptionForApplication(request.application, request.subscriptions, api)
+            .map {
+              case CreateSubscriptionSuccess => NoContent
+              case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application $applicationId"))
+              case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
+            }
+      }
   }
 }
