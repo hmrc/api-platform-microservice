@@ -27,15 +27,10 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionUpdateSuccessResult
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
@@ -51,7 +46,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
     val apiDefinitionTwo = apiDefinition("two")
     val apiDefinitionThree = apiDefinition("three")
     val apiDefintions = Seq(apiDefinitionOne, apiDefinitionTwo, apiDefinitionThree)
-    when(mockApiDefinitionsForApplicationFetcher.fetchUnrestricted(*, *)(*)).thenReturn(successful(apiDefintions))
+    when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions))
 
     val apiVersionOne = ApiVersion("1.0")
     val apiVersionTwo = ApiVersion("2.0")
@@ -68,7 +63,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
       val duplicateApi = apiIdentifierOne
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
-      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, duplicateApi))
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, duplicateApi, false))
 
       result shouldBe CreateSubscriptionDuplicate
     }
@@ -77,7 +72,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
       val deniedApi = ApiIdentifier(apiDefinitionOne.context, apiVersionTwo)
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
-      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, deniedApi))
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, deniedApi, false))
 
       result shouldBe CreateSubscriptionDenied
     }
@@ -88,7 +83,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
 
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
-      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi))
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi, false))
 
       result shouldBe CreateSubscriptionSuccess
     }

@@ -38,7 +38,7 @@ class SubscriptionService @Inject()(
   val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
-  def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     def canSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.map(api => api.versions.map(version => ApiIdentifier(api.context, version.version))).flatten
       allVersions.contains(newSubscriptionApiIdentifier)
@@ -48,7 +48,7 @@ class SubscriptionService @Inject()(
       existingSubscriptions.contains(newSubscriptionApiIdentifier)
     }
     
-    apiDefinitionsForApplicationFetcher.fetchUnrestricted(application, application.deployedTo)
+    apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, restricted)
       .flatMap(allowedSubscriptions =>
         (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => successful(CreateSubscriptionDuplicate)

@@ -27,7 +27,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
@@ -36,8 +35,9 @@ import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController
 
-class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
     implicit val headerCarrier = HeaderCarrier()
@@ -52,7 +52,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
 
-    val controller = new ApplicationController(
+    val controller = new SubscriptionController(
       SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
@@ -70,7 +70,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
     
-      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+      val result = controller.subscribeToApi(applicationId, Some(false))(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe NO_CONTENT
     }
@@ -83,7 +83,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDenied
 
-      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+      val result = controller.subscribeToApi(applicationId, Some(false))(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe NOT_FOUND
       contentAsJson(result) shouldBe Json.obj(
@@ -100,7 +100,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
 
-      val result = controller.createSubscriptionForApplication(applicationId)(request.withBody(Json.parse(payload)))
+      val result = controller.subscribeToApi(applicationId, Some(false))(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe CONFLICT
       contentAsJson(result) shouldBe Json.obj(

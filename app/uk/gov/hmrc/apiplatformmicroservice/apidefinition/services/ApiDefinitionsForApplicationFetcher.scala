@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -30,13 +29,24 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetchRestricted(application: Application, environment: Environment, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    if(restricted) {
+      fetchRestricted(application, subscriptions)
+    }
+    else {
+      fetchUnrestricted(application)
+    }
+  }
+
+  def fetchRestricted(application: Application, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    val environment = application.deployedTo
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
     } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
   }
 
-  def fetchUnrestricted(application: Application, environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchUnrestricted(application: Application)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+    val environment = application.deployedTo
     for {
       defs <- apiDefinitionService(environment).fetchAllDefinitions
     } yield filterApisForGateKeeperSubscriptions(Set(application.id))(defs)

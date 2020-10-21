@@ -17,13 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{FieldName, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.AccessRequirements
 
 object SubscriptionFieldsDomain {
 
@@ -38,15 +34,6 @@ object SubscriptionFieldsDomain {
       hint: String,
       `type`: String,
       access: AccessRequirements)
-
-  case class SubscriptionFieldValue(definition: SubscriptionFieldDefinition, value: String)
-
-  case class SubscriptionFieldsWrapper(
-      applicationId: ApplicationId,
-      clientId: ClientId,
-      apiContext: String,
-      apiVersion: String,
-      fields: Seq[SubscriptionFieldValue])
 
   type Fields = Map[String, String]
 
