@@ -111,7 +111,7 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       SubscriptionUpdateSuccessResult
     }
   }
