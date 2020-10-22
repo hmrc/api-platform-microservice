@@ -183,7 +183,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val url = s"$baseUrl/application/1234/subscription"
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(new RuntimeException("Bang")))
 
       intercept[RuntimeException] {
@@ -192,14 +192,14 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "handle 5xx from subordinate" in new SubordinateSetup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "handle 5xx from principal" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
@@ -208,7 +208,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "handle Not Found" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", NOT_FOUND)))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", NOT_FOUND)))
 
       intercept[ApplicationNotFound] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -216,14 +216,14 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "return None when appropriate" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(Seq.empty))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Set.empty))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "return the subscription versions that are subscribed to" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(MixedSubscriptions))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
