@@ -26,6 +26,7 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json.JodaWrites._
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
   import uk.gov.hmrc.play.json.Union
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequest
 
   implicit val formatClientId = Json.valueFormat[ClientId]
 
@@ -77,6 +78,8 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   implicit val formatFieldValue = Json.valueFormat[FieldValue]
 
   implicit val formatApplicationWithSubscriptionData = Json.format[ApplicationWithSubscriptionData]
+
+  implicit val formatAddCollaboratorRequest = Json.format[AddCollaboratorRequest]
 
 }
 
