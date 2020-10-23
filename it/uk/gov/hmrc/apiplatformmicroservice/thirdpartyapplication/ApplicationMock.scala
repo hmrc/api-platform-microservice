@@ -50,6 +50,10 @@ trait ApplicationMock {
                        |  "rateLimitTier": "BRONZE",
                        |  "blocked": false,
                        |  "ipWhitelist": [],
+                       |  "ipAllowlist": {
+                       |      "required": false,
+                       |      "allowlist": []
+                       |  },
                        |  "trusted": false
                        |}""".stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
