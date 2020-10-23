@@ -47,9 +47,9 @@ object SubscriptionsHelper {
   val SubsVersionsForA = Seq(SubscriptionVersion(VersionOne.asInner, true), SubscriptionVersion(VersionTwo.asInner, false))
   val SubsVersionsForB = Seq(SubscriptionVersion(VersionTwo.asInner, true))
 
-  val MixedSubscriptions: Seq[Subscription] =
-    Seq(
-      Subscription(ContextA, SubsVersionsForA),
-      Subscription(ContextB, SubsVersionsForB)
+  val MixedSubscriptions: Set[ApiIdentifier] = 
+    Set(
+      ApiIdentifierAOne,
+      ApiIdentifierBTwo
     )
 }

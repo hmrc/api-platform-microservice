@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import play.api.http.Status
+import play.api.http.Status._
 
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
@@ -183,7 +183,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val url = s"$baseUrl/application/1234/subscription"
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(new RuntimeException("Bang")))
 
       intercept[RuntimeException] {
@@ -192,15 +192,15 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "handle 5xx from subordinate" in new SubordinateSetup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "handle 5xx from principal" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.INTERNAL_SERVER_ERROR)))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       intercept[Upstream5xxResponse] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -208,7 +208,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "handle Not Found" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", Status.NOT_FOUND)))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", NOT_FOUND)))
 
       intercept[ApplicationNotFound] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -216,20 +216,35 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "return None when appropriate" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(Seq.empty))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(Future.successful(Set.empty))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "return the subscription versions that are subscribed to" in new Setup {
-      when(mockHttpClient.GET[Seq[Subscription]](eqTo(url))(*, *, *))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.successful(MixedSubscriptions))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
         ApiIdentifier(ContextA, VersionOne),
         ApiIdentifier(ContextB, VersionTwo)
       )
+    }
+  }
+
+  "subscribeToApi" should {
+    import SubscriptionsHelper._
+
+    val apiId = ApiIdentifier(ContextA, VersionOne)
+    val applicationId = ApplicationId("1234")
+    val url = s"$baseUrl/gatekeeper/application/1234/subscription"
+
+    "return the success when everything works" in new Setup {
+      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiId), *)(*,*,*,*))
+        .thenReturn(Future.successful(HttpResponse(OK)))
+
+      await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
     }
   }
 }

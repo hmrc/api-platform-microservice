@@ -51,14 +51,14 @@ class ApiDefinitionController @Inject() (
     if(restricted.getOrElse(true)) {
       ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
         for {
-          defs <- fetcher.fetchRestricted(request.application, request.deployedTo, request.subscriptions)
+          defs <- fetcher.fetchRestricted(request.application, request.subscriptions)
           converted = convert(defs)
         } yield Ok(Json.toJson(converted))
       }
     } else {
       ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
         for {
-          defs <- fetcher.fetchUnrestricted(request.application, request.deployedTo)
+          defs <- fetcher.fetchUnrestricted(request.application)
           converted = convert(defs)
         } yield Ok(Json.toJson(converted))
       }

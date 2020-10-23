@@ -68,60 +68,12 @@ trait ApplicationMock {
           .withBody("""
                       |[
                       |    {
-                      |        "name": "Individual Benefits",
-                      |        "serviceName": "individual-benefits",
                       |        "context": "individual-benefits",
-                      |        "versions": [
-                      |            {
-                      |                "version": {
-                      |                    "version": "1.0",
-                      |                    "status": "DEPRECATED",
-                      |                    "access": {
-                      |                        "type": "PUBLIC"
-                      |                    }
-                      |                },
-                      |                "subscribed": false
-                      |            },
-                      |            {
-                      |                "version": {
-                      |                    "version": "1.1",
-                      |                    "status": "BETA",
-                      |                    "access": {
-                      |                        "type": "PUBLIC"
-                      |                    }
-                      |                },
-                      |                "subscribed": false
-                      |            }
-                      |        ],
-                      |        "isTestSupport": false
+                      |        "version": "1.0"
                       |    },
                       |    {
-                      |        "name": "Individual Employment",
-                      |        "serviceName": "individual-employment",
                       |        "context": "individual-employment",
-                      |        "versions": [
-                      |            {
-                      |                "version": {
-                      |                    "version": "1.0",
-                      |                    "status": "DEPRECATED",
-                      |                    "access": {
-                      |                        "type": "PUBLIC"
-                      |                    }
-                      |                },
-                      |                "subscribed": false
-                      |            },
-                      |            {
-                      |                "version": {
-                      |                    "version": "1.1",
-                      |                    "status": "BETA",
-                      |                    "access": {
-                      |                        "type": "PUBLIC"
-                      |                    }
-                      |                },
-                      |                "subscribed": false
-                      |            }
-                      |        ],
-                      |        "isTestSupport": false
+                      |        "version": "1.0"
                       |    }
                       |]
           """.stripMargin)

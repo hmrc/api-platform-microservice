@@ -45,14 +45,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
   private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
 
-  def asSetOfSubscriptions(input: Seq[Subscription]): Set[ApiIdentifier] = {
-    input
-      .flatMap(ss => ss.versions.map(vs => (ss.context, vs.version, vs.subscribed)))
-      .filter(_._3)
-      .map(t => models.ApiIdentifier(t._1, t._2.version))
-      .toSet
-  }
-
   private[connectors] object JsonFormatters extends CommonJsonFormatters {
     import play.api.libs.json._
 
@@ -112,15 +104,14 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   }
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    http.GET[Seq[Subscription]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
-      .map(asSetOfSubscriptions)
+    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .recover {
         case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
       }
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
+    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
       SubscriptionUpdateSuccessResult
     }
   }
