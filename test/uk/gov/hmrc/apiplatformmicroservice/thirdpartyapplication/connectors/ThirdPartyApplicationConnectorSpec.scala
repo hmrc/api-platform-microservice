@@ -238,7 +238,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     val apiId = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId("1234")
-    val url = s"$baseUrl/gatekeeper/application/1234/subscription"
+    val url = s"$baseUrl/application/1234/subscription"
 
     "return the success when everything works" in new Setup {
       when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiId), *)(*,*,*,*))
