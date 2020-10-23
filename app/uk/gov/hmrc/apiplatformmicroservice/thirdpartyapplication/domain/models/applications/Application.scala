@@ -48,7 +48,8 @@ case class Application(
     rateLimitTier: String = "BRONZE",
     blocked: Boolean = false,
     checkInformation: Option[CheckInformation] = None,
-    ipWhitelist: Set[String] = Set.empty)
+    ipWhitelist: Set[String] = Set.empty,
+    ipAllowlist: IpAllowlist = IpAllowlist())
 
 case class ApplicationWithSubscriptionData(
     application: Application,

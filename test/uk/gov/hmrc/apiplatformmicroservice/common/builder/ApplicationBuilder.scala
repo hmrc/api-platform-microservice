@@ -112,7 +112,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
     def noCheckInformation = app.copy(checkInformation = None)
 
-    def allowIPs(ips: String*) = app.copy(ipWhitelist = app.ipWhitelist ++ ips)
+    def allowIPs(ips: String*) = app.copy(ipAllowlist = app.ipAllowlist.copy(allowlist = app.ipAllowlist.allowlist ++ ips))
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)

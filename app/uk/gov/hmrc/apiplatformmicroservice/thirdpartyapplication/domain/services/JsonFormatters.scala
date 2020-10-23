@@ -70,6 +70,8 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
     .and[ROPC](AccessType.ROPC.toString)
     .format
 
+  implicit val formatIpAllowlist = Json.format[IpAllowlist]
+
   implicit val formatApplication: Format[Application] = Json.format[Application]
 
   implicit val formatFieldValue = Json.valueFormat[FieldValue]
