@@ -31,6 +31,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.PublicApiAccess
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersionDefinition
 
 @Singleton
 class SubscriptionService @Inject()(
@@ -39,8 +41,17 @@ class SubscriptionService @Inject()(
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    def isPublic(in: ApiVersionDefinition) = in.access match {
+      case PublicApiAccess() => true
+      case _ => false      
+    }
+    
+    def removePrivateVersions(in: Seq[APIDefinition]): Seq[APIDefinition] = 
+      in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
+
     def canSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
-      val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.map(api => api.versions.map(version => ApiIdentifier(api.context, version.version))).flatten
+      val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.version)))
+
       allVersions.contains(newSubscriptionApiIdentifier)
     }
 
@@ -49,12 +60,17 @@ class SubscriptionService @Inject()(
     }
     
     apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, restricted)
-      .flatMap(allowedSubscriptions =>
+      .flatMap(possibleSubscriptions => {
+        
+        val allowedSubscriptions = if(restricted) removePrivateVersions(possibleSubscriptions) else possibleSubscriptions
+
         (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => successful(CreateSubscriptionDuplicate)
           case (false, _) => successful(CreateSubscriptionDenied)
           case _ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess)
-      })
+        }
+      }
+    )
   }
 }
 
