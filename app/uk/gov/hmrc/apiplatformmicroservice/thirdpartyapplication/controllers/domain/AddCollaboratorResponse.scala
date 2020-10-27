@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.builder
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-
-trait CollaboratorsBuilder {
-  def buildCollaborators(collaborators: Seq[(String, Role)]): Set[Collaborator] = {
-    collaborators.map(
-      n => Collaborator(n._1, n._2)
-    ).toSet
-  }
-  def buildCollaborator(email: String, role: Role): Collaborator = {
-    Collaborator(email, role)
-  }
+case class AddCollaboratorResponse(registeredUser: Boolean)
+object AddCollaboratorResponse {
+  import play.api.libs.json._
+  implicit val addCollaboratorResponseFormat = Json.format[AddCollaboratorResponse]
 }

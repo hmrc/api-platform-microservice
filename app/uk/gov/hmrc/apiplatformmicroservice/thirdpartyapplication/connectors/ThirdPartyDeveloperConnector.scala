@@ -20,11 +20,12 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
 import play.api.http.Status._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
-import domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
@@ -34,10 +35,9 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
+private[thirdpartyapplication] object AbstractThirdPartyDeveloperConnector extends CommonJsonFormatters {
 
   class ApplicationNotFound extends RuntimeException
-  class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
 
@@ -61,13 +61,9 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
       applicationUseProxy: Boolean,
       applicationBearerToken: String,
       applicationApiKey: String)
-
-  private def recovery: PartialFunction[Throwable, Nothing] = {
-    case _: NotFoundException => throw new ApplicationNotFound
-  }
 }
 
-trait ThirdPartyApplicationConnector {
+trait ThirdPartyDeveloperConnector {
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
 
   def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
@@ -78,16 +74,15 @@ trait ThirdPartyApplicationConnector {
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
-  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse]
 }
 
-private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
+private[thirdpartyapplication] abstract class AbstractThirdPartyDeveloperConnector(implicit val ec: ExecutionContext) extends ThirdPartyDeveloperConnector {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
   import AbstractThirdPartyApplicationConnector.JsonFormatters._
 
   protected val httpClient: HttpClient
   protected val proxiedHttpClient: ProxiedHttpClient
-  protected val config: AbstractThirdPartyApplicationConnector.Config
+  protected val config: AbstractThirdPartyDeveloperConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
   // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
@@ -122,24 +117,16 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       SubscriptionUpdateSuccessResult
     }
   }
-
-  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse] = {
-    http.POST[AddCollaboratorToTpaRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest, Seq(CONTENT_TYPE -> JSON)) map { result =>
-      result.json.as[AddCollaboratorToTpaResponse]
-    } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
-    } recover recovery
-  }
 }
 
 @Singleton
 @Named("subordinate")
-class SubordinateThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") override val config: AbstractThirdPartyApplicationConnector.Config,
+class SubordinateThirdPartyDeveloperConnector @Inject() (
+    @Named("subordinate") override val config: AbstractThirdPartyDeveloperConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyApplicationConnector {
+    extends AbstractThirdPartyDeveloperConnector {
 
   override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     super.fetchSubscriptionsById(applicationId)
@@ -151,19 +138,15 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
 
 @Singleton
 @Named("principal")
-class PrincipalThirdPartyApplicationConnector @Inject() (
-    @Named("principal") override val config: AbstractThirdPartyApplicationConnector.Config,
+class PrincipalThirdPartyDeveloperConnector @Inject() (
+    @Named("principal") override val config: AbstractThirdPartyDeveloperConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyApplicationConnector
+    extends AbstractThirdPartyDeveloperConnector
 
 @Singleton
-class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
-    @Named("subordinate") val subordinate: ThirdPartyApplicationConnector,
-    @Named("principal") val principal: ThirdPartyApplicationConnector)
-    extends EnvironmentAware[ThirdPartyApplicationConnector]
-
-sealed trait SubscriptionUpdateResult
-case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
-case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult
+class EnvironmentAwareThirdPartyDeveloperConnector @Inject() (
+    @Named("subordinate") val subordinate: ThirdPartyDeveloperConnector,
+    @Named("principal") val principal: ThirdPartyDeveloperConnector)
+    extends EnvironmentAware[ThirdPartyDeveloperConnector]
