@@ -25,12 +25,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
-    appIdsFetcher: ApplicationIdsForCollaboratorFetcher
+    appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
+    subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
   )(implicit ec: ExecutionContext) {
 
   def fetch(serviceName: String, email: Option[String])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
@@ -38,13 +40,15 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
       applicationIds <- email.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch(_))
-    } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, email)
+      subscriptions <- email.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch(_))
+    } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, email)
   }
 
   private def createExtendedApiDefinition(
       maybePrincipalDefinition: Option[APIDefinition],
       maybeSubordinateDefinition: Option[APIDefinition],
       applicationIds: Set[ApplicationId],
+      subscriptions: Set[ApiIdentifier],
       email: Option[String]
     ): Option[ExtendedAPIDefinition] = {
 
@@ -56,7 +60,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       if (apiDefinition.requiresTrust) {
         None
       } else {
-        val extendedVersions = createExtendedApiVersions(principalVersions, subordinateVersions, applicationIds, email)
+        val extendedVersions = createExtendedApiVersions(apiDefinition.context, principalVersions, subordinateVersions, applicationIds, subscriptions, email)
         if (extendedVersions.isEmpty) {
           None
         } else {
@@ -85,33 +89,37 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def createExtendedApiVersions(
+      context: ApiContext, 
       principalVersions: Seq[ApiVersionDefinition],
       subordinateVersions: Seq[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
+      subscriptions: Set[ApiIdentifier],
       email: Option[String]
     ): Seq[ExtendedAPIVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
     allVersions map { version =>
-      combineVersion(principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, email)
+      combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, email)
     } filter { version =>
       version.status != RETIRED
     }
   }
 
   private def combineVersion(
+      context: ApiContext, 
       maybePrincipalVersion: Option[ApiVersionDefinition],
       maybeSubordinateVersion: Option[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
+      subscriptions: Set[ApiIdentifier],
       email: Option[String]
     ): ExtendedAPIVersion = {
 
     (maybePrincipalVersion, maybeSubordinateVersion) match {
       case (Some(principalVersion), None)                     =>
-        toExtendedApiVersion(principalVersion, availability(principalVersion, applicationIds, email), None)
+        toExtendedApiVersion(principalVersion, availability(context, principalVersion, applicationIds, subscriptions, email), None)
       case (None, Some(subordinateVersion))                   =>
-        toExtendedApiVersion(subordinateVersion, None, availability(subordinateVersion, applicationIds, email))
+        toExtendedApiVersion(subordinateVersion, None, availability(context, subordinateVersion, applicationIds, subscriptions, email))
       case (Some(principalVersion), Some(subordinateVersion)) =>
-        toExtendedApiVersion(subordinateVersion, availability(principalVersion, applicationIds, email), availability(subordinateVersion, applicationIds, email))
+        toExtendedApiVersion(subordinateVersion, availability(context, principalVersion, applicationIds, subscriptions, email), availability(context, subordinateVersion, applicationIds, subscriptions, email))
       case (None, None)                                       =>
         throw new IllegalStateException("It's impossible to get here from the call site")
     }
@@ -120,7 +128,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def toExtendedApiVersion(
       apiVersion: ApiVersionDefinition,
       productionAvailability: Option[APIAvailability],
-      sandboxAvailability: Option[APIAvailability]
+      sandboxAvailability: Option[APIAvailability],
     ): ExtendedAPIVersion = {
     ExtendedAPIVersion(
       version = apiVersion.version,
@@ -131,10 +139,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(version: ApiVersionDefinition, applicationIds: Set[ApplicationId], email: Option[String]): Option[APIAvailability] = {
+  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], email: Option[String]): Option[APIAvailability] = {
     version.access match {
       case PrivateApiAccess(whitelist, isTrial) =>
-        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised = applicationIds.intersect(whitelist.toSet).nonEmpty))
+        val authorised = applicationIds.intersect(whitelist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
+        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), email.isDefined, authorised))
       case _                                    => Some(APIAvailability(version.endpointsEnabled, PublicApiAccess(), email.isDefined, authorised = true))
     }
   }
