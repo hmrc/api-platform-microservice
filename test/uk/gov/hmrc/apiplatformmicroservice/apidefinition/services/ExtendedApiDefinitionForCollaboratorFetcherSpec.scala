@@ -24,13 +24,15 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val versionOne = ApiVersion("1.0")
   private val versionTwo = ApiVersion("2.0")
 
-  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
     val applicationId = "app-1"
@@ -48,7 +50,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
       PrincipalApiDefinitionServiceMock.aMock,
       SubordinateApiDefinitionServiceMock.aMock,
-      ApplicationIdsForCollaboratorFetcherMock.aMock
+      ApplicationIdsForCollaboratorFetcherMock.aMock,
+      SubscriptionsForCollaboratorFetcherMock.aMock
     )
 
     val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
@@ -157,6 +160,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
 
@@ -167,11 +171,23 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
 
       result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
     }
 
+    "return true when applications ids are not matching but it is subscribed to" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
+      val apiId = ApiIdentifier(apiWithWhitelisting.context, apiWithWhitelisting.versions.head.version)
+      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
+
+      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
+
+      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
+    }
   }
 }

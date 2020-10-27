@@ -35,8 +35,6 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
     val r = http.GET[Seq[APIDefinition]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
 
-    r.foreach(_.foreach(defn => Logger.info(s"Found ${defn.name}")))
-
     r.map(e => e.sortBy(_.name))
       .recover {
         case _: NotFoundException =>
