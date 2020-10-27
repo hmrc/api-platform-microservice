@@ -128,7 +128,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   private def toExtendedApiVersion(
       apiVersion: ApiVersionDefinition,
       productionAvailability: Option[APIAvailability],
-      sandboxAvailability: Option[APIAvailability],
+      sandboxAvailability: Option[APIAvailability]
     ): ExtendedAPIVersion = {
     ExtendedAPIVersion(
       version = apiVersion.version,
