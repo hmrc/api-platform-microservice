@@ -41,9 +41,6 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
       applicationIds <- email.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch(_))
       subscriptions <- email.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch(_))
-      _ = println(s"$email  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-      _ = println(subscriptions.mkString("\n"))
-      _ = println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, email)
   }
 
