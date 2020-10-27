@@ -19,20 +19,22 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import javax.inject.{Inject, Named, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
-    @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
-    @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector
+    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-      def addCollaborator(application: Application, email: String, role: Role): Future[Unit] = Future.successful(())
+      def addCollaborator(application: Application, email: String, role: Role)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse] = {
+        Future.successful(AddCollaboratorToTpaResponse(true))
+      }
 
     }
