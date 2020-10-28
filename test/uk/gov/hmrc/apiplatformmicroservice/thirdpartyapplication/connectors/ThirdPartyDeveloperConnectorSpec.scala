@@ -16,133 +16,64 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import play.api.http.HeaderNames.CONTENT_TYPE
-import play.api.http.Status._
-import play.api.libs.json.Json
-import play.api.test.Helpers.JSON
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.CollaboratorsBuilder
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse, TeamMemberAlreadyExists}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Role}
+import org.joda.time.DateTime
+import play.api.http.Status
+import play.api.http.Status.OK
+import play.api.libs.json.{JsString, JsValue, Json}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.Future.failed
+import scala.concurrent.Future.{failed, successful}
 
 class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
 
-//  private val helloWorldContext = ApiContext("hello-world")
-//  private val versionOne = ApiVersion("1.0")
-//  private val versionTwo = ApiVersion("2.0")
-//
-//  private val applicationIdOne = ApplicationId("app id 1")
-//  private val applicationIdTwo = ApplicationId("app id 2")
-
   private val baseUrl = "https://example.com"
+  private val jsonEncryptionKey = "jsonEncryptionKey"
 
-  class Setup(proxyEnabled: Boolean = false) {
+  trait Setup {
     implicit val hc = HeaderCarrier()
     protected val mockHttpClient = mock[HttpClient]
-    protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer = "TestBearerToken"
 
-    val connector = new AbstractThirdPartyDeveloperConnector {
-      val httpClient = mockHttpClient
-      val proxiedHttpClient = mockProxiedHttpClient
+    def endpoint(path: String) = s"${connector.serviceBaseUrl}/$path"
 
-      val config = AbstractThirdPartyDeveloperConnector.Config(
-        baseUrl,
-        proxyEnabled,
-        bearer,
-        apiKeyTest
-      )
-    }
+    val mockPayloadEncryption: PayloadEncryption = mock[PayloadEncryption]
+    val encryptedJson = new EncryptedJson(mockPayloadEncryption)
+    val config = ThirdPartyDeveloperConnector.Config(baseUrl, jsonEncryptionKey)
+    val connector = new ThirdPartyDeveloperConnector(config, mockHttpClient, encryptedJson)
+
+    val encryptedString: JsString = JsString("someEncryptedStringOfData")
+    val encryptedBody: JsValue = Json.toJson(SecretRequest(encryptedString.as[String]))
+    when(mockPayloadEncryption.encrypt(*)(*)).thenReturn(encryptedString)
   }
 
-  class SubordinateSetup(proxyEnabled: Boolean = false) extends Setup(proxyEnabled) {
+  "createUnregisteredUser" should {
+    val unregisteredUserEmail = "unregistered@example.com"
+    val userId = UserId.random
+    val unregisteredUserResponse = UnregisteredUserResponse(email = unregisteredUserEmail, DateTime.now, userId)
 
-    val config = AbstractThirdPartyDeveloperConnector.Config(
-      baseUrl,
-      proxyEnabled,
-      bearer,
-      apiKeyTest
-    )
+    "successfully create an unregistered user" in new Setup {
 
-    override val connector = new SubordinateThirdPartyDeveloperConnector(
-      config,
-      mockHttpClient,
-      mockProxiedHttpClient
-    ) {}
-  }
+      when[Future[HttpResponse]](mockHttpClient.POST(eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
+        .thenReturn(successful(HttpResponse(OK, Some(Json.toJson(unregisteredUserResponse)))))
 
-  class CollaboratorSetup extends Setup with CollaboratorsBuilder {
-    val applicationId = ApplicationId.random
-    val requestorEmail = "requestor@example.com"
-    val newTeamMemberEmail = "newTeamMember@example.com"
-    val adminsToEmail = Set("bobby@example.com", "daisy@example.com")
-    val newCollaborator = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
-    val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
-    val url = s"$baseUrl/application/${applicationId.value}/collaborator"
-  }
+      val result: UnregisteredUserResponse = await(connector.createUnregisteredUser(unregisteredUserEmail))
 
-  "http" when {
-    "configured not to use the proxy" should {
-      "use the HttpClient" in new Setup(proxyEnabled = false) {
-        connector.http shouldBe mockHttpClient
-      }
+      result.userId shouldBe userId
+      result.email shouldBe unregisteredUserEmail
+      verify(mockPayloadEncryption).encrypt(eqTo(Json.toJson(UnregisteredUserCreationRequest(unregisteredUserEmail))))(*)
     }
 
-    "configured to use the proxy" should {
-      "use the ProxiedHttpClient with the correct authorisation" in new Setup(proxyEnabled = true) {
-        when(mockProxiedHttpClient.withHeaders(bearer, apiKeyTest)).thenReturn(mockProxiedHttpClient)
+    "propagate error when the request fails" in new Setup {
+      when[Future[HttpResponse]](mockHttpClient.POST(eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
+        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
 
-        connector.http shouldBe mockProxiedHttpClient
-
-        verify(mockProxiedHttpClient).withHeaders(bearer, apiKeyTest)
-      }
-    }
-  }
-
-  "addTeamMember" should {
-    "return success" in new CollaboratorSetup {
-      val addTeamMemberResponse = AddCollaboratorToTpaResponse(true)
-
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(Future.successful(HttpResponse(OK, Some(Json.toJson(addTeamMemberResponse)))))
-
-      val result = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-
-      result shouldEqual addTeamMemberResponse
-    }
-
-    "return teamMember already exists response" in new CollaboratorSetup {
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(failed(Upstream4xxResponse("409 exception", CONFLICT, CONFLICT)))
-
-      intercept[TeamMemberAlreadyExists] {
-        await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-      }
-    }
-
-    "return application not found response" in new CollaboratorSetup {
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(failed(new NotFoundException("")))
-
-      intercept[ApplicationNotFound] {
-        await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+      intercept[Upstream5xxResponse] {
+        await(connector.createUnregisteredUser(unregisteredUserEmail))
       }
     }
   }
