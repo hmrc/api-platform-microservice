@@ -16,137 +16,54 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
-import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
+import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse._
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[thirdpartyapplication] object AbstractThirdPartyDeveloperConnector extends CommonJsonFormatters {
+private[thirdpartyapplication] object ThirdPartyDeveloperConnector extends CommonJsonFormatters {
 
   class ApplicationNotFound extends RuntimeException
 
-  private[connectors] case class ApplicationResponse(id: ApplicationId)
-
-  // N.B. This is a small subsection of the model that is normally returned
-  private[connectors] case class InnerVersion(version: ApiVersion)
-  private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
-  private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
-
-  private[connectors] object JsonFormatters extends CommonJsonFormatters {
-    import play.api.libs.json._
-
-    implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
-    implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
-    implicit val readsInnerVersion = Json.reads[InnerVersion]
-    implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
-    implicit val readsSubscription = Json.reads[Subscription]
-  }
-
   case class Config(
       applicationBaseUrl: String,
-      applicationUseProxy: Boolean,
-      applicationBearerToken: String,
-      applicationApiKey: String)
+      jsonEncryptionKey: String)
 }
 
-trait ThirdPartyDeveloperConnector {
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
+@Singleton
+private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
+           val config: ThirdPartyDeveloperConnector.Config,
+           http: HttpClient,
+           encryptedJson: EncryptedJson) (implicit val ec: ExecutionContext) {
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
-
-  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
-
-  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
-
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
-
-}
-
-private[thirdpartyapplication] abstract class AbstractThirdPartyDeveloperConnector(implicit val ec: ExecutionContext) extends ThirdPartyDeveloperConnector {
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
-  import AbstractThirdPartyApplicationConnector.JsonFormatters._
-
-  protected val httpClient: HttpClient
-  protected val proxiedHttpClient: ProxiedHttpClient
-  protected val config: AbstractThirdPartyDeveloperConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
+  lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
-  // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
-  lazy val useProxy: Boolean = config.applicationUseProxy
-  lazy val bearerToken: String = config.applicationBearerToken
-  lazy val apiKey: String = config.applicationApiKey
-
-  def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
+  def fetchByEmails(emails: Set[String])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
+    http.GET[Seq[UserResponse]](s"$serviceBaseUrl/developers", Seq("emails" -> emails.mkString(",")))
   }
 
-  def fetchApplicationsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email))
-      .map(_.map(_.id))
-  }
-
-  def fetchSubscriptionsByEmail(email: String)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
-  }
-
-  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
-      .recover {
-        case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
+  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Option[UserResponse]] = {
+      http.GET[UserResponse](s"$serviceBaseUrl/developer", Seq("email" -> email)) map { result =>
+        Option(result)
+      } recover {
+        case _: NotFoundException => None
       }
   }
 
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
-      SubscriptionUpdateSuccessResult
-    }
+  def createUnregisteredUser(email: String)(implicit hc: HeaderCarrier): Future[UnregisteredUserResponse] = {
+    encryptedJson.secretRequestJson[UnregisteredUserResponse](
+      Json.toJson(UnregisteredUserCreationRequest(email)), { secretRequestJson =>
+        http.POST(s"$serviceBaseUrl/unregistered-developer", secretRequestJson, Seq(CONTENT_TYPE -> JSON)) map { result =>
+          result.json.as[UnregisteredUserResponse]
+        }
+      })
   }
 }
-
-@Singleton
-@Named("subordinate")
-class SubordinateThirdPartyDeveloperConnector @Inject() (
-    @Named("subordinate") override val config: AbstractThirdPartyDeveloperConnector.Config,
-    override val httpClient: HttpClient,
-    override val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyDeveloperConnector {
-
-  override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    super.fetchSubscriptionsById(applicationId)
-      .recover {
-        case Upstream5xxResponse(_, _, _, _) => Set.empty // TODO - really mask this ?
-      }
-  }
-}
-
-@Singleton
-@Named("principal")
-class PrincipalThirdPartyDeveloperConnector @Inject() (
-    @Named("principal") override val config: AbstractThirdPartyDeveloperConnector.Config,
-    override val httpClient: HttpClient,
-    override val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyDeveloperConnector
-
-@Singleton
-class EnvironmentAwareThirdPartyDeveloperConnector @Inject() (
-    @Named("subordinate") val subordinate: ThirdPartyDeveloperConnector,
-    @Named("principal") val principal: ThirdPartyDeveloperConnector)
-    extends EnvironmentAware[ThirdPartyDeveloperConnector]

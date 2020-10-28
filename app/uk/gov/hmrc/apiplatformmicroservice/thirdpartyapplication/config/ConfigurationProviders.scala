@@ -34,5 +34,7 @@ class ConfigurationModule extends AbstractModule {
 
     bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateSubscriptionFieldsConnector])
     bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalSubscriptionFieldsConnector])
+
+    bind(classOf[ThirdPartyDeveloperConnector.Config]).toProvider(classOf[ThirdPartyDeveloperConnectorConfigurationProvider])
   }
 }
