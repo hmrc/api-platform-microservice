@@ -51,9 +51,7 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   }
 
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Option[UserResponse]] = {
-      http.GET[UserResponse](s"$serviceBaseUrl/developer", Seq("email" -> email)) map { result =>
-        Option(result)
-      } recover {
+      http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email)) recover {
         case _: NotFoundException => None
       }
   }

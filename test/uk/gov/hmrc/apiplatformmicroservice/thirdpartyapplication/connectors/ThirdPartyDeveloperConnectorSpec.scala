@@ -20,7 +20,8 @@ import org.joda.time.DateTime
 import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsString, JsValue, Json}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
@@ -51,6 +52,20 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
     when(mockPayloadEncryption.encrypt(*)(*)).thenReturn(encryptedString)
   }
 
+  trait UserResponseSetup extends Setup with UserResponseBuilder {
+    val userId = UserId.random
+    val admin1UserId = UserId.random
+    val admin2UserId = UserId.random
+    val userEmail = "user@example.com"
+    val admin1Email = "admin1@example.com"
+    val admin2Email = "admin2@example.com"
+    val emailsToFetch = Set(admin1Email, admin2Email)
+    val verifiedUserResponse = buildUserResponse(userId, userEmail)
+    val admin1UserResponse = buildUserResponse(admin1UserId, admin1Email)
+    val admin2UserResponse = buildUserResponse(admin2UserId, admin2Email)
+
+  }
+
   "createUnregisteredUser" should {
     val unregisteredUserEmail = "unregistered@example.com"
     val userId = UserId.random
@@ -74,6 +89,52 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
 
       intercept[Upstream5xxResponse] {
         await(connector.createUnregisteredUser(unregisteredUserEmail))
+      }
+    }
+  }
+
+  "fetchByEmails" should {
+    "return the correct UserResponse" in new UserResponseSetup {
+      when(mockHttpClient.GET[Seq[UserResponse]](eqTo(endpoint("developers")), eqTo(Seq("emails" -> emailsToFetch.mkString(","))))(*, *, *))
+        .thenReturn(Future.successful(Seq(admin1UserResponse, admin2UserResponse)))
+
+      await(connector.fetchByEmails(emailsToFetch)) shouldBe Seq(admin1UserResponse, admin2UserResponse)
+
+    }
+
+    "propagate error when the request fails" in new UserResponseSetup {
+      when(mockHttpClient.GET[Seq[UserResponse]](eqTo(endpoint("developers")), eqTo(Seq("emails" -> emailsToFetch.mkString(","))))(*, *, *))
+        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchByEmails(emailsToFetch))
+      }
+    }
+  }
+
+  "fetchDeveloper" should {
+    "return the correct UserResponse" in new UserResponseSetup {
+      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
+        .thenReturn(Future.successful(Some(verifiedUserResponse)))
+
+      await(connector.fetchDeveloper(userEmail)) shouldBe Some(verifiedUserResponse)
+
+    }
+
+    "return None upon getting NotFoundException" in new UserResponseSetup {
+      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
+        .thenReturn(failed(new NotFoundException("")))
+
+      await(connector.fetchDeveloper(userEmail)) shouldBe None
+
+    }
+
+    "propagate error when the request fails" in new UserResponseSetup {
+      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
+        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+
+      intercept[Upstream5xxResponse] {
+        await(connector.fetchDeveloper(userEmail))
       }
     }
   }
