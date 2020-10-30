@@ -42,8 +42,8 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     val newCollaboratorEmail = "newCollaborator@testuser.com"
     val newCollaboratorUserId = UserId.random
-    val newCollaborator = Collaborator(newCollaboratorEmail, Role.DEVELOPER)
-    val newCollaboratorUserResponse = buildUserResponse(email = newCollaboratorEmail)
+    val newCollaborator = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
+    val newCollaboratorUserResponse = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
     val requesterEmail = "adminRequester@example.com"
@@ -51,17 +51,17 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
     val unverifiedAdminEmail = "unverifiedAdmin@example.com"
     val adminEmailsMinusRequester = Set(verifiedAdminEmail, unverifiedAdminEmail)
     val adminEmails = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
-    val adminMinusRequesterUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail), buildUserResponse(email = unverifiedAdminEmail, verified = false))
-    val adminUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail),
-      buildUserResponse(email = unverifiedAdminEmail, verified = false),
-      buildUserResponse(email = requesterEmail)
+    val adminMinusRequesterUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random), buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random))
+    val adminUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random),
+      buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random),
+      buildUserResponse(email = requesterEmail, userId = UserId.random)
     )
 
     val productionApplication = buildApplication().deployedToProduction.withCollaborators(Set(
-      Collaborator("collaborator1@example.com", Role.DEVELOPER),
-      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR),
-      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR),
-      Collaborator(requesterEmail, Role.ADMINISTRATOR)))
+      Collaborator("collaborator1@example.com", Role.DEVELOPER, None),
+      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
+      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
+      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)))
 
     val addCollaboratorToTpaRequestWithRequesterEmail = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
     val addCollaboratorToTpaRequestWithoutRequesterEmail = AddCollaboratorToTpaRequest("", newCollaborator, true, Set(verifiedAdminEmail, requesterEmail))

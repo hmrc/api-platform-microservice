@@ -18,7 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator, Role}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,7 +36,19 @@ class ApplicationCollaboratorService @Inject() (
       def addCollaborator(app: Application, email: String, role: Role, requestingEmail: Option[String])
                          (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
 
-        val collaborator = Collaborator(email, role)
+        def getUserId(collaboratorEmail: String): Future[UserId] = {
+
+          def getUnregisteredUserId(unregisteredCollaboratorEmail: String): Future[UserId] = {
+            thirdPartyDeveloperConnector.createUnregisteredUser(unregisteredCollaboratorEmail).map(unregisteredUserResponse => unregisteredUserResponse.userId)
+          }
+
+          thirdPartyDeveloperConnector.fetchDeveloper(collaboratorEmail)
+            .flatMap((maybeUserResponse: Option[UserResponse]) => {
+              maybeUserResponse
+                .fold(getUnregisteredUserId(collaboratorEmail))((userResponse: UserResponse) => Future.successful(userResponse.userId))
+            })
+        }
+
         val otherAdminEmails = app.collaborators
           .filter(_.role.isAdministrator)
           .map(_.emailAddress)
@@ -44,8 +57,8 @@ class ApplicationCollaboratorService @Inject() (
         for {
           otherAdmins <- thirdPartyDeveloperConnector.fetchByEmails(otherAdminEmails)
           adminsToEmail = otherAdmins.filter(_.verified).map(_.email)
-          developer <- thirdPartyDeveloperConnector.fetchDeveloper(collaborator.emailAddress)
-          _ <- if (developer.isEmpty) thirdPartyDeveloperConnector.createUnregisteredUser(collaborator.emailAddress) else Future.successful(())
+          userId <- getUserId(email)
+          collaborator = Collaborator(email, role, Some(userId))
           //TODO: handle requestingEmail being None when called from GK
           //TODO: AddCollaboratorToTpaRequest.isRegistered flag is being hard coded here as it isn't used in TPA
           request = AddCollaboratorToTpaRequest(requestingEmail.getOrElse(""), collaborator, true, adminsToEmail.toSet)
