@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AddCollaboratorResult
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 
@@ -28,8 +29,8 @@ trait ApplicationCollaboratorServiceModule extends MockitoSugar with ArgumentMat
     val aMock = mock[ApplicationCollaboratorService]
 
     object AddCollaborator {
-      def willReturnAddCollaboratorResponse(addCollaboratorResponse: AddCollaboratorToTpaResponse) = {
-        when(aMock.addCollaborator(*, *, *)(*)).thenReturn(Future.successful(addCollaboratorResponse))
+      def willReturnAddCollaboratorResponse(addCollaboratorResponse: AddCollaboratorResult) = {
+        when(aMock.addCollaborator(*, *, *, *)(*)).thenReturn(Future.successful(addCollaboratorResponse))
       }
     }
   }

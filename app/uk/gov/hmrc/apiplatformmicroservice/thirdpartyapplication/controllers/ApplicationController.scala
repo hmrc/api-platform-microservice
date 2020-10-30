@@ -31,6 +31,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 
 @Singleton
@@ -52,16 +53,11 @@ class ApplicationController @Inject() (
   def addCollaborator(applicationId: ApplicationId): Action[JsValue] =
     ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
       withJsonBody[AddCollaboratorRequest] { collaboratorRequest =>
-        applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role)
+        applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role, collaboratorRequest.requestingEmail)
           .map{
-            case AddCollaboratorToTpaResponse(_) => Created
+            case AddCollaboratorSuccessResult(_) => Created
+            case CollaboratorAlreadyExistsFailureResult => Conflict(Json.toJson(Map("message" -> "Collaborator already exists on the Appication")))
           }
-//        .map(_ =>
-//        {
-//
-//          println(s"Pomegranate - collaboratorRequest: $collaboratorRequest")
-//          NoContent
-//        })
       }
     }
 

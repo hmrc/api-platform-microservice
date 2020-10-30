@@ -266,35 +266,35 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val url = s"$baseUrl/application/${applicationId.value}/collaborator"
   }
 
-  "addTeamMember" should {
+  "addCollaborator" should {
     "return success" in new CollaboratorSetup {
-      val addTeamMemberResponse = AddCollaboratorToTpaResponse(true)
+      val addCollaboratorResponse = AddCollaboratorToTpaResponse(true)
 
       when(
         mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(Future.successful(HttpResponse(OK, Some(Json.toJson(addTeamMemberResponse)))))
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+      ).thenReturn(Future.successful(addCollaboratorResponse))
 
-      val result = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 
-      result shouldEqual addTeamMemberResponse
+      result shouldEqual AddCollaboratorSuccessResult(addCollaboratorResponse.registeredUser)
     }
 
     "return teamMember already exists response" in new CollaboratorSetup {
       when(
         mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
       ).thenReturn(failed(Upstream4xxResponse("409 exception", CONFLICT, CONFLICT)))
 
-      intercept[TeamMemberAlreadyExists] {
-        await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-      }
+      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+
+      result shouldEqual CollaboratorAlreadyExistsFailureResult
     }
 
     "return application not found response" in new CollaboratorSetup {
       when(
         mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, HttpResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
       ).thenReturn(failed(new NotFoundException("")))
 
       intercept[ApplicationNotFound] {

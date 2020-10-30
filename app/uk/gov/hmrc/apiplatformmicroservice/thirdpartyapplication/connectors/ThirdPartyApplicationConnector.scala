@@ -78,7 +78,7 @@ trait ThirdPartyApplicationConnector {
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
-  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse]
+  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -123,11 +123,12 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
     }
   }
 
-  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse] = {
-    http.POST[AddCollaboratorToTpaRequest, HttpResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest, Seq(CONTENT_TYPE -> JSON)) map { result =>
-      result.json.as[AddCollaboratorToTpaResponse]
+  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)
+                     (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
+    http.POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest, Seq(CONTENT_TYPE -> JSON)) map { result =>
+      AddCollaboratorSuccessResult(result.registeredUser)
     } recover {
-      case e: Upstream4xxResponse if e.upstreamResponseCode == 409 => throw new TeamMemberAlreadyExists
+      case WithStatusCode(CONFLICT,_) => CollaboratorAlreadyExistsFailureResult
     } recover recovery
   }
 }
@@ -167,3 +168,7 @@ class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
 sealed trait SubscriptionUpdateResult
 case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
 case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult
+
+sealed trait AddCollaboratorResult
+case class AddCollaboratorSuccessResult(userRegistered: Boolean) extends AddCollaboratorResult
+case object CollaboratorAlreadyExistsFailureResult extends AddCollaboratorResult

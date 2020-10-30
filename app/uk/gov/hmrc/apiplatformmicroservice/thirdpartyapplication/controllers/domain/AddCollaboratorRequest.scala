@@ -18,4 +18,4 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.do
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 
-case class AddCollaboratorRequest(email: String, role: Role)
+case class AddCollaboratorRequest(email: String, role: Role, requestingEmail: Option[String])

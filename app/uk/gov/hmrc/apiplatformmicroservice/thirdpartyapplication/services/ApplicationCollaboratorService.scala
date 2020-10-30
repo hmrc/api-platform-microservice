@@ -16,25 +16,40 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator, Role}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
-    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
+    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
+    thirdPartyDeveloperConnector: ThirdPartyDeveloperConnector
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-      def addCollaborator(application: Application, email: String, role: Role)(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaResponse] = {
-        Future.successful(AddCollaboratorToTpaResponse(true))
-      }
+      def addCollaborator(app: Application, email: String, role: Role, requestingEmail: Option[String])
+                         (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
 
+        val collaborator = Collaborator(email, role)
+        val otherAdminEmails = app.collaborators
+          .filter(_.role.isAdministrator)
+          .map(_.emailAddress)
+          .filterNot(requestingEmail.contains(_))
+
+        for {
+          otherAdmins <- thirdPartyDeveloperConnector.fetchByEmails(otherAdminEmails)
+          adminsToEmail = otherAdmins.filter(_.verified).map(_.email)
+          developer <- thirdPartyDeveloperConnector.fetchDeveloper(collaborator.emailAddress)
+          _ <- if (developer.isEmpty) thirdPartyDeveloperConnector.createUnregisteredUser(collaborator.emailAddress) else Future.successful(())
+          //TODO: handle requestingEmail being None when called from GK
+          //TODO: AddCollaboratorToTpaRequest.isRegistered flag is being hard coded here as it isn't used in TPA
+          request = AddCollaboratorToTpaRequest(requestingEmail.getOrElse(""), collaborator, true, adminsToEmail.toSet)
+          response <- thirdPartyApplicationConnector(app.deployedTo).addCollaborator(app.id, request)
+        } yield response
+      }
     }

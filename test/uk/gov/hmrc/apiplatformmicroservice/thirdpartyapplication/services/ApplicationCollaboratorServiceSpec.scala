@@ -16,155 +16,132 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import play.api.http.HeaderNames.CONTENT_TYPE
-import play.api.http.Status.{CONFLICT, OK}
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData, ClientId, Collaborator, Role}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, UnregisteredUserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, Upstream4xxResponse}
-import uk.gov.hmrc.time.DateTimeUtils
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.Future.failed
+import scala.concurrent.Future.successful
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
   implicit val hc = HeaderCarrier()
 
-  val id: ApplicationId = ApplicationId("one")
-  val clientId: ClientId = ClientId("123")
-  val application: Application = Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, DateTimeUtils.now, None, Environment.SANDBOX, Some("description"))
-  val BANG = new RuntimeException("BANG")
+  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar
+    with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
-    val service = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
-    val email = "email@testuser.com"
-    val teamMember = Collaborator(email, Role.ADMINISTRATOR)
-//    val developer = Developer(teamMember.emailAddress, "name", "surname")
-    val adminEmail = "admin.email@example.com"
-    val adminsToEmail = Set.empty[String]
-//    val request = AddTeamMemberRequest(adminEmail, teamMember, isRegistered = true, adminsToEmail)
+    val mockThirdPartyDeveloperConnector = mock[ThirdPartyDeveloperConnector]
+    val service = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector)
+
+    val newCollaboratorEmail = "newCollaborator@testuser.com"
+    val newCollaboratorUserId = UserId.random
+    val newCollaborator = Collaborator(newCollaboratorEmail, Role.DEVELOPER)
+    val newCollaboratorUserResponse = buildUserResponse(email = newCollaboratorEmail)
+    val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
+
+    val requesterEmail = "adminRequester@example.com"
+    val verifiedAdminEmail = "verifiedAdmin@example.com"
+    val unverifiedAdminEmail = "unverifiedAdmin@example.com"
+    val adminEmailsMinusRequester = Set(verifiedAdminEmail, unverifiedAdminEmail)
+    val adminEmails = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
+    val adminMinusRequesterUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail), buildUserResponse(email = unverifiedAdminEmail, verified = false))
+    val adminUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail),
+      buildUserResponse(email = unverifiedAdminEmail, verified = false),
+      buildUserResponse(email = requesterEmail)
+    )
+
+    val productionApplication = buildApplication().deployedToProduction.withCollaborators(Set(
+      Collaborator("collaborator1@example.com", Role.DEVELOPER),
+      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR),
+      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR),
+      Collaborator(requesterEmail, Role.ADMINISTRATOR)))
+
+    val addCollaboratorToTpaRequestWithRequesterEmail = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
+    val addCollaboratorToTpaRequestWithoutRequesterEmail = AddCollaboratorToTpaRequest("", newCollaborator, true, Set(verifiedAdminEmail, requesterEmail))
+
+    val addCollaboratorSuccessResult = AddCollaboratorSuccessResult(userRegistered = true)
+    val collaboratorAlreadyExistsFailureResult = CollaboratorAlreadyExistsFailureResult
   }
 
     "add teamMember" should {
+      "create unregistered user when developer is not registered on principal app" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
+        when(mockThirdPartyDeveloperConnector.createUnregisteredUser(*)(*)).thenReturn(successful(newCollaboratorUnregisteredUserResponse))
 
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
-//      "add teamMember successfully in production app" in new Setup {
-//        private val response = AddTeamMemberResponse(registeredUser = true)
-//
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, productionApplication)
-//        when(mockProductionApplicationConnector.addTeamMember(productionApplicationId, request)).thenReturn(successful(response))
-//
-//        await(applicationService.addTeamMember(productionApplication, adminEmail, teamMember)) shouldBe response
-//      }
-//
-//      "create unregistered user when developer is not registered" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(None))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, productionApplication)
-//        when(mockProductionApplicationConnector.addTeamMember(productionApplicationId, request.copy(isRegistered = false)))
-//          .thenReturn(successful(AddTeamMemberResponse(registeredUser = false)))
-//        when(mockDeveloperConnector.createUnregisteredUser(teamMember.emailAddress)).thenReturn(successful(OK))
-//
-//        await(applicationService.addTeamMember(productionApplication, adminEmail, teamMember))
-//
-//        verify(mockDeveloperConnector, times(1)).createUnregisteredUser(eqTo(teamMember.emailAddress))(*)
-//      }
-//
-//      "not create unregistered user when developer is already registered" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(Developer(teamMember.emailAddress, "name", "surname"))))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, productionApplication)
-//        when(mockProductionApplicationConnector.addTeamMember(productionApplicationId, request))
-//          .thenReturn(successful(AddTeamMemberResponse(registeredUser = true)))
-//
-//        await(applicationService.addTeamMember(productionApplication, adminEmail, teamMember))
-//
-//        verify(mockDeveloperConnector, times(0)).createUnregisteredUser(eqTo(teamMember.emailAddress))(*)
-//      }
-//
-//      "propagate TeamMemberAlreadyExists from connector in production app" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, productionApplication)
-//        when(mockProductionApplicationConnector.addTeamMember(productionApplicationId, request))
-//          .thenReturn(failed(new TeamMemberAlreadyExists))
-//
-//        intercept[TeamMemberAlreadyExists] {
-//          await(applicationService.addTeamMember(productionApplication, adminEmail, teamMember))
-//        }
-//      }
-//
-//      "propagate ApplicationNotFound from connector in production app" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, productionApplication)
-//        when(mockProductionApplicationConnector.addTeamMember(productionApplicationId, request))
-//          .thenReturn(failed(new ApplicationAlreadyExists))
-//        intercept[ApplicationAlreadyExists] {
-//          await(applicationService.addTeamMember(productionApplication, adminEmail, teamMember))
-//        }
-//      }
-//      "add teamMember successfully in sandbox app" in new Setup {
-//        private val response = AddTeamMemberResponse(registeredUser = true)
-//
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theSandboxConnectorthenReturnTheApplication(sandboxApplicationId, sandboxApplication)
-//        when(mockSandboxApplicationConnector.addTeamMember(sandboxApplicationId, request)).thenReturn(successful(response))
-//
-//        await(applicationService.addTeamMember(sandboxApplication, adminEmail, teamMember)) shouldBe response
-//      }
-//
-//      "propagate TeamMemberAlreadyExists from connector in sandbox app" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theSandboxConnectorthenReturnTheApplication(sandboxApplicationId, sandboxApplication)
-//        when(mockSandboxApplicationConnector.addTeamMember(sandboxApplicationId, request))
-//          .thenReturn(failed(new TeamMemberAlreadyExists))
-//        intercept[TeamMemberAlreadyExists] {
-//          await(applicationService.addTeamMember(sandboxApplication, adminEmail, teamMember))
-//        }
-//      }
-//
-//      "propagate ApplicationNotFound from connector in sandbox app" in new Setup {
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(Seq.empty))
-//        theSandboxConnectorthenReturnTheApplication(sandboxApplicationId, sandboxApplication)
-//        when(mockSandboxApplicationConnector.addTeamMember(sandboxApplicationId, request))
-//          .thenReturn(failed(new ApplicationAlreadyExists))
-//        intercept[ApplicationAlreadyExists] {
-//          await(applicationService.addTeamMember(sandboxApplication, adminEmail, teamMember))
-//        }
-//      }
-//
-//      "include correct set of admins to email" in new Setup {
-//        private val verifiedAdmin = Collaborator("verified@example.com", Role.ADMINISTRATOR)
-//        private val unverifiedAdmin = Collaborator("unverified@example.com", Role.ADMINISTRATOR)
-//        private val adderAdmin = Collaborator(adminEmail, Role.ADMINISTRATOR)
-//        private val verifiedDeveloper = Collaborator("developer@example.com", Role.DEVELOPER)
-//        private val nonAdderAdmins = Seq(User("verified@example.com", Some(true)), User("unverified@example.com", Some(false)))
-//
-//        private val application = productionApplication.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adderAdmin, verifiedDeveloper))
-//
-//        private val response = AddTeamMemberResponse(registeredUser = true)
-//
-//        when(mockDeveloperConnector.fetchDeveloper(email)).thenReturn(successful(Some(developer)))
-//        when(mockDeveloperConnector.fetchByEmails(eqTo(Set("verified@example.com", "unverified@example.com")))(*))
-//          .thenReturn(successful(nonAdderAdmins))
-//        theProductionConnectorthenReturnTheApplication(productionApplicationId, application)
-//        when(mockProductionApplicationConnector.addTeamMember(*[ApplicationId], *)(*)).thenReturn(successful(response))
-//
-//        await(applicationService.addTeamMember(application, adderAdmin.emailAddress, teamMember)) shouldBe response
-//        verify(mockProductionApplicationConnector).addTeamMember(eqTo(productionApplicationId), eqTo(request.copy(adminsToEmail = Set("verified@example.com"))))(*)
-//      }
-//    }
+        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+
+        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
+        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+      }
+
+      "create unregistered user when developer is not registered on subordinate app" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
+        when(mockThirdPartyDeveloperConnector.createUnregisteredUser(*)(*)).thenReturn(successful(newCollaboratorUnregisteredUserResponse))
+
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.willReturnSuccess
+
+        await(service.addCollaborator(productionApplication.copy(deployedTo = Environment.SANDBOX), newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+
+        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
+        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+      }
+
+      "not create unregistered user when developer is already registered on production app with requester email which shouldn't get notification email" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
+
+        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+
+        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
+        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+      }
+
+      "include correct set of admins to email when no requester email is specified (GK case)" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminUserResponses))
+        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
+
+        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, None)) shouldBe addCollaboratorSuccessResult
+
+        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmails))(*)
+        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithoutRequesterEmail)
+      }
+
+      "propagate TeamMemberAlreadyExists from connector in production app" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnFailure
+
+        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe collaboratorAlreadyExistsFailureResult
+
+        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
+        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+
+      }
   }
 }

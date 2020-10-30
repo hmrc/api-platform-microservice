@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
 
 trait ThirdPartyApplicationConnectorModule {
@@ -89,8 +89,17 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object AddCollaborator {
+
       def willReturnSuccess = {
-        when(aMock.addCollaborator(*[ApplicationId], *)(*)).thenReturn(successful(AddCollaboratorToTpaResponse(true)))
+        when(aMock.addCollaborator(*[ApplicationId], *)(*)).thenReturn(successful(AddCollaboratorSuccessResult(true)))
+      }
+
+      def willReturnFailure = {
+        when(aMock.addCollaborator(*[ApplicationId], *)(*)).thenReturn(successful(CollaboratorAlreadyExistsFailureResult))
+      }
+
+      def verifyCalled(wantedNumberOfInvocations: Int, appId: ApplicationId, addCollaboratorToTpaRequest: AddCollaboratorToTpaRequest) = {
+        verify(aMock, times(wantedNumberOfInvocations)).addCollaborator(eqTo(appId), eqTo(addCollaboratorToTpaRequest))(*)
       }
     }
   }
