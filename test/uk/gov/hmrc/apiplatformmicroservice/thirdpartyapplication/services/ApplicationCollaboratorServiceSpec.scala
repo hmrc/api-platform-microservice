@@ -21,7 +21,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, UnregisteredUserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
@@ -68,13 +68,16 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     val addCollaboratorSuccessResult = AddCollaboratorSuccessResult(userRegistered = true)
     val collaboratorAlreadyExistsFailureResult = CollaboratorAlreadyExistsFailureResult
+
+    val getOrCreateUserIdRequest = GetOrCreateUserIdRequest(newCollaboratorEmail)
+    val getOrCreateUserIdResponse = GetOrCreateUserIdResponse(newCollaboratorUserId)
   }
 
-    "add teamMember" should {
+    "addCollaborator" should {
       "create unregistered user when developer is not registered on principal app" in new Setup {
         when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
         when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
-        when(mockThirdPartyDeveloperConnector.createUnregisteredUser(*)(*)).thenReturn(successful(newCollaboratorUnregisteredUserResponse))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
@@ -82,14 +85,14 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
         verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
         verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector).getOrCreateUserId(eqTo(getOrCreateUserIdRequest))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
 
       "create unregistered user when developer is not registered on subordinate app" in new Setup {
         when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
         when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
-        when(mockThirdPartyDeveloperConnector.createUnregisteredUser(*)(*)).thenReturn(successful(newCollaboratorUnregisteredUserResponse))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.willReturnSuccess
 
@@ -97,7 +100,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
         verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
         verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
+        verify(mockThirdPartyDeveloperConnector).getOrCreateUserId(eqTo(getOrCreateUserIdRequest))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
 

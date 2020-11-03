@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator, Role}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,7 +39,7 @@ class ApplicationCollaboratorService @Inject() (
         def getUserId(collaboratorEmail: String): Future[UserId] = {
 
           def getUnregisteredUserId(unregisteredCollaboratorEmail: String): Future[UserId] = {
-            thirdPartyDeveloperConnector.createUnregisteredUser(unregisteredCollaboratorEmail).map(unregisteredUserResponse => unregisteredUserResponse.userId)
+            thirdPartyDeveloperConnector.getOrCreateUserId(GetOrCreateUserIdRequest(unregisteredCollaboratorEmail)).map(getOrCreateUserIdResponse => getOrCreateUserIdResponse.userId)
           }
 
           thirdPartyDeveloperConnector.fetchDeveloper(collaboratorEmail)

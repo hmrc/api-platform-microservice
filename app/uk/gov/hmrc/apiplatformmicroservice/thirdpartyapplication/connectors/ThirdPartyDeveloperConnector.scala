@@ -21,7 +21,7 @@ import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -50,10 +50,14 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
     http.GET[Seq[UserResponse]](s"$serviceBaseUrl/developers", Seq("emails" -> emails.mkString(",")))
   }
 
+  def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
+      http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
+  }
+
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Option[UserResponse]] = {
-      http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email)) recover {
-        case _: NotFoundException => None
-      }
+    http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email)) recover {
+      case _: NotFoundException => None
+    }
   }
 
   def createUnregisteredUser(email: String)(implicit hc: HeaderCarrier): Future[UnregisteredUserResponse] = {

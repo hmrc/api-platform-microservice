@@ -17,11 +17,13 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import org.joda.time.DateTime
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.test.Helpers.JSON
 import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsString, JsValue, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
@@ -136,6 +138,20 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
       intercept[Upstream5xxResponse] {
         await(connector.fetchDeveloper(userEmail))
       }
+    }
+  }
+
+  "getOrCreateUserId" should {
+    "return success" in new UserResponseSetup {
+      val getOrCreateUserIdRequest = GetOrCreateUserIdRequest(userEmail)
+      val getOrCreateUserIdResponse = GetOrCreateUserIdResponse(userId)
+
+      when(
+        mockHttpClient
+          .POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](eqTo(endpoint("developers/user-id")), eqTo(getOrCreateUserIdRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *))
+          .thenReturn(Future.successful(getOrCreateUserIdResponse))
+
+      await(connector.getOrCreateUserId(getOrCreateUserIdRequest)) shouldBe getOrCreateUserIdResponse
     }
   }
 }
