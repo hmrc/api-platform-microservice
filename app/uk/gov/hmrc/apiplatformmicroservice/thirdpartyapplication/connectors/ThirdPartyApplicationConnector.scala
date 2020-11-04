@@ -20,12 +20,12 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -37,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 
   class ApplicationNotFound extends RuntimeException
+  class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
 
@@ -60,6 +61,10 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
       applicationUseProxy: Boolean,
       applicationBearerToken: String,
       applicationApiKey: String)
+
+  private def recovery: PartialFunction[Throwable, Nothing] = {
+    case _: NotFoundException => throw new ApplicationNotFound
+  }
 }
 
 trait ThirdPartyApplicationConnector {
@@ -72,6 +77,8 @@ trait ThirdPartyApplicationConnector {
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
+
+  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -115,6 +122,15 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       SubscriptionUpdateSuccessResult
     }
   }
+
+  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)
+                     (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
+    http.POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest, Seq(CONTENT_TYPE -> JSON)) map { result =>
+      AddCollaboratorSuccessResult(result.registeredUser)
+    } recover {
+      case WithStatusCode(CONFLICT,_) => CollaboratorAlreadyExistsFailureResult
+    } recover recovery
+  }
 }
 
 @Singleton
@@ -152,3 +168,7 @@ class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
 sealed trait SubscriptionUpdateResult
 case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
 case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult
+
+sealed trait AddCollaboratorResult
+case class AddCollaboratorSuccessResult(userRegistered: Boolean) extends AddCollaboratorResult
+case object CollaboratorAlreadyExistsFailureResult extends AddCollaboratorResult

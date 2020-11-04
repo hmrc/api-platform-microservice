@@ -86,11 +86,11 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
 
     def withAdmin(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR))
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, None))
     }
     def withDeveloper(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER))
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, None))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

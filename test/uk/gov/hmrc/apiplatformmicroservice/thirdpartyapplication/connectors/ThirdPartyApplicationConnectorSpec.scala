@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
+import play.api.http.HeaderNames.CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.ApplicationResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse, TeamMemberAlreadyExists}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
@@ -27,8 +28,15 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Role}
 import play.api.http.Status._
+import play.api.libs.json.Json
+import play.api.test.Helpers.JSON
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.CollaboratorsBuilder
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
+
+import scala.concurrent.Future.failed
 
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
@@ -245,6 +253,53 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
+    }
+  }
+
+  class CollaboratorSetup extends Setup with CollaboratorsBuilder {
+    val applicationId = ApplicationId.random
+    val requestorEmail = "requestor@example.com"
+    val newTeamMemberEmail = "newTeamMember@example.com"
+    val adminsToEmail = Set("bobby@example.com", "daisy@example.com")
+    val newCollaborator = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
+    val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
+    val url = s"$baseUrl/application/${applicationId.value}/collaborator"
+  }
+
+  "addCollaborator" should {
+    "return success" in new CollaboratorSetup {
+      val addCollaboratorResponse = AddCollaboratorToTpaResponse(true)
+
+      when(
+        mockHttpClient
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+      ).thenReturn(Future.successful(addCollaboratorResponse))
+
+      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+
+      result shouldEqual AddCollaboratorSuccessResult(addCollaboratorResponse.registeredUser)
+    }
+
+    "return teamMember already exists response" in new CollaboratorSetup {
+      when(
+        mockHttpClient
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+      ).thenReturn(failed(Upstream4xxResponse("409 exception", CONFLICT, CONFLICT)))
+
+      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+
+      result shouldEqual CollaboratorAlreadyExistsFailureResult
+    }
+
+    "return application not found response" in new CollaboratorSetup {
+      when(
+        mockHttpClient
+          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
+      ).thenReturn(failed(new NotFoundException("")))
+
+      intercept[ApplicationNotFound] {
+        await(connector.addCollaborator(applicationId, addCollaboratorRequest))
+      }
     }
   }
 }

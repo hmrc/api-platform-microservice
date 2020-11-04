@@ -27,7 +27,7 @@ object ClientId {
   def random: ClientId = ClientId(UUID.randomUUID().toString)
 }
 
-case class Collaborator(emailAddress: String, role: Role)
+case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
 
 case class FieldValue(value: String) extends AnyVal
 

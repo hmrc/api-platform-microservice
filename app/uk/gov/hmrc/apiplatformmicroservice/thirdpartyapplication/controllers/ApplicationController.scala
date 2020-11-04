@@ -21,18 +21,25 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequest, AddCollaboratorResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 
 @Singleton
 class ApplicationController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
+    val applicationCollaboratorService : ApplicationCollaboratorService,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders {
@@ -42,4 +49,16 @@ class ApplicationController @Inject() (
       oApp <- applicationService.fetchApplicationWithSubscriptionData(ApplicationId(id))
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
+
+  def addCollaborator(applicationId: ApplicationId): Action[JsValue] =
+    ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
+      withJsonBody[AddCollaboratorRequest] { collaboratorRequest =>
+        applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role, collaboratorRequest.requestingEmail)
+          .map{
+            case AddCollaboratorSuccessResult(_) => Created
+            case CollaboratorAlreadyExistsFailureResult => Conflict(Json.toJson(Map("message" -> "Collaborator already exists on the Appication")))
+          }
+      }
+    }
+
 }
