@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -35,7 +36,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
-    val applicationId = "app-1"
+    val applicationId = ApplicationId.random
     val helloApiDefinition = apiDefinition("hello-api")
     val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))
@@ -170,7 +171,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return false when applications ids are not matching" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
@@ -181,7 +182,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return true when applications ids are not matching but it is subscribed to" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithWhitelisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds("NonMatchingID")
+      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
       val apiId = ApiIdentifier(apiWithWhitelisting.context, apiWithWhitelisting.versions.head.version)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 

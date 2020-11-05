@@ -92,8 +92,8 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(isTrial = false)
     }
 
-    def withWhitelistedAppIds(appId: String*): APIAccess = {
-      inner.copy(whitelistedApplicationIds = appId.toSeq.map(ApplicationId(_)))
+    def withWhitelistedAppIds(appIds: ApplicationId*): APIAccess = {
+      inner.copy(whitelistedApplicationIds = appIds)
     }
 
     def addAllowList(appIds: ApplicationId*): APIAccess = {

@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -34,7 +35,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some("joebloggs@example.com")
-    val applicationId = "app-1"
+    val applicationId = ApplicationId.random
     val helloApiDefinition = apiDefinition("hello-api")
     val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))

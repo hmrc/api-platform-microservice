@@ -21,7 +21,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
     val wsClient = app.injector.instanceOf[WSClient]
 
     "stub get request for fetch restricted subscribable apis" in {
-      val applicationId = ApplicationId(ju.UUID.randomUUID.toString)
+      val applicationId = ApplicationId.random
       val clientId = ClientId(ju.UUID.randomUUID.toString)
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
@@ -30,7 +30,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
-        .withQueryStringParameters("applicationId" -> applicationId.value)
+        .withQueryStringParameters("applicationId" -> applicationId.value.toString)
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
@@ -62,13 +62,13 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
     }
 
   "stub get request for fetch unrestricted subscribable apis" in {
-      val applicationId = ApplicationId(ju.UUID.randomUUID.toString)
+      val applicationId = ApplicationId.random
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
-        .withQueryStringParameters("applicationId" -> applicationId.value, "restricted" -> "false")
+        .withQueryStringParameters("applicationId" -> applicationId.value.toString(), "restricted" -> "false")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 

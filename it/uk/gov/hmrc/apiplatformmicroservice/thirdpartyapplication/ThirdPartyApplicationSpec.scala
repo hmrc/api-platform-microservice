@@ -18,8 +18,7 @@ class ThirdPartyApplicationSpec extends WireMockSpec with ApplicationMock with S
 
     "stub get request for fetching an application" in {
       val clientId = ClientId(ju.UUID.randomUUID.toString)
-      val applicationId = ApplicationId(ju.UUID.randomUUID.toString)
-
+      val applicationId = ApplicationId.random
       mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
       mockFetchApplicationNotFound(Environment.SANDBOX, applicationId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)

@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET        /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchAppplicationById(id: String)
+GET        /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchAppplicationById(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
 
 POST       /:id/subscriptions                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApi(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, restricted: Option[Boolean])
 

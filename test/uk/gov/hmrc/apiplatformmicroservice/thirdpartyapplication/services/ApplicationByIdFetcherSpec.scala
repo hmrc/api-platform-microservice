@@ -35,7 +35,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
 
   implicit val hc = HeaderCarrier()
 
-  val id: ApplicationId = ApplicationId("one")
+  val id: ApplicationId = ApplicationId.random
   val clientId: ClientId = ClientId("123")
   val application: Application = Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, DateTimeUtils.now, None, Environment.SANDBOX, Some("description"))
   val BANG = new RuntimeException("BANG")
