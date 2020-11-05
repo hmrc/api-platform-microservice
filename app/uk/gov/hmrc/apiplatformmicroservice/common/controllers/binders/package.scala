@@ -20,6 +20,7 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
 import scala.util.Try
 import java.{util => ju}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 package object binders {
 
@@ -29,8 +30,15 @@ package object binders {
     .toRight(s"Cannot accept $text as ApplicationId")
     .map(ApplicationId(_))
   }
+  
+  private def userIdFromString(text: String): Either[String, UserId] = {
+    Try(ju.UUID.fromString(text))
+    .toOption
+    .toRight(s"Cannot accept $text as UserId")
+    .map(UserId(_))
+  }
 
-    implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+  implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
       textBinder.bind(key, value).flatMap(applicationIdFromString)
     }
@@ -61,6 +69,17 @@ package object binders {
 
     override def unbind(key: String, env: Environment): String = {
       env.toString.toLowerCase
+    }
+  }
+
+  
+  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+    override def bind(key: String, value: String): Either[String, UserId] = {
+      textBinder.bind(key, value).flatMap(userIdFromString)
+    }
+
+    override def unbind(key: String, userId: UserId): String = {
+      userId.value.toString()
     }
   }
 

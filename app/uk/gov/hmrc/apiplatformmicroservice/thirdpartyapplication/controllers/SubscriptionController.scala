@@ -53,7 +53,7 @@ extends BackendController(cc) with ActionBuilders {
         .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
         .map {
           case CreateSubscriptionSuccess => NoContent
-          case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application $applicationId"))
+          case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application ${applicationId.value}"))
           case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
         }
       }
