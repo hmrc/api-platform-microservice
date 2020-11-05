@@ -21,18 +21,16 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequest, AddCollaboratorResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 
 @Singleton
 class ApplicationController @Inject() (
@@ -44,9 +42,9 @@ class ApplicationController @Inject() (
   )(implicit val ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders {
 
-  def fetchAppplicationById(id: String): Action[AnyContent] = Action.async { implicit request =>
+  def fetchAppplicationById(id: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
     for {
-      oApp <- applicationService.fetchApplicationWithSubscriptionData(ApplicationId(id))
+      oApp <- applicationService.fetchApplicationWithSubscriptionData(id)
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 

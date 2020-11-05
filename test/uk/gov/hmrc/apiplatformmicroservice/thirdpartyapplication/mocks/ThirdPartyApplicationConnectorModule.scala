@@ -24,8 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

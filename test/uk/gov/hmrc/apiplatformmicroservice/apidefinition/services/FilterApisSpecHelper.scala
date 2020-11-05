@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.HmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {

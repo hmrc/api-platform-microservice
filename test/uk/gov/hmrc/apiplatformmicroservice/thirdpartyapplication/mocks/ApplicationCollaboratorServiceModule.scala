@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AddCollaboratorResult
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 
 import scala.concurrent.Future

@@ -31,8 +31,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
     val email = "joebloggs@example.com"
-    val subordinateApplicationIds = Seq("s1", "s2", "s3").map(ApplicationId(_))
-    val principalApplicationIds = Seq("p1", "p2").map(ApplicationId(_))
+    val subordinateApplicationIds = (1 to 3).map(_ => ApplicationId.random)
+    val principalApplicationIds = (1 to 2).map(_ => ApplicationId.random)
     val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
@@ -43,7 +43,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(email))
 
-      result should contain only(Seq("s1", "s2", "s3", "p1", "p2").map(ApplicationId(_)):_*)
+      result should contain only(subordinateApplicationIds ++ principalApplicationIds:_*)
     }
 
     "return subordinate application Ids if there are no matching principal applications" in new Setup {

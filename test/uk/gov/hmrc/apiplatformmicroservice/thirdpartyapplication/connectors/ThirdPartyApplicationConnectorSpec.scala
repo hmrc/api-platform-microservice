@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import play.api.http.HeaderNames.CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse, TeamMemberAlreadyExists}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._
@@ -30,11 +30,9 @@ import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Role}
 import play.api.http.Status._
-import play.api.libs.json.Json
 import play.api.test.Helpers.JSON
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.CollaboratorsBuilder
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorResponse
 
 import scala.concurrent.Future.failed
 
@@ -44,8 +42,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   private val versionOne = ApiVersion("1.0")
   private val versionTwo = ApiVersion("2.0")
 
-  private val applicationIdOne = ApplicationId("app id 1")
-  private val applicationIdTwo = ApplicationId("app id 2")
+  private val applicationIdOne = ApplicationId.random
+  private val applicationIdTwo = ApplicationId.random
 
   private val baseUrl = "https://example.com"
 
@@ -154,8 +152,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   // TODO - very little purpose to these tests - replace with wiremock integration asap
   "fetchApplication" should {
-    val applicationId = ApplicationId("1234")
-    val url = s"$baseUrl/application/1234"
+    val applicationId = ApplicationId.random
+    val url = s"$baseUrl/application/${applicationId.value.toString}"
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
@@ -187,8 +185,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   "fetchSubscriptions" should {
     import AbstractThirdPartyApplicationConnector._
     import SubscriptionsHelper._
-    val applicationId = ApplicationId("1234")
-    val url = s"$baseUrl/application/1234/subscription"
+    val applicationId = ApplicationId.random
+    val url = s"$baseUrl/application/${applicationId.value.toString}/subscription"
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
@@ -245,8 +243,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     import SubscriptionsHelper._
 
     val apiId = ApiIdentifier(ContextA, VersionOne)
-    val applicationId = ApplicationId("1234")
-    val url = s"$baseUrl/application/1234/subscription"
+    val applicationId = ApplicationId.random
+    val url = s"$baseUrl/application/${applicationId.value.toString}/subscription"
 
     "return the success when everything works" in new Setup {
       when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiId), *)(*,*,*,*))
@@ -263,7 +261,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val adminsToEmail = Set("bobby@example.com", "daisy@example.com")
     val newCollaborator = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
     val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
-    val url = s"$baseUrl/application/${applicationId.value}/collaborator"
+    val url = s"$baseUrl/application/${applicationId.value.toString}/collaborator"
   }
 
   "addCollaborator" should {

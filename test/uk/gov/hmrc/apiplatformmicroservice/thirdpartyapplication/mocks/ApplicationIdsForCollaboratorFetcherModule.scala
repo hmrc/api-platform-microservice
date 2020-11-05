@@ -30,8 +30,8 @@ trait ApplicationIdsForCollaboratorFetcherModule {
 
     object FetchAllApplicationIds {
 
-      def willReturnApplicationIds(appIds: String*) = {
-        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSet.map(ApplicationId(_))))
+      def willReturnApplicationIds(appIds: ApplicationId*) = {
+        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSet))
       }
 
       def willThrowException(e: Exception) = {

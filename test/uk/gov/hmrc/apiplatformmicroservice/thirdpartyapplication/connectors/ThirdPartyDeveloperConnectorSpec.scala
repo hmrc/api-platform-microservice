@@ -23,7 +23,7 @@ import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsString, JsValue, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http._

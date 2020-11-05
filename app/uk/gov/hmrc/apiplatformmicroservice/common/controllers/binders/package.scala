@@ -18,35 +18,35 @@ package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import scala.util.Try
+import java.{util => ju}
 
 package object binders {
 
-  implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+    private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
+    Try(ju.UUID.fromString(text))
+    .toOption
+    .toRight(s"Cannot accept $text as ApplicationId")
+    .map(ApplicationId(_))
+  }
 
+    implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).map(ApplicationId(_))
+      textBinder.bind(key, value).flatMap(applicationIdFromString)
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value
+      applicationId.value.toString()
     }
   }
 
   implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
-
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
-      for {
-        text <- textBinder.bind(key, params)
-      } yield {
-        text match {
-          case Right(appId) => Right(ApplicationId(appId))
-          case _            => Left("Unable to bind an application ID")
-        }
-      }
+      textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
     }
 
-    override def unbind(key: String, context: ApplicationId): String = {
-      textBinder.unbind(key, context.value)
+    override def unbind(key: String, applicationId: ApplicationId): String = {
+      textBinder.unbind(key, applicationId.value.toString())
     }
   }
 
