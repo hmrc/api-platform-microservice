@@ -88,7 +88,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
       status(result) shouldBe NOT_FOUND
       contentAsJson(result) shouldBe Json.obj(
         "code" -> "APPLICATION_NOT_FOUND",
-        "message" -> s"API $apiIdentifier is not available for application $applicationId"
+        "message" -> s"API $apiIdentifier is not available for application ${applicationId.value}"
       )
     }
 

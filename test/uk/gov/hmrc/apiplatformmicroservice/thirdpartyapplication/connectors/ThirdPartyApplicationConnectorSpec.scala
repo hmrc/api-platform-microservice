@@ -153,7 +153,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
   // TODO - very little purpose to these tests - replace with wiremock integration asap
   "fetchApplication" should {
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value.toString}"
+    val url = s"$baseUrl/application/${applicationId.value}"
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
@@ -186,7 +186,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     import AbstractThirdPartyApplicationConnector._
     import SubscriptionsHelper._
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value.toString}/subscription"
+    val url = s"$baseUrl/application/${applicationId.value}/subscription"
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
@@ -244,7 +244,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     val apiId = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random
-    val url = s"$baseUrl/application/${applicationId.value.toString}/subscription"
+    val url = s"$baseUrl/application/${applicationId.value}/subscription"
 
     "return the success when everything works" in new Setup {
       when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiId), *)(*,*,*,*))
@@ -261,7 +261,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val adminsToEmail = Set("bobby@example.com", "daisy@example.com")
     val newCollaborator = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
     val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
-    val url = s"$baseUrl/application/${applicationId.value.toString}/collaborator"
+    val url = s"$baseUrl/application/${applicationId.value}/collaborator"
   }
 
   "addCollaborator" should {
