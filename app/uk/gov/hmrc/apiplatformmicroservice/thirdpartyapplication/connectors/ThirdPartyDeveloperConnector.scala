@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
-import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse._
@@ -27,6 +26,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector extends CommonJsonFormatters {
 
@@ -42,7 +42,7 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
            val config: ThirdPartyDeveloperConnector.Config,
            http: HttpClient,
            encryptedJson: EncryptedJson) (implicit val ec: ExecutionContext) {
-
+  
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
   lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
@@ -55,17 +55,13 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   }
 
   def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Option[UserResponse]] = {
-    http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email)) recover {
-      case _: NotFoundException => None
-    }
+    http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email))
   }
 
   def createUnregisteredUser(email: String)(implicit hc: HeaderCarrier): Future[UnregisteredUserResponse] = {
-    encryptedJson.secretRequestJson[UnregisteredUserResponse](
-      Json.toJson(UnregisteredUserCreationRequest(email)), { secretRequestJson =>
-        http.POST(s"$serviceBaseUrl/unregistered-developer", secretRequestJson, Seq(CONTENT_TYPE -> JSON)) map { result =>
-          result.json.as[UnregisteredUserResponse]
-        }
+    encryptedJson.secretRequest(
+      UnregisteredUserCreationRequest(email), { secretRequest =>
+        http.POST[SecretRequest, UnregisteredUserResponse](s"$serviceBaseUrl/unregistered-developer", secretRequest, Seq(CONTENT_TYPE -> JSON))
       })
   }
 }
