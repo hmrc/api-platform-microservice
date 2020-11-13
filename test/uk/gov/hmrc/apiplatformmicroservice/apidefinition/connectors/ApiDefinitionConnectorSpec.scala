@@ -75,8 +75,8 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
         }
       }
 
-      "do not throw exception when not found but instead return None" in new PrincipalSetup {
-        whenGetDefinitionFails(serviceName)(new NotFoundException("Bang"))
+      "return none when nothing found" in new PrincipalSetup {
+        whenGetDefinitionFindsNothing(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
         result should not be 'defined

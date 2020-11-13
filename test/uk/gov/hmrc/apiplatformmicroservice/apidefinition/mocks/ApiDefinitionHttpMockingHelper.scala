@@ -30,24 +30,25 @@ trait ApiDefinitionHttpMockingHelper
   val mockThisClient: HttpClient with WSGet
   val apiDefinitionUrl: String
 
-  def whenGetDefinition(serviceName: String)(
-      definition: APIDefinition): Unit = {
+  private def whenGetDefinition(serviceName: String, response: Future[Option[APIDefinition]]) = {
     val url = definitionUrl(apiDefinitionUrl, serviceName)
     when(
-      mockThisClient.GET[APIDefinition](
+      mockThisClient.GET[Option[APIDefinition]](
         eqTo(url)
       )(any, any, any)
-    ).thenReturn(Future.successful(definition))
+    ).thenReturn(response)
   }
 
-  def whenGetDefinitionFails(serviceName: String)(
-      exception: Throwable): Unit = {
-    val url = definitionUrl(apiDefinitionUrl, serviceName)
-    when(
-      mockThisClient.GET[APIDefinition](
-        eqTo(url)
-      )(any, any, any)
-    ).thenReturn(Future.failed(exception))
+  def whenGetDefinition(serviceName: String)(definition: APIDefinition): Unit = {
+    whenGetDefinition(serviceName, Future.successful(Some(definition)))
+  }
+
+  def whenGetDefinitionFindsNothing(serviceName: String) = {
+    whenGetDefinition(serviceName, Future.successful(None))
+  }
+
+  def whenGetDefinitionFails(serviceName: String)(exception: Throwable): Unit = {
+    whenGetDefinition(serviceName, Future.failed(exception))
   }
 
   def whenGetAllDefinitions(definitions: APIDefinition*): Unit = {

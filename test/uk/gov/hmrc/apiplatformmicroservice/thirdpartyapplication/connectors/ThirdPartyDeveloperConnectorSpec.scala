@@ -20,8 +20,7 @@ import org.joda.time.DateTime
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.test.Helpers.JSON
 import play.api.http.Status
-import play.api.http.Status.OK
-import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.libs.json.{JsString, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
@@ -50,8 +49,16 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
     val connector = new ThirdPartyDeveloperConnector(config, mockHttpClient, encryptedJson)
 
     val encryptedString: JsString = JsString("someEncryptedStringOfData")
-    val encryptedBody: JsValue = Json.toJson(SecretRequest(encryptedString.as[String]))
+    val encryptedBody = SecretRequest(encryptedString.as[String])
     when(mockPayloadEncryption.encrypt(*)(*)).thenReturn(encryptedString)
+
+    def whenPostUnregisteredDeveloperThenReturn(r: UnregisteredUserResponse) = 
+      when(mockHttpClient.POST[SecretRequest, UnregisteredUserResponse](eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
+      .thenReturn(successful(r))
+
+    def whenPostUnregisteredDeveloperThenFail(t: Throwable) = 
+      when(mockHttpClient.POST[SecretRequest, UnregisteredUserResponse](eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
+      .thenReturn(failed(t))
   }
 
   trait UserResponseSetup extends Setup with UserResponseBuilder {
@@ -73,10 +80,9 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
     val userId = UserId.random
     val unregisteredUserResponse = UnregisteredUserResponse(email = unregisteredUserEmail, DateTime.now, userId)
 
-    "successfully create an unregistered user" in new Setup {
 
-      when[Future[HttpResponse]](mockHttpClient.POST(eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
-        .thenReturn(successful(HttpResponse(OK, Some(Json.toJson(unregisteredUserResponse)))))
+    "successfully create an unregistered user" in new Setup {
+      whenPostUnregisteredDeveloperThenReturn(unregisteredUserResponse)
 
       val result: UnregisteredUserResponse = await(connector.createUnregisteredUser(unregisteredUserEmail))
 
@@ -86,10 +92,9 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
     }
 
     "propagate error when the request fails" in new Setup {
-      when[Future[HttpResponse]](mockHttpClient.POST(eqTo(endpoint("unregistered-developer")), eqTo(encryptedBody), eqTo(Seq("Content-Type" -> "application/json")))(*, *, *, *))
-        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+      whenPostUnregisteredDeveloperThenFail(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(connector.createUnregisteredUser(unregisteredUserEmail))
       }
     }
@@ -106,9 +111,9 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
 
     "propagate error when the request fails" in new UserResponseSetup {
       when(mockHttpClient.GET[Seq[UserResponse]](eqTo(endpoint("developers")), eqTo(Seq("emails" -> emailsToFetch.mkString(","))))(*, *, *))
-        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+        .thenReturn(failed(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(connector.fetchByEmails(emailsToFetch))
       }
     }
@@ -123,19 +128,11 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
 
     }
 
-    "return None upon getting NotFoundException" in new UserResponseSetup {
-      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
-        .thenReturn(failed(new NotFoundException("")))
-
-      await(connector.fetchDeveloper(userEmail)) shouldBe None
-
-    }
-
     "propagate error when the request fails" in new UserResponseSetup {
       when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
-        .thenReturn(failed(Upstream5xxResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
+        .thenReturn(failed(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(connector.fetchDeveloper(userEmail))
       }
     }

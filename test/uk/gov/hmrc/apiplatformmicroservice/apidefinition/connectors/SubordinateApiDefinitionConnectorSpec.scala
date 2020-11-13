@@ -113,7 +113,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
       }
 
       "do not throw exception when not found but instead return None" in new Setup {
-        whenGetDefinitionFails(serviceName)(new NotFoundException("Bang"))
+        whenGetDefinitionFindsNothing(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
         result should not be 'defined

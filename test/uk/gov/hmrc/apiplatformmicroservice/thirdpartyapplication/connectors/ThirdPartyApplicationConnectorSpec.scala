@@ -208,7 +208,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
-      intercept[Upstream5xxResponse] {
+      intercept[UpstreamErrorResponse] {
         await(connector.fetchSubscriptionsById(applicationId))
       }
     }
@@ -247,8 +247,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val url = s"$baseUrl/application/${applicationId.value}/subscription"
 
     "return the success when everything works" in new Setup {
-      when(mockHttpClient.POST[ApiIdentifier, HttpResponse](eqTo(url), eqTo(apiId), *)(*,*,*,*))
-        .thenReturn(Future.successful(HttpResponse(OK)))
+      when(mockHttpClient.POST[ApiIdentifier, Unit](eqTo(url), eqTo(apiId), *)(*,*,*,*))
+        .thenReturn(Future.successful(()))
 
       await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
     }
@@ -282,7 +282,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       when(
         mockHttpClient
           .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(failed(Upstream4xxResponse("409 exception", CONFLICT, CONFLICT)))
+      ).thenReturn(failed(UpstreamErrorResponse("409 exception", CONFLICT, CONFLICT)))
 
       val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 

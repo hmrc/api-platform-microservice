@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
+  import uk.gov.hmrc.http.HttpReads.Implicits._
 
 trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters {
   def http: HttpClient with WSGet
@@ -48,17 +49,13 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
 
   def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[APIDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    val r = http.GET[APIDefinition](definitionUrl(serviceBaseUrl, serviceName))
+    val r = http.GET[Option[APIDefinition]](definitionUrl(serviceBaseUrl, serviceName))
 
-    r.map(Some(_))
-      .recover {
-        case _: NotFoundException =>
-          Logger.info("Not found")
-          None
-        case NonFatal(e)          =>
-          Logger.error(s"Failed $e")
-          throw e
-      }
+    r.recover {
+      case NonFatal(e)          =>
+        Logger.error(s"Failed $e")
+        throw e
+    }
   }
 
   def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[Seq[APICategoryDetails]] = {
