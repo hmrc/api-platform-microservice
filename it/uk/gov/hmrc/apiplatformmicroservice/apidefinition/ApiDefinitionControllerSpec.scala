@@ -100,13 +100,10 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
     }
 
     "stub get request for fetch open access apis" in {
-      val applicationId = ApplicationId.random
-
-      mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/open")
-        .withQueryStringParameters("applicationId" -> applicationId.value.toString())
+        .withQueryStringParameters("environment" -> "PRODUCTION")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 

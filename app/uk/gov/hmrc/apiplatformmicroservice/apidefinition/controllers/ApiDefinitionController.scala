@@ -34,6 +34,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.OpenAccessApis
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
 import play.api.mvc.Result
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 
 @Singleton
@@ -59,9 +60,8 @@ class ApiDefinitionController @Inject() (
     } yield Ok(Json.toJson(converted))
   }
 
-  def fetchAllOpenApis(applicationId: ApplicationId): Action[AnyContent] =
-    ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] => 
-      fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(request.application.deployedTo) ) 
+  def fetchAllOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+      fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(environment) ) 
     }
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
