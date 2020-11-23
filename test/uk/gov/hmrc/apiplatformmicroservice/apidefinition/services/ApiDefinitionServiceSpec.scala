@@ -25,8 +25,9 @@ import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 
-class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
+class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -34,7 +35,11 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   private val versionOne = ApiVersion("1.0")
   private val resource = "/mock/resourcename"
 
-  val resourceId = ResourceId(serviceName, versionOne, resource)
+  
+  private val api1 = apiDefinition("Bob")
+  private val api2 = apiDefinition("Charlie").withClosedAccess
+
+  private val resourceId = ResourceId(serviceName, versionOne, resource)
 
   implicit val hc = HeaderCarrier()
 
@@ -105,11 +110,11 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
           result shouldEqual None
         }
 
-        "return empty list for fetchAllDefinitions" in {
+        "return empty list for fetchAllNonOpenAccessApiDefinitions" in {
           val obj = setupFn()
           import obj._
 
-          val result = await(svc.fetchAllDefinitions)
+          val result = await(svc.fetchAllNonOpenAccessApiDefinitions)
 
           result shouldEqual List.empty
         }
@@ -142,6 +147,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     forAll(enabledScenarios) { (name, setupFn) =>
       s"in $name" should {
+
 
         "return the definition in a call to fetchDefinition" in {
           val obj = setupFn()
@@ -177,24 +183,24 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
         }
 
-        "return the definitions in a call to fetchAllDefinitions" in {
+        "return the definitions in a call to fetchAllNonOpenAccessApiDefinitions" in {
           val obj = setupFn()
           import obj._
 
           type T = Seq[APIDefinition]
-          val expected = Seq(mock[APIDefinition])
-          val mockFuture: Future[T] = Future.successful(expected)
+
+          val mockFuture: Future[T] = Future.successful(Seq(api1,api2))
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
 
-          val actual = await(svc.fetchAllDefinitions)
-          actual shouldBe expected
+          val actual = await(svc.fetchAllNonOpenAccessApiDefinitions)
+          actual shouldBe Seq(api2)
 
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
 
-        "return an error in a call to fetchAllDefinitions that fails" in {
+        "return an error in a call to fetchAllNonOpenAccessApiDefinitions that fails" in {
           val obj = setupFn()
           import obj._
 
@@ -205,7 +211,41 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
             .thenReturn(mockFuture)
 
           intercept[RuntimeException] {
-            await(svc.fetchAllDefinitions)
+            await(svc.fetchAllNonOpenAccessApiDefinitions)
+          }
+
+          verify(mockApiMetrics).recordFailure(eqTo(svc.api))
+        }
+
+
+        "return the definitions in a call to fetchAllOpenAccessApiDefinitions" in {
+          val obj = setupFn()
+          import obj._
+
+          type T = Seq[APIDefinition]
+          
+          val mockFuture: Future[T] = Future.successful(Seq(api1,api2))
+          when(mockConnector.fetchAllApiDefinitions(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchAllOpenAccessApiDefinitions)
+          actual shouldBe Seq(api1)
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
+        }
+
+        "return an error in a call to fetchAllOpenAccessApiDefinitions that fails" in {
+          val obj = setupFn()
+          import obj._
+
+          type T = Seq[APIDefinition]
+          val mockFuture: Future[T] = Future.failed(new RuntimeException)
+
+          when(mockConnector.fetchAllApiDefinitions(any))
+            .thenReturn(mockFuture)
+
+          intercept[RuntimeException] {
+            await(svc.fetchAllOpenAccessApiDefinitions)
           }
 
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))

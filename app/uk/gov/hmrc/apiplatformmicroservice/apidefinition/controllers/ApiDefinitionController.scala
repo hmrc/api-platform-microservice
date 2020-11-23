@@ -30,12 +30,18 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.OpenAccessApisFetcher
+import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import play.api.mvc.Result
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 
 @Singleton
 class ApiDefinitionController @Inject() (
     val applicationService: ApplicationByIdFetcher,
-    fetcher: ApiDefinitionsForApplicationFetcher,
+    applicationBasedApiFetcher: ApiDefinitionsForApplicationFetcher,
+    openAccessApisFetcher: OpenAccessApisFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents
@@ -47,22 +53,28 @@ class ApiDefinitionController @Inject() (
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
+  private def fetchApiDefinitions( fetch: => Future[Seq[APIDefinition]]): Future[Result] = {
+    for {
+      defs <- fetch
+      converted = convert(defs)
+    } yield Ok(Json.toJson(converted))
+  }
+
+  def fetchAllOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+      fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(environment) ) 
+    }
+
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if(restricted.getOrElse(true)) {
       ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
-        for {
-          defs <- fetcher.fetchRestricted(request.application, request.subscriptions)
-          converted = convert(defs)
-        } yield Ok(Json.toJson(converted))
+        fetchApiDefinitions( applicationBasedApiFetcher.fetchRestricted(request.application, request.subscriptions) )
       }
     } else {
-      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
-        for {
-          defs <- fetcher.fetchUnrestricted(request.application)
-          converted = convert(defs)
-        } yield Ok(Json.toJson(converted))
+      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] => 
+        fetchApiDefinitions( applicationBasedApiFetcher.fetchUnrestricted(request.application) )
       }
     }
+
 }
 
 object ApiDefinitionController {

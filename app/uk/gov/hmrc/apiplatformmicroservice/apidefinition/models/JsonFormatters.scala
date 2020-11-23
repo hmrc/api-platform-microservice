@@ -45,6 +45,7 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
     (JsPath \ "endpointName").read[String] and
       (JsPath \ "uriPattern").read[String] and
       (JsPath \ "method").read[HttpMethod] and
+      (JsPath \ "authType").read[AuthType] and
       ((JsPath \ "queryParameters").read[Seq[Parameter]] or Reads.pure(Seq.empty[Parameter]))
   )(Endpoint.apply _)
 

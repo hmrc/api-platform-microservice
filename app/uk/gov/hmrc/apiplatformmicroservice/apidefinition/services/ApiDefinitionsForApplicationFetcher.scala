@@ -41,14 +41,14 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   def fetchRestricted(application: Application, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val environment = application.deployedTo
     for {
-      defs <- apiDefinitionService(environment).fetchAllDefinitions
+      defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
   }
 
   def fetchUnrestricted(application: Application)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val environment = application.deployedTo
     for {
-      defs <- apiDefinitionService(environment).fetchAllDefinitions
+      defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield filterApisForGateKeeperSubscriptions(Set(application.id))(defs)
   }
 }

@@ -61,7 +61,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       versionKeys shouldNot contain(ApiVersion("5.0"))
     }
 
-  "stub get request for fetch unrestricted subscribable apis" in {
+    "stub get request for fetch unrestricted subscribable apis" in {
       val applicationId = ApplicationId.random
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
@@ -97,6 +97,33 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       withClue("Should return deprecated versions when unrestricted") { versionKeys should contain(ApiVersion("4.0")) }
       withClue("Should return alpha versions when unrestricted") { versionKeys should contain(ApiVersion("5.0")) }
+    }
+
+    "stub get request for fetch open access apis" in {
+      mockFetchApiDefinition(Environment.PRODUCTION)
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/open")
+        .withQueryStringParameters("environment" -> "PRODUCTION")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+
+      implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
+      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+
+      response.status shouldBe OK
+      val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+
+      result should not be empty
+
+      val keys = result.keys
+      keys should contain(ApiContext("another"))
+      keys should contain(ApiContext("trusted"))
+      keys shouldNot contain(ApiContext("hello"))
     }
   }
 }

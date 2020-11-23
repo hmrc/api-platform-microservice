@@ -39,8 +39,8 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     extends Recoveries with FilterApiDocumentation {
 
   def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    val principalDefinitionsFuture = principalDefinitionService.fetchAllDefinitions
-    val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
+    val principalDefinitionsFuture = principalDefinitionService.fetchAllNonOpenAccessApiDefinitions
+    val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllNonOpenAccessApiDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
 
     for {
       principalDefinitions <- principalDefinitionsFuture
