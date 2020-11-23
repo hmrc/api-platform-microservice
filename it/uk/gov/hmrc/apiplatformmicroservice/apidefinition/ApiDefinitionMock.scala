@@ -31,7 +31,7 @@ trait ApiDefinitionMock {
                         |                      "uriPattern": "/world",
                         |                      "endpointName": "Say hello world",
                         |                      "method": "GET",
-                        |                      "authType": "NONE",
+                        |                      "authType": "USER",
                         |                      "throttlingTier": "UNLIMITED"
                         |                  }
                         |              ],
@@ -115,7 +115,7 @@ trait ApiDefinitionMock {
                         |                      "uriPattern": "/world2",
                         |                      "endpointName": "Say hello world",
                         |                      "method": "GET",
-                        |                      "authType": "NONE",
+                        |                      "authType": "USER",
                         |                      "throttlingTier": "UNLIMITED"
                         |                  }
                         |              ],

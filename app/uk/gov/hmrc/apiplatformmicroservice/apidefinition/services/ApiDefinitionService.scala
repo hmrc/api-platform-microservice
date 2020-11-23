@@ -27,8 +27,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.OpenAccessRules
 
-abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
+abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
@@ -46,18 +47,34 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchAllDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
-    lazy val failFn = (e: Throwable) => s"fetchAllDefinitions failed $e"
+  private def fetchAllDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+    lazy val failFn = (e: Throwable) => s"FetchAllNonOpenAccessDefinitions failed $e"
 
     if (enabled) {
       record {
         log(failFn) {
-          connector.fetchAllApiDefinitions
+            connector.fetchAllApiDefinitions
         }
       }
     } else {
       Future.successful(Seq.empty)
     }
+  }
+
+  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+    for {
+      allApis <- fetchAllDefinitions
+      open = allApis.filterNot(a => isOpenAccess(a))
+    }
+    yield open
+  }
+
+  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+    for {
+      allApis <- fetchAllDefinitions
+      open = allApis.filter(a => isOpenAccess(a))
+    }
+    yield open
   }
 
   def fetchAllAPICategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APICategoryDetails]] = {

@@ -49,10 +49,7 @@ case class APIDefinition(
     requiresTrust: Boolean = false,
     isTestSupport: Boolean = false,
     versions: Seq[ApiVersionDefinition],
-    categories: Seq[APICategory] = Seq.empty) {
-
-  def hasActiveVersions: Boolean = versions.exists(_.status != APIStatus.RETIRED)
-}
+    categories: Seq[APICategory] = Seq.empty)
 
 case class APICategory(value: String) extends AnyVal
 
@@ -91,7 +88,7 @@ trait APIAccess
 case class PublicApiAccess() extends APIAccess
 case class PrivateApiAccess(whitelistedApplicationIds: Seq[ApplicationId] = Seq.empty, isTrial: Boolean = false) extends APIAccess
 
-case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, queryParameters: Seq[Parameter] = Seq.empty)
+case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: Seq[Parameter] = Seq.empty)
 
 sealed trait HttpMethod extends EnumEntry
 
@@ -105,6 +102,18 @@ object HttpMethod extends Enum[HttpMethod] with PlayJsonEnum[HttpMethod] {
   case object PATCH extends HttpMethod
   case object DELETE extends HttpMethod
   case object OPTIONS extends HttpMethod
+}
+
+sealed trait AuthType extends EnumEntry
+
+object AuthType extends Enum[AuthType] with PlayJsonEnum[AuthType] {
+
+  val values = findValues
+
+  case object NONE extends AuthType
+  case object APPLICATION extends AuthType
+  case object USER extends AuthType
+
 }
 
 case class Parameter(name: String, required: Boolean = false)

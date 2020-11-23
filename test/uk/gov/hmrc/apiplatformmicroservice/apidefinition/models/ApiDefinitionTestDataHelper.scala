@@ -53,6 +53,8 @@ trait ApiDefinitionTestDataHelper {
     def requiresTrust(is: Boolean): APIDefinition =
       inner.copy(requiresTrust = is)
 
+    def withClosedAccess: APIDefinition = inner.copy(versions = inner.versions.map(v => v.withClosedAccess))
+
     def doesRequireTrust: APIDefinition = requiresTrust(true)
     def doesNotRequireTrust: APIDefinition = requiresTrust(false)
     def trustNotSpecified: APIDefinition = requiresTrust(false)
@@ -102,13 +104,16 @@ trait ApiDefinitionTestDataHelper {
   }
 
   def endpoint(endpointName: String = "Hello World", url: String = "/world"): Endpoint = {
-    Endpoint(endpointName, url, HttpMethod.GET, Seq.empty)
+    Endpoint(endpointName, url, HttpMethod.GET, AuthType.NONE, Seq.empty)
   }
 
   implicit class EndpointModifier(val inner: Endpoint) {
 
-    def asPost: Endpoint =
-      inner.copy(method = HttpMethod.POST)
+    def asPost: Endpoint = inner.copy(method = HttpMethod.POST)
+
+    def asUserRestricted: Endpoint = inner.copy(authType = AuthType.USER)
+
+    def asApplicationRestricted: Endpoint = inner.copy(authType = AuthType.APPLICATION)
   }
 
   def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: APIStatus = STABLE, access: APIAccess = apiAccess()): ApiVersionDefinition = {
@@ -155,6 +160,8 @@ trait ApiDefinitionTestDataHelper {
 
     def withAccess(altAccess: APIAccess): ApiVersionDefinition =
       inner.copy(access = altAccess)
+
+    def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = NEL(inner.endpoints.head.asApplicationRestricted, inner.endpoints.tail))
   }
 
 }
