@@ -25,7 +25,8 @@ case class ExtendedAPIDefinition(
     context: ApiContext,
     requiresTrust: Boolean,
     isTestSupport: Boolean,
-    versions: Seq[ExtendedAPIVersion])
+    versions: Seq[ExtendedAPIVersion],
+    categories: Seq[APICategory] = Seq.empty)
 
 case class ExtendedAPIVersion(
     version: ApiVersion,
