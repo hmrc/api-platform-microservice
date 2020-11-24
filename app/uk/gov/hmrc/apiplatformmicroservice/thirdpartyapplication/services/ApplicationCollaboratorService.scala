@@ -43,10 +43,13 @@ class ApplicationCollaboratorService @Inject() (
           }
 
           thirdPartyDeveloperConnector.fetchDeveloper(collaboratorEmail)
-            .flatMap((maybeUserResponse: Option[UserResponse]) => {
-              maybeUserResponse
-                .fold(getUnregisteredUserId(collaboratorEmail))((userResponse: UserResponse) => Future.successful(userResponse.userId))
-            })
+            .flatMap(
+              _.fold(
+                getUnregisteredUserId(collaboratorEmail)
+              )(
+                userResponse => Future.successful(userResponse.userId)
+              )
+            )
         }
 
         val otherAdminEmails = app.collaborators

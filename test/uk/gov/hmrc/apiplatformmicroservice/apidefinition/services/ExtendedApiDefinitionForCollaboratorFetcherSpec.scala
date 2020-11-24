@@ -27,6 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategory
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -57,9 +58,25 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
     val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
     val privateApiAvailability = APIAvailability(false, PrivateApiAccess(List(), false), false, false)
+
+    val incomeTaxCategory = APICategory("INCOME_TAX")
+    val vatTaxCategory = APICategory("VAT")
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
+    "return an extended api with categories from the definition" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withCategories(Seq(incomeTaxCategory, vatTaxCategory)))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+
+      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+
+      result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
+      result.versions.head.sandboxAvailability mustBe None
+      result.categories must not be empty
+      result.categories must contain(incomeTaxCategory)
+      result.categories must contain(vatTaxCategory)
+    }
+
     "return an extended api with only production availability when api only in principal" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()

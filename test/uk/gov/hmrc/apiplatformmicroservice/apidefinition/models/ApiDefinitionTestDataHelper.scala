@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 trait ApiDefinitionTestDataHelper {
 
   def extendedApiDefinition(name: String, versions: Seq[ExtendedAPIVersion] = Seq(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
-    ExtendedAPIDefinition(name, name, name, ApiContext(name), false, false, versions)
+    ExtendedAPIDefinition(name, name, name, ApiContext(name), false, false, versions, Seq.empty)
   }
 
   def extendedApiVersion(
@@ -62,6 +62,8 @@ trait ApiDefinitionTestDataHelper {
     def withName(name: String): APIDefinition = inner.copy(name = name)
 
     def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions)
+
+    def withCategories(categories: Seq[APICategory]): APIDefinition = inner.copy(categories = categories)
 
     def asTrial: APIDefinition = {
       inner.copy(versions = inner.versions.map(_.asTrial))

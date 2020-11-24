@@ -71,7 +71,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
             apiDefinition.context,
             apiDefinition.requiresTrust,
             apiDefinition.isTestSupport,
-            extendedVersions
+            extendedVersions,
+            apiDefinition.categories
           ))
         }
       }
