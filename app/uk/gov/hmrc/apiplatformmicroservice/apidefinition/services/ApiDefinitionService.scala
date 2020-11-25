@@ -47,7 +47,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  private def fetchAllDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+  private def fetchAllDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
     lazy val failFn = (e: Throwable) => s"FetchAllNonOpenAccessDefinitions failed $e"
 
     if (enabled) {
@@ -57,11 +57,11 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
         }
       }
     } else {
-      Future.successful(Seq.empty)
+      Future.successful(List.empty)
     }
   }
 
-  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
     for {
       allApis <- fetchAllDefinitions
       open = allApis.filterNot(a => isOpenAccess(a))
@@ -69,7 +69,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     yield open
   }
 
-  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APIDefinition]] = {
+  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
     for {
       allApis <- fetchAllDefinitions
       open = allApis.filter(a => isOpenAccess(a))

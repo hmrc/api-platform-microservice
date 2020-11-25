@@ -53,8 +53,10 @@ trait ApiDefinitionTestDataHelper {
     def requiresTrust(is: Boolean): APIDefinition =
       inner.copy(requiresTrust = is)
 
-    def withClosedAccess: APIDefinition = inner.copy(versions = inner.versions.map(v => v.withClosedAccess))
+    def withClosedAccess: APIDefinition = inner.copy(versions = inner.versions.map(_.withClosedAccess))
 
+    def asPrivate: APIDefinition = inner.copy(versions = inner.versions.map(_.asPrivate))
+    
     def doesRequireTrust: APIDefinition = requiresTrust(true)
     def doesNotRequireTrust: APIDefinition = requiresTrust(false)
     def trustNotSpecified: APIDefinition = requiresTrust(false)

@@ -64,9 +64,6 @@ sealed trait APIStatus extends EnumEntry
 object APIStatus extends Enum[APIStatus] with PlayJsonEnum[APIStatus] {
 
   val values = findValues
-
-  case object PROTOTYPED extends APIStatus
-  case object PUBLISHED extends APIStatus
   case object ALPHA extends APIStatus
   case object BETA extends APIStatus
   case object STABLE extends APIStatus

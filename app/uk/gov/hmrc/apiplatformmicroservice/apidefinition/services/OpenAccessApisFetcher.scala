@@ -22,13 +22,25 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.RETIRED
 
 @Singleton
 class OpenAccessApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
   )(implicit ec: ExecutionContext) extends OpenAccessRules {
 
-  def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
-    apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions
+  private def filterOutRetiredVersions(definition: APIDefinition): Option[APIDefinition] = {
+    val filteredVersions = definition.versions.filterNot(_.status == RETIRED)
+    if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
+  }
+
+  def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+    import cats.data.Nested
+    import cats.implicits._
+
+    Nested(apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions)
+    .map(filterOutRetiredVersions)
+    .collect({ case Some(x) => x})
+    .value
   }
 }

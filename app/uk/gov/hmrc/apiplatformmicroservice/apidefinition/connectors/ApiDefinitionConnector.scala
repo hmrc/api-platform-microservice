@@ -32,15 +32,15 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    val r = http.GET[Seq[APIDefinition]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
+    val r = http.GET[List[APIDefinition]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
 
     r.map(e => e.sortBy(_.name))
       .recover {
         case _: NotFoundException =>
           Logger.info("Not found")
-          Seq.empty
+          List.empty
         case NonFatal(e)          =>
           Logger.error(s"Failed $e")
           throw e

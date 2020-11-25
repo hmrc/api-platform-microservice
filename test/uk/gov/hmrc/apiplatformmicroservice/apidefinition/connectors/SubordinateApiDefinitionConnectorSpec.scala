@@ -124,19 +124,19 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
       "call the underlying http client" in new Setup {
         whenGetAllDefinitions(apiDefinition(apiName1), apiDefinition(apiName2))
 
-        val result: Seq[APIDefinition] =
+        val result =
           await(connector.fetchAllApiDefinitions)
 
         result.size shouldEqual 2
-        result.map(_.name) shouldEqual Seq(apiName1, apiName2)
+        result.map(_.name) shouldEqual List(apiName1, apiName2)
       }
 
-      "do not throw exception when not found but instead return empty seq" in new Setup {
+      "do not throw exception when not found but instead return empty list" in new Setup {
         whenGetAllDefinitionsFails(new NotFoundException("Bang"))
 
-        val result: Seq[APIDefinition] =
+        val result =
           await(connector.fetchAllApiDefinitions)
-        result shouldEqual Seq.empty
+        result shouldEqual List.empty
       }
 
       "throw an exception correctly" in new Setup {
@@ -150,11 +150,11 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
     "when retry logic is enabled should retry on failure" in new Setup(true) {
 
-      val response: Seq[APIDefinition] = Seq(apiDefinition("dummyAPI"))
+      val response = List(apiDefinition("dummyAPI"))
 
       when(
         mockProxiedHttpClient
-          .GET[Seq[APIDefinition]](any[String], any)(any, any, any)
+          .GET[List[APIDefinition]](any[String], any)(any, any, any)
       ).thenReturn(
         Future.failed(new BadRequestException("")),
         Future.successful(response),
