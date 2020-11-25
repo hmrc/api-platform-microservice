@@ -57,7 +57,7 @@ class SubordinateApiDefinitionConnector @Inject() (
       httpClient
     }
 
-  override def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  override def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
     retry {
       super.fetchAllApiDefinitions
     }

@@ -31,11 +31,11 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
     object FetchAllNonOpenAccessDefinitions {
       def willReturn(apiDefinitions: APIDefinition*) = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toSeq))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
       }
 
       def willReturnNoApiDefinitions() = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(Seq.empty))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {

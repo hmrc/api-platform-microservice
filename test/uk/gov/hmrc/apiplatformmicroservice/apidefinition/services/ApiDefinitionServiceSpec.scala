@@ -38,6 +38,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
   
   private val api1 = apiDefinition("Bob")
   private val api2 = apiDefinition("Charlie").withClosedAccess
+  private val api3 = apiDefinition("Dannie").asPrivate
 
   private val resourceId = ResourceId(serviceName, versionOne, resource)
 
@@ -148,14 +149,12 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
     forAll(enabledScenarios) { (name, setupFn) =>
       s"in $name" should {
 
-
         "return the definition in a call to fetchDefinition" in {
           val obj = setupFn()
           import obj._
 
-          type T = Option[APIDefinition]
           val expected = Some(mock[APIDefinition])
-          val mockFuture: Future[T] = Future.successful(expected)
+          val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
             .thenReturn(mockFuture)
@@ -170,8 +169,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Option[APIDefinition]
-          val mockFuture: Future[T] = Future.failed(new RuntimeException)
+          val mockFuture = Future.failed(new RuntimeException)
 
           when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
             .thenReturn(mockFuture)
@@ -187,15 +185,13 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Seq[APIDefinition]
-
-          val mockFuture: Future[T] = Future.successful(Seq(api1,api2))
+          val mockFuture = Future.successful(List(api1,api2))
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchAllNonOpenAccessApiDefinitions)
-          actual shouldBe Seq(api2)
+          actual shouldBe List(api2)
 
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
@@ -204,8 +200,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Seq[APIDefinition]
-          val mockFuture: Future[T] = Future.failed(new RuntimeException)
+          val mockFuture = Future.failed(new RuntimeException)
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
@@ -217,19 +212,32 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
         }
 
-
         "return the definitions in a call to fetchAllOpenAccessApiDefinitions" in {
           val obj = setupFn()
           import obj._
 
-          type T = Seq[APIDefinition]
-          
-          val mockFuture: Future[T] = Future.successful(Seq(api1,api2))
+          val mockFuture = Future.successful(List(api1,api2))
+
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchAllOpenAccessApiDefinitions)
-          actual shouldBe Seq(api1)
+          actual shouldBe List(api1)
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
+        }
+
+        "return the definitions in a call to fetchAllOpenAccessApiDefinitions eliminating private access" in {
+          val obj = setupFn()
+          import obj._
+
+          val mockFuture = Future.successful(List(api1,api3))
+          
+          when(mockConnector.fetchAllApiDefinitions(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchAllOpenAccessApiDefinitions)
+          actual shouldBe List(api1)
 
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
@@ -238,8 +246,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Seq[APIDefinition]
-          val mockFuture: Future[T] = Future.failed(new RuntimeException)
+          val mockFuture = Future.failed(new RuntimeException)
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
@@ -255,9 +262,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Option[WSResponse]
           val result = Some(mock[WSResponse])
-          val mockFuture: Future[T] = Future.successful(result)
+          val mockFuture = Future.successful(result)
 
           when(
             mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
@@ -273,8 +279,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Option[WSResponse]
-          val mockFuture: Future[T] = Future.failed(new RuntimeException)
+          val mockFuture = Future.failed(new RuntimeException)
 
           when(
             mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
@@ -292,9 +297,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          type T = Seq[APICategoryDetails]
           val expected = mock[Seq[APICategoryDetails]]
-          val mockFuture: Future[T] = Future.successful(expected)
+          val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiCategoryDetails()(any))
             .thenReturn(mockFuture)
