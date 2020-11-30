@@ -29,6 +29,20 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
   trait ApiDefinitionServiceMock {
     def aMock: ApiDefinitionService
 
+    object FetchAllApiDefinitions {
+      def willReturn(apiDefinitions: APIDefinition*) = {
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
+      }
+
+      def willReturnNoApiDefinitions() = {
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.successful(List.empty))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.failed(e))
+      }
+    }
+
     object FetchAllNonOpenAccessDefinitions {
       def willReturn(apiDefinitions: APIDefinition*) = {
         when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
