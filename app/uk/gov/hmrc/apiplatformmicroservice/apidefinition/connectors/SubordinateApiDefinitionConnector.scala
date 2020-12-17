@@ -23,8 +23,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
@@ -40,13 +40,9 @@ class SubordinateApiDefinitionConnector @Inject() (
     val futureTimeout: FutureTimeoutSupport
   )(implicit val ec: ExecutionContext,
     val mat: Materializer)
-    extends ApiDefinitionConnector
-    with Retries
-    with WSResponseRetries {
+    extends ApiDefinitionConnector {
 
   val serviceBaseUrl: String = config.serviceBaseUrl
-  val retryCount: Int = config.retryCount
-  val retryDelayMilliseconds: Int = config.retryDelayMilliseconds
 
   import config._
 
@@ -57,31 +53,17 @@ class SubordinateApiDefinitionConnector @Inject() (
       httpClient
     }
 
-  override def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
-    retry {
-      super.fetchAllApiDefinitions
-    }
-  }
-
-  override def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[APIDefinition]] = {
-    retry {
-      super.fetchApiDefinition(serviceName)
-    }
-  }
-
   override def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
     val url = documentationUrl(serviceBaseUrl, resourceId)
 
     Logger.info(s"${this.getClass.getSimpleName} - S - fetchApiDocumentationResource. Url: $url")
 
     if (useProxy) {
-      retryWSResponse {
-        proxiedHttpClient
-          .withHeaders(bearerToken, apiKey)
-          .buildRequest(url)
-          .stream()
-          .map(Some(_))
-      }
+      proxiedHttpClient
+        .withHeaders(bearerToken, apiKey)
+        .buildRequest(url)
+        .stream()
+        .map(Some(_))
     } else {
       Future.successful(None)
     }
@@ -94,7 +76,5 @@ object SubordinateApiDefinitionConnector {
       serviceBaseUrl: String,
       useProxy: Boolean,
       bearerToken: String,
-      apiKey: String,
-      retryCount: Int,
-      retryDelayMilliseconds: Int)
+      apiKey: String)
 }

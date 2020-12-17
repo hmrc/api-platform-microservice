@@ -22,7 +22,7 @@ import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  val UpstreamException = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+  val UpstreamInternalServerError = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   val bearer = "TestBearerToken"
   val apiKeyTest = UUID.randomUUID().toString
@@ -68,9 +68,9 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
       }
 
       "throw an exception correctly" in new PrincipalSetup {
-        whenGetDefinitionFails(serviceName)(UpstreamException)
+        whenGetDefinitionFails(serviceName)(UpstreamInternalServerError)
 
-        intercept[UpstreamException.type] {
+        intercept[UpstreamErrorResponse] {
           await(connector.fetchApiDefinition(serviceName))
         }
       }
@@ -86,29 +86,27 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
     "when requesting all api definitions" should {
 
       "call the underlying http client with the type argument set to all" in new PrincipalSetup {
-        whenGetAllDefinitions(apiDefinition(apiName1),
-                                              apiDefinition(apiName2))
+        whenGetAllDefinitions(apiDefinition(apiName1), apiDefinition(apiName2))
 
         val result = await(connector.fetchAllApiDefinitions)
 
         result.size shouldEqual 2
-        result.map(_.name) shouldEqual Seq(apiName1, apiName2)
+        result.map(_.name) shouldEqual List(apiName1, apiName2)
       }
 
       "do not throw exception when not found but instead return empty seq" in new PrincipalSetup {
-        whenGetAllDefinitionsFails(
-          new NotFoundException("Bang"))
+        whenGetAllDefinitionsFindsNothing()
 
         val result = await(connector.fetchAllApiDefinitions)
-        result shouldEqual Seq.empty
+        result shouldEqual List.empty
       }
 
       "throw an exception correctly" in new PrincipalSetup {
-        whenGetAllDefinitionsFails(UpstreamException)
+        whenGetAllDefinitionsFails(UpstreamInternalServerError)
 
-        intercept[UpstreamException.type] {
+        intercept[UpstreamErrorResponse] {
           await(connector.fetchAllApiDefinitions)
-        }
+        }.statusCode shouldBe INTERNAL_SERVER_ERROR
       }
     }
 
@@ -125,11 +123,11 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
       }
 
       "throw an exception correctly" in new PrincipalSetup {
-        whenGetAPICategoryDetailsFails(UpstreamException)
+        whenGetAPICategoryDetailsFails(UpstreamInternalServerError)
 
-        intercept[UpstreamException.type] {
+        intercept[UpstreamErrorResponse] {
           await(connector.fetchApiCategoryDetails())
-        }
+        }.statusCode shouldBe INTERNAL_SERVER_ERROR
       }
 
     }
