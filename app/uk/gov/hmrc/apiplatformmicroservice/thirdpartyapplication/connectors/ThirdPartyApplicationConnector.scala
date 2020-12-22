@@ -17,8 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.http.ContentTypes._
-import play.api.http.HeaderNames._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
@@ -26,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttp
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
@@ -62,9 +60,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
       applicationBearerToken: String,
       applicationApiKey: String)
 
-  private def recovery: PartialFunction[Throwable, Nothing] = {
-    case _: NotFoundException => throw new ApplicationNotFound
-  }
 }
 
 trait ThirdPartyApplicationConnector {
@@ -118,18 +113,22 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, Unit](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier, Seq(CONTENT_TYPE -> JSON)) map { _ =>
-      SubscriptionUpdateSuccessResult
-    }
+    http.POST[ApiIdentifier, Either[UpstreamErrorResponse,Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
+    .map( _ match {
+      case Left(errorResponse) => throw errorResponse
+      case Right(_) =>  SubscriptionUpdateSuccessResult
+    })
   }
 
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)
                      (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
-    http.POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest, Seq(CONTENT_TYPE -> JSON)) map { result =>
-      AddCollaboratorSuccessResult(result.registeredUser)
-    } recover {
-      case WithStatusCode(CONFLICT,_) => CollaboratorAlreadyExistsFailureResult
-    } recover recovery
+    http.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest)
+    .map(_ match {
+      case Right(response) => AddCollaboratorSuccessResult(response.registeredUser)
+      case Left(UpstreamErrorResponse(_,NOT_FOUND, _, _)) => throw new ApplicationNotFound
+      case Left(UpstreamErrorResponse(_,CONFLICT, _, _)) => CollaboratorAlreadyExistsFailureResult
+      case Left(errorResponse) => throw errorResponse
+    })
   }
 }
 

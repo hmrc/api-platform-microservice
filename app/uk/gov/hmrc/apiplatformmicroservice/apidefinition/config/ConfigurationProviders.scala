@@ -57,9 +57,6 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc
     with ServicesConfigBridgeExtension {
 
   override def get(): SubordinateApiDefinitionConnector.Config = {
-    val retryCount = configuration.getOptional[Int]("retryCount").getOrElse(3)
-    val retryDelayMilliseconds = configuration.getOptional[Int]("retryDelayMilliseconds").getOrElse(499)
-
     val subordinateServiceName = "api-definition-subordinate"
     val subordinateBaseUrl =
       serviceUrl("api-definition")(subordinateServiceName)
@@ -71,9 +68,7 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc
       serviceBaseUrl = subordinateBaseUrl,
       useProxy = subordinateUseProxy,
       bearerToken = subordinateBearerToken,
-      apiKey = subordiateApiKey,
-      retryCount = retryCount,
-      retryDelayMilliseconds = retryDelayMilliseconds
+      apiKey = subordiateApiKey
     )
   }
 }

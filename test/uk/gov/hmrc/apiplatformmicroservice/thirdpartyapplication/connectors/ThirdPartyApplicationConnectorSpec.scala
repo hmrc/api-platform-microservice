@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import play.api.http.HeaderNames.CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse}
@@ -26,16 +25,13 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Role}
 import play.api.http.Status._
-import play.api.test.Helpers.JSON
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.CollaboratorsBuilder
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 
-import scala.concurrent.Future.failed
-
+import scala.concurrent.Future.{failed, successful}
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   private val helloWorldContext = ApiContext("hello-world")
@@ -108,7 +104,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "return application Ids" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
-        .thenReturn(Future.successful(applicationResponses))
+        .thenReturn(successful(applicationResponses))
 
       val result = await(connector.fetchApplicationsByEmail(email))
 
@@ -118,7 +114,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
-        .thenReturn(Future.failed(new NotFoundException("")))
+        .thenReturn(failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
         await(connector.fetchApplicationsByEmail(email))
@@ -133,7 +129,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "return subscriptions" in new Setup {
       when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(expectedSubscriptions))
+        .thenReturn(successful(expectedSubscriptions))
 
       val result = await(connector.fetchSubscriptionsByEmail(email))
 
@@ -142,7 +138,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(new NotFoundException("")))
+        .thenReturn(failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
         await(connector.fetchSubscriptionsByEmail(email))
@@ -157,7 +153,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(new RuntimeException("Bang")))
+        .thenReturn(failed(new RuntimeException("Bang")))
 
       intercept[RuntimeException] {
         await(connector.fetchApplication(applicationId))
@@ -166,7 +162,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "return None when appropriate" in new Setup {
       when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(None))
+        .thenReturn(successful(None))
 
       await(connector.fetchApplication(applicationId)) shouldBe None
     }
@@ -175,7 +171,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
       val mockApp = mock[Application]
 
       when(mockHttpClient.GET[Option[Application]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(Some(mockApp)))
+        .thenReturn(successful(Some(mockApp)))
 
       await(connector.fetchApplication(applicationId)) shouldBe Some(mockApp)
     }
@@ -190,7 +186,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "propagate error when endpoint returns error" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(new RuntimeException("Bang")))
+        .thenReturn(failed(new RuntimeException("Bang")))
 
       intercept[RuntimeException] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -199,14 +195,14 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "handle 5xx from subordinate" in new SubordinateSetup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
+        .thenReturn(failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "handle 5xx from principal" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
+        .thenReturn(failed(UpstreamErrorResponse.apply("Nothing here", INTERNAL_SERVER_ERROR)))
 
       intercept[UpstreamErrorResponse] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -214,7 +210,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "handle Not Found" in new Setup {
-      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *)).thenReturn(Future.failed(UpstreamErrorResponse.apply("Nothing here", NOT_FOUND)))
+      when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *)).thenReturn(failed(UpstreamErrorResponse.apply("Nothing here", NOT_FOUND)))
 
       intercept[ApplicationNotFound] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -223,14 +219,14 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
     "return None when appropriate" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(Set.empty))
+        .thenReturn(successful(Set.empty))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
     }
 
     "return the subscription versions that are subscribed to" in new Setup {
       when(mockHttpClient.GET[Set[ApiIdentifier]](eqTo(url))(*, *, *))
-        .thenReturn(Future.successful(MixedSubscriptions))
+        .thenReturn(successful(MixedSubscriptions))
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
         ApiIdentifier(ContextA, VersionOne),
@@ -247,8 +243,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     val url = s"$baseUrl/application/${applicationId.value}/subscription"
 
     "return the success when everything works" in new Setup {
-      when(mockHttpClient.POST[ApiIdentifier, Unit](eqTo(url), eqTo(apiId), *)(*,*,*,*))
-        .thenReturn(Future.successful(()))
+      when(mockHttpClient.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](eqTo(url), eqTo(apiId), *)(*,*,*,*))
+        .thenReturn(successful(Right(())))
 
       await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
     }
@@ -268,10 +264,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     "return success" in new CollaboratorSetup {
       val addCollaboratorResponse = AddCollaboratorToTpaResponse(true)
 
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(Future.successful(addCollaboratorResponse))
+      when(mockHttpClient.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](eqTo(url), eqTo(addCollaboratorRequest), *)(*, *, *, *))
+      .thenReturn(successful(Right(addCollaboratorResponse)))
 
       val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 
@@ -279,10 +273,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "return teamMember already exists response" in new CollaboratorSetup {
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(failed(UpstreamErrorResponse("409 exception", CONFLICT, CONFLICT)))
+      when(mockHttpClient.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](eqTo(url), eqTo(addCollaboratorRequest), *)(*, *, *, *))
+      .thenReturn(successful(Left(UpstreamErrorResponse("", CONFLICT))))
 
       val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 
@@ -290,10 +282,8 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
 
     "return application not found response" in new CollaboratorSetup {
-      when(
-        mockHttpClient
-          .POST[AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse](eqTo(url), eqTo(addCollaboratorRequest), eqTo(Seq(CONTENT_TYPE -> JSON)))(*, *, *, *)
-      ).thenReturn(failed(new NotFoundException("")))
+      when(mockHttpClient.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](eqTo(url), eqTo(addCollaboratorRequest), *)(*, *, *, *))
+      .thenReturn(successful(Left(UpstreamErrorResponse("", NOT_FOUND))))
 
       intercept[ApplicationNotFound] {
         await(connector.addCollaborator(applicationId, addCollaboratorRequest))

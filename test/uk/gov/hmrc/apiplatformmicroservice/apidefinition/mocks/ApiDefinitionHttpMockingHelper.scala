@@ -54,14 +54,21 @@ trait ApiDefinitionHttpMockingHelper
   def whenGetAllDefinitions(definitions: APIDefinition*): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[List[APIDefinition]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
-    ).thenReturn(Future.successful(definitions.toList))
+      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+    ).thenReturn(Future.successful(Some(definitions.toList)))
+  }
+
+  def whenGetAllDefinitionsFindsNothing(): Unit = {
+    val url = definitionsUrl(apiDefinitionUrl)
+    when(
+      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+    ).thenReturn(Future.successful(None))
   }
 
   def whenGetAllDefinitionsFails(exception: Throwable): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[List[APIDefinition]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
     ).thenReturn(Future.failed(exception))
   }
 

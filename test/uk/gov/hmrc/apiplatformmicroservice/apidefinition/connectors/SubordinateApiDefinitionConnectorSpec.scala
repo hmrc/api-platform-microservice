@@ -20,26 +20,20 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
 import play.api.Environment
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.libs.ws.{WSRequest, WSResponse}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
   private val environmentName = "ENVIRONMENT"
 
-  private val versionOne = ApiVersion("1.0")
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -66,9 +60,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
       serviceBaseUrl = apiDefinitionUrl,
       useProxy = proxyEnabled,
       bearerToken = bearer,
-      apiKey = apiKeyTest,
-      retryCount = 1,
-      retryDelayMilliseconds = 200
+      apiKey = apiKeyTest
     )
 
     val mockEnvironment: Environment = mock[Environment]
@@ -132,7 +124,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
       }
 
       "do not throw exception when not found but instead return empty list" in new Setup {
-        whenGetAllDefinitionsFails(new NotFoundException("Bang"))
+        whenGetAllDefinitionsFindsNothing()
 
         val result =
           await(connector.fetchAllApiDefinitions)
@@ -146,54 +138,6 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
           await(connector.fetchAllApiDefinitions)
         }
       }
-    }
-
-    "when retry logic is enabled should retry on failure" in new Setup(true) {
-
-      val response = List(apiDefinition("dummyAPI"))
-
-      when(
-        mockProxiedHttpClient
-          .GET[List[APIDefinition]](any[String], any)(any, any, any)
-      ).thenReturn(
-        Future.failed(new BadRequestException("")),
-        Future.successful(response),
-        Future.successful(response),
-        Future.successful(response)
-      )
-      await(connector.fetchAllApiDefinitions) shouldEqual response
-    }
-
-    "when retry logic is enabled should retry on failure wsResponse BadRequest results" in new Setup(
-      true
-    ) {
-      val wsRequest: WSRequest = mock[play.api.libs.ws.WSRequest]
-
-      when(
-        mockProxiedHttpClient.buildRequest(any[String], any)(
-          any[HeaderCarrier]
-        )
-      )
-        .thenReturn(wsRequest)
-
-      val mockWSResponseBadRequest: WSResponse =
-        mock[play.api.libs.ws.WSResponse]("Bad Request WSResponse")
-      when(mockWSResponseBadRequest.status)
-        .thenReturn(play.api.http.Status.BAD_REQUEST)
-
-      type T = Source[akka.util.ByteString, _]
-      val mockStream: T = Source(List[ByteString]())
-      when[T](mockWSResponseBadRequest.bodyAsSource).thenReturn(mockStream)
-
-      val mockWSResponseSuccess: WSResponse =
-        mock[play.api.libs.ws.WSResponse]("Success Request WSResponse")
-
-      when(wsRequest.stream())
-        .thenReturn(Future.successful(mockWSResponseBadRequest), Future.successful(mockWSResponseSuccess))
-
-      val resource = ResourceId("my-service", versionOne, "my-resource")
-      await(connector.fetchApiDocumentationResource(resource))
-        .shouldEqual(Some(mockWSResponseSuccess))
     }
 
     "for http" when {

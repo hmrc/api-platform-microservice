@@ -19,13 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import play.api.Logger
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiDefinitionJsonFormatters, ResourceId}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-  import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters {
   def http: HttpClient with WSGet
@@ -34,17 +34,11 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    val r = http.GET[List[APIDefinition]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
-
-    r.map(e => e.sortBy(_.name))
-      .recover {
-        case _: NotFoundException =>
-          Logger.info("Not found")
-          List.empty
-        case NonFatal(e)          =>
-          Logger.error(s"Failed $e")
-          throw e
-      }
+    http.GET[Option[List[APIDefinition]]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
+    .map(_ match {
+      case None => List.empty
+      case Some(apiDefinitions) => apiDefinitions.sortBy(_.name)
+    })
   }
 
   def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[APIDefinition]] = {
