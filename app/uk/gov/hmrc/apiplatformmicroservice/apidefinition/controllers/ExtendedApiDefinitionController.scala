@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 @Singleton()
 class ExtendedApiDefinitionController @Inject()(
@@ -42,20 +43,20 @@ class ExtendedApiDefinitionController @Inject()(
     extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
-  def fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    apiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
+  def fetchApiDefinitionsForCollaborator(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
+    apiDefinitionsForCollaboratorFetcher.fetch(developerId) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
-  def fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String): Action[AnyContent] = Action.async { implicit request =>
-    subscribedApiDefinitionsForCollaboratorFetcher.fetch(collaboratorEmail) map { definitions =>
+  def fetchSubscribedApiDefinitionsForCollaborator(developerId: DeveloperIdentifier): Action[AnyContent] = Action.async { implicit request =>
+    subscribedApiDefinitionsForCollaboratorFetcher.fetch(developerId) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
-  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, collaboratorEmail) map {
+  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
+    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, developerId) map {
       case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
       case _                        => NotFound
     } recover recovery

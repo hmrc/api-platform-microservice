@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundExcepti
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
 
 class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -70,7 +71,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
   }
 
   "fetchApiDefinitionsForCollaborator" should {
-    val email = Some("joebloggs@example.com")
+    val email = Some(EmailIdentifier("joebloggs@example.com"))
 
     "return the API definitions when email provided" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
@@ -110,7 +111,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
   }
 
   "fetchSubscribedApiDefinitionsForCollaborator" should {
-    val email = "joebloggs@example.com"
+    val email = EmailIdentifier("joebloggs@example.com")
 
     "return the API definitions the user is subscribed to" in new Setup {
       SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
@@ -141,7 +142,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
   }
 
   "fetchExtendedApiDefinitionForCollaborator" should {
-    val email = Some("joebloggs@example.com")
+    val email = Some(EmailIdentifier("joebloggs@example.com"))
 
     "return the extended API definition when email provided" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
