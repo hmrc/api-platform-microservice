@@ -102,15 +102,14 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   def fetchApplications(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
     developerId match {
       case EmailIdentifier(email) => http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/application", Seq("emailAddress" -> email)).map(_.map(_.id))
-      case UuidIdentifier(userId) => http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/$userId/applications").map(_.map(_.id))
+      case UuidIdentifier(userId) => http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.value}/applications").map(_.map(_.id))
     }
-    
   }
 
   def fetchSubscriptions(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
     developerId match {
       case EmailIdentifier(email) => http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$email/subscriptions")
-      case UuidIdentifier(userId) => http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/$userId/subscriptions")
+      case UuidIdentifier(userId) => http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId.value}/subscriptions")
     }
   }
 

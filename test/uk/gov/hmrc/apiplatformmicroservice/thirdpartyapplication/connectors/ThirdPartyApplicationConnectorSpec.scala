@@ -129,7 +129,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   "fetchApplications for a collaborator by user id" should {
     val userId = UuidIdentifier(UserId.random)
-    val url = s"$baseUrl/developer/${userId.userId}/applications"
+    val url = s"$baseUrl/developer/${userId.userId.value}/applications"
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
@@ -178,7 +178,7 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   "fetchSubscriptions for a collaborator by user id" should {
     val userId = UuidIdentifier(UserId.random)
-    val url = s"$baseUrl/developer/${userId.userId}/subscriptions"
+    val url = s"$baseUrl/developer/${userId.userId.value}/subscriptions"
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
