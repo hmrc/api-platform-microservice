@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
@@ -89,6 +90,34 @@ package object binders {
 
     override def unbind(key: String, version: ApiVersion): String = {
       textBinder.unbind(key, version.value)
+    }
+  }
+
+    implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
+    override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
+      for {
+        text <- textBinder.bind(key, value)
+        id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
+      } yield id
+    }
+
+    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
+      DeveloperIdentifier.asText(developerId)
+    }
+  }
+
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
+      for {
+        text <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
+      } yield text match {
+        case Right(idText) => DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
+        case _ => Left("Unable to bind a developer identifier")
+      }
+    }
+
+    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
+      textBinder.unbind("developerId", DeveloperIdentifier.asText(developerId))
     }
   }
 }

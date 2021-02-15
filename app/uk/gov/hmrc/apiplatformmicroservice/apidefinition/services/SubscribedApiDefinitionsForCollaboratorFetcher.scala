@@ -22,6 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, 
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,10 +33,10 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     for {
-      apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(email))
-      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(email)
+      apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(developerId))
+      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(developerId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 

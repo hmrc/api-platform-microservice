@@ -21,7 +21,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.{ApplicationNotFound, ApplicationResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
-import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,6 +31,12 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.CollaboratorsBuilder
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 
 import scala.concurrent.Future.{failed, successful}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.UuidIdentifier
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.http.UpstreamErrorResponse
 class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
 
   private val helloWorldContext = ApiContext("hello-world")
@@ -97,41 +102,66 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
     }
   }
 
-  "fetchApplicationsByEmail" should {
-    val email = "email@example.com"
+  "fetchApplications for a collaborator by email" should {
+    val email = EmailIdentifier("email@example.com")
     val url = baseUrl + "/application"
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email.email)))(*, *, *))
         .thenReturn(successful(applicationResponses))
 
-      val result = await(connector.fetchApplicationsByEmail(email))
+      val result = await(connector.fetchApplications(email))
 
       result.size shouldBe 2
       result should contain allOf (applicationIdOne, applicationIdTwo)
     }
 
     "propagate error when endpoint returns error" in new Setup {
-      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email)))(*, *, *))
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url), eqTo(Seq("emailAddress" -> email.email)))(*, *, *))
         .thenReturn(failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
-        await(connector.fetchApplicationsByEmail(email))
+        await(connector.fetchApplications(email))
       }
     }
   }
 
-  "fetchSubscriptionsByEmail" should {
-    val email = "email@example.com"
-    val url = s"$baseUrl/developer/$email/subscriptions"
+  "fetchApplications for a collaborator by user id" should {
+    val userId = UuidIdentifier(UserId.random)
+    val url = s"$baseUrl/developer/${userId.userId.value}/applications"
+    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
+
+    "return application Ids" in new Setup {
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *))
+        .thenReturn(successful(applicationResponses))
+
+      val result = await(connector.fetchApplications(userId))
+
+      result.size shouldBe 2
+      result should contain allOf (applicationIdOne, applicationIdTwo)
+    }
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Seq[ApplicationResponse]](eqTo(url))(*, *, *))
+        .thenReturn(failed(new NotFoundException("")))
+
+      intercept[NotFoundException] {
+        await(connector.fetchApplications(userId))
+      }
+    }
+  }
+
+  "fetchSubscriptions for a collaborator by email" should {
+    val email = EmailIdentifier("email@example.com")
+    val url = s"$baseUrl/developer/${email.email}/subscriptions"
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
       when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
         .thenReturn(successful(expectedSubscriptions))
 
-      val result = await(connector.fetchSubscriptionsByEmail(email))
+      val result = await(connector.fetchSubscriptions(email))
 
       result shouldBe expectedSubscriptions
     }
@@ -141,7 +171,31 @@ class ThirdPartyApplicationConnectorSpec extends AsyncHmrcSpec {
         .thenReturn(failed(new NotFoundException("")))
 
       intercept[NotFoundException] {
-        await(connector.fetchSubscriptionsByEmail(email))
+        await(connector.fetchSubscriptions(email))
+      }
+    }
+  }
+
+  "fetchSubscriptions for a collaborator by user id" should {
+    val userId = UuidIdentifier(UserId.random)
+    val url = s"$baseUrl/developer/${userId.userId.value}/subscriptions"
+    val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
+
+    "return subscriptions" in new Setup {
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(successful(expectedSubscriptions))
+
+      val result = await(connector.fetchSubscriptions(userId))
+
+      result shouldBe expectedSubscriptions
+    }
+
+    "propagate error when endpoint returns error" in new Setup {
+      when(mockHttpClient.GET[Seq[ApiIdentifier]](eqTo(url))(*, *, *))
+        .thenReturn(failed(new NotFoundException("")))
+
+      intercept[NotFoundException] {
+        await(connector.fetchSubscriptions(userId))
       }
     }
   }

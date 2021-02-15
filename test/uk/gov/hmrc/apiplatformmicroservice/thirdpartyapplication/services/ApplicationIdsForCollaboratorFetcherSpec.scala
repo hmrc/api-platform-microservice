@@ -25,12 +25,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
 
 class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
-    val email = "joebloggs@example.com"
+    val email = EmailIdentifier("joebloggs@example.com")
     val subordinateApplicationIds = (1 to 3).map(_ => ApplicationId.random)
     val principalApplicationIds = (1 to 2).map(_ => ApplicationId.random)
     val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)

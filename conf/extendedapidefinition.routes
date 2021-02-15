@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET        /                                                        uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchApiDefinitionsForCollaborator(collaboratorEmail: Option[String])
-GET        /subscribed                                              uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchSubscribedApiDefinitionsForCollaborator(collaboratorEmail: String)
-GET        /:serviceName                                            uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchExtendedApiDefinitionForCollaborator(serviceName: String, collaboratorEmail: Option[String])
+GET        /                                                        uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchApiDefinitionsForCollaborator(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
+GET        /subscribed                                              uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchSubscribedApiDefinitionsForCollaborator(developerId: uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier)
+GET        /:serviceName                                            uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchExtendedApiDefinitionForCollaborator(serviceName: String, developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
 GET        /:serviceName/:version/documentation/*resource           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ExtendedApiDefinitionController.fetchApiDocumentationResource(serviceName: String, version: String, resource: String)

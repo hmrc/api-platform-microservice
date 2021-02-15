@@ -23,6 +23,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Thir
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 @Singleton
 class SubscriptionsForCollaboratorFetcher @Inject() (
@@ -31,9 +32,9 @@ class SubscriptionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(email: String)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet) recover recoverWithDefault(Set.empty[ApiIdentifier])
-    val principalSubscriptions = principalTpaConnector.fetchSubscriptionsByEmail(email).map(_.toSet)
+  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+    val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptions(developerId).map(_.toSet) recover recoverWithDefault(Set.empty[ApiIdentifier])
+    val principalSubscriptions = principalTpaConnector.fetchSubscriptions(developerId).map(_.toSet)
 
     for {
       subordinate <- subordinateSubscriptions

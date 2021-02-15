@@ -27,6 +27,7 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 @Singleton
 class ApiDefinitionsForCollaboratorFetcher @Inject() (
@@ -38,7 +39,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries with FilterApiDocumentation {
 
-  def fetch(email: Option[String])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(Seq.empty[APIDefinition])
 
@@ -46,8 +47,8 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
       principalDefinitions <- principalDefinitionsFuture
       subordinateDefinitions <- subordinateDefinitionsFuture
       combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
-      collaboratorApplicationIds <- email.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      collaboratorSubscriptions <- email.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
+      collaboratorApplicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
+      collaboratorSubscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
     } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
   }
 
