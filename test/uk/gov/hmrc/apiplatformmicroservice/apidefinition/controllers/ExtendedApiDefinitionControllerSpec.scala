@@ -122,7 +122,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
       contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
     }
 
-    "return an empty Listuence when there are no api definitions available" in new Setup {
+    "return an empty List when there are no api definitions available" in new Setup {
       SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
 
       val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
