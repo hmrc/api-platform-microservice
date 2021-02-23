@@ -94,7 +94,7 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
         result.map(_.name) shouldEqual List(apiName1, apiName2)
       }
 
-      "do not throw exception when not found but instead return empty seq" in new PrincipalSetup {
+      "do not throw exception when not found but instead return empty List" in new PrincipalSetup {
         whenGetAllDefinitionsFindsNothing()
 
         val result = await(connector.fetchAllApiDefinitions)

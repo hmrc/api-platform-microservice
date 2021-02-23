@@ -51,7 +51,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       description = Some(s"$appId-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, Role.ADMINISTRATOR))),
       access = Standard(
-        redirectUris = Seq("https://red1", "https://red2"),
+        redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       state = ApplicationState(State.PRODUCTION, None, None),

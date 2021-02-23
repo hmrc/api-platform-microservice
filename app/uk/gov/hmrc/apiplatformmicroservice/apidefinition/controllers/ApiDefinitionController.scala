@@ -53,7 +53,7 @@ class ApiDefinitionController @Inject() (
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  private def fetchApiDefinitions( fetch: => Future[Seq[APIDefinition]]): Future[Result] = {
+  private def fetchApiDefinitions( fetch: => Future[List[APIDefinition]]): Future[Result] = {
     for {
       defs <- fetch
       converted = convert(defs)

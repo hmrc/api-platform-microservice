@@ -79,7 +79,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
       val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
+      contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
     }
 
     "return the API definitions when no email provided" in new Setup {
@@ -88,11 +88,11 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
       val result = controller.fetchApiDefinitionsForCollaborator(None)(request)
 
       status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
+      contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
     }
 
     "return an empty when there are no api definitions available" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(Seq.empty: _*)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
 
       val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
 
@@ -119,11 +119,11 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
       val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
 
       status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(Seq(anApiDefinition))
+      contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
     }
 
-    "return an empty sequence when there are no api definitions available" in new Setup {
-      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(Seq.empty: _*)
+    "return an empty Listuence when there are no api definitions available" in new Setup {
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
 
       val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
 

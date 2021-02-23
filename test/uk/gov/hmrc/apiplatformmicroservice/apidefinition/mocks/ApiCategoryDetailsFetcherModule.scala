@@ -29,7 +29,7 @@ trait ApiCategoryDetailsFetcherModule extends PlaySpec with MockitoSugar with Ar
     val aMock = mock[APICategoryDetailsFetcher]
 
     def willReturnApiCategoryDetails(categories: APICategoryDetails*) = {
-      when(aMock.fetch()(*)).thenReturn(Future.successful(categories.toSeq))
+      when(aMock.fetch()(*)).thenReturn(Future.successful(categories.toList))
     }
 
     def willThrowException(e: Exception) = {

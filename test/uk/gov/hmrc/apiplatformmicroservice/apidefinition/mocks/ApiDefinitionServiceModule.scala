@@ -91,7 +91,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
     object FetchApiCategoryDetails {
       def willReturnAPICategoryDetails(apiCategoryDetails: APICategoryDetails*) = {
-        when(aMock.fetchAllAPICategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails))
+        when(aMock.fetchAllAPICategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails.toList))
       }
     }
   }

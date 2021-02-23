@@ -33,14 +33,14 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[APIDefinition]] = {
+  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(developerId))
       subscriptions <- subscriptionsForCollaboratorFetcher.fetch(developerId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 
-  private def filterApis(apis: Seq[APIDefinition], subscriptions: Set[ApiIdentifier]): Seq[APIDefinition] = {
+  private def filterApis(apis: List[APIDefinition], subscriptions: Set[ApiIdentifier]): List[APIDefinition] = {
     apis.flatMap(filterVersions(_, subscriptions))
   }
 

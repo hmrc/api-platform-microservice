@@ -52,7 +52,7 @@ class ApiCategoriesControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
 
       status(result) must be (OK)
 
-      val parsedCategories: Seq[APICategoryDetails] = Json.fromJson[Seq[APICategoryDetails]](contentAsJson(result)).get
+      val parsedCategories: List[APICategoryDetails] = Json.fromJson[List[APICategoryDetails]](contentAsJson(result)).get
       parsedCategories.size must be (2)
       parsedCategories must contain only (category1, category2)
     }

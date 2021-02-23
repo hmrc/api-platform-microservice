@@ -48,8 +48,8 @@ case class APIDefinition(
     context: ApiContext,
     requiresTrust: Boolean = false,
     isTestSupport: Boolean = false,
-    versions: Seq[ApiVersionDefinition],
-    categories: Seq[APICategory] = Seq.empty)
+    versions: List[ApiVersionDefinition],
+    categories: List[APICategory] = List.empty)
 
 case class APICategory(value: String) extends AnyVal
 
@@ -83,9 +83,9 @@ object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType
 
 trait APIAccess
 case class PublicApiAccess() extends APIAccess
-case class PrivateApiAccess(whitelistedApplicationIds: Seq[ApplicationId] = Seq.empty, isTrial: Boolean = false) extends APIAccess
+case class PrivateApiAccess(whitelistedApplicationIds: List[ApplicationId] = List.empty, isTrial: Boolean = false) extends APIAccess
 
-case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: Seq[Parameter] = Seq.empty)
+case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: List[Parameter] = List.empty)
 
 sealed trait HttpMethod extends EnumEntry
 

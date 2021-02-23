@@ -74,11 +74,11 @@ trait ApiDefinitionHttpMockingHelper
 
   def whenGetAPICategoryDetails()(categories: APICategoryDetails*): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[Seq[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.successful(categories))
+    when(mockThisClient.GET[List[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.successful(categories.toList))
   }
 
   def whenGetAPICategoryDetailsFails(exception: Throwable): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[Seq[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.failed(exception))
+    when(mockThisClient.GET[List[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.failed(exception))
   }
 }

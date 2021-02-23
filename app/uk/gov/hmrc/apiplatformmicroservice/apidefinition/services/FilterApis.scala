@@ -22,9 +22,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 trait FilterApis {
   type ApiFilterFn = ((ApiContext, ApiVersionDefinition)) => Boolean
 
-  def filterApis(filterFn: ApiFilterFn)(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApis(filterFn: ApiFilterFn)(apis: List[APIDefinition]): List[APIDefinition] = {
     
-    def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: Seq[ApiVersionDefinition]): Seq[ApiVersionDefinition] = {
+    def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: List[ApiVersionDefinition]): List[ApiVersionDefinition] = {
       versions
         .map(v => ((apiContext, v)) )
         .filter(filterFn)
@@ -68,7 +68,7 @@ trait FilterApis {
 }
 
 trait FilterApiDocumentation extends FilterApis {
-  def filterApisForDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApisForDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: List[APIDefinition]): List[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)
@@ -82,7 +82,7 @@ trait FilterApiDocumentation extends FilterApis {
 trait FilterDevHubSubscriptions extends FilterApis {
   // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
 
-  def filterApisForDevHubSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApisForDevHubSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: List[APIDefinition]): List[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)
@@ -95,7 +95,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
 }
 
 trait FilterGateKeeperSubscriptions extends FilterApis {
-  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId])(apis: Seq[APIDefinition]): Seq[APIDefinition] = {
+  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId])(apis: List[APIDefinition]): List[APIDefinition] = {
     filterApis(
       Some(_)
       .filterNot(isRetired)
