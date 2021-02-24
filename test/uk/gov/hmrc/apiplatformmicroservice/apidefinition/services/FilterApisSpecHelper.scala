@@ -31,7 +31,7 @@ class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
   protected val privateTrialApi = privateApi.asTrial
   protected val privateAllowListApi = apiDefinition("test", apiVersion().asStable.asPrivate.addAllowList(appId))
 
-  protected val allPublicApis = Seq(
+  protected val allPublicApis = List(
     publicApi.asAlpha, 
     publicApi.asBeta, 
     publicApi.asStable, 
@@ -39,7 +39,7 @@ class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
     publicApi.asRetired
   )
   
-  protected val allPrivateAllowListApis = Seq(
+  protected val allPrivateAllowListApis = List(
     privateAllowListApi.asAlpha, 
     privateAllowListApi.asBeta, 
     privateAllowListApi.asStable, 
@@ -47,7 +47,7 @@ class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
     privateAllowListApi.asRetired
   )
 
-  protected val allPrivateTrialApis = Seq(
+  protected val allPrivateTrialApis = List(
     privateApi.asTrial.asAlpha, 
     privateApi.asTrial.asBeta, 
     privateApi.asTrial.asStable, 
@@ -55,7 +55,7 @@ class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
     privateApi.asTrial.asRetired
   )
 
-  protected val allPrivateApis = Seq(
+  protected val allPrivateApis = List(
     privateApi.asAlpha, 
     privateApi.asBeta, 
     privateApi.asStable, 

@@ -24,12 +24,12 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
   "filterApisForDocumentation" when {
     val filter = new FilterApiDocumentation {}
 
-    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: APIDefinition*): Seq[APIDefinition] = {
-      filter.filterApisForDocumentation(Set(appId), Set(subscription))(apiDefinitions.toSeq)
+    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+      filter.filterApisForDocumentation(Set(appId), Set(subscription))(apiDefinitions.toList)
     }
 
-    def testFilter(apiDefinitions: APIDefinition*): Seq[APIDefinition] = {
-      filter.filterApisForDocumentation(Set(appId), Set.empty)(apiDefinitions.toSeq)
+    def testFilter(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+      filter.filterApisForDocumentation(Set(appId), Set.empty)(apiDefinitions.toList)
     }
 
     "filtering public api" should {

@@ -66,7 +66,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
     "return an extended api with categories from the definition" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withCategories(Seq(incomeTaxCategory, vatTaxCategory)))
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withCategories(List(incomeTaxCategory, vatTaxCategory)))
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))

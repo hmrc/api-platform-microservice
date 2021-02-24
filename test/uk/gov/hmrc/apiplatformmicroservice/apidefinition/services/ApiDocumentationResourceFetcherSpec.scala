@@ -47,17 +47,17 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
     val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
       apiName,
-      Seq(extendedApiVersion(versionOne, STABLE, None, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
+      List(extendedApiVersion(versionOne, STABLE, None, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
     )
 
     val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
       apiName,
-      Seq(extendedApiVersion(versionOne, STABLE, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
+      List(extendedApiVersion(versionOne, STABLE, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
     )
 
     val anExtendedApiDefinitionWithPrincipalAndSubordinate = extendedApiDefinition(
       apiName,
-      Seq(extendedApiVersion(
+      List(extendedApiVersion(
         versionOne,
         STABLE,
         Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),

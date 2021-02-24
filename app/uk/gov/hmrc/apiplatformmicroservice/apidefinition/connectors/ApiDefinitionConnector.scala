@@ -52,10 +52,10 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
     }
   }
 
-  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[Seq[APICategoryDetails]] = {
+  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
 
-    http.GET[Seq[APICategoryDetails]](categoriesUrl(serviceBaseUrl))
+    http.GET[List[APICategoryDetails]](categoriesUrl(serviceBaseUrl))
       .recover {
         case NonFatal(e) =>
           Logger.error(s"Failed $e")

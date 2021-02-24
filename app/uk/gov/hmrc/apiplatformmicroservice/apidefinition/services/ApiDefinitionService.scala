@@ -77,7 +77,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     yield open
   }
 
-  def fetchAllAPICategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[APICategoryDetails]] = {
+  def fetchAllAPICategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APICategoryDetails]] = {
     lazy val failFn = (e: Throwable) => s"fetchAllAPICategoryDetails failed $e"
 
     if (enabled) {
@@ -87,7 +87,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
         }
       }
     } else {
-      Future.successful(Seq.empty)
+      Future.successful(List.empty)
     }
   }
 

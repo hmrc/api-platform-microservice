@@ -55,7 +55,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
       val result = await(underTest.fetch(email))
 
-      result shouldBe Seq(helloWorldDefinition, helloVatDefinition)
+      result shouldBe List(helloWorldDefinition, helloVatDefinition)
     }
 
     "filter out the versions that the collaborator is not subscribed to" in new Setup {

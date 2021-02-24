@@ -55,8 +55,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     def toCombinedAPIDefinition(
         apiDefinition: APIDefinition,
-        principalVersions: Seq[ApiVersionDefinition],
-        subordinateVersions: Seq[ApiVersionDefinition]
+        principalVersions: List[ApiVersionDefinition],
+        subordinateVersions: List[ApiVersionDefinition]
       ): Option[ExtendedAPIDefinition] = {
       if (apiDefinition.requiresTrust) {
         None
@@ -81,9 +81,9 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     (maybePrincipalDefinition, maybeSubordinateDefinition) match {
       case (Some(principalDefinition), None)                        =>
-        toCombinedAPIDefinition(principalDefinition, principalDefinition.versions, Seq.empty)
+        toCombinedAPIDefinition(principalDefinition, principalDefinition.versions, List.empty)
       case (None, Some(subordinateDefinition))                      =>
-        toCombinedAPIDefinition(subordinateDefinition, Seq.empty, subordinateDefinition.versions)
+        toCombinedAPIDefinition(subordinateDefinition, List.empty, subordinateDefinition.versions)
       case (Some(principalDefinition), Some(subordinateDefinition)) =>
         toCombinedAPIDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
       case _                                                        => None
@@ -92,12 +92,12 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
   private def createExtendedApiVersions(
       context: ApiContext, 
-      principalVersions: Seq[ApiVersionDefinition],
-      subordinateVersions: Seq[ApiVersionDefinition],
+      principalVersions: List[ApiVersionDefinition],
+      subordinateVersions: List[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
       developerId: Option[DeveloperIdentifier]
-    ): Seq[ExtendedAPIVersion] = {
+    ): List[ExtendedAPIVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
     allVersions map { version =>
       combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, developerId)

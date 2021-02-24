@@ -22,8 +22,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait ApiDefinitionTestDataHelper {
 
-  def extendedApiDefinition(name: String, versions: Seq[ExtendedAPIVersion] = Seq(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
-    ExtendedAPIDefinition(name, name, name, ApiContext(name), false, false, versions, Seq.empty)
+  def extendedApiDefinition(name: String, versions: List[ExtendedAPIVersion] = List(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
+    ExtendedAPIDefinition(name, name, name, ApiContext(name), false, false, versions, List.empty)
   }
 
   def extendedApiVersion(
@@ -41,7 +41,7 @@ trait ApiDefinitionTestDataHelper {
       name: String,
       versions: ApiVersionDefinition*
     ) = {
-    APIDefinition(name, name, name, ApiContext(name), false, false, versions)
+    APIDefinition(name, name, name, ApiContext(name), false, false, versions.toList)
   }
 
   def apiAccess() = {
@@ -63,9 +63,9 @@ trait ApiDefinitionTestDataHelper {
 
     def withName(name: String): APIDefinition = inner.copy(name = name)
 
-    def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions)
+    def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions.toList)
 
-    def withCategories(categories: Seq[APICategory]): APIDefinition = inner.copy(categories = categories)
+    def withCategories(categories: List[APICategory]): APIDefinition = inner.copy(categories = categories)
 
     def asTrial: APIDefinition = {
       inner.copy(versions = inner.versions.map(_.asTrial))
@@ -99,7 +99,7 @@ trait ApiDefinitionTestDataHelper {
     }
 
     def withWhitelistedAppIds(appIds: ApplicationId*): APIAccess = {
-      inner.copy(whitelistedApplicationIds = appIds)
+      inner.copy(whitelistedApplicationIds = appIds.toList)
     }
 
     def addAllowList(appIds: ApplicationId*): APIAccess = {
@@ -108,7 +108,7 @@ trait ApiDefinitionTestDataHelper {
   }
 
   def endpoint(endpointName: String = "Hello World", url: String = "/world"): Endpoint = {
-    Endpoint(endpointName, url, HttpMethod.GET, AuthType.NONE, Seq.empty)
+    Endpoint(endpointName, url, HttpMethod.GET, AuthType.NONE, List.empty)
   }
 
   implicit class EndpointModifier(val inner: Endpoint) {

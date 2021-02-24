@@ -46,7 +46,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
     val apiDefinitionTwo = apiDefinition("two")
     val apiDefinitionThree = apiDefinition("three")
     val apiDefintions = Seq(apiDefinitionOne, apiDefinitionTwo, apiDefinitionThree)
-    when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions))
+    when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
 
     val apiVersionOne = ApiVersion("1.0")
     val apiVersionTwo = ApiVersion("2.0")

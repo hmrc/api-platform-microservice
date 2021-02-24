@@ -297,7 +297,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val expected = mock[Seq[APICategoryDetails]]
+          val expected = mock[List[APICategoryDetails]]
           val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiCategoryDetails()(any))

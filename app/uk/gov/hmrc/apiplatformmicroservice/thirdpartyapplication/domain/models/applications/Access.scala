@@ -45,7 +45,7 @@ sealed trait Access {
 }
 
 case class Standard(
-    redirectUris: Seq[String] = Seq.empty,
+    redirectUris: List[String] = List.empty,
     termsAndConditionsUrl: Option[String] = None,
     privacyPolicyUrl: Option[String] = None,
     overrides: Set[OverrideFlag] = Set.empty)

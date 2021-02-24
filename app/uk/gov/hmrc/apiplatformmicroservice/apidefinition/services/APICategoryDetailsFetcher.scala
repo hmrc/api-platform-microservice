@@ -25,7 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class APICategoryDetailsFetcher @Inject()(apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
 
-  def fetch()(implicit hc: HeaderCarrier): Future[Seq[APICategoryDetails]] = {
+  def fetch()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
     val principalAPICategoriesCall = apiDefinitionService.principal.fetchAllAPICategoryDetails
     val subordinateAPICategoriesCall = apiDefinitionService.subordinate.fetchAllAPICategoryDetails
 

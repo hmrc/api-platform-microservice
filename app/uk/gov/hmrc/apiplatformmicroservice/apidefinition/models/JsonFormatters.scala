@@ -46,7 +46,7 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
       (JsPath \ "uriPattern").read[String] and
       (JsPath \ "method").read[HttpMethod] and
       (JsPath \ "authType").read[AuthType] and
-      ((JsPath \ "queryParameters").read[Seq[Parameter]] or Reads.pure(Seq.empty[Parameter]))
+      ((JsPath \ "queryParameters").read[List[Parameter]] or Reads.pure(List.empty[Parameter]))
   )(Endpoint.apply _)
 
   implicit val endpointWrites: Writes[Endpoint] = Json.writes[Endpoint]
@@ -57,7 +57,7 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit val apiAccessReads: Reads[APIAccess] = (
     (JsPath \ "type").read[APIAccessType] and
-      ((JsPath \ "whitelistedApplicationIds").read[Seq[ApplicationId]] or Reads.pure(Seq.empty[ApplicationId])) and
+      ((JsPath \ "whitelistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
       ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
   ) map {
     case (PUBLIC, _, _)                                => PublicApiAccess()
@@ -66,9 +66,9 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit object apiAccessWrites extends Writes[APIAccess] {
 
-    private val privApiWrites: OWrites[(APIAccessType, Seq[ApplicationId], Boolean)] = (
+    private val privApiWrites: OWrites[(APIAccessType, List[ApplicationId], Boolean)] = (
       (JsPath \ "type").write[APIAccessType] and
-        (JsPath \ "whitelistedApplicationIds").write[Seq[ApplicationId]] and
+        (JsPath \ "whitelistedApplicationIds").write[List[ApplicationId]] and
         (JsPath \ "isTrial").write[Boolean]
     ).tupled
 
@@ -97,8 +97,8 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
       (JsPath \ "context").read[ApiContext] and
       ((JsPath \ "requiresTrust").read[Boolean] or Reads.pure(false)) and
       ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "versions").read[Seq[ApiVersionDefinition]] and
-      ((JsPath \ "categories").read[Seq[APICategory]] or Reads.pure(Seq.empty[APICategory]))
+      (JsPath \ "versions").read[List[ApiVersionDefinition]] and
+      ((JsPath \ "categories").read[List[APICategory]] or Reads.pure(List.empty[APICategory]))
   )(APIDefinition.apply _)
 
   implicit val apiDefinitionWrites: Writes[APIDefinition] = Json.writes[APIDefinition]
