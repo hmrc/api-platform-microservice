@@ -50,7 +50,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       apiDefinition("api-with-private-versions", apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = PrivateApiAccess()))
 
     val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = PrivateApiAccess().asTrial))
-    val apiWithWhitelisting = apiDefinition("api-with-whitelisting", apiVersion(versionOne, access = PrivateApiAccess().withWhitelistedAppIds(applicationId)))
+    val apiWithAllowlisting = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = PrivateApiAccess().withAllowlistedAppIds(applicationId)))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(
@@ -139,13 +139,13 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       result should contain only(apiWithPrivateTrials)
     }
 
-    "return api if it's private but the user has a whitelisted application" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithWhitelisting)
+    "return api if it's private but the user has an allowlisted application" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithAllowlisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
 
       val result = await(underTest.fetch(email))
 
-      result should contain only(apiWithWhitelisting)
+      result should contain only(apiWithAllowlisting)
     }
   }
 }
