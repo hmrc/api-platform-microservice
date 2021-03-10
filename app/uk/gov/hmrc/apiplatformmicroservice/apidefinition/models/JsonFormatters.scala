@@ -57,24 +57,24 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit val apiAccessReads: Reads[APIAccess] = (
     (JsPath \ "type").read[APIAccessType] and
-      ((JsPath \ "whitelistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
+      ((JsPath \ "allowlistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
       ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
   ) map {
     case (PUBLIC, _, _)                                => PublicApiAccess()
-    case (PRIVATE, whitelistedApplicationIds, isTrial) => PrivateApiAccess(whitelistedApplicationIds, isTrial)
+    case (PRIVATE, allowlistedApplicationIds, isTrial) => PrivateApiAccess(allowlistedApplicationIds, isTrial)
   }
 
   implicit object apiAccessWrites extends Writes[APIAccess] {
 
     private val privApiWrites: OWrites[(APIAccessType, List[ApplicationId], Boolean)] = (
       (JsPath \ "type").write[APIAccessType] and
-        (JsPath \ "whitelistedApplicationIds").write[List[ApplicationId]] and
+        (JsPath \ "allowlistedApplicationIds").write[List[ApplicationId]] and
         (JsPath \ "isTrial").write[Boolean]
     ).tupled
 
     override def writes(access: APIAccess) = access match {
       case _: PublicApiAccess           => Json.obj("type" -> PUBLIC)
-      case privateApi: PrivateApiAccess => privApiWrites.writes((PRIVATE, privateApi.whitelistedApplicationIds, privateApi.isTrial))
+      case privateApi: PrivateApiAccess => privApiWrites.writes((PRIVATE, privateApi.allowlistedApplicationIds, privateApi.isTrial))
     }
   }
 

@@ -143,9 +143,9 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
   private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[DeveloperIdentifier]): Option[APIAvailability] = {
     version.access match {
-      case PrivateApiAccess(whitelist, isTrial) =>
-        val authorised = applicationIds.intersect(whitelist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
-        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(whitelist, isTrial), developerId.isDefined, authorised))
+      case PrivateApiAccess(allowlist, isTrial) =>
+        val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
+        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), developerId.isDefined, authorised))
       case _                                    => Some(APIAvailability(version.endpointsEnabled, PublicApiAccess(), developerId.isDefined, authorised = true))
     }
   }
