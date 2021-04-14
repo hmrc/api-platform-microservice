@@ -20,7 +20,7 @@ trait WireMockSpec
     with GuiceOneServerPerSuite
     with FakeApplicationFactory
     with ConfigBuilder
-    with WiremockSetup {
+    with PrincipalAndSubordinateWireMockSetup {
 
   override lazy val port = 8080
 

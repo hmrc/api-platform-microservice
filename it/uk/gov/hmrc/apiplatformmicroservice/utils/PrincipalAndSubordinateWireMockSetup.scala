@@ -11,7 +11,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 
-trait WiremockSetup {
+trait PrincipalAndSubordinateWireMockSetup {
   self: ConfigBuilder with FakeApplicationFactory with BeforeAndAfterEach with BeforeAndAfterAll =>
 
   val WireMockHost = "localhost"

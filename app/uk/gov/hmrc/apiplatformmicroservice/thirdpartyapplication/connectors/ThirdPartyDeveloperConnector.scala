@@ -47,7 +47,7 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
   def fetchByEmails(emails: Set[String])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
-    http.GET[Seq[UserResponse]](s"$serviceBaseUrl/developers", Seq("emails" -> emails.mkString(",")))
+    http.POST[List[String], Seq[UserResponse]](s"$serviceBaseUrl/developers/get-by-emails", emails.toList)
   }
 
   def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {

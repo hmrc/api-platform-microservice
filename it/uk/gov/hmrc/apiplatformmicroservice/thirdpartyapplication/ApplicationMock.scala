@@ -5,10 +5,10 @@ import play.api.http._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
+import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
 trait ApplicationMock {
-  self: WiremockSetup => // To allow for stubFor to work with environment
+  self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
   def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId) {
     stubFor(env)(get(urlEqualTo(s"/application/${applicationId.value}"))

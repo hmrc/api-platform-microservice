@@ -66,15 +66,17 @@ lazy val root = (project in file("."))
   .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    IntegrationTest / unmanagedSourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it", 
     IntegrationTest / parallelExecution := false
+  )
+  .settings(inConfig(Test)(BloopDefaults.configSettings))
+  .settings(
+    Test / fork := false,
+    Test / parallelExecution := false,
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin)
-
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
-  tests.map { test =>
-    new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
-  }
-}
