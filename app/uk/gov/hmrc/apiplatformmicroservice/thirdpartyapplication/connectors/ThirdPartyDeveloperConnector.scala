@@ -20,8 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -52,16 +51,5 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
 
   def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
       http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
-  }
-
-  def fetchDeveloper(email: String)(implicit hc: HeaderCarrier): Future[Option[UserResponse]] = {
-    http.GET[Option[UserResponse]](s"$serviceBaseUrl/developer", Seq("email" -> email))
-  }
-
-  def createUnregisteredUser(email: String)(implicit hc: HeaderCarrier): Future[UnregisteredUserResponse] = {
-    encryptedJson.secretRequest(
-      UnregisteredUserCreationRequest(email), { secretRequest =>
-        http.POST[SecretRequest, UnregisteredUserResponse](s"$serviceBaseUrl/unregistered-developer", secretRequest, Seq(CONTENT_TYPE -> JSON))
-      })
   }
 }

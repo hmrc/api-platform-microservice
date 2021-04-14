@@ -75,76 +75,58 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     "addCollaborator" should {
       "create unregistered user when developer is not registered on principal app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
         await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
 
-        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
-        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector).getOrCreateUserId(eqTo(getOrCreateUserIdRequest))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
 
       "create unregistered user when developer is not registered on subordinate app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(None))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.willReturnSuccess
 
         await(service.addCollaborator(productionApplication.copy(deployedTo = Environment.SANDBOX), newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
 
-        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
-        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector).getOrCreateUserId(eqTo(getOrCreateUserIdRequest))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
 
-      "not create unregistered user when developer is already registered on production app with requester email which shouldn't get notification email" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+      "production app with requester email which shouldn't get notification email" in new Setup {
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
         await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
 
-        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
-        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
 
       "include correct set of admins to email when no requester email is specified (GK case)" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminUserResponses))
-        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmails))(*)).thenReturn(successful(adminUserResponses))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
         await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, None)) shouldBe addCollaboratorSuccessResult
 
-        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmails))(*)
-        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithoutRequesterEmail)
       }
 
       "propagate TeamMemberAlreadyExists from connector in production app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.fetchDeveloper(*)(*)).thenReturn(successful(Some(newCollaboratorUserResponse)))
+        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnFailure
 
         await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe collaboratorAlreadyExistsFailureResult
 
-        verify(mockThirdPartyDeveloperConnector).fetchByEmails(eqTo(adminEmailsMinusRequester))(*)
-        verify(mockThirdPartyDeveloperConnector).fetchDeveloper(eqTo(newCollaboratorEmail))(*)
-        verify(mockThirdPartyDeveloperConnector, times(0)).createUnregisteredUser(eqTo(newCollaboratorEmail))(*)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
-
       }
   }
 }

@@ -9,8 +9,21 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
-    ScoverageKeys.coverageExcludedPackages := ";.*\\.domain\\.models\\..*;uk\\.gov\\.hmrc\\.BuildInfo;.*\\.Routes;.*\\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\\.Reverse[^.]*;uk\\.gov\\.hmrc\\.apiplatformmicroservice\\.apidefinition\\.controllers\\.binders",
-    ScoverageKeys.coverageMinimum := 89.00,
+    // ScoverageKeys.coverageExcludedPackages := ";.*\\.domain\\.models\\..*;uk\\.gov\\.hmrc\\.BuildInfo;.*\\.Routes;.*\\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\\.Reverse[^.]*;uk\\.gov\\.hmrc\\.apiplatformmicroservice\\.apidefinition\\.controllers\\.binders",
+    ScoverageKeys.coverageExcludedPackages := Seq(
+      "<empty",
+      """.*\.domain\.models\..*""" ,
+      """uk\.gov\.hmrc\.apiplatformmicroservice\.common\.controllers\.binders""",
+      """uk\.gov\.hmrc\.BuildInfo""" ,
+      """.*\.Routes""" ,
+      """.*\.RoutesPrefix""" ,
+      """.*Filters?""" ,
+      """MicroserviceAuditConnector""" ,
+      """Module""" ,
+      """GraphiteStartUp""" ,
+      """.*\.Reverse[^.]*""",
+    ).mkString(";"),
+    ScoverageKeys.coverageMinimum := 87.00,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false

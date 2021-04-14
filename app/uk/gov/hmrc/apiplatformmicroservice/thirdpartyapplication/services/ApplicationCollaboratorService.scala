@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, Collaborator, Role}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,21 +36,8 @@ class ApplicationCollaboratorService @Inject() (
       def addCollaborator(app: Application, email: String, role: Role, requestingEmail: Option[String])
                          (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
 
-        def getUserId(collaboratorEmail: String): Future[UserId] = {
-
-          def getUnregisteredUserId(unregisteredCollaboratorEmail: String): Future[UserId] = {
-            thirdPartyDeveloperConnector.getOrCreateUserId(GetOrCreateUserIdRequest(unregisteredCollaboratorEmail)).map(getOrCreateUserIdResponse => getOrCreateUserIdResponse.userId)
-          }
-
-          thirdPartyDeveloperConnector.fetchDeveloper(collaboratorEmail)
-            .flatMap(
-              _.fold(
-                getUnregisteredUserId(collaboratorEmail)
-              )(
-                userResponse => Future.successful(userResponse.userId)
-              )
-            )
-        }
+        def getUserId(collaboratorEmail: String): Future[UserId] =
+          thirdPartyDeveloperConnector.getOrCreateUserId(GetOrCreateUserIdRequest(collaboratorEmail)).map(getOrCreateUserIdResponse => getOrCreateUserIdResponse.userId)    
 
         val otherAdminEmails = app.collaborators
           .filter(_.role.isAdministrator)
