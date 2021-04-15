@@ -5,10 +5,10 @@ import play.api.http._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.utils.WiremockSetup
+import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
 trait ApiDefinitionMock {
-  self: WiremockSetup => // To allow for stubFor to work with environment
+  self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
   def mockFetchApiDefinition(env: Environment) {
     stubFor(env)(

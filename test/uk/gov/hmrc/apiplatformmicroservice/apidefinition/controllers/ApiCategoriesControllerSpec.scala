@@ -26,7 +26,7 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiCategoryDetailsFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, ApiDefinitionTestDataHelper}
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global

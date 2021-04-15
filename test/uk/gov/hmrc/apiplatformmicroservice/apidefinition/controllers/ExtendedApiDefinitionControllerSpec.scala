@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global

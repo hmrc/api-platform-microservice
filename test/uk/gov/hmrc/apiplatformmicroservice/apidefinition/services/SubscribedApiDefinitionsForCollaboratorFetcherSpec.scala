@@ -21,7 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global

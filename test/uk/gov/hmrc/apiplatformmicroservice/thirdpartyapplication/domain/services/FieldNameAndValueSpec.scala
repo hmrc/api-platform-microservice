@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.util.HmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
 import play.api.libs.json.Json

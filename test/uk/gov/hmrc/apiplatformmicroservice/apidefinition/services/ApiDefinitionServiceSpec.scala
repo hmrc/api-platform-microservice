@@ -21,7 +21,7 @@ import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future

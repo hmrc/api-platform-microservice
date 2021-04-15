@@ -9,8 +9,21 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
-    ScoverageKeys.coverageExcludedPackages := ";.*\\.domain\\.models\\..*;uk\\.gov\\.hmrc\\.BuildInfo;.*\\.Routes;.*\\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\\.Reverse[^.]*;uk\\.gov\\.hmrc\\.apiplatformmicroservice\\.apidefinition\\.controllers\\.binders",
-    ScoverageKeys.coverageMinimum := 89.00,
+    // ScoverageKeys.coverageExcludedPackages := ";.*\\.domain\\.models\\..*;uk\\.gov\\.hmrc\\.BuildInfo;.*\\.Routes;.*\\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\\.Reverse[^.]*;uk\\.gov\\.hmrc\\.apiplatformmicroservice\\.apidefinition\\.controllers\\.binders",
+    ScoverageKeys.coverageExcludedPackages := Seq(
+      "<empty",
+      """.*\.domain\.models\..*""" ,
+      """uk\.gov\.hmrc\.apiplatformmicroservice\.common\.controllers\.binders""",
+      """uk\.gov\.hmrc\.BuildInfo""" ,
+      """.*\.Routes""" ,
+      """.*\.RoutesPrefix""" ,
+      """.*Filters?""" ,
+      """MicroserviceAuditConnector""" ,
+      """Module""" ,
+      """GraphiteStartUp""" ,
+      """.*\.Reverse[^.]*""",
+    ).mkString(";"),
+    ScoverageKeys.coverageMinimum := 87.00,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false
@@ -66,15 +79,17 @@ lazy val root = (project in file("."))
   .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    IntegrationTest / unmanagedSourceDirectories := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it", 
     IntegrationTest / parallelExecution := false
+  )
+  .settings(inConfig(Test)(BloopDefaults.configSettings))
+  .settings(
+    Test / fork := false,
+    Test / parallelExecution := false,
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin)
-
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
-  tests.map { test =>
-    new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
-  }
-}

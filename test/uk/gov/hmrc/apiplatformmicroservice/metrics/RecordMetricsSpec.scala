@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
 import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

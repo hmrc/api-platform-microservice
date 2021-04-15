@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.util
+package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import org.scalatest.{Matchers, OptionValues, WordSpec}
 import org.scalatestplus.play.WsScalaTestClient

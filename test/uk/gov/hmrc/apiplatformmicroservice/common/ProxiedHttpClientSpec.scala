@@ -21,7 +21,7 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing

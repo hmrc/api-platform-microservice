@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import org.joda.time.DateTime
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.test.Helpers.JSON
 import play.api.http.Status
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.JsString
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserCreationRequest, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.util.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -75,34 +74,9 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
 
   }
 
-  "createUnregisteredUser" should {
-    val unregisteredUserEmail = "unregistered@example.com"
-    val userId = UserId.random
-    val unregisteredUserResponse = UnregisteredUserResponse(email = unregisteredUserEmail, DateTime.now, userId)
-
-
-    "successfully create an unregistered user" in new Setup {
-      whenPostUnregisteredDeveloperThenReturn(unregisteredUserResponse)
-
-      val result: UnregisteredUserResponse = await(connector.createUnregisteredUser(unregisteredUserEmail))
-
-      result.userId shouldBe userId
-      result.email shouldBe unregisteredUserEmail
-      verify(mockPayloadEncryption).encrypt(eqTo(Json.toJson(UnregisteredUserCreationRequest(unregisteredUserEmail))))(*)
-    }
-
-    "propagate error when the request fails" in new Setup {
-      whenPostUnregisteredDeveloperThenFail(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR))
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.createUnregisteredUser(unregisteredUserEmail))
-      }
-    }
-  }
-
   "fetchByEmails" should {
     "return the correct UserResponse" in new UserResponseSetup {
-      when(mockHttpClient.GET[Seq[UserResponse]](eqTo(endpoint("developers")), eqTo(Seq("emails" -> emailsToFetch.mkString(","))))(*, *, *))
+      when(mockHttpClient.POST[List[String], Seq[UserResponse]](eqTo(endpoint("developers/get-by-emails")), eqTo(emailsToFetch.toList), *)(*, *, *, *))
         .thenReturn(Future.successful(Seq(admin1UserResponse, admin2UserResponse)))
 
       await(connector.fetchByEmails(emailsToFetch)) shouldBe Seq(admin1UserResponse, admin2UserResponse)
@@ -110,30 +84,11 @@ class ThirdPartyDeveloperConnectorSpec extends AsyncHmrcSpec {
     }
 
     "propagate error when the request fails" in new UserResponseSetup {
-      when(mockHttpClient.GET[Seq[UserResponse]](eqTo(endpoint("developers")), eqTo(Seq("emails" -> emailsToFetch.mkString(","))))(*, *, *))
+      when(mockHttpClient.POST[List[String], Seq[UserResponse]](eqTo(endpoint("developers/get-by-emails")), eqTo(emailsToFetch.toList), *)(*, *, *, *))
         .thenReturn(failed(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
 
       intercept[UpstreamErrorResponse] {
         await(connector.fetchByEmails(emailsToFetch))
-      }
-    }
-  }
-
-  "fetchDeveloper" should {
-    "return the correct UserResponse" in new UserResponseSetup {
-      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
-        .thenReturn(Future.successful(Some(verifiedUserResponse)))
-
-      await(connector.fetchDeveloper(userEmail)) shouldBe Some(verifiedUserResponse)
-
-    }
-
-    "propagate error when the request fails" in new UserResponseSetup {
-      when(mockHttpClient.GET[Option[UserResponse]](eqTo(endpoint("developer")), eqTo(Seq("email" -> userEmail)))(*, *, *))
-        .thenReturn(failed(UpstreamErrorResponse("Internal server error", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)))
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchDeveloper(userEmail))
       }
     }
   }
