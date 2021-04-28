@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.LogWrapper
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,7 +33,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
-  def fetchDefinition(serviceName: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[APIDefinition]] = {
+  def fetchDefinition(serviceName: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApiDefinition]] = {
     lazy val failFn = (e: Throwable) => s"fetchDefinition($serviceName) failed $e"
 
     if (enabled) {
@@ -47,7 +47,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
+  def fetchAllApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     lazy val failFn = (e: Throwable) => s"FetchAllApiDefinitions failed $e"
 
     if (enabled) {
@@ -61,7 +61,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
+  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
       open = allApis.filterNot(a => isOpenAccess(a))
@@ -69,7 +69,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     yield open
   }
 
-  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APIDefinition]] = {
+  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
       open = allApis.filter(a => isOpenAccess(a))
@@ -77,8 +77,8 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     yield open
   }
 
-  def fetchAllAPICategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[APICategoryDetails]] = {
-    lazy val failFn = (e: Throwable) => s"fetchAllAPICategoryDetails failed $e"
+  def fetchAllApiCategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiCategoryDetails]] = {
+    lazy val failFn = (e: Throwable) => s"fetchAllApiCategoryDetails failed $e"
 
     if (enabled) {
       record {

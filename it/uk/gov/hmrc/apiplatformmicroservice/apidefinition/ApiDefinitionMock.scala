@@ -3,17 +3,17 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def whenGetDefinition(env: Environment)(serviceName: String, apiDefinition: APIDefinition) = {
+  def whenGetDefinition(env: Environment)(serviceName: String, apiDefinition: ApiDefinition) = {
     stubFor(env)(
       get(urlEqualTo(s"/api-definition/$serviceName"))
         .willReturn(
@@ -44,7 +44,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     ) 
   }
   
-  def whenGetAllDefinitions(env: Environment)(definitions: APIDefinition*) = {
+  def whenGetAllDefinitions(env: Environment)(definitions: ApiDefinition*) = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-definition"))
       .withQueryParam("type", equalTo("all"))
@@ -78,7 +78,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenGetAPICategoryDetails(env: Environment)(categories: APICategoryDetails*): Unit = {
+  def whenGetAPICategoryDetails(env: Environment)(categories: ApiCategoryDetails*): Unit = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-categories"))
       .willReturn(
@@ -269,7 +269,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def mockFetchAPICategoryDetails(environment: Environment, categories: Seq[APICategoryDetails]) {
+  def mockFetchApiCategoryDetails(environment: Environment, categories: Seq[ApiCategoryDetails]) {
     val categoriesJsonString: String =
       categories
         .map(category => s"""{ "category" : "${category.category}", "name" : "${category.name}" }""")

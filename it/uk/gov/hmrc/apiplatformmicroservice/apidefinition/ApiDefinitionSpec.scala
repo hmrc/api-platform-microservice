@@ -46,7 +46,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == APIStatus.RETIRED) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
 
       val context = result(ApiContext("hello"))
@@ -61,12 +61,12 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
     }
 
     "stub requests to fetch all API Category details" in {
-      val category1 = APICategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
-      val category2 = APICategoryDetails("AGENTS", "Agents")
-      val category3 = APICategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
+      val category1 = ApiCategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
+      val category2 = ApiCategoryDetails("AGENTS", "Agents")
+      val category3 = ApiCategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
 
-      mockFetchAPICategoryDetails(Environment.SANDBOX, Seq(category1, category2, category3))
-      mockFetchAPICategoryDetails(Environment.PRODUCTION, Seq(category1, category2))
+      mockFetchApiCategoryDetails(Environment.SANDBOX, Seq(category1, category2, category3))
+      mockFetchApiCategoryDetails(Environment.PRODUCTION, Seq(category1, category2))
 
       val response = await(wsClient.url(s"$baseUrl/api-categories")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -75,7 +75,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       response.status shouldBe OK
-      val result: Seq[APICategoryDetails] = Json.parse(response.body).validate[Seq[APICategoryDetails]] match {
+      val result: Seq[ApiCategoryDetails] = Json.parse(response.body).validate[Seq[ApiCategoryDetails]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }

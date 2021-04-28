@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import java.util.UUID
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -119,8 +119,8 @@ class PrincipalApiDefinitionConnectorSpec
     }
 
     "when requesting API Category details" should {
-      val category1 = APICategoryDetails("API_CATEGORY_1", "API Category 1")
-      val category2 = APICategoryDetails("API_CATEGORY_2", "API Category 2")
+      val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+      val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
 
       "call the underlying http client" in new Setup {
         whenGetAPICategoryDetails(PRODUCTION)(category1, category2)

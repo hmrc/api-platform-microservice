@@ -17,17 +17,17 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class APICategoryDetailsFetcher @Inject()(apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
+class ApiCategoryDetailsFetcher @Inject()(apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
 
-  def fetch()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
-    val principalAPICategoriesCall = apiDefinitionService.principal.fetchAllAPICategoryDetails
-    val subordinateAPICategoriesCall = apiDefinitionService.subordinate.fetchAllAPICategoryDetails
+  def fetch()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
+    val principalAPICategoriesCall = apiDefinitionService.principal.fetchAllApiCategoryDetails
+    val subordinateAPICategoriesCall = apiDefinitionService.subordinate.fetchAllApiCategoryDetails
 
     for {
       principalAPICategories <- principalAPICategoriesCall

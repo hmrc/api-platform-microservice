@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiCategoriesController @Inject()(cc: ControllerComponents, apiCategoryDetailsFetcher: APICategoryDetailsFetcher)
+class ApiCategoriesController @Inject()(cc: ControllerComponents, apiCategoryDetailsFetcher: ApiCategoryDetailsFetcher)
                                        (implicit override val ec: ExecutionContext, override val mat: Materializer)
   extends BackendController(cc) with StreamedResponseResourceHelper {
 

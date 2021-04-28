@@ -24,7 +24,7 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterGateKeeperSubscriptions
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionResult
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
@@ -46,10 +46,10 @@ class SubscriptionService @Inject()(
       case _ => false      
     }
     
-    def removePrivateVersions(in: Seq[APIDefinition]): Seq[APIDefinition] = 
+    def removePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] = 
       in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
 
-    def canSubscribe(allowedSubscriptions : Seq[APIDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
+    def canSubscribe(allowedSubscriptions : Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier) : Boolean = {
       val allVersions : Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.version)))
 
       allVersions.contains(newSubscriptionApiIdentifier)

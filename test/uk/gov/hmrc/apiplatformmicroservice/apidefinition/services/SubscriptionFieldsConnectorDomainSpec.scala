@@ -28,7 +28,6 @@ class SubscriptionFieldsConnectorDomainSpec extends WordSpec {
 
             val m1 = Map(1 -> mm1)
             val m2 = Map(1 -> mm3, 2 -> mm2)
-            println(m1 ++ m2)
         }
     }
 }
