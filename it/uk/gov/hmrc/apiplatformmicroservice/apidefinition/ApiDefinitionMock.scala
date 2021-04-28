@@ -3,7 +3,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
@@ -180,7 +180,7 @@ trait ApiDefinitionMock {
     )
   }
 
-  def mockFetchAPICategoryDetails(environment: Environment, categories: Seq[APICategoryDetails]) {
+  def mockFetchApiCategoryDetails(environment: Environment, categories: Seq[ApiCategoryDetails]) {
     val categoriesJsonString: String =
       categories
         .map(category => s"""{ "category" : "${category.category}", "name" : "${category.name}" }""")

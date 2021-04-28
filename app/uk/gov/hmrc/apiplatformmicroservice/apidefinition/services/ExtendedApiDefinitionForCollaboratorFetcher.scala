@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.RETIRED
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
@@ -36,7 +36,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
   )(implicit ec: ExecutionContext) {
 
-  def fetch(serviceName: String, developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetch(serviceName: String, developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
@@ -46,18 +46,18 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def createExtendedApiDefinition(
-      maybePrincipalDefinition: Option[APIDefinition],
-      maybeSubordinateDefinition: Option[APIDefinition],
+      maybePrincipalDefinition: Option[ApiDefinition],
+      maybeSubordinateDefinition: Option[ApiDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
       developerId: Option[DeveloperIdentifier]
-    ): Option[ExtendedAPIDefinition] = {
+    ): Option[ExtendedApiDefinition] = {
 
-    def toCombinedAPIDefinition(
-        apiDefinition: APIDefinition,
+    def toCombinedApiDefinition(
+        apiDefinition: ApiDefinition,
         principalVersions: List[ApiVersionDefinition],
         subordinateVersions: List[ApiVersionDefinition]
-      ): Option[ExtendedAPIDefinition] = {
+      ): Option[ExtendedApiDefinition] = {
       if (apiDefinition.requiresTrust) {
         None
       } else {
@@ -65,7 +65,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
         if (extendedVersions.isEmpty) {
           None
         } else {
-          Some(ExtendedAPIDefinition(
+          Some(ExtendedApiDefinition(
             apiDefinition.serviceName,
             apiDefinition.name,
             apiDefinition.description,
@@ -81,11 +81,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     (maybePrincipalDefinition, maybeSubordinateDefinition) match {
       case (Some(principalDefinition), None)                        =>
-        toCombinedAPIDefinition(principalDefinition, principalDefinition.versions, List.empty)
+        toCombinedApiDefinition(principalDefinition, principalDefinition.versions, List.empty)
       case (None, Some(subordinateDefinition))                      =>
-        toCombinedAPIDefinition(subordinateDefinition, List.empty, subordinateDefinition.versions)
+        toCombinedApiDefinition(subordinateDefinition, List.empty, subordinateDefinition.versions)
       case (Some(principalDefinition), Some(subordinateDefinition)) =>
-        toCombinedAPIDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
+        toCombinedApiDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
       case _                                                        => None
     }
   }
@@ -97,7 +97,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
       developerId: Option[DeveloperIdentifier]
-    ): List[ExtendedAPIVersion] = {
+    ): List[ExtendedApiVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
     allVersions map { version =>
       combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, developerId)
@@ -113,7 +113,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
       developerId: Option[DeveloperIdentifier]
-    ): ExtendedAPIVersion = {
+    ): ExtendedApiVersion = {
 
     (maybePrincipalVersion, maybeSubordinateVersion) match {
       case (Some(principalVersion), None)                     =>
@@ -129,10 +129,10 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
   private def toExtendedApiVersion(
       apiVersion: ApiVersionDefinition,
-      productionAvailability: Option[APIAvailability],
-      sandboxAvailability: Option[APIAvailability]
-    ): ExtendedAPIVersion = {
-    ExtendedAPIVersion(
+      productionAvailability: Option[ApiAvailability],
+      sandboxAvailability: Option[ApiAvailability]
+    ): ExtendedApiVersion = {
+    ExtendedApiVersion(
       version = apiVersion.version,
       status = apiVersion.status,
       endpoints = apiVersion.endpoints,
@@ -141,12 +141,12 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[DeveloperIdentifier]): Option[APIAvailability] = {
+  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[DeveloperIdentifier]): Option[ApiAvailability] = {
     version.access match {
       case PrivateApiAccess(allowlist, isTrial) =>
         val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
-        Some(APIAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), developerId.isDefined, authorised))
-      case _                                    => Some(APIAvailability(version.endpointsEnabled, PublicApiAccess(), developerId.isDefined, authorised = true))
+        Some(ApiAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), developerId.isDefined, authorised))
+      case _                                    => Some(ApiAvailability(version.endpointsEnabled, PublicApiAccess(), developerId.isDefined, authorised = true))
     }
   }
 }

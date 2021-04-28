@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiVersion, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -153,7 +153,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val expected = Some(mock[APIDefinition])
+          val expected = Some(mock[ApiDefinition])
           val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
@@ -293,17 +293,17 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
         }
 
-        "return the API Category details in a call to fetchAllAPICategoryDetails" in {
+        "return the API Category details in a call to fetchAllApiCategoryDetails" in {
           val obj = setupFn()
           import obj._
 
-          val expected = mock[List[APICategoryDetails]]
+          val expected = mock[List[ApiCategoryDetails]]
           val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiCategoryDetails()(any))
             .thenReturn(mockFuture)
 
-          val actual = await(svc.fetchAllAPICategoryDetails)
+          val actual = await(svc.fetchAllApiCategoryDetails)
           actual shouldBe expected
 
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))

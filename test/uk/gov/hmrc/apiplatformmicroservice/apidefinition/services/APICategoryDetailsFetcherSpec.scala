@@ -17,33 +17,33 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class APICategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiDefinitionServiceModule {
     implicit val headerCarrier = HeaderCarrier()
 
     val fetcherUnderTest =
-      new APICategoryDetailsFetcher(
+      new ApiCategoryDetailsFetcher(
         new EnvironmentAwareApiDefinitionService(
           SubordinateApiDefinitionServiceMock.aMock,
           PrincipalApiDefinitionServiceMock.aMock))
   }
 
-  "APICategoryDetailsFetcher" should {
-    val subordinateEnvironmentOnlyCategory = APICategoryDetails("SUBORDINATE_CATEGORY", "API Category in Subordinate Environment")
-    val principalEnvironmentOnlyCategory = APICategoryDetails("PRINCIPAL_CATEGORY", "API Category in Principal Environment")
-    val category1 = APICategoryDetails("API_CATEGORY_1", "API Category 1")
-    val category2 = APICategoryDetails("API_CATEGORY_2", "API Category 2")
+  "ApiCategoryDetailsFetcher" should {
+    val subordinateEnvironmentOnlyCategory = ApiCategoryDetails("SUBORDINATE_CATEGORY", "API Category in Subordinate Environment")
+    val principalEnvironmentOnlyCategory = ApiCategoryDetails("PRINCIPAL_CATEGORY", "API Category in Principal Environment")
+    val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+    val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
 
     "retrieve all API Categories from PRODUCTION and SANDBOX environments and combine them" in new Setup {
-      SubordinateApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnAPICategoryDetails(subordinateEnvironmentOnlyCategory, category1, category2)
-      PrincipalApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnAPICategoryDetails(principalEnvironmentOnlyCategory, category1, category2)
+      SubordinateApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnApiCategoryDetails(subordinateEnvironmentOnlyCategory, category1, category2)
+      PrincipalApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnApiCategoryDetails(principalEnvironmentOnlyCategory, category1, category2)
 
       val result = await(fetcherUnderTest.fetch())
 

@@ -29,7 +29,7 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     if(restricted) {
       fetchRestricted(application, subscriptions)
     }
@@ -38,14 +38,14 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
     }
   }
 
-  def fetchRestricted(application: Application, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetchRestricted(application: Application, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val environment = application.deployedTo
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
   }
 
-  def fetchUnrestricted(application: Application)(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetchUnrestricted(application: Application)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val environment = application.deployedTo
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions

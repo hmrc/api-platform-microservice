@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitions
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.OpenAccessApisFetcher
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import play.api.mvc.Result
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
@@ -53,7 +53,7 @@ class ApiDefinitionController @Inject() (
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  private def fetchApiDefinitions( fetch: => Future[List[APIDefinition]]): Future[Result] = {
+  private def fetchApiDefinitions( fetch: => Future[List[ApiDefinition]]): Future[Result] = {
     for {
       defs <- fetch
       converted = convert(defs)
@@ -81,11 +81,11 @@ object ApiDefinitionController {
 
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
-  def convert(in: Seq[APIDefinition]): Map[ApiContext, ApiData] = {
+  def convert(in: Seq[ApiDefinition]): Map[ApiContext, ApiData] = {
     in.map(d => d.context -> ApiData.fromDefinition(d)).toMap
   }
 
-  case class VersionData(status: APIStatus, access: APIAccess)
+  case class VersionData(status: ApiStatus, access: ApiAccess)
 
   object VersionData {
     def fromDefinition(in: ApiVersionDefinition): VersionData = VersionData(in.status, in.access)
@@ -102,7 +102,7 @@ object ApiDefinitionController {
       override def compare(x: (ApiVersion, VersionData), y: (ApiVersion, VersionData)): Int = y._1.value.compareTo(x._1.value)
     }
 
-    def fromDefinition(in: APIDefinition): ApiData = {
+    def fromDefinition(in: ApiDefinition): ApiData = {
       val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted:_*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData)
     }

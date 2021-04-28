@@ -25,7 +25,7 @@ import play.api.test.Helpers.{contentAsJson, status}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiCategoryDetailsFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -40,8 +40,8 @@ class ApiCategoriesControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
 
     val controller = new ApiCategoriesController(Helpers.stubControllerComponents(), ApiCategoryDetailsForCollaboratorFetcherMock.aMock)
 
-    val category1 = APICategoryDetails("API_CATEGORY_1", "API Category 1")
-    val category2 = APICategoryDetails("API_CATEGORY_2", "API Category 2")
+    val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+    val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
   }
 
   "fetchAllApiCategories" should {
@@ -52,7 +52,7 @@ class ApiCategoriesControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite
 
       status(result) must be (OK)
 
-      val parsedCategories: List[APICategoryDetails] = Json.fromJson[List[APICategoryDetails]](contentAsJson(result)).get
+      val parsedCategories: List[ApiCategoryDetails] = Json.fromJson[List[ApiCategoryDetails]](contentAsJson(result)).get
       parsedCategories.size must be (2)
       parsedCategories must contain only (category1, category2)
     }

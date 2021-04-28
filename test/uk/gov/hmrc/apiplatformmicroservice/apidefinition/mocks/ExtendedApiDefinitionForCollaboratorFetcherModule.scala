@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedAPIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ExtendedApiDefinitionForCollaboratorFetcher
 
 import scala.concurrent.Future
@@ -28,7 +28,7 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
   object ExtendedApiDefinitionForCollaboratorFetcherMock {
     val aMock = mock[ExtendedApiDefinitionForCollaboratorFetcher]
 
-    def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
+    def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
       when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
     }
 

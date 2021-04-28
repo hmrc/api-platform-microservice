@@ -18,17 +18,17 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.APICategoryDetailsFetcher
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiCategoryDetailsFetcher
 
 import scala.concurrent.Future
 
 trait ApiCategoryDetailsFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
   object ApiCategoryDetailsForCollaboratorFetcherMock {
-    val aMock = mock[APICategoryDetailsFetcher]
+    val aMock = mock[ApiCategoryDetailsFetcher]
 
-    def willReturnApiCategoryDetails(categories: APICategoryDetails*) = {
+    def willReturnApiCategoryDetails(categories: ApiCategoryDetails*) = {
       when(aMock.fetch()(*)).thenReturn(Future.successful(categories.toList))
     }
 

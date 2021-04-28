@@ -20,7 +20,7 @@ import java.util.UUID
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategoryDetails
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -111,11 +111,11 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
     }
 
     "when requesting API Category details" should {
-      val category1 = APICategoryDetails("API_CATEGORY_1", "API Category 1")
-      val category2 = APICategoryDetails("API_CATEGORY_2", "API Category 2")
+      val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+      val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
 
       "call the underlying http client" in new PrincipalSetup {
-        whenGetAPICategoryDetails()(category1, category2)
+        whenGetApiCategoryDetails()(category1, category2)
 
         val result = await(connector.fetchApiCategoryDetails())
 
@@ -123,7 +123,7 @@ class ApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson 
       }
 
       "throw an exception correctly" in new PrincipalSetup {
-        whenGetAPICategoryDetailsFails(UpstreamInternalServerError)
+        whenGetApiCategoryDetailsFails(UpstreamInternalServerError)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchApiCategoryDetails())

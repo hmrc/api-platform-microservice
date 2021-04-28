@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 import scala.concurrent.Future
@@ -30,7 +30,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     def aMock: ApiDefinitionService
 
     object FetchAllApiDefinitions {
-      def willReturn(apiDefinitions: APIDefinition*) = {
+      def willReturn(apiDefinitions: ApiDefinition*) = {
         when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
       }
 
@@ -44,7 +44,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchAllNonOpenAccessDefinitions {
-      def willReturn(apiDefinitions: APIDefinition*) = {
+      def willReturn(apiDefinitions: ApiDefinition*) = {
         when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
       }
 
@@ -76,7 +76,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchDefinition {
-      def willReturnApiDefinition(apiDefinition: APIDefinition) = {
+      def willReturnApiDefinition(apiDefinition: ApiDefinition) = {
         when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.successful(Some(apiDefinition)))
       }
 
@@ -90,8 +90,8 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchApiCategoryDetails {
-      def willReturnAPICategoryDetails(apiCategoryDetails: APICategoryDetails*) = {
-        when(aMock.fetchAllAPICategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails.toList))
+      def willReturnApiCategoryDetails(apiCategoryDetails: ApiCategoryDetails*) = {
+        when(aMock.fetchAllApiCategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails.toList))
       }
     }
   }

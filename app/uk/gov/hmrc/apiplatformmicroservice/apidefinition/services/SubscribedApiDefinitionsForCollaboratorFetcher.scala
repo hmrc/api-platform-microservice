@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiIdentifier}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,18 +33,18 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(developerId))
       subscriptions <- subscriptionsForCollaboratorFetcher.fetch(developerId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 
-  private def filterApis(apis: List[APIDefinition], subscriptions: Set[ApiIdentifier]): List[APIDefinition] = {
+  private def filterApis(apis: List[ApiDefinition], subscriptions: Set[ApiIdentifier]): List[ApiDefinition] = {
     apis.flatMap(filterVersions(_, subscriptions))
   }
 
-  private def filterVersions(api: APIDefinition, subscriptions: Set[ApiIdentifier]): Option[APIDefinition] = {
+  private def filterVersions(api: ApiDefinition, subscriptions: Set[ApiIdentifier]): Option[ApiDefinition] = {
     val filteredVersions = api.versions.filter(v => subscriptions.contains(models.ApiIdentifier(api.context, v.version)))
 
     if (filteredVersions.isEmpty) None

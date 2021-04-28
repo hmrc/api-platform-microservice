@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.Logger
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition, ApiDefinitionJsonFormatters, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ResourceId}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
@@ -32,18 +32,18 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    http.GET[Option[List[APIDefinition]]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
+    http.GET[Option[List[ApiDefinition]]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
     .map(_ match {
       case None => List.empty
       case Some(apiDefinitions) => apiDefinitions.sortBy(_.name)
     })
   }
 
-  def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[APIDefinition]] = {
+  def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    val r = http.GET[Option[APIDefinition]](definitionUrl(serviceBaseUrl, serviceName))
+    val r = http.GET[Option[ApiDefinition]](definitionUrl(serviceBaseUrl, serviceName))
 
     r.recover {
       case NonFatal(e)          =>
@@ -52,10 +52,10 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
     }
   }
 
-  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
+  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
     Logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
 
-    http.GET[List[APICategoryDetails]](categoriesUrl(serviceBaseUrl))
+    http.GET[List[ApiCategoryDetails]](categoriesUrl(serviceBaseUrl))
       .recover {
         case NonFatal(e) =>
           Logger.error(s"Failed $e")

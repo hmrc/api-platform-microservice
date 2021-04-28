@@ -47,12 +47,12 @@ class ApiDocumentationResourceFetcher @Inject() (
     } yield response.some
   }
 
-  private def fetchApiVersion(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[ExtendedAPIVersion] = {
-    def findVersion(definition: ExtendedAPIDefinition): Option[ExtendedAPIVersion] = {
+  private def fetchApiVersion(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[ExtendedApiVersion] = {
+    def findVersion(definition: ExtendedApiDefinition): Option[ExtendedApiVersion] = {
       definition.versions.find(_.version == resourceId.version)
     }
 
-    val error = Future.failed[ExtendedAPIVersion](
+    val error = Future.failed[ExtendedApiVersion](
       new IllegalArgumentException(
         s"Version ${resourceId.version.value} of ${resourceId.serviceName} not found"
       )
