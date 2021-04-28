@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
+package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionJsonFormatters, ExtendedAPIDefinition}

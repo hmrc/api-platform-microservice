@@ -10,9 +10,10 @@ import play.api.{Application, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
+import org.scalatest.Suite
 
-trait PrincipalAndSubordinateWireMockSetup {
-  self: ConfigBuilder with FakeApplicationFactory with BeforeAndAfterEach with BeforeAndAfterAll =>
+trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with BeforeAndAfterAll {
+  self: Suite with ConfigBuilder with FakeApplicationFactory =>
 
   val WireMockHost = "localhost"
   val WireMockPrincipalPort = 11111
