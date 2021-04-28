@@ -14,6 +14,7 @@ lazy val scoverageSettings = {
       "<empty",
       """.*\.domain\.models\..*""" ,
       """uk\.gov\.hmrc\.apiplatformmicroservice\.common\.controllers\.binders""",
+      """uk\.gov\.hmrc\.apiplatformmicroservice\.apidefinition\.controllers\.binders""",
       """uk\.gov\.hmrc\.BuildInfo""" ,
       """.*\.Routes""" ,
       """.*\.RoutesPrefix""" ,

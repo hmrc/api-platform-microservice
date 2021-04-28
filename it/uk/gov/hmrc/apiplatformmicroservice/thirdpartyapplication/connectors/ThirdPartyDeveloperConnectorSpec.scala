@@ -10,6 +10,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 class ThirdPartyDeveloperConnectorSpec
     extends AsyncHmrcSpec 
@@ -21,6 +22,11 @@ class ThirdPartyDeveloperConnectorSpec
   trait Setup {
     implicit val hc = HeaderCarrier()
 
+    val email1 = "fakeemail1"
+    val email2 = "fakeemail2"
+    val userId1 = UserId.random
+    val userId2 = UserId.random
+
     val httpClient = app.injector.instanceOf[HttpClient]
     val mockEncryptedJson = mock[EncryptedJson]
 
@@ -30,16 +36,16 @@ class ThirdPartyDeveloperConnectorSpec
     val tpdConnector = new ThirdPartyDeveloperConnector(mockConfig, httpClient, mockEncryptedJson)
   }
 
-  "fetchByEmail" should {
+  "fetchByEmails" should {
     val url = "/developers/get-by-emails"
 
     "respond with 200 and data" in new Setup {
-      val fakeUser1 = buildUserResponse(UserId.random, "fakeemail1", true)
-      val fakeUser2 = buildUserResponse(UserId.random, "fakeemail2", true)
+      val fakeUser1 = buildUserResponse(userId1, email1, true)
+      val fakeUser2 = buildUserResponse(userId2, email2, true)
 
       stubFor(
         post(urlEqualTo(url))
-        .withJsonRequestBody(List("fakeemail1", "fakeemail2"))
+        .withJsonRequestBody(List(email1, email2))
         .willReturn(
           aResponse()
           .withStatus(OK)
@@ -47,7 +53,7 @@ class ThirdPartyDeveloperConnectorSpec
         )
       )
 
-      val result = await(tpdConnector.fetchByEmails(Set("fakeemail1", "fakeemail2")))
+      val result = await(tpdConnector.fetchByEmails(Set(email1, email2)))
 
       result.toList should contain allOf(fakeUser1, fakeUser2)
     }
@@ -55,7 +61,7 @@ class ThirdPartyDeveloperConnectorSpec
     "respond with BAD_REQUEST when no email addresses provided" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-        .withJsonRequestBody(List.empty)
+        .withJsonRequestBody(List.empty[String])
         .willReturn(
           aResponse()
           .withStatus(BAD_REQUEST)
@@ -65,6 +71,26 @@ class ThirdPartyDeveloperConnectorSpec
       intercept[UpstreamErrorResponse] {
         await(tpdConnector.fetchByEmails(Set.empty))
       }.statusCode shouldBe BAD_REQUEST
+    }
+  }
+
+  "getOrCreateUserId" should {
+    val url = "/developers/user-id"
+    "return success for email" in new Setup {
+      val getOrCreateUserIdRequest = GetOrCreateUserIdRequest(email1)
+      val getOrCreateUserIdResponse = GetOrCreateUserIdResponse(userId1)
+
+      stubFor(
+        post(urlEqualTo(url))
+        .withJsonRequestBody(getOrCreateUserIdRequest)
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withJsonBody(getOrCreateUserIdResponse)
+        )
+      )
+
+      await(tpdConnector.getOrCreateUserId(getOrCreateUserIdRequest)) shouldBe getOrCreateUserIdResponse
     }
   }
 }

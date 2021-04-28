@@ -17,19 +17,25 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
-import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import com.github.tomakehurst.wiremock.client.WireMock._
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugar, WireMockSugarExtensions}
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.Status._
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.HeaderCarrier
 
-class SubscriptionFieldsConnectorSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
-  import SubscriptionsHelper._
-
-  private val baseUrl = "https://example.com"
+class SubscriptionFieldsConnectorSpec
+    extends AsyncHmrcSpec 
+    with WireMockSugar 
+    with WireMockSugarExtensions 
+    with GuiceOneServerPerSuite
+    with SubscriptionFieldValuesJsonFormatters {
+  
+    import SubscriptionsHelper._
 
   val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
   val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
@@ -54,21 +60,25 @@ class SubscriptionFieldsConnectorSpec extends AsyncHmrcSpec with MockitoSugar wi
 
   class SetupPrincipal {
     implicit val hc = HeaderCarrier()
-    protected val mockHttpClient = mock[HttpClient]
-
     val clientId = ClientId("123")
 
-    val config = PrincipalSubscriptionFieldsConnector.Config(
-      baseUrl
-    )
-
-    val connector = new PrincipalSubscriptionFieldsConnector(config, mockHttpClient)
+    val httpClient = app.injector.instanceOf[HttpClient]
+    val config = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
+    val connector = new PrincipalSubscriptionFieldsConnector(config, httpClient)
   }
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      when(mockHttpClient.GET[Option[BulkSubscriptionFieldsResponse]](*)(*, *, *))
-        .thenReturn(successful(Some(BulkSubscriptionFieldsResponse(bulkSubscriptions))))
+      implicit val writes = Json.writes[BulkSubscriptionFieldsResponse]
+
+      stubFor(
+        get(urlEqualTo(s"/field/application/${clientId.value}"))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withJsonBody(BulkSubscriptionFieldsResponse(bulkSubscriptions))
+        )
+      )
 
       await(connector.bulkFetchFieldValues(clientId)) shouldBe subsFields
     }

@@ -66,7 +66,6 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting an api definition" should {
 
       "call the underlying http client" in new Setup {
-
         whenGetDefinition(PRODUCTION)(serviceName, apiDefinition(apiName1))
 
         val result = await(connector.fetchApiDefinition(serviceName))

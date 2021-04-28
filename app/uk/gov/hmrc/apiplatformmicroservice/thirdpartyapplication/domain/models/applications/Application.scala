@@ -22,6 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import java.util.UUID
 
 case class ClientId(value: String) extends AnyVal
+
 object ClientId {
   def empty: ClientId = ClientId("")
   def random: ClientId = ClientId(UUID.randomUUID().toString)
