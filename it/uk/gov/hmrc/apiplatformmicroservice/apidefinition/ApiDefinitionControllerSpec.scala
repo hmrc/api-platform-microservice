@@ -46,7 +46,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == APIStatus.RETIRED) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
 
       val context = result(ApiContext("hello"))
@@ -84,7 +84,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == APIStatus.RETIRED) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
 
       val context = result(ApiContext("hello"))

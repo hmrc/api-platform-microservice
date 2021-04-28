@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorUtils._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APICategoryDetails, APIDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
@@ -30,16 +30,16 @@ trait ApiDefinitionHttpMockingHelper
   val mockThisClient: HttpClient with WSGet
   val apiDefinitionUrl: String
 
-  private def whenGetDefinition(serviceName: String, response: Future[Option[APIDefinition]]) = {
+  private def whenGetDefinition(serviceName: String, response: Future[Option[ApiDefinition]]) = {
     val url = definitionUrl(apiDefinitionUrl, serviceName)
     when(
-      mockThisClient.GET[Option[APIDefinition]](
+      mockThisClient.GET[Option[ApiDefinition]](
         eqTo(url)
       )(any, any, any)
     ).thenReturn(response)
   }
 
-  def whenGetDefinition(serviceName: String)(definition: APIDefinition): Unit = {
+  def whenGetDefinition(serviceName: String)(definition: ApiDefinition): Unit = {
     whenGetDefinition(serviceName, Future.successful(Some(definition)))
   }
 
@@ -51,34 +51,34 @@ trait ApiDefinitionHttpMockingHelper
     whenGetDefinition(serviceName, Future.failed(exception))
   }
 
-  def whenGetAllDefinitions(definitions: APIDefinition*): Unit = {
+  def whenGetAllDefinitions(definitions: ApiDefinition*): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
     ).thenReturn(Future.successful(Some(definitions.toList)))
   }
 
   def whenGetAllDefinitionsFindsNothing(): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
     ).thenReturn(Future.successful(None))
   }
 
   def whenGetAllDefinitionsFails(exception: Throwable): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[APIDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
     ).thenReturn(Future.failed(exception))
   }
 
-  def whenGetAPICategoryDetails()(categories: APICategoryDetails*): Unit = {
+  def whenGetApiCategoryDetails()(categories: ApiCategoryDetails*): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[List[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.successful(categories.toList))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.successful(categories.toList))
   }
 
-  def whenGetAPICategoryDetailsFails(exception: Throwable): Unit = {
+  def whenGetApiCategoryDetailsFails(exception: Throwable): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[List[APICategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.failed(exception))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.failed(exception))
   }
 }

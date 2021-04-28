@@ -17,92 +17,92 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import cats.data.{NonEmptyList => NEL}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait ApiDefinitionTestDataHelper {
 
-  def extendedApiDefinition(name: String, versions: List[ExtendedAPIVersion] = List(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
-    ExtendedAPIDefinition(name, name, name, ApiContext(name), false, false, versions, List.empty)
+  def extendedApiDefinition(name: String, versions: List[ExtendedApiVersion] = List(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
+    ExtendedApiDefinition(name, name, name, ApiContext(name), false, false, versions, List.empty)
   }
 
   def extendedApiVersion(
       version: ApiVersion = ApiVersion("1.0"),
-      status: APIStatus = STABLE,
-      productionAvailability: Option[APIAvailability] = None,
-      sandboxAvailability: Option[APIAvailability] = None
-    ): ExtendedAPIVersion = {
-    ExtendedAPIVersion(version, status, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
+      status: ApiStatus = STABLE,
+      productionAvailability: Option[ApiAvailability] = None,
+      sandboxAvailability: Option[ApiAvailability] = None
+    ): ExtendedApiVersion = {
+    ExtendedApiVersion(version, status, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
   }
 
-  def apiDefinition(name: String): APIDefinition = apiDefinition(name, apiVersion(ApiVersion("1.0"), STABLE))
+  def apiDefinition(name: String): ApiDefinition = apiDefinition(name, apiVersion(ApiVersion("1.0"), STABLE))
 
   def apiDefinition(
       name: String,
       versions: ApiVersionDefinition*
     ) = {
-    APIDefinition(name, name, name, ApiContext(name), false, false, versions.toList)
+    ApiDefinition(name, name, name, ApiContext(name), false, false, versions.toList)
   }
 
   def apiAccess() = {
     PublicApiAccess()
   }
 
-  implicit class ApiDefintionModifier(val inner: APIDefinition) {
+  implicit class ApiDefintionModifier(val inner: ApiDefinition) {
 
-    def requiresTrust(is: Boolean): APIDefinition =
+    def requiresTrust(is: Boolean): ApiDefinition =
       inner.copy(requiresTrust = is)
 
-    def withClosedAccess: APIDefinition = inner.copy(versions = inner.versions.map(_.withClosedAccess))
+    def withClosedAccess: ApiDefinition = inner.copy(versions = inner.versions.map(_.withClosedAccess))
 
-    def asPrivate: APIDefinition = inner.copy(versions = inner.versions.map(_.asPrivate))
+    def asPrivate: ApiDefinition = inner.copy(versions = inner.versions.map(_.asPrivate))
     
-    def doesRequireTrust: APIDefinition = requiresTrust(true)
-    def doesNotRequireTrust: APIDefinition = requiresTrust(false)
-    def trustNotSpecified: APIDefinition = requiresTrust(false)
+    def doesRequireTrust: ApiDefinition = requiresTrust(true)
+    def doesNotRequireTrust: ApiDefinition = requiresTrust(false)
+    def trustNotSpecified: ApiDefinition = requiresTrust(false)
 
-    def withName(name: String): APIDefinition = inner.copy(name = name)
+    def withName(name: String): ApiDefinition = inner.copy(name = name)
 
-    def withVersions(versions: ApiVersionDefinition*): APIDefinition = inner.copy(versions = versions.toList)
+    def withVersions(versions: ApiVersionDefinition*): ApiDefinition = inner.copy(versions = versions.toList)
 
-    def withCategories(categories: List[APICategory]): APIDefinition = inner.copy(categories = categories)
+    def withCategories(categories: List[ApiCategory]): ApiDefinition = inner.copy(categories = categories)
 
-    def asTrial: APIDefinition = {
+    def asTrial: ApiDefinition = {
       inner.copy(versions = inner.versions.map(_.asTrial))
     }
 
-    def asAlpha: APIDefinition =
+    def asAlpha: ApiDefinition =
       inner.copy(versions = inner.versions.map(_.asAlpha))
 
-    def asBeta: APIDefinition =
+    def asBeta: ApiDefinition =
       inner.copy(versions = inner.versions.map(_.asBeta))
 
-    def asStable: APIDefinition =
+    def asStable: ApiDefinition =
       inner.copy(versions = inner.versions.map(_.asStable))
 
-    def asDeprecated: APIDefinition =
+    def asDeprecated: ApiDefinition =
       inner.copy(versions = inner.versions.map(_.asDeprecated))
 
-    def asRetired: APIDefinition =
+    def asRetired: ApiDefinition =
       inner.copy(versions = inner.versions.map(_.asRetired))
 
   }
 
   implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {
 
-    def asTrial: APIAccess = {
+    def asTrial: ApiAccess = {
       inner.copy(isTrial = true)
     }
 
-    def notTrial: APIAccess = {
+    def notTrial: ApiAccess = {
       inner.copy(isTrial = false)
     }
 
-    def withAllowlistedAppIds(appIds: ApplicationId*): APIAccess = {
+    def withAllowlistedAppIds(appIds: ApplicationId*): ApiAccess = {
       inner.copy(allowlistedApplicationIds = appIds.toList)
     }
 
-    def addAllowList(appIds: ApplicationId*): APIAccess = {
+    def addAllowList(appIds: ApplicationId*): ApiAccess = {
       inner.copy(allowlistedApplicationIds = inner.allowlistedApplicationIds ++ appIds)
     }
   }
@@ -120,26 +120,26 @@ trait ApiDefinitionTestDataHelper {
     def asApplicationRestricted: Endpoint = inner.copy(authType = AuthType.APPLICATION)
   }
 
-  def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: APIStatus = STABLE, access: APIAccess = apiAccess()): ApiVersionDefinition = {
+  def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: ApiStatus = STABLE, access: ApiAccess = apiAccess()): ApiVersionDefinition = {
     ApiVersionDefinition(version, status, access, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")))
   }
 
   implicit class ApiVersionModifier(val inner: ApiVersionDefinition) {
 
     def asAlpha: ApiVersionDefinition =
-      inner.copy(status = APIStatus.ALPHA)
+      inner.copy(status = ApiStatus.ALPHA)
 
     def asBeta: ApiVersionDefinition =
-      inner.copy(status = APIStatus.BETA)
+      inner.copy(status = ApiStatus.BETA)
 
     def asStable: ApiVersionDefinition =
-      inner.copy(status = APIStatus.STABLE)
+      inner.copy(status = ApiStatus.STABLE)
 
     def asDeprecated: ApiVersionDefinition =
-      inner.copy(status = APIStatus.DEPRECATED)
+      inner.copy(status = ApiStatus.DEPRECATED)
 
     def asRetired: ApiVersionDefinition =
-      inner.copy(status = APIStatus.RETIRED)
+      inner.copy(status = ApiStatus.RETIRED)
 
     def asPublic: ApiVersionDefinition =
       inner.copy(access = PublicApiAccess())
@@ -162,7 +162,7 @@ trait ApiDefinitionTestDataHelper {
       case _                           => inner.copy(access = PrivateApiAccess())
     }
 
-    def withAccess(altAccess: APIAccess): ApiVersionDefinition =
+    def withAccess(altAccess: ApiAccess): ApiVersionDefinition =
       inner.copy(access = altAccess)
 
     def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = NEL(inner.endpoints.head.asApplicationRestricted, inner.endpoints.tail))

@@ -17,12 +17,12 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIDefinition, ApiDefinitionJsonFormatters, ExtendedAPIDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionJsonFormatters, ExtendedApiDefinition}
 
 trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
 
   //noinspection ScalaStyle
-  def extendedApiDefinition(name: String): ExtendedAPIDefinition = {
+  def extendedApiDefinition(name: String): ExtendedApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -77,10 +77,10 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |    }
                   |  ]
                   |}
-     """.stripMargin).as[ExtendedAPIDefinition]
+     """.stripMargin).as[ExtendedApiDefinition]
   }
 
-  def apiDefinition(name: String): APIDefinition = {
+  def apiDefinition(name: String): ApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -116,7 +116,7 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |      ]
                   |    }
                   |  ]
-                  |}""".stripMargin.replaceAll("\n", " ")).as[APIDefinition]
+                  |}""".stripMargin.replaceAll("\n", " ")).as[ApiDefinition]
   }
   def apiDefinitions(names: String*) = names.map(apiDefinition)
 }

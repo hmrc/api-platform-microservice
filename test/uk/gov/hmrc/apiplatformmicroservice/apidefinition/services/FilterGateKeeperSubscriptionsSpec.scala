@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 
 class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with FilterGateKeeperSubscriptions {
 
   private val filter = new FilterGateKeeperSubscriptions {}
 
   "filterApisForGateKeeperSubscription" when {
-    def testFilter(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+    def testFilter(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
       filter.filterApisForGateKeeperSubscriptions(Set(appId))(apiDefinitions.toList)
     }
 

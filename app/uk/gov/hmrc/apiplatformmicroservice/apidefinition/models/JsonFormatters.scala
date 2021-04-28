@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import cats.data.{NonEmptyList => NEL}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 
 trait BasicApiDefinitionJsonFormatters extends CommonJsonFormatters {
   implicit val formatApiContext: Format[ApiContext] = Json.valueFormat[ApiContext]
   implicit val formatApiVersion: Format[ApiVersion] = Json.valueFormat[ApiVersion]
-  implicit val formatApiCategory: Format[APICategory] = Json.valueFormat[APICategory]
-  implicit val formatApiCategoryDetails: Format[APICategoryDetails] = Json.format[APICategoryDetails]
+  implicit val formatApiCategory: Format[ApiCategory] = Json.valueFormat[ApiCategory]
+  implicit val formatApiCategoryDetails: Format[ApiCategoryDetails] = Json.format[ApiCategoryDetails]
   implicit val formatApiIdentifier: Format[ApiIdentifier] = Json.format[ApiIdentifier]
 
   implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
@@ -55,8 +55,8 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
 trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters with CommonJsonFormatters {
   import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
-  implicit val apiAccessReads: Reads[APIAccess] = (
-    (JsPath \ "type").read[APIAccessType] and
+  implicit val apiAccessReads: Reads[ApiAccess] = (
+    (JsPath \ "type").read[ApiAccessType] and
       ((JsPath \ "allowlistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
       ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
   ) map {
@@ -64,15 +64,15 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
     case (PRIVATE, allowlistedApplicationIds, isTrial) => PrivateApiAccess(allowlistedApplicationIds, isTrial)
   }
 
-  implicit object apiAccessWrites extends Writes[APIAccess] {
+  implicit object apiAccessWrites extends Writes[ApiAccess] {
 
-    private val privApiWrites: OWrites[(APIAccessType, List[ApplicationId], Boolean)] = (
-      (JsPath \ "type").write[APIAccessType] and
+    private val privApiWrites: OWrites[(ApiAccessType, List[ApplicationId], Boolean)] = (
+      (JsPath \ "type").write[ApiAccessType] and
         (JsPath \ "allowlistedApplicationIds").write[List[ApplicationId]] and
         (JsPath \ "isTrial").write[Boolean]
     ).tupled
 
-    override def writes(access: APIAccess) = access match {
+    override def writes(access: ApiAccess) = access match {
       case _: PublicApiAccess           => Json.obj("type" -> PUBLIC)
       case privateApi: PrivateApiAccess => privApiWrites.writes((PRIVATE, privateApi.allowlistedApplicationIds, privateApi.isTrial))
     }
@@ -80,8 +80,8 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit val apiVersionReads: Reads[ApiVersionDefinition] =
     ((JsPath \ "version").read[ApiVersion] and
-      (JsPath \ "status").read[APIStatus] and
-      (JsPath \ "access").readNullable[APIAccess] and
+      (JsPath \ "status").read[ApiStatus] and
+      (JsPath \ "access").readNullable[ApiAccess] and
       (JsPath \ "endpoints").read[NEL[Endpoint]] and
       ((JsPath \ "endpointsEnabled").read[Boolean] or Reads.pure(false)) tupled) map {
       case (version, status, None, endpoints, endpointsEnabled)         => ApiVersionDefinition(version, status, PublicApiAccess(), endpoints, endpointsEnabled)
@@ -90,7 +90,7 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit val apiVersionWrites: Writes[ApiVersionDefinition] = Json.writes[ApiVersionDefinition]
 
-  implicit val apiDefinitionReads: Reads[APIDefinition] = (
+  implicit val apiDefinitionReads: Reads[ApiDefinition] = (
     (JsPath \ "serviceName").read[String] and
       (JsPath \ "name").read[String] and
       (JsPath \ "description").read[String] and
@@ -98,14 +98,14 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
       ((JsPath \ "requiresTrust").read[Boolean] or Reads.pure(false)) and
       ((JsPath \ "isTestSupport").read[Boolean] or Reads.pure(false)) and
       (JsPath \ "versions").read[List[ApiVersionDefinition]] and
-      ((JsPath \ "categories").read[List[APICategory]] or Reads.pure(List.empty[APICategory]))
-  )(APIDefinition.apply _)
+      ((JsPath \ "categories").read[List[ApiCategory]] or Reads.pure(List.empty[ApiCategory]))
+  )(ApiDefinition.apply _)
 
-  implicit val apiDefinitionWrites: Writes[APIDefinition] = Json.writes[APIDefinition]
+  implicit val apiDefinitionWrites: Writes[ApiDefinition] = Json.writes[ApiDefinition]
 
-  implicit val formatApiAvailability = Json.format[APIAvailability]
-  implicit val formatExtendedApiVersion = Json.format[ExtendedAPIVersion]
-  implicit val formatExtendedApiDefinition = Json.format[ExtendedAPIDefinition]
+  implicit val formatApiAvailability = Json.format[ApiAvailability]
+  implicit val formatExtendedApiVersion = Json.format[ExtendedApiVersion]
+  implicit val formatExtendedApiDefinition = Json.format[ExtendedApiDefinition]
 }
 
 object ApiDefinitionJsonFormatters extends ApiDefinitionJsonFormatters

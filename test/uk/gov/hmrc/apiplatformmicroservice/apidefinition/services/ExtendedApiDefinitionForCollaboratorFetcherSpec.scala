@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.{BETA, RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ApiVersion, PrivateApiAccess, PublicApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{BETA, RETIRED, STABLE}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAvailability, ApiDefinitionTestDataHelper, ApiVersion, PrivateApiAccess, PublicApiAccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationIdsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APICategory
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
@@ -57,11 +57,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubscriptionsForCollaboratorFetcherMock.aMock
     )
 
-    val publicApiAvailability = APIAvailability(false, PublicApiAccess(), false, true)
-    val privateApiAvailability = APIAvailability(false, PrivateApiAccess(List(), false), false, false)
+    val publicApiAvailability = ApiAvailability(false, PublicApiAccess(), false, true)
+    val privateApiAvailability = ApiAvailability(false, PrivateApiAccess(List(), false), false, false)
 
-    val incomeTaxCategory = APICategory("INCOME_TAX")
-    val vatTaxCategory = APICategory("VAT")
+    val incomeTaxCategory = ApiCategory("INCOME_TAX")
+    val vatTaxCategory = ApiCategory("VAT")
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {

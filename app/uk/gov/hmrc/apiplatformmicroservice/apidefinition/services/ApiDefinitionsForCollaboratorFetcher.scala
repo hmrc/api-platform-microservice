@@ -39,9 +39,9 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries with FilterApiDocumentation {
 
-  def fetch(developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[List[APIDefinition]] = {
+  def fetch(developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val principalDefinitionsFuture = principalDefinitionService.fetchAllApiDefinitions
-    val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[APIDefinition])
+    val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 
     for {
       principalDefinitions <- principalDefinitionsFuture
@@ -52,7 +52,7 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
   }
 
-  private def combineDefinitions(principalDefinitions: List[APIDefinition], subordinateDefinitions: List[APIDefinition]): List[APIDefinition] = {
+  private def combineDefinitions(principalDefinitions: List[ApiDefinition], subordinateDefinitions: List[ApiDefinition]): List[ApiDefinition] = {
     subordinateDefinitions ++ principalDefinitions.filterNot(pd => subordinateDefinitions.exists(sd => sd.serviceName == pd.serviceName))
   }
 }

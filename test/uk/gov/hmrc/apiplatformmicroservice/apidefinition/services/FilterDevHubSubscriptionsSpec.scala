@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevHubSubscriptions {
@@ -25,11 +25,11 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
 
   "FilterDevHubSubscriptions" when {
 
-    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
       filter.filterApisForDevHubSubscriptions(Set(appId), Set(subscription))(apiDefinitions.toList)
     }
 
-    def testFilter(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+    def testFilter(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
       filter.filterApisForDevHubSubscriptions(Set(appId), Set.empty)(apiDefinitions.toList)
     }
 

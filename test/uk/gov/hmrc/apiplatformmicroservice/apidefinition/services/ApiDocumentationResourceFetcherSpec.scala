@@ -22,8 +22,8 @@ import org.scalatest.Assertion
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus.STABLE
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{APIAvailability, ApiDefinitionTestDataHelper, ApiVersion, PublicApiAccess, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAvailability, ApiDefinitionTestDataHelper, ApiVersion, PublicApiAccess, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
@@ -47,12 +47,12 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
     val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
       apiName,
-      List(extendedApiVersion(versionOne, STABLE, None, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
+      List(extendedApiVersion(versionOne, STABLE, None, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
     )
 
     val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
       apiName,
-      List(extendedApiVersion(versionOne, STABLE, Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
+      List(extendedApiVersion(versionOne, STABLE, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
     )
 
     val anExtendedApiDefinitionWithPrincipalAndSubordinate = extendedApiDefinition(
@@ -60,8 +60,8 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       List(extendedApiVersion(
         versionOne,
         STABLE,
-        Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),
-        Some(APIAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))
+        Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),
+        Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))
       ))
     )
 

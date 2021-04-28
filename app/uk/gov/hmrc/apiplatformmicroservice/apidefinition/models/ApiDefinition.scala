@@ -41,7 +41,7 @@ object ApiVersion {
 
 case class ApiIdentifier(context: ApiContext, version: ApiVersion)
 
-case class APIDefinition(
+case class ApiDefinition(
     serviceName: String,
     name: String,
     description: String,
@@ -49,41 +49,41 @@ case class APIDefinition(
     requiresTrust: Boolean = false,
     isTestSupport: Boolean = false,
     versions: List[ApiVersionDefinition],
-    categories: List[APICategory] = List.empty)
+    categories: List[ApiCategory] = List.empty)
 
-case class APICategory(value: String) extends AnyVal
+case class ApiCategory(value: String) extends AnyVal
 
-case class APICategoryDetails(category: String, name: String) {
-  def asAPICategory(): APICategory = APICategory(category)
+case class ApiCategoryDetails(category: String, name: String) {
+  def asApiCategory(): ApiCategory = ApiCategory(category)
 }
 
-case class ApiVersionDefinition(version: ApiVersion, status: APIStatus, access: APIAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
+case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: ApiAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
 
-sealed trait APIStatus extends EnumEntry
+sealed trait ApiStatus extends EnumEntry
 
-object APIStatus extends Enum[APIStatus] with PlayJsonEnum[APIStatus] {
+object ApiStatus extends Enum[ApiStatus] with PlayJsonEnum[ApiStatus] {
 
   val values = findValues
-  case object ALPHA extends APIStatus
-  case object BETA extends APIStatus
-  case object STABLE extends APIStatus
-  case object DEPRECATED extends APIStatus
-  case object RETIRED extends APIStatus
+  case object ALPHA extends ApiStatus
+  case object BETA extends ApiStatus
+  case object STABLE extends ApiStatus
+  case object DEPRECATED extends ApiStatus
+  case object RETIRED extends ApiStatus
 }
 
-sealed trait APIAccessType extends EnumEntry
+sealed trait ApiAccessType extends EnumEntry
 
-object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
+object ApiAccessType extends Enum[ApiAccessType] with PlayJsonEnum[ApiAccessType] {
 
   val values = findValues
 
-  case object PRIVATE extends APIAccessType
-  case object PUBLIC extends APIAccessType
+  case object PRIVATE extends ApiAccessType
+  case object PUBLIC extends ApiAccessType
 }
 
-trait APIAccess
-case class PublicApiAccess() extends APIAccess
-case class PrivateApiAccess(allowlistedApplicationIds: List[ApplicationId] = List.empty, isTrial: Boolean = false) extends APIAccess
+trait ApiAccess
+case class PublicApiAccess() extends ApiAccess
+case class PrivateApiAccess(allowlistedApplicationIds: List[ApplicationId] = List.empty, isTrial: Boolean = false) extends ApiAccess
 
 case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: List[Parameter] = List.empty)
 

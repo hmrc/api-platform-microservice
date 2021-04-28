@@ -17,18 +17,18 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelper with FilterApiDocumentation {
   "filterApisForDocumentation" when {
     val filter = new FilterApiDocumentation {}
 
-    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+    def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
       filter.filterApisForDocumentation(Set(appId), Set(subscription))(apiDefinitions.toList)
     }
 
-    def testFilter(apiDefinitions: APIDefinition*): List[APIDefinition] = {
+    def testFilter(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
       filter.filterApisForDocumentation(Set(appId), Set.empty)(apiDefinitions.toList)
     }
 

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.APIStatus
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{FieldName, ThreeDMap}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.AccessRequirements
@@ -25,7 +25,7 @@ object SubscriptionFieldsDomain {
 
   case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean)
 
-  case class ApiVersionDefinition(version: String, status: APIStatus)
+  case class ApiVersionDefinition(version: String, status: ApiStatus)
 
   case class SubscriptionFieldDefinition(
       name: String,
