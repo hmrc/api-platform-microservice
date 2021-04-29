@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 
 trait ApiDefinitionConnectorUtils {
 
-  def definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
+  def  definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
 
   def definitionUrl(serviceBaseUrl: String, serviceName: String) =
     s"$serviceBaseUrl/api-definition/$serviceName"

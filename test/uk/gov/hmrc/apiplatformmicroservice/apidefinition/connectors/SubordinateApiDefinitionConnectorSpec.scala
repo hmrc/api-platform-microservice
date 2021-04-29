@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
-
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {

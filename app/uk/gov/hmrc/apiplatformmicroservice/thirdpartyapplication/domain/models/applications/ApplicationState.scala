@@ -17,13 +17,12 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.time.DateTimeUtils
 
 case class ApplicationState(
     name: State,
     requestedByEmailAddress: Option[String],
     verificationCode: Option[String] = None,
-    updatedOn: DateTime = DateTimeUtils.now)
+    updatedOn: DateTime = DateTime.now)
 
 object ApplicationState {
   val testing = ApplicationState(State.TESTING, None)

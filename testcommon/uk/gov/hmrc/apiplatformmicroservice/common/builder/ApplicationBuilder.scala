@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
-import uk.gov.hmrc.time.DateTimeUtils
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CheckInformation
@@ -35,7 +34,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ROPC
 
 trait ApplicationBuilder extends CollaboratorsBuilder {
-  def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTimeUtils.now, lastAccess: DateTime = DateTimeUtils.now, checkInformation: Option[CheckInformation] = None): Application = {
+  def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now, lastAccess: DateTime = DateTime.now, checkInformation: Option[CheckInformation] = None): Application = {
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
 

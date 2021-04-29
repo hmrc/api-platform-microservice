@@ -6,9 +6,98 @@ import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
 
-trait ApiDefinitionMock {
+trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
+
+  def whenGetDefinition(env: Environment)(serviceName: String, apiDefinition: ApiDefinition) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName"))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(apiDefinition)
+        )
+    )
+  }
+
+  def whenGetDefinitionFindsNothing(env: Environment)(serviceName: String) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName"))
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND)
+        )
+    )    
+  }
+
+  def whenGetDefinitionFails(env: Environment)(serviceName: String, statusCode: Int) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName"))
+        .willReturn(
+          aResponse()
+            .withStatus(statusCode)
+        )
+    ) 
+  }
+  
+  def whenGetAllDefinitions(env: Environment)(definitions: ApiDefinition*) = {
+    stubFor(env)(
+      get(urlPathEqualTo(s"/api-definition"))
+      .withQueryParam("type", equalTo("all"))
+      .willReturn(
+        aResponse()
+        .withStatus(OK)
+        .withJsonBody(definitions.toList)
+      )
+    )
+  }
+
+  def whenGetAllDefinitionsFindsNothing(env: Environment): Unit = {
+    stubFor(env)(
+      get(urlPathEqualTo(s"/api-definition"))
+      .withQueryParam("type", equalTo("all"))
+      .willReturn(
+        aResponse()
+        .withStatus(NOT_FOUND)
+      )
+    )
+  }
+
+  def whenGetAllDefinitionsFails(env: Environment)(statusCode: Int): Unit = {
+    stubFor(env)(
+      get(urlPathEqualTo(s"/api-definition"))
+      .withQueryParam("type", equalTo("all"))
+      .willReturn(
+        aResponse()
+        .withStatus(statusCode)
+      )
+    )
+  }
+
+  def whenGetAPICategoryDetails(env: Environment)(categories: ApiCategoryDetails*): Unit = {
+    stubFor(env)(
+      get(urlPathEqualTo(s"/api-categories"))
+      .willReturn(
+        aResponse()
+        .withStatus(OK)
+        .withJsonBody(categories.toList)
+      )
+    )
+  }
+
+  def whenGetAPICategoryDetailsFails(env: Environment)(statusCode: Int): Unit = {
+    stubFor(env)(
+      get(urlPathEqualTo(s"/api-categories"))
+      .willReturn(
+        aResponse()
+        .withStatus(statusCode)
+      )
+    )
+  }
 
   def mockFetchApiDefinition(env: Environment) {
     stubFor(env)(
