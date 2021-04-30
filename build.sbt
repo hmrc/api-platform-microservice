@@ -9,7 +9,6 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
-    // ScoverageKeys.coverageExcludedPackages := ";.*\\.domain\\.models\\..*;uk\\.gov\\.hmrc\\.BuildInfo;.*\\.Routes;.*\\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\\.Reverse[^.]*;uk\\.gov\\.hmrc\\.apiplatformmicroservice\\.apidefinition\\.controllers\\.binders",
     ScoverageKeys.coverageExcludedPackages := Seq(
       "<empty",
       """.*\.domain\.models\..*""" ,
@@ -44,15 +43,12 @@ lazy val compileDeps = Seq(
 )
 
 def testDeps(scope: String) = Seq(
-  "uk.gov.hmrc"            %% "hmrctest"                % "3.9.0-play-26"     % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play"      % "3.1.3"             % scope,
-  "org.mockito"            %% "mockito-scala-scalatest" % "1.7.1"             % scope,
-  "com.typesafe.play"      %% "play-test"               % PlayVersion.current % scope
-)
-
-def itDeps(scope: String) = Seq(
-  "com.github.tomakehurst" % "wiremock-jre8-standalone" % "2.27.1" % scope
-)
+  "org.scalatestplus.play" %% "scalatestplus-play"        % "3.1.3",
+  "org.mockito"            %% "mockito-scala-scalatest"   % "1.7.1",
+  "com.typesafe.play"      %% "play-test"                 % PlayVersion.current,
+  "org.pegdown"             % "pegdown"                   % "1.6.0",
+  "com.github.tomakehurst"  % "wiremock-jre8-standalone"  % "2.27.1"
+).map(_ % scope)
 
 lazy val root = (project in file("."))
   .settings(
@@ -64,7 +60,7 @@ lazy val root = (project in file("."))
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
-    libraryDependencies ++= compileDeps ++ testDeps("test,it") ++ itDeps("test,it"),
+    libraryDependencies ++= compileDeps ++ testDeps("test,it"),
     publishingSettings,
     scoverageSettings,
     routesImport ++= Seq(
