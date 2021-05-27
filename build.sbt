@@ -41,5 +41,5 @@ lazy val root = (project in file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
