@@ -34,8 +34,8 @@ trait ApiDefinitionHttpMockingHelper
     val url = definitionUrl(apiDefinitionUrl, serviceName)
     when(
       mockThisClient.GET[Option[ApiDefinition]](
-        eqTo(url)
-      )(any, any, any)
+        eqTo(url), *, *
+      )(*,*,*)
     ).thenReturn(response)
   }
 
@@ -54,31 +54,31 @@ trait ApiDefinitionHttpMockingHelper
   def whenGetAllDefinitions(definitions: ApiDefinition*): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
     ).thenReturn(Future.successful(Some(definitions.toList)))
   }
 
   def whenGetAllDefinitionsFindsNothing(): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
     ).thenReturn(Future.successful(None))
   }
 
   def whenGetAllDefinitionsFails(exception: Throwable): Unit = {
     val url = definitionsUrl(apiDefinitionUrl)
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")))(any, any, any)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
     ).thenReturn(Future.failed(exception))
   }
 
   def whenGetApiCategoryDetails()(categories: ApiCategoryDetails*): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.successful(categories.toList))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url),*,*)(*,*,*)).thenReturn(Future.successful(categories.toList))
   }
 
   def whenGetApiCategoryDetailsFails(exception: Throwable): Unit = {
     val url = categoriesUrl(apiDefinitionUrl)
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url))(any, any, any)).thenReturn(Future.failed(exception))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url),*,*)(*,*,*)).thenReturn(Future.failed(exception))
   }
 }

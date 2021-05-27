@@ -23,14 +23,13 @@ import play.api.Configuration
 import play.api.libs.ws.{WSClient, WSRequest}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.logging.Authorization
+import uk.gov.hmrc.http.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import play.api.ConfigLoader
 import com.typesafe.config.Config
 
 class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier()
   private val actorSystem = ActorSystem("test-actor-system")
 
   trait Setup {
@@ -52,10 +51,10 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
     "creates a ProxiedHttpClient with passed in headers" in new Setup {
 
-      private val result = underTest.withHeaders(bearerToken, apiKey)
+      private val proxyClient = underTest.withHeaders(bearerToken, apiKey)
 
-      result.authorization shouldBe Some(Authorization(s"Bearer $bearerToken"))
-      result.apiKeyHeader shouldBe Some("x-api-key" -> apiKey)
+      proxyClient.authorization shouldBe Some(Authorization(s"Bearer $bearerToken"))
+      proxyClient.apiKeyHeader shouldBe Some(apiKey)
     }
 
     "when apiKey is empty String, apiKey header is None" in new Setup {

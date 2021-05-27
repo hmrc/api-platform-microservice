@@ -3,7 +3,7 @@ import sbt._
 
 object AppDependencies {
   lazy val dependencies = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-play-26"          % "1.16.0",
+    "uk.gov.hmrc"             %% "bootstrap-play-26"          % "4.0.0",
     "com.beachape"            %% "enumeratum-play-json"       % "1.6.0",
     "org.typelevel"           %% "cats-core"                  % "2.0.0",
     "com.typesafe.play"       %% "play-json"                  % "2.8.1",
