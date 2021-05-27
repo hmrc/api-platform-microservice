@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 trait ActionBuilders {
   self: BackendController =>
@@ -101,7 +101,7 @@ trait ActionBuilders {
 
   private def authenticate[A](input: Request[A]): Future[Option[Result]] = {
     if (authConfig.enabled) {
-      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(input.headers, None)
+      implicit val hc = HeaderCarrierConverter.fromRequest(input)
       val hasAnyGatekeeperEnrolment = Enrolment(authConfig.userRole) or Enrolment(authConfig.superUserRole) or Enrolment(authConfig.adminRole)
       authConnector.authorise(hasAnyGatekeeperEnrolment, EmptyRetrieval).map { _ => None }
     } else {

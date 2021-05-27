@@ -47,7 +47,7 @@ class PrincipalApiDefinitionConnector @Inject() (
     )
 
     http
-      .buildRequest(url)
+      .buildRequest(url, Seq.empty)
       .stream()
       .map(Some(_))
   }

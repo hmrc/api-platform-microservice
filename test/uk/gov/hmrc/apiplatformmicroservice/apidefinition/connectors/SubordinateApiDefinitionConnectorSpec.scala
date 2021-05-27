@@ -67,7 +67,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
     when(mockEnvironment.toString).thenReturn(environmentName)
 
     val mockProxiedHttpClient: ProxiedHttpClient = mock[ProxiedHttpClient]
-    when(mockProxiedHttpClient.withHeaders(any, any))
+    when(mockProxiedHttpClient.withHeaders(*, *))
       .thenReturn(mockProxiedHttpClient)
 
     val mockHttpClient: HttpClient with WSGet = mock[HttpClient with WSGet]

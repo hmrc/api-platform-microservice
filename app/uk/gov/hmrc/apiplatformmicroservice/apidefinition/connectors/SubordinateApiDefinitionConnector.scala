@@ -61,7 +61,7 @@ class SubordinateApiDefinitionConnector @Inject() (
     if (useProxy) {
       proxiedHttpClient
         .withHeaders(bearerToken, apiKey)
-        .buildRequest(url)
+        .buildRequest(url, Seq.empty)
         .stream()
         .map(Some(_))
     } else {
