@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,8 +34,7 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
     for {
       defs <- apiDefinitionService.principal.fetchAllApiDefinitions
       filteredDefs = defs.filterNot(d => d.isTestSupport || d.categories.contains(EXAMPLE))
-      ids = filteredDefs.flatMap(d => d.versions.filterNot(_.status == RETIRED).map(v => ApiIdentifier(d.context, v.version)))
+      ids = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == RETIRED || v.status == ALPHA).map(v => ApiIdentifier(d.context, v.version)))
     } yield ids
-      
   }
 }
