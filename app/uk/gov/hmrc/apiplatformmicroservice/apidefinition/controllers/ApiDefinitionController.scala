@@ -19,21 +19,23 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import scala.concurrent.Future
+import play.api.mvc.Result
 
 import scala.collection.immutable.ListMap
 import scala.concurrent.ExecutionContext
+
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.OpenAccessApisFetcher
-import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
-import play.api.mvc.Result
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApisFetcher
 
@@ -46,7 +48,8 @@ class ApiDefinitionController @Inject() (
     apisFetcher: ApisFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    controllerComponents: ControllerComponents
+    controllerComponents: ControllerComponents,
+    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher
   )(implicit val ec: ExecutionContext)
     extends BackendController(controllerComponents)
     with ActionBuilders
@@ -80,6 +83,12 @@ class ApiDefinitionController @Inject() (
     def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
       fetchApiDefinitions( apisFetcher.fetchAllForEnvironment(environment) ) 
     }
+
+    def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
+    import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
+    
+    apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
+  }
 }
 
 object ApiDefinitionController {

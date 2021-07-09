@@ -50,6 +50,8 @@ trait ApiDefinitionTestDataHelper {
 
   implicit class ApiDefintionModifier(val inner: ApiDefinition) {
 
+    def isTestSupport(): ApiDefinition = inner.copy(isTestSupport = true)
+
     def requiresTrust(is: Boolean): ApiDefinition =
       inner.copy(requiresTrust = is)
 
@@ -168,4 +170,8 @@ trait ApiDefinitionTestDataHelper {
     def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = NEL(inner.endpoints.head.asApplicationRestricted, inner.endpoints.tail))
   }
 
+  implicit class ApiIdentifierSyntax(val context: String) {
+    def asIdentifier(version: ApiVersion): ApiIdentifier = ApiIdentifier(ApiContext(context), version)
+    def asIdentifier(): ApiIdentifier = asIdentifier(ApiVersion("1.0"))
+  }
 }
