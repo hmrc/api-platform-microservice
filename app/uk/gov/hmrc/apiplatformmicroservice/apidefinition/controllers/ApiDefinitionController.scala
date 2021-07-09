@@ -66,8 +66,8 @@ class ApiDefinitionController @Inject() (
   }
 
   def fetchAllOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-      fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(environment) ) 
-    }
+    fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(environment) ) 
+  }
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if(restricted.getOrElse(true)) {
@@ -80,13 +80,13 @@ class ApiDefinitionController @Inject() (
       }
     }
 
-    def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-      fetchApiDefinitions( apisFetcher.fetchAllForEnvironment(environment) ) 
-    }
+  def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+    fetchApiDefinitions( apisFetcher.fetchAllForEnvironment(environment) ) 
+  }
 
-    def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
+  def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
     import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
-    
+  
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
   }
 }
@@ -109,7 +109,9 @@ object ApiDefinitionController {
       serviceName: String,
       name: String,
       isTestSupport: Boolean,
-      versions: Map[ApiVersion, VersionData])
+      versions: Map[ApiVersion, VersionData],
+      categories: List[ApiCategory]
+  )
 
   object ApiData {
     implicit val ordering: Ordering[(ApiVersion, VersionData)] = new Ordering[(ApiVersion, VersionData)] {
@@ -118,7 +120,7 @@ object ApiDefinitionController {
 
     def fromDefinition(in: ApiDefinition): ApiData = {
       val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted:_*)
-      ApiData(in.serviceName, in.name, in.isTestSupport, versionData)
+      ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
     }
   }
 
