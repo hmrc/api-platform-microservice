@@ -135,6 +135,19 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .get())
 
       response.status shouldBe OK
+
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+
+      implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
+      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+
+      val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+
+      result(ApiContext("trusted")).categories.size shouldBe 1
+      result(ApiContext("trusted")).categories(0).value shouldBe "EXAMPLE"
     }
   }
 }
