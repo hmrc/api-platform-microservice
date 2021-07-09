@@ -35,6 +35,7 @@ import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import play.api.mvc.Result
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApisFetcher
 
 
 @Singleton
@@ -42,6 +43,7 @@ class ApiDefinitionController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     applicationBasedApiFetcher: ApiDefinitionsForApplicationFetcher,
     openAccessApisFetcher: OpenAccessApisFetcher,
+    apisFetcher: ApisFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents
@@ -75,6 +77,9 @@ class ApiDefinitionController @Inject() (
       }
     }
 
+    def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+      fetchApiDefinitions( apisFetcher.fetchAllForEnvironment(environment) ) 
+    }
 }
 
 object ApiDefinitionController {
