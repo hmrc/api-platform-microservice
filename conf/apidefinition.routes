@@ -1,4 +1,4 @@
 GET        /           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllSubscribeableApis(applicationId: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, restricted: Option[Boolean])
 GET        /open       uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllOpenApis(environment: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment)
-GET        /           uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllApis(environment: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment)
+GET        /all        uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllApis(environment: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment)
 GET        /upliftable uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.fetchAllUpliftableApiIdentifiers

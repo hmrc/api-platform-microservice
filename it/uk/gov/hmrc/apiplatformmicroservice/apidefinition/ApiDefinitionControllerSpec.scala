@@ -125,5 +125,16 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       keys should contain(ApiContext("trusted"))
       keys shouldNot contain(ApiContext("hello"))
     }
+
+    "stub get request for all api definitions" in {
+      mockFetchApiDefinition(Environment.SANDBOX)
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/all")
+        .withQueryStringParameters("environment" -> "SANDBOX")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+    }
   }
 }
