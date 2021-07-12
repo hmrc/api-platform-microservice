@@ -125,5 +125,29 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       keys should contain(ApiContext("trusted"))
       keys shouldNot contain(ApiContext("hello"))
     }
+
+    "stub get request for all api definitions" in {
+      mockFetchApiDefinition(Environment.SANDBOX)
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/all")
+        .withQueryStringParameters("environment" -> "SANDBOX")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+
+      implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
+      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+
+      val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+
+      result(ApiContext("trusted")).categories.size shouldBe 1
+      result(ApiContext("trusted")).categories(0).value shouldBe "EXAMPLE"
+    }
   }
 }

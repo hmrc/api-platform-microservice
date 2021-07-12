@@ -260,7 +260,10 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                         |          }
                         |      ],
                         |      "lastPublishedAt": "2018-07-13T13:18:06.124Z",
-                        |      "requiresTrust": true
+                        |      "requiresTrust": true,
+                        |      "categories": [
+                        |          "EXAMPLE"
+                        |      ]
                         |  }
                         |]""".stripMargin)
             .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
