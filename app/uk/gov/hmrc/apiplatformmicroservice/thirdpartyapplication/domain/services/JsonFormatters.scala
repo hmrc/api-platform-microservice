@@ -80,7 +80,6 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   implicit val formatApplicationWithSubscriptionData = Json.format[ApplicationWithSubscriptionData]
 
   implicit val formatAddCollaboratorRequest = Json.format[AddCollaboratorRequest]
-
 }
 
 object ApplicationJsonFormatters extends ApplicationJsonFormatters

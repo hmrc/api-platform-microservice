@@ -31,9 +31,10 @@ import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.UuidIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import play.api.Logger
+import play.api.libs.json.Json
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 
@@ -41,7 +42,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
-
+  
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersion)
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
@@ -49,6 +50,8 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
 
   private[connectors] object JsonFormatters extends CommonJsonFormatters {
     import play.api.libs.json._
+    
+    implicit val formatCreateApplicationRequest = Json.format[CreateApplicationRequest]
 
     implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
@@ -77,6 +80,8 @@ trait ThirdPartyApplicationConnector {
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
+
+  def createApplication(createAppRequest: CreateApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationId]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -138,6 +143,13 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       case Left(errorResponse) => throw errorResponse
     })
   }
+
+  def createApplication(createAppRequest: CreateApplicationRequest)
+                       (implicit hc: HeaderCarrier): Future[ApplicationId] = {
+    Logger.info(s" Request to uplift ${createAppRequest.name} to production")
+    http.POST[CreateApplicationRequest, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
+  }
+
 }
 
 @Singleton
