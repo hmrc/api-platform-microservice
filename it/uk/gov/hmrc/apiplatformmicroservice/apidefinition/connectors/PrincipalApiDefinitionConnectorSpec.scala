@@ -35,7 +35,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec 
     with WireMockSugarExtensions 
-    with GuiceOneServerPerSuitegi
+    with GuiceOneServerPerSuite
     with DefinitionsFromJson
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup

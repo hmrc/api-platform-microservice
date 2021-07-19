@@ -33,6 +33,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import play.api.Logger
+import play.api.libs.json.Json
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 
@@ -40,7 +42,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
-  private[connectors] case class CreateApplicationResponse(application: ApplicationResponse)
   
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersion)
@@ -54,7 +55,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
 
     implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
-    implicit val readsCreateApplicationResponse = Json.reads[CreateApplicationResponse]
     implicit val readsInnerVersion = Json.reads[InnerVersion]
     implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
     implicit val readsSubscription = Json.reads[Subscription]
@@ -146,7 +146,8 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
 
   def createApplication(createAppRequest: CreateApplicationRequest)
                        (implicit hc: HeaderCarrier): Future[ApplicationId] = {
-    http.POST[CreateApplicationRequest, CreateApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.application.id)
+    Logger.info(s" Request to uplift ${createAppRequest.name} to production")
+    http.POST[CreateApplicationRequest, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
   }
 
 }
