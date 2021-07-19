@@ -32,13 +32,11 @@ case class CreateApplicationRequest(
     copy(collaborators = normalised)
   }
 
-  require(name.nonEmpty, s"name is required")
-  require(collaborators.exists(_.role == Role.ADMINISTRATOR), s"at least one ADMINISTRATOR collaborator is required")
+  require(name.nonEmpty, "name is required")
+  require(collaborators.exists(_.role == Role.ADMINISTRATOR), "at least one ADMINISTRATOR collaborator is required")
   require(collaborators.size == collaborators.map(_.emailAddress.toLowerCase).size, "duplicate email in collaborator")
   access match {
     case a: Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
     case _ =>
   }
 }
-
-
