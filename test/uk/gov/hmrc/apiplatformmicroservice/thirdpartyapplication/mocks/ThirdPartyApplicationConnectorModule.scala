@@ -101,6 +101,16 @@ trait ThirdPartyApplicationConnectorModule {
         verify(aMock, times(wantedNumberOfInvocations)).addCollaborator(eqTo(appId), eqTo(addCollaboratorToTpaRequest))(*)
       }
     }
+
+    object CreateApplication {
+      def willReturnSuccess(applcationId: ApplicationId) = {
+        when(aMock.createApplication(*)(*)).thenReturn(successful(applcationId))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.createApplication(*)(*)).thenReturn(failed(e))
+      }
+    }
   }
 
   object SubordinateThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
@@ -108,7 +118,7 @@ trait ThirdPartyApplicationConnectorModule {
   }
 
   object PrincipalThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
-    override val aMock: ThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
+    override val aMock: PrincipalThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
   }
 
   object EnvironmentAwareThirdPartyApplicationConnectorMock {

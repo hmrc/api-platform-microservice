@@ -31,9 +31,8 @@ import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.UuidIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
 
@@ -41,7 +40,8 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
   private[connectors] case class ApplicationResponse(id: ApplicationId)
-
+  private[connectors] case class CreateApplicationResponse(application: ApplicationResponse)
+  
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersion)
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
@@ -49,9 +49,12 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
 
   private[connectors] object JsonFormatters extends CommonJsonFormatters {
     import play.api.libs.json._
+    
+    implicit val formatCreateApplicationRequest = Json.format[CreateApplicationRequest]
 
     implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
+    implicit val readsCreateApplicationResponse = Json.reads[CreateApplicationResponse]
     implicit val readsInnerVersion = Json.reads[InnerVersion]
     implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
     implicit val readsSubscription = Json.reads[Subscription]
@@ -77,6 +80,8 @@ trait ThirdPartyApplicationConnector {
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
+
+  def createApplication(createAppRequest: CreateApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationId]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
@@ -138,6 +143,12 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       case Left(errorResponse) => throw errorResponse
     })
   }
+
+  def createApplication(createAppRequest: CreateApplicationRequest)
+                       (implicit hc: HeaderCarrier): Future[ApplicationId] = {
+    http.POST[CreateApplicationRequest, CreateApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.application.id)
+  }
+
 }
 
 @Singleton

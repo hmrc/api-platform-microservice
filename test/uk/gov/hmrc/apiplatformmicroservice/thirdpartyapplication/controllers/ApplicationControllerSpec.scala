@@ -30,8 +30,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
-
+import scala.concurrent.Future.successful
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
@@ -44,12 +45,14 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
+    val mockUpliftService = mock[UpliftApplicationService]
 
     val controller = new ApplicationController(
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
       mockAuthConnector,
       ApplicationCollaboratorServiceMock.aMock,
+      mockUpliftService,
       Helpers.stubControllerComponents()
       )
   }
@@ -83,6 +86,23 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
       val result = controller.addCollaborator(applicationId)(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe CONFLICT
+    }
+  }
+
+  "upliftApplication" should {
+    "return Created when successfully uplifting an Application" in new Setup {
+      import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters._
+      val newAppId = ApplicationId.random
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      when(mockUpliftService.upliftApplication(*,  *)(*)).thenReturn(successful(newAppId))
+
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift")
+
+      val result = controller.upliftApplication(applicationId)(request)
+
+      status(result) shouldBe CREATED
+      contentAsJson(result) shouldBe(Json.toJson(newAppId))
     }
   }
 }

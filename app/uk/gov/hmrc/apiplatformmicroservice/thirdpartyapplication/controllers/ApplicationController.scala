@@ -31,6 +31,8 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
 @Singleton
 class ApplicationController @Inject() (
@@ -38,6 +40,7 @@ class ApplicationController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     val applicationCollaboratorService : ApplicationCollaboratorService,
+    val upliftApplicationService: UpliftApplicationService,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders {
@@ -59,4 +62,9 @@ class ApplicationController @Inject() (
       }
     }
 
+  def upliftApplication(sandboxId: ApplicationId): Action[AnyContent] =
+    ApplicationWithSubscriptionDataAction(sandboxId).async { implicit request =>
+      upliftApplicationService.upliftApplication(request.application, request.subscriptions)
+      .map(id => Created(Json.toJson(id)))
+    }
 }
