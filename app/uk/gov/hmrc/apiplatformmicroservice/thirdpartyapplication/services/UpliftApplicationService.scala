@@ -62,6 +62,7 @@ class UpliftApplicationService @Inject() (
     for {
       upliftableApis <- apiIdentifiersForUpliftFetcher.fetch
       filteredSubs   =  subs.filter(sub => upliftableApis.contains(sub))
+      // TODO - add CDS version swapper
       newAppId <- createIfSubsExists(filteredSubs, app)
     } yield newAppId
 }

@@ -35,6 +35,7 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
       defs <- apiDefinitionService.principal.fetchAllApiDefinitions
       filteredDefs = defs.filterNot(d => d.isTestSupport || d.categories.contains(EXAMPLE))
       ids = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == RETIRED || v.status == ALPHA).map(v => ApiIdentifier(d.context, v.version)))
+      // TODO - add CDS version 2.0's/1.0s that are missing in prod 
     } yield ids
   }
 }

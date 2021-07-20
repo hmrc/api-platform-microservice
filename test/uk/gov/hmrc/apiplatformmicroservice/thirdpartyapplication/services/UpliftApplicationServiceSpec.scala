@@ -27,9 +27,9 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersFor
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApiIdentifierSyntaxModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 
-class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiIdentifierSyntaxModule {
+class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper {
 
   implicit val hc = HeaderCarrier()
 
