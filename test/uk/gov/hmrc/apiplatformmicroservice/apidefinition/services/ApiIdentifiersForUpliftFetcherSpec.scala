@@ -33,6 +33,7 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
     val upliftableApiDefinition = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
     val exampleApiDefinition = apiDefinition("hello-api").withCategories(List(ApiCategory("EXAMPLE")))
     val apiWithARetiredVersion = apiDefinition("api-with-retired-version", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE), apiVersion(versionThree, ALPHA))
+    val customsDeclarationsApiDefinition = apiDefinition("/customs/declarations", apiVersion(versionOne))
     val testSupportApiDefinition = upliftableApiDefinition.isTestSupport()
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -46,28 +47,33 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
   "ApiIdentifiersForUpliftFetcher" should {
     "fetch nothing when no apis are suitable" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNoApiDefinitions()
-      await(underTest.fetch) shouldBe Nil
+      await(underTest.fetch) shouldBe Set.empty
     }
 
     "fetch nothing when only example apis are present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition)
-      await(underTest.fetch) shouldBe Nil
+      await(underTest.fetch) shouldBe Set.empty
     }
     
     "fetch nothing when only test support apis are present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(testSupportApiDefinition)
-      await(underTest.fetch) shouldBe Nil
+      await(underTest.fetch) shouldBe Set.empty
     }
     
     "fetch an active version when api with retired version is present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithARetiredVersion)
-      await(underTest.fetch).toSet shouldBe Set("api-with-retired-version".asIdentifier(versionTwo))
+      await(underTest.fetch) shouldBe Set("api-with-retired-version".asIdentifier(versionTwo))
     }
 
     "fetch all upliftable APIs when mix of all types are present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(upliftableApiDefinition, testSupportApiDefinition, apiWithARetiredVersion, exampleApiDefinition)
-      await(underTest.fetch).toSet shouldBe Set("uplift".asIdentifier, "uplift".asIdentifier(versionTwo), "api-with-retired-version".asIdentifier(versionTwo))
+      await(underTest.fetch) shouldBe Set("uplift".asIdentifier, "uplift".asIdentifier(versionTwo), "api-with-retired-version".asIdentifier(versionTwo))
     }
   
+    "fetch all upliftable APIs including additional special cases for CDS" in new Setup() {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(customsDeclarationsApiDefinition)
+
+      await(underTest.fetch) shouldBe Set("/customs/declarations".asIdentifier(), "/customs/declarations".asIdentifier(versionTwo))
+    }
   }
 }

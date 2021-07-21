@@ -174,4 +174,9 @@ trait ApiDefinitionTestDataHelper {
     def asIdentifier(version: ApiVersion): ApiIdentifier = ApiIdentifier(ApiContext(context), version)
     def asIdentifier(): ApiIdentifier = asIdentifier(ApiVersion("1.0"))
   }
+
+  implicit class ApiContextSyntax(val context: ApiContext) {
+    def asIdentifier(version: ApiVersion): ApiIdentifier = ApiIdentifier(context, version)
+    def asIdentifier(): ApiIdentifier = asIdentifier(ApiVersion("1.0"))
+  }
 }
