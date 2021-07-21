@@ -25,8 +25,8 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
 
   val uninterestingApi = "uninteresting".asIdentifier()
 
-  val v1 = "/customs/declarations".asIdentifier()
-  val v2 = "/customs/declarations".asIdentifier(ApiVersion("2.0"))
+  val v1 = "customs/declarations".asIdentifier()
+  val v2 = "customs/declarations".asIdentifier(ApiVersion("2.0"))
   
   "CdsVersionHandler" should {
     "populateSpecialCases" can {
@@ -39,7 +39,7 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
       }
 
       "add nothing if the inbound set contains version three references" in {
-        val doesNotCount = "/customs/declarations".asIdentifier(ApiVersion("3.0"))
+        val doesNotCount = "customs/declarations".asIdentifier(ApiVersion("3.0"))
         val inboundApis = Set(uninterestingApi, doesNotCount)
 
         val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
