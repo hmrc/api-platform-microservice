@@ -29,7 +29,7 @@ trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMat
 
     object UpliftApplication {
       def willReturnApiDefinitions(ids: ApiIdentifier*) = {
-        when(aMock.fetch(*)).thenReturn(Future.successful(ids.toList))
+        when(aMock.fetch(*)).thenReturn(Future.successful(ids.toSet))
       }
 
       def willThrowException(e: Exception) = {

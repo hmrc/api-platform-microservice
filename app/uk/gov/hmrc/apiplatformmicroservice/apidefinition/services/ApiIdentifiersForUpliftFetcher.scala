@@ -30,12 +30,12 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
 
   private val EXAMPLE = ApiCategory("EXAMPLE")
 
-  def fetch(implicit hc: HeaderCarrier): Future[List[ApiIdentifier]] = {
+  def fetch(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     for {
-      defs <- apiDefinitionService.principal.fetchAllApiDefinitions
+      defs <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
       filteredDefs = defs.filterNot(d => d.isTestSupport || d.categories.contains(EXAMPLE))
       ids = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == RETIRED || v.status == ALPHA).map(v => ApiIdentifier(d.context, v.version)))
-      // TODO - add CDS version 2.0's/1.0s that are missing in prod 
-    } yield ids
+      withAnyAdditionalIds = CdsVersionHandler.populateSpecialCases(ids)
+    } yield withAnyAdditionalIds
   }
 }

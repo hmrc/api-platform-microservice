@@ -37,13 +37,22 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
         
         updatedApis should contain only(uninterestingApi, v1, v2)
       }
-      
+
+      "add nothing if the inbound set contains version three references" in {
+        val doesNotCount = "/customs/declarations".asIdentifier(ApiVersion("3.0"))
+        val inboundApis = Set(uninterestingApi, doesNotCount)
+
+        val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
+
+        updatedApis shouldBe inboundApis
+      }
+
       "add nothing if the inbound set contains none of the cds contexts" in {
         val inboundApis = Set(uninterestingApi)
 
         val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
 
-        updatedApis should contain only(uninterestingApi)
+        updatedApis shouldBe inboundApis
       }
 
       "add version two without ending up with duplicates even if the inbound set contains the same version" in {
@@ -97,6 +106,14 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
         updatedApis should contain (uninterestingApi)
         updatedApis.intersect(specialCaseContexts.map(_.asIdentifier)).size shouldBe entries
         updatedApis.intersect(specialCaseContexts.map(_.asIdentifier(ApiVersion("2.0")))).size shouldBe 0
+      }
+
+      "do not change version 3 to version 1 for CDS contexts" in {
+        val inboundApis = specialCaseContexts.map(_.asIdentifier(ApiVersion("3.0"))) + uninterestingApi
+
+        val updatedApis = CdsVersionHandler.adjustSpecialCaseVersions(inboundApis)
+        
+        updatedApis shouldBe inboundApis
       }
     }
   }
