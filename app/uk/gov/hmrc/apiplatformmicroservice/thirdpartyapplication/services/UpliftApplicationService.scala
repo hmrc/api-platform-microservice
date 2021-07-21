@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.http.BadRequestException
 import play.api.Logger
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
 
 @Singleton
 class UpliftApplicationService @Inject() (
@@ -39,21 +40,21 @@ class UpliftApplicationService @Inject() (
     val principalTPAConnector: PrincipalThirdPartyApplicationConnector
   )(implicit val ec: ExecutionContext) {
 
-  private def createIfSubsExists(filteredSubs: Set[ApiIdentifier], app: Application)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
+  private def createAppIfItHasAnySubs(filteredSubs: Set[ApiIdentifier], app: Application)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
     if(filteredSubs.isEmpty) {
       val errorMessage = s"No subscriptions for uplift of application with id: ${app.id.value}"
       Logger.info(errorMessage)
       failed(new BadRequestException(errorMessage))
     }
     else {
-      val createApplicationRequest = CreateApplicationRequest(
-                                  app.name,
-                                  app.access,
-                                  app.description,
-                                  Environment.PRODUCTION,
-                                  app.collaborators,
-                                  filteredSubs
-                                )
+      val createApplicationRequest =  CreateApplicationRequest(
+                                        app.name,
+                                        app.access,
+                                        app.description,
+                                        Environment.PRODUCTION,
+                                        app.collaborators,
+                                        filteredSubs
+                                      )
       principalTPAConnector.createApplication(createApplicationRequest)
     }
   }
@@ -61,8 +62,8 @@ class UpliftApplicationService @Inject() (
   def upliftApplication(app: Application, subs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApplicationId] =
     for {
       upliftableApis <- apiIdentifiersForUpliftFetcher.fetch
-      filteredSubs   =  subs.filter(sub => upliftableApis.contains(sub))
-      // TODO - add CDS version swapper
-      newAppId <- createIfSubsExists(filteredSubs, app)
+      remappedSubs = CdsVersionHandler.adjustSpecialCaseVersions(subs) 
+      filteredSubs   = remappedSubs.filter(sub => upliftableApis.contains(sub))
+      newAppId <- createAppIfItHasAnySubs(filteredSubs, app)
     } yield newAppId
 }
