@@ -28,10 +28,10 @@ object CdsVersionHandler {
   private val apiVersionTwo = ApiVersion("2.0")
 
   val specialCaseContexts: Set[ApiContext] = Set(
-    "/customs/declarations",
-    "/customs/declarations-information",
-    "/customs/inventory-linking/exports",
-    "/customs/inventory-linking-imports"
+    "customs/declarations",
+    "customs/declarations-information",
+    "customs/inventory-linking/exports",
+    "customs/inventory-linking-imports"
   ).map(ApiContext(_))
 
   val populateSpecialCases: (Set[ApiIdentifier]) => Set[ApiIdentifier] = 
