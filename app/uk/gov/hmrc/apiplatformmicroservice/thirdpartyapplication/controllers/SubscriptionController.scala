@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.JsErrorResponse
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ErrorCode
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 @Singleton
 class SubscriptionController @Inject()(
@@ -42,7 +43,8 @@ class SubscriptionController @Inject()(
   val applicationService: ApplicationByIdFetcher,
   val authConfig: AuthConnector.Config,
   val authConnector: AuthConnector,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  val upliftApplicationService: UpliftApplicationService
 )(implicit val ec: ExecutionContext)
 extends BackendController(cc) with ActionBuilders {
 
@@ -58,4 +60,13 @@ extends BackendController(cc) with ActionBuilders {
         }
       }
     }
+    
+  def fetchUpliftableSubscriptions(applicationId: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      optionalSubscriptions <- upliftApplicationService.fetchUpliftableApisForApplication(applicationId)
+    } yield optionalSubscriptions.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
+  }
+    
+
+  
 }
