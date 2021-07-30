@@ -77,7 +77,7 @@ class UpliftApplicationService @Inject() (
       upliftableApis <- OptionT.liftF(apiIdentifiersForUpliftFetcher.fetch)
       remappedSubs = CdsVersionHandler.adjustSpecialCaseVersions(applicationWithSubscriptionData.subscriptions) 
       filteredSubs = remappedSubs.filter(sub => upliftableApis.contains(sub))
-    } yield upliftableApis).value
+    } yield filteredSubs).value
 
   }
 }
