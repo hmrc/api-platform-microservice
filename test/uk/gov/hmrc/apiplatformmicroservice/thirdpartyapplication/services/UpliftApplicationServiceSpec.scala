@@ -36,7 +36,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
   trait Setup extends ApiIdentifiersForUpliftFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
     val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
 
-    val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
+    val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, fetcher)
   }
   
   "UpliftApplicationService" should {

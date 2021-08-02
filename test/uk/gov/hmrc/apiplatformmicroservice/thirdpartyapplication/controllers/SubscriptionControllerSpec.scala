@@ -36,6 +36,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -51,13 +52,15 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
 
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
+    val mockUpliftApplicationService = mock[UpliftApplicationService]
 
     val controller = new SubscriptionController(
       SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
       mockAuthConnector,
-      Helpers.stubControllerComponents()
+      Helpers.stubControllerComponents(),
+      mockUpliftApplicationService
     )
   }
 
