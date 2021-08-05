@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPartyApplicationConnectorModule, _}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper {
 
   implicit val hc = HeaderCarrier()
 
-  trait Setup extends ApiIdentifiersForUpliftFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup extends ApiIdentifiersForUpliftFetcherModule with ApplicationByIdFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
     val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
 
     val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, fetcher)
@@ -62,6 +62,42 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       intercept[BadRequestException] {
         await(upliftService.upliftApplication(application, Set("context3".asIdentifier)))
       }.message shouldBe s"No subscriptions for uplift of application with id: ${applicationId.value}"              
+    }
+
+    "returns a set of upliftable apis for an application" when {
+      "upliftable apis are available" in new Setup {
+
+        val apiIdentifiers = Set("test-api-id-1".asIdentifier())
+        val application = buildApplication(appId = applicationId)
+        val applicationByIdFetcherMock = mock[ApplicationByIdFetcher]
+
+        when(applicationByIdFetcherMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*))
+          .thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(application, apiIdentifiers))))
+
+        ApiIdentifiersForUpliftFetcherMock.UpliftApplication.willReturnApiDefinitions(apiIdentifiers.head)
+
+        override val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, applicationByIdFetcherMock)
+
+        await(upliftService.fetchUpliftableApisForApplication(applicationId)) shouldBe Some(apiIdentifiers)
+      }
+    }
+
+    "returns an empty set for an application" when {
+      "non upliftable apis are removed and upliftable apis are not available" in new Setup {
+
+        val apiIdentifiers = Set("test-api-id-1".asIdentifier())
+        val application = buildApplication(appId = applicationId)
+        val applicationByIdFetcherMock = mock[ApplicationByIdFetcher]
+
+        when(applicationByIdFetcherMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*))
+          .thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(application, apiIdentifiers))))
+
+        ApiIdentifiersForUpliftFetcherMock.UpliftApplication.willReturnApiDefinitions()
+
+        override val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, applicationByIdFetcherMock)
+
+        await(upliftService.fetchUpliftableApisForApplication(applicationId)) shouldBe Some(Set.empty[ApiIdentifier])
+      }
     }
   }
 }
