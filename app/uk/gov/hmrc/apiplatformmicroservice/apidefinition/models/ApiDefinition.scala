@@ -20,10 +20,13 @@ import cats.data.{NonEmptyList => NEL}
 import enumeratum._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import scala.util.Random
+import play.api.libs.json.Json
 
 case class ApiContext(value: String) extends AnyVal
 
 object ApiContext {
+  implicit val apiContextFormat = Json.valueFormat[ApiContext]
+
   implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
     override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
   }
@@ -33,6 +36,8 @@ object ApiContext {
 case class ApiVersion(value: String) extends AnyVal
 
 object ApiVersion {
+  implicit val apiVersionFormat = Json.valueFormat[ApiVersion]
+
   implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
     override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
   }
@@ -40,6 +45,10 @@ object ApiVersion {
 }
 
 case class ApiIdentifier(context: ApiContext, version: ApiVersion)
+
+object ApiIdentifier {
+  implicit val apiIdentifierFormat = Json.format[ApiIdentifier]
+}
 
 case class ApiDefinition(
     serviceName: String,

@@ -36,6 +36,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import scala.concurrent.Future.successful
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -51,13 +53,15 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
 
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
+    val mockUpliftApplicationService = mock[UpliftApplicationService]
 
     val controller = new SubscriptionController(
       SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
       mockAuthConnector,
-      Helpers.stubControllerComponents()
+      Helpers.stubControllerComponents(),
+      mockUpliftApplicationService
     )
   }
 
@@ -107,6 +111,33 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
         "code" -> "SUBSCRIPTION_ALREADY_EXISTS",
         "message" -> s"Application: '${application.name}' is already Subscribed to API: ${context.value}: ${version.value}"
       )
+    }
+  }
+
+  "fetchUpliftableSubscriptions" should {
+
+    "return OK with a list of upliftable subscriptions" when {
+      "there are upliftable apis available for the application id" in new Setup {
+
+        val apiIdentifiers = Set("test-api-id".asIdentifier())
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*[ApplicationId])(*)).thenReturn(successful(Some(apiIdentifiers)))
+
+        val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
+
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(apiIdentifiers)
+      }
+    }
+
+    "return NotFound" when {
+      "there are no upliftable apis available for the application id" in new Setup {
+
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*[ApplicationId])(*)).thenReturn(successful(None))
+
+        val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
+
+        status(result) shouldBe NOT_FOUND
+      }
     }
   }
 }

@@ -77,7 +77,7 @@ trait ActionBuilders {
             applicationWithSubscriptionData.subscriptions,
             applicationWithSubscriptionData.application.deployedTo,
             request
-          )
+        )
         }).toRight(NotFound).value
       }
     }

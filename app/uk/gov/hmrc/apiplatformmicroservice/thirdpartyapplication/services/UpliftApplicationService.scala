@@ -33,11 +33,13 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.http.BadRequestException
 import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
+import cats.data.OptionT
 
 @Singleton
 class UpliftApplicationService @Inject() (
     val apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
-    val principalTPAConnector: PrincipalThirdPartyApplicationConnector
+    val principalTPAConnector: PrincipalThirdPartyApplicationConnector,
+    val applicationByIdFetcher: ApplicationByIdFetcher
   )(implicit val ec: ExecutionContext) {
 
   private def createAppIfItHasAnySubs(filteredSubs: Set[ApiIdentifier], app: Application)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
@@ -66,4 +68,16 @@ class UpliftApplicationService @Inject() (
       filteredSubs   = remappedSubs.filter(sub => upliftableApis.contains(sub))
       newAppId <- createAppIfItHasAnySubs(filteredSubs, app)
     } yield newAppId
+
+  def fetchUpliftableApisForApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier) : Future[Option[Set[ApiIdentifier]]] = {
+    import cats.implicits._
+    
+    (for {
+      applicationWithSubscriptionData <- OptionT(applicationByIdFetcher.fetchApplicationWithSubscriptionData(applicationId))
+      upliftableApis <- OptionT.liftF(apiIdentifiersForUpliftFetcher.fetch)
+      remappedSubs = CdsVersionHandler.adjustSpecialCaseVersions(applicationWithSubscriptionData.subscriptions) 
+      filteredSubs = remappedSubs.filter(sub => upliftableApis.contains(sub))
+    } yield filteredSubs).value
+
+  }
 }
