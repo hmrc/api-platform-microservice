@@ -25,6 +25,8 @@ import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
+import org.mockito.captor.ArgCaptor
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequest
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -109,6 +111,16 @@ trait ThirdPartyApplicationConnectorModule {
 
       def willThrowException(e: Exception) = {
         when(aMock.createApplication(*)(*)).thenReturn(failed(e))
+      }
+
+      def verifyNotCalled() = {
+        verify(aMock, never).createApplication(*)(*)
+      }
+
+      def captureRequest() = {
+        val capture = ArgCaptor[CreateApplicationRequest]
+        verify(aMock).createApplication(capture)(*)
+        capture.value
       }
     }
   }

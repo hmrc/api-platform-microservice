@@ -19,21 +19,19 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper {
 
   implicit val hc = HeaderCarrier()
 
-  trait Setup extends ApiIdentifiersForUpliftFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup extends ApiIdentifiersForUpliftFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule {
     val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
 
     val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
@@ -43,25 +41,57 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
     val applicationId = ApplicationId.random
     val application = buildApplication(appId = applicationId)
     val newAppId = ApplicationId.random
+    val context1 = "context1".asIdentifier
+    val context2 = "context2".asIdentifier()
+    val context3 = "context3".asIdentifier()
+    val contextCDSv1 = "customs/declarations".asIdentifier("1.0".asVersion)
+    val contextCDSv2 = "customs/declarations".asIdentifier("2.0".asVersion)
 
-    "succesfully create an uplifted application" in new Setup {
-      ApiIdentifiersForUpliftFetcherMock.UpliftApplication.willReturnApiDefinitions("context1".asIdentifier(), "context2".asIdentifier())
+    "successfully create an uplifted application" in new Setup {
+      ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplication.willReturnSuccess(newAppId)
-      await(upliftService.upliftApplication(application, Set("context1".asIdentifier)))
+
+      val result = await(upliftService.upliftApplication(application, Set(context1, context2), Set(context1)))
+
+      result shouldBe Right(newAppId)
+
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplication.captureRequest
+      createAppRequest.subscriptions shouldBe Set(context1)
     }
 
-    "fails with Bad Request exception when trying to uplift an application with zero subscriptions" in new Setup {
-      ApiIdentifiersForUpliftFetcherMock.UpliftApplication.willReturnApiDefinitions("context1".asIdentifier(), "context2".asIdentifier())
-      intercept[BadRequestException] {
-        await(upliftService.upliftApplication(application, Set.empty))
-      }.message shouldBe s"No subscriptions for uplift of application with id: ${applicationId.value}"
+    "successfully create an uplifted application AND handle CDS uplift" in new Setup {
+      ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2, contextCDSv1)
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.willReturnSuccess(newAppId)
+
+      val result = await(upliftService.upliftApplication(application, Set(context1, context2, contextCDSv2), Set(contextCDSv2)))
+
+      result shouldBe Right(newAppId)
+
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplication.captureRequest
+      createAppRequest.subscriptions shouldBe Set(contextCDSv1)
     }
 
-    "fails with Bad Request exception when trying to uplift an application with zero subscriptions than can be uplifted" in new Setup {
-      ApiIdentifiersForUpliftFetcherMock.UpliftApplication.willReturnApiDefinitions("context1".asIdentifier(), "context2".asIdentifier())
-      intercept[BadRequestException] {
-        await(upliftService.upliftApplication(application, Set("context3".asIdentifier)))
-      }.message shouldBe s"No subscriptions for uplift of application with id: ${applicationId.value}"              
+    "successfully handle inability to uplift application due to no upliftable subscriptions" in new Setup {
+      ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
+      val result = await(upliftService.upliftApplication(application, Set(context1, context2), Set(context3)))
+
+      result shouldBe ('left)
+    }
+
+    "successfully handle when app is not a sandbox app" in new Setup {
+      val applicationInProd = application.copy(deployedTo = Environment.PRODUCTION)
+      val result = await(upliftService.upliftApplication(applicationInProd, Set(context1, context2), Set(context3)))
+
+      result shouldBe ('left)
+
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.verifyNotCalled
+    }
+    
+    "ensure requested subscriptions are non empty" in new Setup {
+      intercept[IllegalArgumentException]{
+        await(upliftService.upliftApplication(application, Set(context1, context2), Set()))
+      }
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.verifyNotCalled
     }
   }
 }

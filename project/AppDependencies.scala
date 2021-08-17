@@ -14,14 +14,11 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "time"                       % "3.18.0"
   )
 
-  def unitTestDependencies(scope: String) = Seq(
-    "org.pegdown"             % "pegdown"                     % "1.6.0"             % scope,
-    "org.scalatestplus.play"  %% "scalatestplus-play"         % "3.1.3"             % scope,
-    "org.mockito"             %% "mockito-scala-scalatest"    % "1.7.1"             % scope,
-    "com.typesafe.play"       %% "play-test"                  % PlayVersion.current % scope
-  )
-
-  def integrationTestDependencies(scope: String) = Seq(
-    "com.github.tomakehurst"  % "wiremock-jre8-standalone"    % "2.27.1" % scope
-  )
+  def testDependencies(scope: String) = Seq(
+    "org.pegdown"             % "pegdown"                     % "1.6.0",
+    "org.scalatestplus.play"  %% "scalatestplus-play"         % "3.1.3",
+    "org.mockito"             %% "mockito-scala-scalatest"    % "1.7.1",
+    "com.typesafe.play"       %% "play-test"                  % PlayVersion.current,
+    "com.github.tomakehurst"  % "wiremock-jre8-standalone"    % "2.27.1"
+  ).map(_ % scope)
 }

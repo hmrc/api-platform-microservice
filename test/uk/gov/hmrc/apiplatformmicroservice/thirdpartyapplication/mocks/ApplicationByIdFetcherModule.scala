@@ -22,6 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
   object ApplicationByIdFetcherMock {
@@ -39,8 +40,8 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
 
     object FetchApplicationWithSubscriptionData {
       
-      def willReturnApplicationWithSubscriptionData(app: Application) = {
-        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(app))))
+      def willReturnApplicationWithSubscriptionData(app: Application, subscriptions: Set[ApiIdentifier] = Set.empty) = {
+        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(app, subscriptions))))
       }
     }
   }

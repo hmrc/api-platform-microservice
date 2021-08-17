@@ -20,7 +20,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 trait CommonJsonFormatters {
-  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
   implicit val formatFieldName = Json.valueFormat[FieldName]
 
   implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
