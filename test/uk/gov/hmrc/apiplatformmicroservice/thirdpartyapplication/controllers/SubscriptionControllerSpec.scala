@@ -125,7 +125,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
   
         val apiIdentifiers = Set(apiId1)
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*, *)(*)).thenReturn(successful(apiIdentifiers))
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(apiIdentifiers))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 
@@ -139,7 +139,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
         val application = buildApplication(appId = applicationId)
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
 
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*, *)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 

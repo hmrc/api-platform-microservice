@@ -94,11 +94,10 @@ class UpliftApplicationService @Inject() (
     }
   }
 
-  def fetchUpliftableApisForApplication(app: Application, appApiSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier) : Future[Set[ApiIdentifier]] = {
+  def fetchUpliftableApisForApplication(subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier) : Future[Set[ApiIdentifier]] = {
     for {
       upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
-      remappedSubs        = CdsVersionHandler.adjustSpecialCaseVersions(appApiSubs)
-      filteredSubs        = remappedSubs.filter(upliftableApis.contains)
+      filteredSubs        = subscriptions.filter(upliftableApis.contains)
     } yield filteredSubs
   }
 }

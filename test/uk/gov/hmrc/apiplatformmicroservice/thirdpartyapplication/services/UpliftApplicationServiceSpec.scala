@@ -98,21 +98,19 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
     "returns a set of upliftable apis for an application" when {
       "upliftable apis are available" in new Setup {
-        val application = buildApplication(appId = applicationId)
         val subscriptions = Set(context1, context2, context3)
         ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
 
-        await(upliftService.fetchUpliftableApisForApplication(application, subscriptions)) shouldBe Set(context1, context2)
+        await(upliftService.fetchUpliftableApisForApplication(subscriptions)) shouldBe Set(context1, context2)
       }
     }
 
     "returns an empty set for an application" when {
       "non upliftable apis are removed and upliftable apis are not available" in new Setup {
-        val application = buildApplication(appId = applicationId)
         val subscriptions = Set(context1, context2, context3)
         ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn()
 
-        await(upliftService.fetchUpliftableApisForApplication(application, subscriptions)) shouldBe Set.empty[ApiIdentifier]
+        await(upliftService.fetchUpliftableApisForApplication(subscriptions)) shouldBe Set.empty[ApiIdentifier]
       }
     }
   }

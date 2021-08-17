@@ -63,7 +63,7 @@ extends BackendController(cc) with ActionBuilders {
     
   def fetchUpliftableSubscriptions(applicationId: ApplicationId): Action[AnyContent] = 
     ApplicationWithSubscriptionDataAction(applicationId).async { implicit appData: ApplicationWithSubscriptionDataRequest[AnyContent] =>
-      upliftApplicationService.fetchUpliftableApisForApplication(appData.application, appData.subscriptions)
+      upliftApplicationService.fetchUpliftableApisForApplication(appData.subscriptions)
       .map { set =>
         if(set.isEmpty) NotFound else Ok(Json.toJson(set))
       }
