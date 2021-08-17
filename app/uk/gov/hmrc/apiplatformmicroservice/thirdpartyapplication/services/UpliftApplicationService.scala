@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiers
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
@@ -40,7 +40,8 @@ object UpliftApplicationService {
 @Singleton
 class UpliftApplicationService @Inject() (
     val apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
-    val principalTPAConnector: PrincipalThirdPartyApplicationConnector
+    val principalTPAConnector: PrincipalThirdPartyApplicationConnector,
+    val applicationByIdFetcher: ApplicationByIdFetcher
   )(implicit val ec: ExecutionContext) {
 
   import UpliftApplicationService.BadRequestMessage
@@ -91,5 +92,13 @@ class UpliftApplicationService @Inject() (
         newAppId           <- createAppIfItHasAnySubs(app, filteredSubs)
       } yield newAppId
     }
+  }
+
+  def fetchUpliftableApisForApplication(app: Application, appApiSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier) : Future[Set[ApiIdentifier]] = {
+    for {
+      upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
+      remappedSubs        = CdsVersionHandler.adjustSpecialCaseVersions(appApiSubs)
+      filteredSubs        = remappedSubs.filter(upliftableApis.contains)
+    } yield filteredSubs
   }
 }
