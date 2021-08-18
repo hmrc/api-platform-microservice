@@ -26,14 +26,16 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiers
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import scala.concurrent.Future
-import scala.concurrent.Future.failed
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.http.BadRequestException
 import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
-import cats.data.OptionT
+
+object UpliftApplicationService {
+  type BadRequestMessage = String
+}
 
 @Singleton
 class UpliftApplicationService @Inject() (
@@ -42,11 +44,13 @@ class UpliftApplicationService @Inject() (
     val applicationByIdFetcher: ApplicationByIdFetcher
   )(implicit val ec: ExecutionContext) {
 
-  private def createAppIfItHasAnySubs(filteredSubs: Set[ApiIdentifier], app: Application)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
+  import UpliftApplicationService.BadRequestMessage
+
+  private def createAppIfItHasAnySubs(app: Application, filteredSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage, ApplicationId]] = {
     if(filteredSubs.isEmpty) {
-      val errorMessage = s"No subscriptions for uplift of application with id: ${app.id.value}"
-      Logger.info(errorMessage)
-      failed(new BadRequestException(errorMessage))
+      val message = s"No subscriptions for uplift of application with id: ${app.id.value}"
+      Logger.info(message)
+      successful(Left(message))
     }
     else {
       val createApplicationRequest =  CreateApplicationRequest(
@@ -57,27 +61,43 @@ class UpliftApplicationService @Inject() (
                                         app.collaborators,
                                         filteredSubs
                                       )
-      principalTPAConnector.createApplication(createApplicationRequest)
+      principalTPAConnector.createApplication(createApplicationRequest).map(Right(_))
     }
   }
 
-  def upliftApplication(app: Application, subs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApplicationId] =
-    for {
-      upliftableApis <- apiIdentifiersForUpliftFetcher.fetch
-      remappedSubs = CdsVersionHandler.adjustSpecialCaseVersions(subs) 
-      filteredSubs   = remappedSubs.filter(sub => upliftableApis.contains(sub))
-      newAppId <- createAppIfItHasAnySubs(filteredSubs, app)
-    } yield newAppId
+  /*
+  *   Params:
+  *     app - the sandbox application in all it's glory
+  *     appApiSubs - the subscriptions that the app has (some might be test support or example apis or ones that cannot be uplifted)
+  *     requestedApiSubs - the subscriptions that were selected to be uplifted to production.
+  * 
+  *   Returns:
+  *     Left(msg) - for bad requests see msg
+  */
 
-  def fetchUpliftableApisForApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier) : Future[Option[Set[ApiIdentifier]]] = {
-    import cats.implicits._
+  def upliftApplication(app: Application, appApiSubs: Set[ApiIdentifier], requestedApiSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
+    require(requestedApiSubs.nonEmpty)
     
-    (for {
-      applicationWithSubscriptionData <- OptionT(applicationByIdFetcher.fetchApplicationWithSubscriptionData(applicationId))
-      upliftableApis <- OptionT.liftF(apiIdentifiersForUpliftFetcher.fetch)
-      remappedSubs = CdsVersionHandler.adjustSpecialCaseVersions(applicationWithSubscriptionData.subscriptions) 
-      filteredSubs = remappedSubs.filter(sub => upliftableApis.contains(sub))
-    } yield filteredSubs).value
+    if(app.deployedTo.isProduction) {
+      successful(Left("Request cannot uplift production application"))
+    }
+    else if(requestedApiSubs.intersect(appApiSubs) != requestedApiSubs) {
+      successful(Left("Request contains apis not found for the sandbox application"))
+    }
+    else {
+      for {
+        upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
+        remappedRequestSubs = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
+        filteredSubs        = remappedRequestSubs.filter(upliftableApis.contains)
+        newAppId           <- createAppIfItHasAnySubs(app, filteredSubs)
+      } yield newAppId
+    }
+  }
 
+  def fetchUpliftableApisForApplication(subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier) : Future[Set[ApiIdentifier]] = {
+    for {
+      upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
+      filteredSubs        = subscriptions.filter(upliftableApis.contains)
+    } yield filteredSubs
   }
 }

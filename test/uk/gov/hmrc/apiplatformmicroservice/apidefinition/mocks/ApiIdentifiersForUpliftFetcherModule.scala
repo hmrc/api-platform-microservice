@@ -27,8 +27,8 @@ trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMat
   object ApiIdentifiersForUpliftFetcherMock {
     val aMock = mock[ApiIdentifiersForUpliftFetcher]
 
-    object UpliftApplication {
-      def willReturnApiDefinitions(ids: ApiIdentifier*) = {
+    object FetchUpliftableApis {
+      def willReturn(ids: ApiIdentifier*) = {
         when(aMock.fetch(*)).thenReturn(Future.successful(ids.toSet))
       }
 

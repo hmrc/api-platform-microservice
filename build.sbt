@@ -16,7 +16,7 @@ lazy val root = (project in file("."))
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
-    libraryDependencies ++= dependencies ++ unitTestDependencies("test,it") ++ integrationTestDependencies("test,it"),
+    libraryDependencies ++= dependencies ++ testDependencies("test,it") ,
     publishingSettings,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
@@ -37,6 +37,7 @@ lazy val root = (project in file("."))
   .settings(
     Test / fork := false,
     Test / parallelExecution := false,
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )

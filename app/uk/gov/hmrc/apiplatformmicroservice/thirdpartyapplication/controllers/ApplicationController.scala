@@ -28,12 +28,15 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import play.api.Logger
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 @Singleton
 class ApplicationController @Inject() (
@@ -63,10 +66,23 @@ class ApplicationController @Inject() (
       }
     }
 
-  def upliftApplication(sandboxId: ApplicationId): Action[AnyContent] =
-    ApplicationWithSubscriptionDataAction(sandboxId).async { implicit request =>
-      Logger.info(s"Uplift of application id ${sandboxId.value} with ${request.application.name} : ${request.subscriptions.size} subscriptions requested")
-      upliftApplicationService.upliftApplication(request.application, request.subscriptions)
-      .map(id => Created(Json.toJson(id)))
+  def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
+    ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
+      withJsonBody[Set[ApiIdentifier]] { requestedApis => 
+        Logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
+
+        if(requestedApis.isEmpty) {
+          successful(BadRequest(Json.toJson(Map("message" -> "Request contains no apis for uplifting the sandbox application"))))
+        }
+
+        else {
+          upliftApplicationService.upliftApplication(appData.application, appData.subscriptions, requestedApis).map(
+            _.fold(
+              msg => BadRequest(Json.toJson(Map("message" -> msg))),
+              id => Created(Json.toJson(id))
+            )
+          )
+        }
+      }
     }
 }

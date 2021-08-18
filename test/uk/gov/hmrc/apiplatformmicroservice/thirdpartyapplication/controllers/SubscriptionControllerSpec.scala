@@ -51,6 +51,9 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
     val version = ApiVersion("1.0")
     val apiIdentifier = ApiIdentifier(context, version)
 
+    val apiId1 = "context1".asIdentifier()
+    val apiId2 = "context2".asIdentifier()
+
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
     val mockUpliftApplicationService = mock[UpliftApplicationService]
@@ -118,9 +121,11 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
 
     "return OK with a list of upliftable subscriptions" when {
       "there are upliftable apis available for the application id" in new Setup {
-
-        val apiIdentifiers = Set("test-api-id".asIdentifier())
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*[ApplicationId])(*)).thenReturn(successful(Some(apiIdentifiers)))
+        val application = buildApplication(appId = applicationId)
+        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
+  
+        val apiIdentifiers = Set(apiId1)
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(apiIdentifiers))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 
@@ -131,8 +136,10 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite 
 
     "return NotFound" when {
       "there are no upliftable apis available for the application id" in new Setup {
+        val application = buildApplication(appId = applicationId)
+        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
 
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*[ApplicationId])(*)).thenReturn(successful(None))
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 
