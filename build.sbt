@@ -16,7 +16,7 @@ lazy val root = (project in file("."))
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
-    libraryDependencies ++= dependencies ++ testDependencies("test,it") ,
+    libraryDependencies ++= dependencies ++ testDependencies,
     publishingSettings,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",

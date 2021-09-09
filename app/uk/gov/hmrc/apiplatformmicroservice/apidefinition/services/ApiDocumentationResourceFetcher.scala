@@ -20,13 +20,12 @@ import akka.stream.Materializer
 import cats.data.OptionT
 import cats.implicits._
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
 class ApiDocumentationResourceFetcher @Inject() (
@@ -35,12 +34,13 @@ class ApiDocumentationResourceFetcher @Inject() (
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
     override val mat: Materializer)
-    extends StreamedResponseResourceHelper {
+    extends StreamedResponseResourceHelper 
+    with ApplicationLogger {
 
   def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
     for {
       apiVersion <- fetchApiVersion(resourceId)
-      _ = Logger.info(
+      _ = logger.info(
             s"Availability of $resourceId - Sandbox: ${apiVersion.sandboxAvailability.isDefined} Production: ${apiVersion.productionAvailability.isDefined}"
           )
       response <- fetchResource(apiVersion.sandboxAvailability.isDefined, resourceId)
@@ -89,7 +89,7 @@ class ApiDocumentationResourceFetcher @Inject() (
       connectorName: String
     )(x: WSResponse
     ): OptionT[Future, WSResponse] = {
-    Logger.info(s"$connectorName response code: ${x.status}")
+      logger.info(s"$connectorName response code: ${x.status}")
     if (x.status >= 200 && x.status <= 299) {
       OptionT.some(x)
     } else {

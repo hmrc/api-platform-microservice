@@ -3,7 +3,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 import com.github.tomakehurst.wiremock.client.WireMock._

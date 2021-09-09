@@ -18,18 +18,18 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import play.api.Environment
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttpMockingHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import scala.concurrent.ExecutionContext.Implicits.global
+import akka.stream.Materializer
+import akka.stream.testkit.NoMaterializer
 
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
   private val environmentName = "ENVIRONMENT"
@@ -49,10 +49,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
   class Setup(proxyEnabled: Boolean = true) extends ApiDefinitionHttpMockingHelper {
 
-    private implicit val actorSystemTest: ActorSystem = ActorSystem(
-      "test-actor-system"
-    )
-    private implicit val materializer: ActorMaterializer = ActorMaterializer()
+    private implicit val materializer: Materializer = NoMaterializer
 
     val apiDefinitionUrl = "/mockUrl"
 
@@ -78,7 +75,6 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
       config,
       mockHttpClient,
       mockProxiedHttpClient,
-      actorSystemTest,
       futureTimeoutSupport
     )
 

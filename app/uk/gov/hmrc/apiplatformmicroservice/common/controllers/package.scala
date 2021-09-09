@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.mvc.Result
@@ -25,7 +24,7 @@ import uk.gov.hmrc.http.NotFoundException
 
 import scala.util.control.NonFatal
 
-package object controllers {
+package object controllers extends ApplicationLogger {
 
   object ErrorCode extends Enumeration {
     type ErrorCode = Value
@@ -47,12 +46,12 @@ package object controllers {
   def recovery: PartialFunction[Throwable, Result] = {
     case _: NotFoundException => NotFound
     case NonFatal(e)          =>
-      Logger.error(s"Error occurred: ${e.getMessage}", e)
+      logger.error(s"Error occurred: ${e.getMessage}", e)
       handleException(e)
   }
 
   def handleException(e: Throwable) = {
-    Logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
+    logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
     InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
   }
 

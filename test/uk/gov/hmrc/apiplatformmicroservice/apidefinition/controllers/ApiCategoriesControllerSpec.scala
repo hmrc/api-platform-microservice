@@ -16,27 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, status}
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test._
+import play.api.test.Helpers._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiCategoryDetailsFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
-
+import akka.stream.testkit.NoMaterializer
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiCategoriesControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ApiCategoriesControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiCategoryDetailsFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val system = ActorSystem("test")
-    implicit val mat = ActorMaterializer()
+    implicit val mat = NoMaterializer
 
     val controller = new ApiCategoriesController(Helpers.stubControllerComponents(), ApiCategoryDetailsForCollaboratorFetcherMock.aMock)
 

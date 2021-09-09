@@ -16,24 +16,25 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import play.api.Logger
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ResourceId}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters {
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters with ApplicationLogger {
+
   def http: HttpClient with WSGet
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    Logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
+    logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
     http.GET[Option[List[ApiDefinition]]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
     .map(_ match {
       case None => List.empty
@@ -42,23 +43,23 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
   }
 
   def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
-    Logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
+    logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
     val r = http.GET[Option[ApiDefinition]](definitionUrl(serviceBaseUrl, serviceName))
 
     r.recover {
       case NonFatal(e)          =>
-        Logger.error(s"Failed $e")
+        logger.error(s"Failed $e")
         throw e
     }
   }
 
   def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
-    Logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
+    logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
 
     http.GET[List[ApiCategoryDetails]](categoriesUrl(serviceBaseUrl))
       .recover {
         case NonFatal(e) =>
-          Logger.error(s"Failed $e")
+          logger.error(s"Failed $e")
           throw e
       }
   }

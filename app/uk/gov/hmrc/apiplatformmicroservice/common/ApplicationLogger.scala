@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
+package uk.gov.hmrc.apiplatformmicroservice.common
 
-import org.scalatest.WordSpec
+import play.api.Logger
 
-class SubscriptionFieldsConnectorDomainSpec extends WordSpec {
-  
-    "merging" should {
-        "work" in {
-            val mm1 = Map("a" -> "A", "b" -> "B")
-            val mm2 = Map("a" -> "A", "c" -> "C")
-            val mm3 = Map("z" -> "Z", "y" -> "Y")
-
-            val m1 = Map(1 -> mm1)
-            val m2 = Map(1 -> mm3, 2 -> mm2)
-        }
-    }
+trait ApplicationLogger {
+  protected val logger: Logger = Logger("application")
 }

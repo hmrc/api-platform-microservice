@@ -33,10 +33,10 @@ trait AbstractLogWrapper {
   }
 }
 
-trait LogWrapper extends AbstractLogWrapper {
+trait LogWrapper extends AbstractLogWrapper with ApplicationLogger {
 
   def logFn(message: => String, error: => Throwable): Unit =
-    play.api.Logger.warn(message, error)
+    logger.warn(message, error)
 }
 
 object LogWrapper extends LogWrapper

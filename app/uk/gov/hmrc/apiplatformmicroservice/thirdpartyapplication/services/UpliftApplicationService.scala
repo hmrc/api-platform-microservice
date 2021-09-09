@@ -30,8 +30,8 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 object UpliftApplicationService {
   type BadRequestMessage = String
@@ -42,14 +42,14 @@ class UpliftApplicationService @Inject() (
     val apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
     val principalTPAConnector: PrincipalThirdPartyApplicationConnector,
     val applicationByIdFetcher: ApplicationByIdFetcher
-  )(implicit val ec: ExecutionContext) {
+  )(implicit val ec: ExecutionContext) extends ApplicationLogger {
 
   import UpliftApplicationService.BadRequestMessage
 
   private def createAppIfItHasAnySubs(app: Application, filteredSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage, ApplicationId]] = {
     if(filteredSubs.isEmpty) {
       val message = s"No subscriptions for uplift of application with id: ${app.id.value}"
-      Logger.info(message)
+      logger.info(message)
       successful(Left(message))
     }
     else {
