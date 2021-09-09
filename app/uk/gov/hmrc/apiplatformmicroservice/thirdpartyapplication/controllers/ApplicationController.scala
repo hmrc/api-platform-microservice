@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 
 import scala.concurrent.ExecutionContext
@@ -34,9 +34,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
 class ApplicationController @Inject() (
@@ -47,7 +47,7 @@ class ApplicationController @Inject() (
     val upliftApplicationService: UpliftApplicationService,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext)
-    extends BackendController(cc) with ActionBuilders {
+    extends BackendController(cc) with ActionBuilders with ApplicationLogger {
 
   def fetchAppplicationById(id: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
     for {
@@ -69,7 +69,7 @@ class ApplicationController @Inject() (
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[Set[ApiIdentifier]] { requestedApis => 
-        Logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
+        logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
 
         if(requestedApis.isEmpty) {
           successful(BadRequest(Json.toJson(Map("message" -> "Request contains no apis for uplifting the sandbox application"))))

@@ -24,6 +24,8 @@ package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
 
+  private val logger: Logger = Logger("application")
+
    implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
@@ -95,7 +97,7 @@ package object binders {
   }
 
   private def warnOnEmailId(id: DeveloperIdentifier): DeveloperIdentifier = id match {
-    case EmailIdentifier(_) => Logger.warn("Still using emails as identifier"); id
+    case EmailIdentifier(_) => logger.warn("Still using emails as identifier"); id
     case _ => id
   }
 

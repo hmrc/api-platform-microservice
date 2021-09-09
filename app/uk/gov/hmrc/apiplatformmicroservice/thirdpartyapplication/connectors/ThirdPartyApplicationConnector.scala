@@ -27,13 +27,12 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import play.api.Logger
 import play.api.libs.json.Json
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
@@ -84,7 +83,7 @@ trait ThirdPartyApplicationConnector {
   def createApplication(createAppRequest: CreateApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationId]
 }
 
-private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector {
+private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector with ApplicationLogger {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
   import AbstractThirdPartyApplicationConnector.JsonFormatters._
 
@@ -121,7 +120,7 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .recover {
-        case WithStatusCode(NOT_FOUND, _) => throw new ApplicationNotFound
+        case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
       }
   }
 
@@ -146,7 +145,7 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
 
   def createApplication(createAppRequest: CreateApplicationRequest)
                        (implicit hc: HeaderCarrier): Future[ApplicationId] = {
-    Logger.info(s" Request to uplift ${createAppRequest.name} to production")
+    logger.info(s" Request to uplift ${createAppRequest.name} to production")
     http.POST[CreateApplicationRequest, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
   }
 

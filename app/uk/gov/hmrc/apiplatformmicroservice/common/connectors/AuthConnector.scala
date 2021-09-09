@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common.connectors
 import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Config
 
 import scala.concurrent.ExecutionContext

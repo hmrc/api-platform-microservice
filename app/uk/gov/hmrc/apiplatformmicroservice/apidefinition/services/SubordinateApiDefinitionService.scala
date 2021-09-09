@@ -17,22 +17,22 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
 class SubordinateApiDefinitionService @Inject() (
     val connector: SubordinateApiDefinitionConnector,
     val config: SubordinateApiDefinitionService.Config,
     val apiMetrics: ApiMetrics)
-    extends ApiDefinitionService {
+    extends ApiDefinitionService with ApplicationLogger {
 
   val api: API = API("api-definition-subordinate")
 
   val enabled: Boolean = config.enabled
 
-  Logger.info(s"Subordinate Api Definition Service is ${if (enabled) "enabled" else "disabled"}")
+  logger.info(s"Subordinate Api Definition Service is ${if (enabled) "enabled" else "disabled"}")
 }
 
 object SubordinateApiDefinitionService {

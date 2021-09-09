@@ -22,7 +22,7 @@ import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite

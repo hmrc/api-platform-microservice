@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import play.api.Logger
-
 import scala.util.control.NonFatal
 
-trait Recoveries {
+trait Recoveries extends ApplicationLogger {
 
   def recoverWithDefault[T](default: T): PartialFunction[Throwable, T] = {
     case NonFatal(e) =>
-      Logger.error(s"Error occurred: ${e.getMessage}", e)
+      logger.error(s"Error occurred: ${e.getMessage}", e)
       default
   }
 }

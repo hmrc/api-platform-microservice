@@ -53,7 +53,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       ApplicationCollaboratorServiceMock.aMock,
       mockUpliftService,
       Helpers.stubControllerComponents()
-      )
+    )
   }
 
   "addCollaborator" should {

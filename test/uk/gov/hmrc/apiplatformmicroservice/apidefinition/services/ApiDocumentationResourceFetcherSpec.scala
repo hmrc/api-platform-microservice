@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import org.scalatest.Assertion
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
@@ -28,13 +26,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import akka.stream.testkit.NoMaterializer
 
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val system = ActorSystem("test")
-    implicit val mat = ActorMaterializer()
+    implicit val mat = NoMaterializer
     val serviceName = "api-example-microservice"
     val versionOne = ApiVersion("1.0")
     val resource = "someResource"

@@ -20,7 +20,7 @@ sealed trait OverrideFlag {
   val overrideType: OverrideType
 }
 
-case class PersistLogin() extends OverrideFlag {
+case object PersistLogin extends OverrideFlag {
   val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
 }
 

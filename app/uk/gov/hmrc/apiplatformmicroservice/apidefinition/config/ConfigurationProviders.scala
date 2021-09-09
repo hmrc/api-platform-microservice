@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.play.bootstrap.config.RunMode
 
 class ConfigurationModule extends AbstractModule {
 
@@ -82,8 +81,8 @@ class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Co
 }
 
 @Singleton
-class AuthConfigProvider @Inject()(val runModeConfiguration: Configuration, runMode: RunMode)
-  extends ServicesConfig(runModeConfiguration, runMode)
+class AuthConfigProvider @Inject()(val configuration: Configuration)
+  extends ServicesConfig(configuration)
   with Provider[AuthConnector.Config] {
 
   override def get() = {

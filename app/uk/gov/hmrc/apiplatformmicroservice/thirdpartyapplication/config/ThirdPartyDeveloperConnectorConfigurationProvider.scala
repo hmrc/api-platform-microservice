@@ -20,11 +20,11 @@ import com.google.inject.Provider
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyDeveloperConnector
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.{ServicesConfig}
 
 @Singleton
-class ThirdPartyDeveloperConnectorConfigurationProvider @Inject()(val runModeConfiguration: Configuration, runMode: RunMode)
-  extends ServicesConfig(runModeConfiguration, runMode)
+class ThirdPartyDeveloperConnectorConfigurationProvider @Inject()(val configuration: Configuration)
+  extends ServicesConfig(configuration)
     with Provider[ThirdPartyDeveloperConnector.Config] {
 
   override def get() = {

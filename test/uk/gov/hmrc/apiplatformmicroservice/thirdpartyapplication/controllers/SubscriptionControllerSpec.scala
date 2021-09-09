@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
@@ -38,13 +35,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import scala.concurrent.Future.successful
+import akka.stream.testkit.NoMaterializer
 
-class SubscriptionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val system = ActorSystem("test")
-    implicit val mat = ActorMaterializer()
+    implicit val mat = NoMaterializer
 
     val applicationId = ApplicationId.random
     val context = ApiContext("hello")

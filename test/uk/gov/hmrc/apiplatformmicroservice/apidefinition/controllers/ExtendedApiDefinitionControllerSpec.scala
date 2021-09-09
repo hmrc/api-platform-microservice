@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
@@ -34,8 +31,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundExcepti
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import akka.stream.testkit.NoMaterializer
 
-class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup
       extends ApiDefinitionsForCollaboratorFetcherModule
@@ -43,8 +41,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with GuiceOneApp
       with ApiDocumentationResourceFetcherModule
       with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val system = ActorSystem("test")
-    implicit val mat = ActorMaterializer()
+    implicit val mat = NoMaterializer
 
     val request = FakeRequest("GET", "/")
     val apiName = "hello-api"

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.common
 
 import akka.stream.Materializer
-import play.api.Logger
 import play.api.http.Status.NOT_FOUND
 import play.api.http.{HttpEntity, Status}
 import play.api.libs.ws.WSResponse
@@ -31,7 +30,7 @@ object StreamedResponseHelper {
   val PROXY_SAFE_CONTENT_TYPE = "Proxy-Safe-Content-Type"
 }
 
-trait StreamedResponseHelper {
+trait StreamedResponseHelper extends ApplicationLogger {
   implicit val mat: Materializer
   implicit val ec: ExecutionContext
 
@@ -70,7 +69,7 @@ trait StreamedResponseHelper {
       msg: String
     ): StreamedResponseHandlerPF = {
     case response: WSResponse =>
-      Logger.warn(s"Failed due to $msg with status ${response.status}")
+      logger.warn(s"Failed due to $msg with status ${response.status}")
       throw new InternalServerException(msg)
   }
 
@@ -78,7 +77,7 @@ trait StreamedResponseHelper {
       handleError: StreamedResponseHandlerPF
     )(streamedResponse: WSResponse
     ): Result = {
-    Logger.info(s"Streamed Response status ${streamedResponse.status}")
+      logger.info(s"Streamed Response status ${streamedResponse.status}")
     val fn = handleOkStreamedResponse orElse handleError
 
     if (fn.isDefinedAt(streamedResponse)) {

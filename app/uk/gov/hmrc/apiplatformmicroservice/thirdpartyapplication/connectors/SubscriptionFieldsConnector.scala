@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 

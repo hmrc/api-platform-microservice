@@ -22,7 +22,7 @@ import play.api.http.HeaderNames._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
