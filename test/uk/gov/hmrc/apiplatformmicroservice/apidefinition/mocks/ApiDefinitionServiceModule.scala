@@ -17,14 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatestplus.play.PlaySpec
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.EnvironmentAwareApiDefinitionService
 
-trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait ApiDefinitionServiceModule {
+  self: MockitoSugar with ArgumentMatchersSugar =>
 
   trait ApiDefinitionServiceMock {
     def aMock: ApiDefinitionService
@@ -102,5 +103,18 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
   object PrincipalApiDefinitionServiceMock extends ApiDefinitionServiceMock {
     override val aMock = mock[PrincipalApiDefinitionService]
+  }
+
+  object EnvironmentAwareApiDefinitionServiceMock {
+    private val subordinate = SubordinateApiDefinitionServiceMock
+    private val principal = PrincipalApiDefinitionServiceMock
+
+    lazy val instance = {
+      new EnvironmentAwareApiDefinitionService(subordinate.aMock, principal.aMock)
+    }
+
+    lazy val Principal = principal
+
+    lazy val Subordinate = subordinate
   }
 }

@@ -27,10 +27,12 @@ import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.stream.testkit.NoMaterializer
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = NoMaterializer
     val serviceName = "api-example-microservice"
@@ -66,9 +68,9 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     def ensureResult: Assertion = {
       val oresult: Option[WSResponse] = await(underTest.fetch(resourceId))
 
-      oresult mustBe 'defined
+      oresult shouldBe 'defined
       oresult map (_.status) shouldEqual Some(OK)
-      oresult mustBe Some(mockWSResponse)
+      oresult shouldBe Some(mockWSResponse)
     }
 
     val underTest =
@@ -92,7 +94,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
         await(underTest.fetch(resourceId))
       }
 
-      ex.getMessage mustBe "unexpected error"
+      ex.getMessage shouldBe "unexpected error"
     }
 
     "will fail with not found when no apis available" in new Setup {
@@ -102,7 +104,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
         await(underTest.fetch(resourceId))
       }
 
-      ex.getMessage mustBe "Version 1.0 of api-example-microservice not found"
+      ex.getMessage shouldBe "Version 1.0 of api-example-microservice not found"
     }
 
     "return the resource fetched from the subordinate when the version exists in both locations" in new Setup {
@@ -141,7 +143,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
         await(underTest.fetch(resourceId))
       }
 
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
+      ex.getMessage shouldBe "someResource not found for api-example-microservice 1.0"
     }
 
     "fail with not found when both locations return nothing" in new Setup {
@@ -153,7 +155,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
         await(underTest.fetch(resourceId))
       }
 
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
+      ex.getMessage shouldBe "someResource not found for api-example-microservice 1.0"
     }
 
     "fail with not found when principal returns nothing and it's not available in sandbox" in new Setup {
@@ -165,7 +167,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
         await(underTest.fetch(resourceId))
       }
 
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
+      ex.getMessage shouldBe "someResource not found for api-example-microservice 1.0"
     }
   }
 }

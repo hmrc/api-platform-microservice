@@ -168,6 +168,7 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(access = altAccess)
 
     def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = NEL(inner.endpoints.head.asApplicationRestricted, inner.endpoints.tail))
+
   }
 
   implicit class ApiIdentifierSyntax(val context: String) {

@@ -22,10 +22,12 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApiDefinitionServiceModule {
+  trait Setup extends ApiDefinitionServiceModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
 
     val fetcherUnderTest =
@@ -47,8 +49,8 @@ class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTest
 
       val result = await(fetcherUnderTest.fetch())
 
-      result.size must be (4)
-      result must contain only (subordinateEnvironmentOnlyCategory, principalEnvironmentOnlyCategory, category1, category2)
+      result.size shouldBe (4)
+      result should contain only (subordinateEnvironmentOnlyCategory, principalEnvironmentOnlyCategory, category1, category2)
     }
   }
 }

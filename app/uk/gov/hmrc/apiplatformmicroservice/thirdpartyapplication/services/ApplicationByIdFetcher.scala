@@ -24,12 +24,16 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Env
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.EnvironmentAwareApiDefinitionService
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
+    subscriptionFieldsFetcher: SubscriptionFieldsFetcher,
+    apiDefinitionService: EnvironmentAwareApiDefinitionService
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
@@ -47,14 +51,30 @@ class ApplicationByIdFetcher @Inject() (
     import cats.data.OptionT
     import cats.implicits._
 
+    def findRetiredApis(): Future[List[ApiIdentifier]] = {
+      for {
+        fdefs <- apiDefinitionService.subordinate.fetchAllApiDefinitions
+        flattened = fdefs.flatMap(d => {
+          d.versions.flatMap(v => {
+            List( (d.context, v.version, v.status) )
+          })
+        })
+      }
+      yield flattened
+      .filter(_._3 == ApiStatus.RETIRED)
+      .map(t => ApiIdentifier(t._1, t._2))
+    }
+
     val foapp = fetchApplication(id)
 
     (
       for {
         app <- OptionT(foapp)
         subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
-        filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
-      } yield ApplicationWithSubscriptionData(app, subs, filledFields)
+        retired <- OptionT.liftF(findRetiredApis)
+        goodSubs = subs.filterNot(retired.contains)
+        filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, goodSubs))
+      } yield ApplicationWithSubscriptionData(app, goodSubs, filledFields)
     ).value
   }
 }

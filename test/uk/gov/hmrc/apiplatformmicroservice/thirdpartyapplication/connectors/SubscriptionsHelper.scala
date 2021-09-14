@@ -25,6 +25,7 @@ object SubscriptionsHelper {
 
   val ContextA = ApiContext("A")
   val ContextB = ApiContext("B")
+  val ContextC = ApiContext("C")
   val VersionOne = ApiVersion("1.0")
   val VersionTwo = ApiVersion("2.0")
 
@@ -32,6 +33,8 @@ object SubscriptionsHelper {
   val ApiIdentifierATwo = ApiIdentifier(ContextA, VersionTwo)
   val ApiIdentifierBOne = ApiIdentifier(ContextB, VersionOne)
   val ApiIdentifierBTwo = ApiIdentifier(ContextB, VersionTwo)
+  val ApiIdentifierCOne = ApiIdentifier(ContextC, VersionOne)
+  val ApiIdentifierCTwo = ApiIdentifier(ContextC, VersionTwo)
 
   val FieldNameOne = FieldName("one")
   val FieldNameTwo = FieldName("two")

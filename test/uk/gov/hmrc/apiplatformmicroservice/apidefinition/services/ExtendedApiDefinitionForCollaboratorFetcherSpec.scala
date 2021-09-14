@@ -29,13 +29,15 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val versionOne = ApiVersion("1.0")
   private val versionTwo = ApiVersion("2.0")
 
-  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
     val email = Some(EmailIdentifier("joebloggs@example.com"))
     val applicationId = ApplicationId.random
@@ -71,11 +73,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
-      result.versions.head.sandboxAvailability mustBe None
-      result.categories must not be empty
-      result.categories must contain(incomeTaxCategory)
-      result.categories must contain(vatTaxCategory)
+      result.versions.head.productionAvailability shouldBe Some(publicApiAvailability)
+      result.versions.head.sandboxAvailability shouldBe None
+      result.categories should not be empty
+      result.categories should contain(incomeTaxCategory)
+      result.categories should contain(vatTaxCategory)
     }
 
     "return an extended api with only production availability when api only in principal" in new Setup {
@@ -84,8 +86,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
-      result.versions.head.sandboxAvailability mustBe None
+      result.versions.head.productionAvailability shouldBe Some(publicApiAvailability)
+      result.versions.head.sandboxAvailability shouldBe None
     }
 
     "return an extended api with only sandbox availability when api only in subordinate" in new Setup {
@@ -94,8 +96,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.head.productionAvailability mustBe None
-      result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
+      result.versions.head.productionAvailability shouldBe None
+      result.versions.head.sandboxAvailability shouldBe Some(publicApiAvailability)
     }
 
     "return an extended api with production and sandbox availability when api in both environments" in new Setup {
@@ -104,9 +106,9 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
-      result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
-      result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
+      result.versions should have size 1
+      result.versions.head.sandboxAvailability shouldBe Some(publicApiAvailability)
+      result.versions.head.productionAvailability shouldBe Some(publicApiAvailability)
     }
 
     "prefer subordinate API when it exists in both environments" in new Setup {
@@ -115,7 +117,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.name mustBe "hello-subordinate"
+      result.name shouldBe "hello-subordinate"
     }
 
     "prefer subordinate version when it exists in both environments" in new Setup {
@@ -124,8 +126,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
-      result.versions.head.status mustBe STABLE
+      result.versions should have size 1
+      result.versions.head.status shouldBe STABLE
     }
 
     "return none when api doesn't exist in any environments" in new Setup {
@@ -134,7 +136,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result mustBe None
+      result shouldBe None
     }
 
     "return none when apis requires trust" in new Setup {
@@ -143,7 +145,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result mustBe None
+      result shouldBe None
     }
 
     "filter out retired versions" in new Setup {
@@ -152,8 +154,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
-      result.versions.head.status mustBe STABLE
+      result.versions should have size 1
+      result.versions.head.status shouldBe STABLE
     }
 
     "return none if all verions are retired" in new Setup {
@@ -162,7 +164,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result mustBe None
+      result shouldBe None
     }
 
     "return public and private availability for api public and private versions " in new Setup {
@@ -171,8 +173,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.map(_.sandboxAvailability) must contain only (Some(privateApiAvailability), Some(publicApiAvailability))
-      result.versions.map(_.productionAvailability) must contain only None
+      result.versions.map(_.sandboxAvailability) should contain only (Some(privateApiAvailability), Some(publicApiAvailability))
+      result.versions.map(_.productionAvailability) should contain only None
     }
 
     "return true when application ids are matching" in new Setup {
@@ -183,7 +185,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
 
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
+      result.versions.head.sandboxAvailability.map(_.authorised) shouldBe Some(true)
     }
 
     "return false when applications ids are not matching" in new Setup {
@@ -194,7 +196,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
 
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
+      result.versions.head.sandboxAvailability.map(_.authorised) shouldBe Some(false)
     }
 
     "return true when applications ids are not matching but it is subscribed to" in new Setup {
@@ -206,7 +208,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
 
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
+      result.versions.head.sandboxAvailability.map(_.authorised) shouldBe Some(true)
     }
   }
 }

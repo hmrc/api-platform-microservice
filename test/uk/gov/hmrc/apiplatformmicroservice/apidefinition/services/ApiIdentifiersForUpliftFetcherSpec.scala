@@ -22,6 +22,8 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIR
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
+import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchersSugar
 
 class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -29,7 +31,7 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
   private val versionTwo = ApiVersion("2.0")
   private val versionThree = ApiVersion("3.0")
 
-  trait Setup extends ApiDefinitionServiceModule {
+  trait Setup extends ApiDefinitionServiceModule with MockitoSugar with ArgumentMatchersSugar {
     val upliftableApiDefinition = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
     val exampleApiDefinition = apiDefinition("hello-api").withCategories(List(ApiCategory("EXAMPLE")))
     val apiWithARetiredVersion = apiDefinition("api-with-retired-version", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE), apiVersion(versionThree, ALPHA))

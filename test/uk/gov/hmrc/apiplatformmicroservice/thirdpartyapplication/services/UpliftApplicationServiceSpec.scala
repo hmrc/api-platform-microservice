@@ -27,13 +27,21 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper {
 
   implicit val hc = HeaderCarrier()
 
-  trait Setup extends ApiIdentifiersForUpliftFetcherModule with ApplicationByIdFetcherModule with ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule {
-    val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
+  trait Setup 
+  extends ApiIdentifiersForUpliftFetcherModule 
+  with ApplicationByIdFetcherModule 
+  with ThirdPartyApplicationConnectorModule 
+  with SubscriptionFieldsConnectorModule 
+  with SubscriptionFieldsFetcherModule
+  with ApiDefinitionServiceModule
+   {
+         val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock, EnvironmentAwareApiDefinitionServiceMock.instance)
 
     val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, fetcher)
   }

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ExtendedApiDefinitionForCollaboratorFetcher
 
 import scala.concurrent.Future
 
-trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait ExtendedApiDefinitionForCollaboratorFetcherModule {
+  self: MockitoSugar with ArgumentMatchersSugar =>
 
   object ExtendedApiDefinitionForCollaboratorFetcherMock {
     val aMock = mock[ExtendedApiDefinitionForCollaboratorFetcher]
