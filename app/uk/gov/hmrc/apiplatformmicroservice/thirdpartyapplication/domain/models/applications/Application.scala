@@ -40,6 +40,7 @@ case class Application(
     name: String,
     createdOn: DateTime,
     lastAccess: DateTime,
+    grantLength: Int,
     lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
     description: Option[String] = None,
