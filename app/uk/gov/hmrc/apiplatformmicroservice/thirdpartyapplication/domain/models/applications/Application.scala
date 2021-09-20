@@ -31,6 +31,7 @@ object ClientId {
 case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
 
 case class FieldValue(value: String) extends AnyVal
+case class GrantLength(grantLengthInDays: Int, prettyGrantLength: String)
 
 
 case class Application(
@@ -40,7 +41,7 @@ case class Application(
     name: String,
     createdOn: DateTime,
     lastAccess: DateTime,
-    grantLength: Int,
+    grantLength: GrantLength,
     lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
     description: Option[String] = None,
