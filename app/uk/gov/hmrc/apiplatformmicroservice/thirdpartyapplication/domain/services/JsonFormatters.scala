@@ -75,7 +75,6 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
     .format
 
   implicit val formatIpAllowlist = Json.format[IpAllowlist]
-  implicit val formatGrantLength = Json.format[GrantLength]
 
   implicit val formatApplication: Format[Application] = Json.format[Application]
 
