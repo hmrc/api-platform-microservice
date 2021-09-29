@@ -37,6 +37,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now, lastAccess: DateTime = DateTime.now, checkInformation: Option[CheckInformation] = None): Application = {
     val clientId = ClientId.random
     val appOwnerEmail = "a@b.com"
+    val grantLength: Int = 547
 
     Application(
       id = appId,
@@ -45,6 +46,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       name = s"${appId.value}-name",
       createdOn = createdOn,
       lastAccess = lastAccess,
+      grantLength = grantLength,
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),

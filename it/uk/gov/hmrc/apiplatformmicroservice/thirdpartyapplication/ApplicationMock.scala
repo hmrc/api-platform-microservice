@@ -37,6 +37,7 @@ trait ApplicationMock {
                        |  ],
                        |  "createdOn": 1504526587272,
                        |  "lastAccess": 1561071600000,
+                       |  "grantLength": 547,
                        |  "redirectUris": [],
                        |  "access": {
                        |      "accessType": "STANDARD",
