@@ -25,11 +25,11 @@ object ResponsibleIndividual {
   implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
 }
 
-final case class SellResellOrDistribute(answer: String)
+final case class SellResellOrDistribute(answer: String) extends AnyVal
 
 object SellResellOrDistribute {
   import play.api.libs.json.{Format, Json}
-  implicit val format: Format[SellResellOrDistribute] = Json.format[SellResellOrDistribute]
+  implicit val format: Format[SellResellOrDistribute] = Json.valueFormat[SellResellOrDistribute]
 }
 
 

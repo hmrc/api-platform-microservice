@@ -68,6 +68,7 @@ class ApplicationController @Inject() (
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[UpliftData] { upliftData => 
+        println(s"XXX: $upliftData")
         logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
 
         if(upliftData.subscriptions.isEmpty) {

@@ -90,7 +90,9 @@ class UpliftApplicationService @Inject() (
         upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
         remappedRequestSubs = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
         filteredSubs        = remappedRequestSubs.filter(upliftableApis.contains)
-        newAppId           <- createAppIfItHasAnySubs(app, upliftData.copy(subscriptions = filteredSubs))
+        filteredUpliftData  = upliftData.copy(subscriptions = filteredSubs)
+        _                   = println(s"XXX: $filteredUpliftData")
+        newAppId           <- createAppIfItHasAnySubs(app, filteredUpliftData)
       } yield newAppId
     }
   }
