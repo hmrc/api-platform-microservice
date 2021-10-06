@@ -33,10 +33,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.UpliftDataSamples
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftDataSamples {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = app.materializer
 
@@ -99,7 +100,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplication(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(Set(apiId1)))
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(makeUpliftData(apiId1)))
 
       val result = controller.upliftApplication(applicationId)(request)
 

@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftData
 object UpliftApplicationService {
   type BadRequestMessage = String
 }
@@ -46,8 +46,8 @@ class UpliftApplicationService @Inject() (
 
   import UpliftApplicationService.BadRequestMessage
 
-  private def createAppIfItHasAnySubs(app: Application, filteredSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage, ApplicationId]] = {
-    if(filteredSubs.isEmpty) {
+  private def createAppIfItHasAnySubs(app: Application, upliftData: UpliftData)(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage, ApplicationId]] = {
+    if(upliftData.subscriptions.isEmpty) {
       val message = s"No subscriptions for uplift of application with id: ${app.id.value}"
       logger.info(message)
       successful(Left(message))
@@ -59,7 +59,7 @@ class UpliftApplicationService @Inject() (
                                         app.description,
                                         Environment.PRODUCTION,
                                         app.collaborators,
-                                        filteredSubs
+                                        Some(upliftData)
                                       )
       principalTPAConnector.createApplication(createApplicationRequest).map(Right(_))
     }
@@ -75,7 +75,8 @@ class UpliftApplicationService @Inject() (
   *     Left(msg) - for bad requests see msg
   */
 
-  def upliftApplication(app: Application, appApiSubs: Set[ApiIdentifier], requestedApiSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
+  def upliftApplication(app: Application, appApiSubs: Set[ApiIdentifier], upliftData: UpliftData)(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
+    val requestedApiSubs: Set[ApiIdentifier] = upliftData.subscriptions
     require(requestedApiSubs.nonEmpty)
     
     if(app.deployedTo.isProduction) {
@@ -89,7 +90,7 @@ class UpliftApplicationService @Inject() (
         upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
         remappedRequestSubs = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
         filteredSubs        = remappedRequestSubs.filter(upliftableApis.contains)
-        newAppId           <- createAppIfItHasAnySubs(app, filteredSubs)
+        newAppId           <- createAppIfItHasAnySubs(app, upliftData.copy(subscriptions = filteredSubs))
       } yield newAppId
     }
   }

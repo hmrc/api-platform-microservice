@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftData
 
 case class CreateApplicationRequest(
   name: String,
@@ -25,7 +25,7 @@ case class CreateApplicationRequest(
   description: Option[String] = None,
   environment: Environment,
   collaborators: Set[Collaborator],
-  subscriptions: Set[ApiIdentifier]= Set.empty) {
+  upliftData: Option[UpliftData]) {
 
   def normaliseCollaborators: CreateApplicationRequest = {
     val normalised = collaborators.map(c => c.copy(emailAddress = c.emailAddress.toLowerCase))
