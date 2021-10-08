@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain
+package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
-trait UpliftDataSamples {
+trait UpliftRequestSamples {
   val aResponsibleIndividual = ResponsibleIndividual("test full name", "test email address")
   val sellResellOrDistribute = SellResellOrDistribute("Yes")
   val doNotSellResellOrDistribute = SellResellOrDistribute("No")
 
-  def makeUpliftData(subscriptions: Set[ApiIdentifier]): UpliftData = UpliftData(aResponsibleIndividual, sellResellOrDistribute, subscriptions)
-  def makeUpliftData(subscriptions: ApiIdentifier*): UpliftData = makeUpliftData(subscriptions.toSet)
+  def makeUpliftRequest(subscriptions: Set[ApiIdentifier]): UpliftRequest = UpliftRequest(aResponsibleIndividual, sellResellOrDistribute, subscriptions)
+  def makeUpliftRequest(subscriptions: ApiIdentifier*): UpliftRequest = makeUpliftRequest(subscriptions.toSet)
 }

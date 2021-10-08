@@ -19,20 +19,22 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CreateApplicationRequestV1, CreateApplicationRequestV2}
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import scala.concurrent.Future
-import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftData
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftRequest
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
+import cats.instances.future.catsStdInstancesForFuture
+
 object UpliftApplicationService {
   type BadRequestMessage = String
 }
@@ -42,28 +44,9 @@ class UpliftApplicationService @Inject() (
     val apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
     val principalTPAConnector: PrincipalThirdPartyApplicationConnector,
     val applicationByIdFetcher: ApplicationByIdFetcher
-  )(implicit val ec: ExecutionContext) extends ApplicationLogger {
+  )(implicit val ec: ExecutionContext) extends ApplicationLogger with EitherTHelper[String] {
 
   import UpliftApplicationService.BadRequestMessage
-
-  private def createAppIfItHasAnySubs(app: Application, upliftData: UpliftData)(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage, ApplicationId]] = {
-    if(upliftData.subscriptions.isEmpty) {
-      val message = s"No subscriptions for uplift of application with id: ${app.id.value}"
-      logger.info(message)
-      successful(Left(message))
-    }
-    else {
-      val createApplicationRequest =  CreateApplicationRequest(
-                                        app.name,
-                                        app.access,
-                                        app.description,
-                                        Environment.PRODUCTION,
-                                        app.collaborators,
-                                        Some(upliftData)
-                                      )
-      principalTPAConnector.createApplication(createApplicationRequest).map(Right(_))
-    }
-  }
 
   /*
   *   Params:
@@ -75,26 +58,54 @@ class UpliftApplicationService @Inject() (
   *     Left(msg) - for bad requests see msg
   */
 
-  def upliftApplication(app: Application, appApiSubs: Set[ApiIdentifier], upliftData: UpliftData)(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
-    val requestedApiSubs: Set[ApiIdentifier] = upliftData.subscriptions
-    require(requestedApiSubs.nonEmpty)
-    
-    if(app.deployedTo.isProduction) {
-      successful(Left("Request cannot uplift production application"))
-    }
-    else if(requestedApiSubs.intersect(appApiSubs) != requestedApiSubs) {
-      successful(Left("Request contains apis not found for the sandbox application"))
-    }
-    else {
+  def upliftApplicationV2(app: Application, appApiSubs: Set[ApiIdentifier], upliftRequest: UpliftRequest)(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
+    val requestedApiSubs: Set[ApiIdentifier] = upliftRequest.subscriptions
+    val allRequestedSubsAreInAppSubs = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
+    (
       for {
-        upliftableApis      <- apiIdentifiersForUpliftFetcher.fetch
-        remappedRequestSubs = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
-        filteredSubs        = remappedRequestSubs.filter(upliftableApis.contains)
-        filteredUpliftData  = upliftData.copy(subscriptions = filteredSubs)
-        _                   = println(s"XXX: $filteredUpliftData")
-        newAppId           <- createAppIfItHasAnySubs(app, filteredUpliftData)
+        _                         <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
+        _                         <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
+        _                         <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
+        upliftableApis            <- liftF(apiIdentifiersForUpliftFetcher.fetch)
+        remappedRequestSubs        = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
+        filteredSubs               = remappedRequestSubs.filter(upliftableApis.contains)
+        _                         <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
+        filteredUpliftRequest      = upliftRequest.copy(subscriptions = filteredSubs)
+        createApplicationRequest   = CreateApplicationRequestV2(
+                                      app.name,
+                                      app.access,
+                                      app.description,
+                                      Environment.PRODUCTION,
+                                      app.collaborators,
+                                      filteredUpliftRequest
+                                    )
+        newAppId                  <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
       } yield newAppId
-    }
+    ).value
+  }
+
+  def upliftApplicationV1(app: Application, appApiSubs: Set[ApiIdentifier], requestedApiSubs: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Either[BadRequestMessage,ApplicationId]] = {
+    val allRequestedSubsAreInAppSubs = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
+    (
+      for {
+        _                         <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
+        _                         <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
+        _                         <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
+        upliftableApis            <- liftF(apiIdentifiersForUpliftFetcher.fetch)
+        remappedRequestSubs        = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
+        filteredSubs               = remappedRequestSubs.filter(upliftableApis.contains)
+        _                         <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
+        createApplicationRequest   = CreateApplicationRequestV1(
+                                      app.name,
+                                      app.access,
+                                      app.description,
+                                      Environment.PRODUCTION,
+                                      app.collaborators,
+                                      Some(filteredSubs)
+                                    )
+        newAppId                  <- liftF(principalTPAConnector.createApplicationV1(createApplicationRequest))
+      } yield newAppId
+    ).value
   }
 
   def fetchUpliftableApisForApplication(subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier) : Future[Set[ApiIdentifier]] = {

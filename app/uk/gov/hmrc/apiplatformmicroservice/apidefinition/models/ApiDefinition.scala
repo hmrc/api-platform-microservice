@@ -48,6 +48,8 @@ case class ApiIdentifier(context: ApiContext, version: ApiVersion)
 
 object ApiIdentifier {
   implicit val apiIdentifierFormat = Json.format[ApiIdentifier]
+
+  def random = ApiIdentifier(ApiContext.random, ApiVersion.random)
 }
 
 case class ApiDefinition(

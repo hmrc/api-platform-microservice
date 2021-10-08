@@ -36,11 +36,18 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.UuidIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest,AddCollaboratorToTpaResponse}
+
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CreateApplicationRequestV1, CreateApplicationRequestV2}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Standard
+
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 class ThirdPartyApplicationConnectorSpec
     extends AsyncHmrcSpec 
@@ -86,6 +93,71 @@ class ThirdPartyApplicationConnectorSpec
     )
     override val connector = new SubordinateThirdPartyApplicationConnector(config, httpClient, mockProxiedHttpClient)
   }
+  
+  
+  trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
+    private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
+
+    private val collaborators: Set[Collaborator] = Set(
+      Collaborator("admin@example.com", ADMINISTRATOR, Some(UserId.random)),
+      Collaborator("dev@example.com", DEVELOPER, Some(UserId.random))
+    )
+
+    val createAppRequestV1 = CreateApplicationRequestV1(
+      name = "V1 Create Application Request",
+      access= standardAccess,
+      description = None,
+      environment = Environment.PRODUCTION,
+      collaborators = collaborators,
+      subscriptions = Some(Set(ApiIdentifier.random))
+    )
+    
+    val createAppRequestV2 = CreateApplicationRequestV2(
+      name = "V2 Create Application Request",
+      access = standardAccess,
+      description = None,
+      environment = Environment.PRODUCTION,
+      collaborators = collaborators,
+      upliftRequest = makeUpliftRequest(ApiIdentifier.random)
+    )
+  }
+
+  "create application v1" should {
+    val url = "/application"
+    val appId = ApplicationId.random
+    
+    "return application Id" in new ApplicationCreateSetup {
+      stubFor(PRODUCTION)(
+        post(urlEqualTo(url))
+        .withJsonRequestBody(createAppRequestV1)
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withJsonBody(ApplicationResponse(appId))
+        )
+      )
+      await(connector.createApplicationV1(createAppRequestV1))
+    }
+  }
+
+  "create application v2" should {
+    val url = "/application"
+    val appId = ApplicationId.random
+    
+    "return application Id" in new ApplicationCreateSetup {
+      stubFor(PRODUCTION)(
+        post(urlEqualTo(url))
+        .withJsonRequestBody(createAppRequestV2)
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withJsonBody(ApplicationResponse(appId))
+        )
+      )
+      await(connector.createApplicationV2(createAppRequestV2))
+    }
+  }
+
 
   "fetchApplications for a collaborator by email" should {
     val email = EmailIdentifier("email@example.com")

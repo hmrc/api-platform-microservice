@@ -33,11 +33,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.UpliftDataSamples
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftDataSamples {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = app.materializer
 
@@ -89,7 +89,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     }
   }
 
-  "upliftApplication" should {
+  "upliftApplicationV2" should {
     import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
     val newAppId = ApplicationId.random
     val apiId1 = "context1".asIdentifier
@@ -98,9 +98,9 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       val application = buildApplication(appId = applicationId)
       
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
-      when(mockUpliftService.upliftApplication(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
+      when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(makeUpliftData(apiId1)))
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(makeUpliftRequest(apiId1)))
 
       val result = controller.upliftApplication(applicationId)(request)
 
