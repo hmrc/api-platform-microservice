@@ -37,7 +37,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
 
   val id: ApplicationId = ApplicationId.random
   val clientId: ClientId = ClientId("123")
-  val grantLength: Int = 547
+  val grantLength: java.time.Period = java.time.Period.ofDays(547)
   val application: Application = Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, DateTimeUtils.now, grantLength, None, Environment.SANDBOX, Some("description"))
   val BANG = new RuntimeException("BANG")
 

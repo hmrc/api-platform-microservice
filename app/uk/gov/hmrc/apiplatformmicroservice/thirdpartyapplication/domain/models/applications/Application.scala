@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
+import java.time.Period
+
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
@@ -40,7 +42,7 @@ case class Application(
     name: String,
     createdOn: DateTime,
     lastAccess: DateTime,
-    grantLength: Int,
+    grantLength: Period,
     lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
     description: Option[String] = None,
