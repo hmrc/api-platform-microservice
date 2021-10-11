@@ -27,8 +27,10 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequestV2
 
-class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper {
+class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 
   implicit val hc = HeaderCarrier()
 
@@ -50,49 +52,55 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.willReturnSuccess(newAppId)
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
 
-      val result = await(upliftService.upliftApplication(application, Set(context1, context2), Set(context1)))
+      val result = await(upliftService.upliftApplicationV2(application, Set(context1, context2), makeUpliftRequest(context1)))
 
       result shouldBe Right(newAppId)
 
-      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplication.captureRequest
-      createAppRequest.subscriptions shouldBe Set(context1)
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
+      createAppRequest match {
+        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(context1)
+        case _ => fail("Not the expected request")
+      }
     }
 
     "successfully create an uplifted application AND handle CDS uplift" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2, contextCDSv1)
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.willReturnSuccess(newAppId)
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
 
-      val result = await(upliftService.upliftApplication(application, Set(context1, context2, contextCDSv2), Set(contextCDSv2)))
+      val result = await(upliftService.upliftApplicationV2(application, Set(context1, context2, contextCDSv2), makeUpliftRequest(contextCDSv2)))
 
       result shouldBe Right(newAppId)
 
-      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplication.captureRequest
-      createAppRequest.subscriptions shouldBe Set(contextCDSv1)
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
+      createAppRequest match {
+        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
+        case _ => fail("Not the expected request")
+      }
     }
 
     "successfully handle inability to uplift application due to no upliftable subscriptions" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
-      val result = await(upliftService.upliftApplication(application, Set(context1, context2), Set(context3)))
+      val result = await(upliftService.upliftApplicationV2(application, Set(context1, context2), makeUpliftRequest(context3)))
 
       result shouldBe ('left)
     }
 
     "successfully handle when app is not a sandbox app" in new Setup {
       val applicationInProd = application.copy(deployedTo = Environment.PRODUCTION)
-      val result = await(upliftService.upliftApplication(applicationInProd, Set(context1, context2), Set(context3)))
+      val result = await(upliftService.upliftApplicationV2(applicationInProd, Set(context1, context2), makeUpliftRequest(context3)))
 
       result shouldBe ('left)
 
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.verifyNotCalled
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
     }
     
     "ensure requested subscriptions are non empty" in new Setup {
-      intercept[IllegalArgumentException]{
-        await(upliftService.upliftApplication(application, Set(context1, context2), Set()))
-      }
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplication.verifyNotCalled
+      val result = await(upliftService.upliftApplicationV2(application, Set(context1, context2), makeUpliftRequest()))
+      result shouldBe 'Left
+
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
     }
 
 
