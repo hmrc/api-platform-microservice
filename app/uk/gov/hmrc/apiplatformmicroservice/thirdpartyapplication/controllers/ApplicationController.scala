@@ -40,10 +40,14 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 object ApplicationController {
   import play.api.libs.functional.syntax._
   import cats.implicits._
-  implicit val readsSubs = (
-      (JsPath \ "subscriptions").read[Set[ApiIdentifier]]
-    )
-  implicit val reads = UpliftRequest.reads.map(Right(_)) or readsSubs.map((_).asLeft[UpliftRequest])
+
+  case class RequestUpliftV1(subscriptions: Set[ApiIdentifier])
+  implicit val readsV1: Reads[RequestUpliftV1] = Json.reads[RequestUpliftV1]
+  
+  case class RequestUpliftV2(upliftRequest: UpliftRequest)
+  implicit val readsV2: Reads[RequestUpliftV2] = Json.reads[RequestUpliftV2]
+
+  implicit val reads: Reads[Either[RequestUpliftV1, RequestUpliftV2]] = readsV2.map((_).asRight[RequestUpliftV1]) or readsV1.map((_).asLeft[RequestUpliftV2])
 }
 
 @Singleton
@@ -79,14 +83,14 @@ class ApplicationController @Inject() (
 
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
-      withJsonBody[Either[Set[ApiIdentifier], UpliftRequest]] { upliftRequest => 
+      withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest => 
         
         logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
 
         upliftRequest
         .fold(
-          subs => upliftApplicationService.upliftApplicationV1(appData.application, appData.subscriptions, subs),
-          upliftRequest => upliftApplicationService.upliftApplicationV2(appData.application, appData.subscriptions, upliftRequest)
+          v1 => upliftApplicationService.upliftApplicationV1(appData.application, appData.subscriptions, v1.subscriptions),
+          v2 => upliftApplicationService.upliftApplicationV2(appData.application, appData.subscriptions, v2.upliftRequest)
         )
         .map(
           _.fold(
