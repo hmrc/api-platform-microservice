@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
 import org.mockito.captor.ArgCaptor
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequestV2
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -104,22 +104,22 @@ trait ThirdPartyApplicationConnectorModule {
       }
     }
 
-    object CreateApplication {
+    object CreateApplicationV2 {
       def willReturnSuccess(applcationId: ApplicationId) = {
-        when(aMock.createApplication(*)(*)).thenReturn(successful(applcationId))
+        when(aMock.createApplicationV2(*)(*)).thenReturn(successful(applcationId))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.createApplication(*)(*)).thenReturn(failed(e))
+        when(aMock.createApplicationV2(*)(*)).thenReturn(failed(e))
       }
 
       def verifyNotCalled() = {
-        verify(aMock, never).createApplication(*)(*)
+        verify(aMock, never).createApplicationV2(*)(*)
       }
 
       def captureRequest() = {
-        val capture = ArgCaptor[CreateApplicationRequest]
-        verify(aMock).createApplication(capture)(*)
+        val capture = ArgCaptor[CreateApplicationRequestV2]
+        verify(aMock).createApplicationV2(capture)(*)
         capture.value
       }
     }

@@ -32,11 +32,11 @@ import scala.concurrent.Future.successful
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = app.materializer
 
@@ -88,8 +88,8 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     }
   }
 
-  "upliftApplication" should {
-    import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+  "upliftApplicationV2" should {
+    implicit val writes = Json.writes[ApplicationController.RequestUpliftV2]
     val newAppId = ApplicationId.random
     val apiId1 = "context1".asIdentifier
 
@@ -97,26 +97,34 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       val application = buildApplication(appId = applicationId)
       
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
-      when(mockUpliftService.upliftApplication(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
+      when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(Set(apiId1)))
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV2(makeUpliftRequest(apiId1))))
 
       val result = controller.upliftApplication(applicationId)(request)
 
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe(Json.toJson(newAppId))
     }
+  }
+  
+  "upliftApplicationV1" should {
+    implicit val writes = Json.writes[ApplicationController.RequestUpliftV1]
+    val newAppId = ApplicationId.random
+    val apiId1 = "context1".asIdentifier
 
-    "return BadRequest when providing no subscriptions" in new Setup {
+    "return Created when successfully uplifting an Application" in new Setup {
       val application = buildApplication(appId = applicationId)
       
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
+      when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(Set.empty[ApiIdentifier]))
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV1(Set(apiId1))))
 
       val result = controller.upliftApplication(applicationId)(request)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) shouldBe CREATED
+      contentAsJson(result) shouldBe(Json.toJson(newAppId))
     }
   }
 }

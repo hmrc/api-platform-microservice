@@ -50,8 +50,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   private[connectors] object JsonFormatters extends CommonJsonFormatters {
     import play.api.libs.json._
     
-    implicit val formatCreateApplicationRequest = Json.format[CreateApplicationRequest]
-
     implicit val readsApiIdentifier = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
     implicit val readsInnerVersion = Json.reads[InnerVersion]
@@ -80,7 +78,8 @@ trait ThirdPartyApplicationConnector {
 
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
 
-  def createApplication(createAppRequest: CreateApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationId]
+  def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId]
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector with ApplicationLogger {
@@ -143,12 +142,16 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
     })
   }
 
-  def createApplication(createAppRequest: CreateApplicationRequest)
+  def createApplicationV1(createAppRequest: CreateApplicationRequestV1)
                        (implicit hc: HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
-    http.POST[CreateApplicationRequest, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
+    http.POST[CreateApplicationRequestV1, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
   }
-
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)
+                       (implicit hc: HeaderCarrier): Future[ApplicationId] = {
+    logger.info(s" Request to uplift ${createAppRequest.name} to production")
+    http.POST[CreateApplicationRequestV2, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
+  }
 }
 
 @Singleton

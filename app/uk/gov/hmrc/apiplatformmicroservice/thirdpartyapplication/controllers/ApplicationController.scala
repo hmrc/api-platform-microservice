@@ -21,22 +21,34 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequest, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationRequest
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+
+object ApplicationController {
+  import play.api.libs.functional.syntax._
+  import cats.implicits._
+
+  case class RequestUpliftV1(subscriptions: Set[ApiIdentifier])
+  implicit val readsV1: Reads[RequestUpliftV1] = Json.reads[RequestUpliftV1]
+  
+  case class RequestUpliftV2(upliftRequest: UpliftRequest)
+  implicit val readsV2: Reads[RequestUpliftV2] = Json.reads[RequestUpliftV2]
+
+  implicit val reads: Reads[Either[RequestUpliftV1, RequestUpliftV2]] = readsV2.map((_).asRight[RequestUpliftV1]) or readsV1.map((_).asLeft[RequestUpliftV2])
+}
 
 @Singleton
 class ApplicationController @Inject() (
@@ -66,23 +78,26 @@ class ApplicationController @Inject() (
       }
     }
 
+
+  import ApplicationController._
+
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
-      withJsonBody[Set[ApiIdentifier]] { requestedApis => 
+      withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest => 
+        
         logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
 
-        if(requestedApis.isEmpty) {
-          successful(BadRequest(Json.toJson(Map("message" -> "Request contains no apis for uplifting the sandbox application"))))
-        }
-
-        else {
-          upliftApplicationService.upliftApplication(appData.application, appData.subscriptions, requestedApis).map(
-            _.fold(
-              msg => BadRequest(Json.toJson(Map("message" -> msg))),
-              id => Created(Json.toJson(id))
-            )
+        upliftRequest
+        .fold(
+          v1 => upliftApplicationService.upliftApplicationV1(appData.application, appData.subscriptions, v1.subscriptions),
+          v2 => upliftApplicationService.upliftApplicationV2(appData.application, appData.subscriptions, v2.upliftRequest)
+        )
+        .map(
+          _.fold(
+            msg => BadRequest(Json.toJson(Map("message" -> msg))),
+            id => Created(Json.toJson(id))
           )
-        }
+        )
       }
     }
 }
