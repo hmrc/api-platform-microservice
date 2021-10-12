@@ -29,6 +29,7 @@ trait ApplicationMock {
                        |  "name": "giu",
                        |  "deployedTo": "$deployedTo",
                        |  "description": "Some test data",
+                       |  "grantLength": 547,
                        |  "collaborators": [
                        |      {
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",

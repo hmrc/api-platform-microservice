@@ -48,6 +48,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
+      grantLength = 547,
       collaborators = buildCollaborators(Seq((appOwnerEmail, Role.ADMINISTRATOR))),
       access = Standard(
         redirectUris = List("https://red1", "https://red2"),

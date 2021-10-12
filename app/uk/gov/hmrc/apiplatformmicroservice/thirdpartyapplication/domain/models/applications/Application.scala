@@ -43,6 +43,7 @@ case class Application(
     lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
     description: Option[String] = None,
+    grantLength: Int,
     collaborators: Set[Collaborator] = Set.empty,
     access: Access = Standard(),
     state: ApplicationState = ApplicationState.testing,
