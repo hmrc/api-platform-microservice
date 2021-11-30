@@ -1,6 +1,7 @@
 # microservice specific routes
 
 ->       /combined-api-definitions         extendedapidefinition.Routes
+->       /combined-apis                    combinedapis.Routes
 ->       /api-definitions                  apidefinition.Routes
 ->       /api-categories                   apicategories.Routes
 ->       /applications                     application.Routes

@@ -20,6 +20,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.BasicCombinedApiJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -32,7 +33,7 @@ class CombinedApisController @Inject()(combinedApisService: CombinedApisService,
 
   def getCombinedApisForDeveloper(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApisForDeveloperId(developerId)
-      .map(x => Ok(Json.toJson(x)))
+      .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
 
