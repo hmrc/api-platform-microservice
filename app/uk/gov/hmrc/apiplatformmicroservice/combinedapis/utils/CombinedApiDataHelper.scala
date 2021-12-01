@@ -22,6 +22,6 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
 object CombinedApiDataHelper {
-  def fromApiDefinition(api: ApiDefinition) = CombinedApi(api.serviceName, api.categories, REST_API)
-  def fromXmlApi(api: XmlApi) = CombinedApi(api.name, api.categories.getOrElse(List.empty), XML_API)
+  def fromApiDefinition(api: ApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API)
+  def fromXmlApi(api: XmlApi) = CombinedApi(api.name, api.name, api.categories.getOrElse(List.empty), XML_API)
 }

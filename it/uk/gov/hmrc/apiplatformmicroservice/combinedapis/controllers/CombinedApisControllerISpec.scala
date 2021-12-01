@@ -39,7 +39,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
 
       result.status shouldBe 200
       val body = result.body
-      body shouldBe "[{\"serviceName\":\"api-example-another\",\"categories\":[],\"apiType\":\"REST_API\"},{\"serviceName\":\"api-example-microservice\",\"categories\":[],\"apiType\":\"REST_API\"},{\"serviceName\":\"xml api 1\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"},{\"serviceName\":\"xml api 2\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"}]"
+      body shouldBe "[{\"displayName\":\"Hello Another\",\"serviceName\":\"api-example-another\",\"categories\":[],\"apiType\":\"REST_API\"},{\"displayName\":\"Hello World\",\"serviceName\":\"api-example-microservice\",\"categories\":[],\"apiType\":\"REST_API\"},{\"displayName\":\"xml api 1\",\"serviceName\":\"xml api 1\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"},{\"displayName\":\"xml api 2\",\"serviceName\":\"xml api 2\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"}]"
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
       apiList.count(_.apiType == REST_API) shouldBe 2

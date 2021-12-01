@@ -38,7 +38,7 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
     val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
-    val combinedApis = List(CombinedApi("restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", List(ApiCategory("OTHER")), XML_API))
+    val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API))
 
     def primeCombinedApisService(apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] ={
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(*)(*)).thenReturn(Future.successful(apis))

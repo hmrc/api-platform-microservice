@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
-import uk.gov.hmrc.http.{HttpClient, Upstream4xxResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpClient, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
