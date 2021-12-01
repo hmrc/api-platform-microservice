@@ -1,1 +1,3 @@
+# microservice specific routes
+
 GET        /          uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
