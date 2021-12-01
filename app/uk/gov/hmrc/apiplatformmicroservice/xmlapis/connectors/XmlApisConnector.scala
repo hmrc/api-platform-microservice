@@ -17,47 +17,30 @@
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 
 @Singleton
 class XmlApisConnector @Inject()(httpClient: HttpClient, appConfig: XmlApisConnector.Config)
-                                (implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters with ApplicationLogger {
+                                (implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters with ApplicationLogger
+                                with ConnectorRecovery {
 
   private lazy val serviceBaseUrl: String = appConfig.serviceBaseUrl
 
   def fetchAllXmlApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
-
     logger.info(s"${this.getClass.getSimpleName} - fetchAllXmlApis")
-
-    val r = httpClient.GET[Seq[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/apis")
-
-    r.recover {
-      case NonFatal(e) =>
-        logger.error(s"Failed $e")
-        throw e
-    }
+    httpClient.GET[Seq[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/apis") recover recovery
   }
-
-
 
   def fetchXmlApiByName(name: String)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $name")
-    val r = httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api/$name")
-
-    r.recover {
-      case NonFatal(e) =>
-        logger.error(s"Failed $e")
-        throw e
-    }
+    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api/$name")  recover recovery
   }
 
 }

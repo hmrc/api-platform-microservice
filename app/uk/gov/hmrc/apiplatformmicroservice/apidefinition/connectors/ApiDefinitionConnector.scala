@@ -18,16 +18,16 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ResourceId}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.http.ws.WSGet
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters with ApplicationLogger {
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters
+  with ApplicationLogger with ConnectorRecovery {
 
   def http: HttpClient with WSGet
   def serviceBaseUrl: String
@@ -44,24 +44,12 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
 
   def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    val r = http.GET[Option[ApiDefinition]](definitionUrl(serviceBaseUrl, serviceName))
-
-    r.recover {
-      case NonFatal(e)          =>
-        logger.error(s"Failed $e")
-        throw e
-    }
+    http.GET[Option[ApiDefinition]](definitionUrl(serviceBaseUrl, serviceName)) recover recovery
   }
 
   def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
-
-    http.GET[List[ApiCategoryDetails]](categoriesUrl(serviceBaseUrl))
-      .recover {
-        case NonFatal(e) =>
-          logger.error(s"Failed $e")
-          throw e
-      }
+    http.GET[List[ApiCategoryDetails]](categoriesUrl(serviceBaseUrl))  recover recovery
   }
 
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
