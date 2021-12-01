@@ -11,6 +11,7 @@ trait ConfigBuilder {
     "microservice.services.third-party-application-subordinate.port" -> wiremockSubordinatePort,
     "microservice.services.subscription-fields-principal.port" -> wiremockPrincipalPort,
     "microservice.services.subscription-fields-subordinate.port" -> wiremockSubordinatePort,
+    "microservice.services.api-platform-xml-services.port" -> wiremockPrincipalPort,
     "metrics.jvm" -> false
   )
 
