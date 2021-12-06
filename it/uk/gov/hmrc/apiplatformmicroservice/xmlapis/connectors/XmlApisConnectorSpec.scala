@@ -31,6 +31,7 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
 
     val xmlApi1: XmlApi = XmlApi(
       name = "xml api 1",
+      serviceName = "xml-api-1",
       context = "xml api context",
       description = "xml api description",
       categories = None
@@ -44,7 +45,7 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
 
   "fetchAllXmlApis" should {
     "return all Xml Apis" in new Setup {
-      whenGetAllXmlApis(xmlApis)
+      whenGetAllXmlApis(xmlApis: _*)
 
       val response = await(connector.fetchAllXmlApis())
 
@@ -61,9 +62,9 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
 
   "fetchXmlApiByName" should {
     "return an Xml Api" in new Setup {
-      whenGetXmlApiByName(xmlApi1.name, xmlApi1)
+      whenGetXmlApiByServiceName(xmlApi1.name, xmlApi1)
 
-      val result: Option[XmlApi] = await(connector.fetchXmlApiByName(xmlApi1.name))
+      val result: Option[XmlApi] = await(connector.fetchXmlApiByServiceName(xmlApi1.name))
 
       result shouldBe Some(xmlApi1)
     }
@@ -73,7 +74,7 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
       whenGetXmlApiReturnsError(xmlApi1.name, 500)
 
       intercept[UpstreamErrorResponse] {
-       await(connector.fetchXmlApiByName(xmlApi1.name))
+       await(connector.fetchXmlApiByServiceName(xmlApi1.name))
       }
     }
   }

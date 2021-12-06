@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
 
 object SubscriptionsHelper {
+
   import AbstractThirdPartyApplicationConnector._
 
   val ContextA = ApiContext("A")
@@ -47,7 +48,7 @@ object SubscriptionsHelper {
   val SubsVersionsForA = Seq(SubscriptionVersion(VersionOne.asInner, true), SubscriptionVersion(VersionTwo.asInner, false))
   val SubsVersionsForB = Seq(SubscriptionVersion(VersionTwo.asInner, true))
 
-  val MixedSubscriptions: Set[ApiIdentifier] = 
+  val MixedSubscriptions: Set[ApiIdentifier] =
     Set(
       ApiIdentifierAOne,
       ApiIdentifierBTwo

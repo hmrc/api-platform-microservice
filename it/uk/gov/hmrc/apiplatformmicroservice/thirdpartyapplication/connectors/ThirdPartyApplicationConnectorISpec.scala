@@ -20,14 +20,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HttpClient
 import play.api.http.Status._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
-
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugarExtensions}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
@@ -39,19 +38,18 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest,AddCollaboratorToTpaResponse}
-
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CreateApplicationRequestV1, CreateApplicationRequestV2}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Standard
-
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 
-class ThirdPartyApplicationConnectorSpec
-    extends AsyncHmrcSpec 
-    with WireMockSugarExtensions 
+class ThirdPartyApplicationConnectorISpec
+    extends AsyncHmrcSpec
+    with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
@@ -317,7 +315,6 @@ class ThirdPartyApplicationConnectorSpec
 
   "fetchSubscriptions" should {
     import AbstractThirdPartyApplicationConnector._
-    import SubscriptionsHelper._
     val applicationId = ApplicationId.random
     val url = s"/application/${applicationId.value}/subscription"
 
@@ -390,7 +387,6 @@ class ThirdPartyApplicationConnectorSpec
   }
 
   "subscribeToApi" should {
-    import SubscriptionsHelper._
 
     val apiId = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random

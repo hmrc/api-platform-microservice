@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
@@ -26,6 +27,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugar, WireMock
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status._
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.http.HeaderCarrier
 
 class SubscriptionFieldsConnectorSpec
@@ -34,8 +36,6 @@ class SubscriptionFieldsConnectorSpec
     with WireMockSugarExtensions 
     with GuiceOneServerPerSuite
     with SubscriptionFieldValuesJsonFormatters {
-  
-    import SubscriptionsHelper._
 
   val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
   val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
