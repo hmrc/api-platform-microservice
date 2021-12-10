@@ -60,7 +60,7 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
     }
   }
 
-  "fetchXmlApiByName" should {
+  "fetchXmlApiByServiceName" should {
     "return an Xml Api" in new Setup {
       whenGetXmlApiByServiceName(xmlApi1.name, xmlApi1)
 

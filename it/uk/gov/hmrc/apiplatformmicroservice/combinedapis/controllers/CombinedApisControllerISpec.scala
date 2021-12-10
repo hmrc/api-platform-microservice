@@ -16,6 +16,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.D
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisMock
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+
 
 class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters {
 
@@ -133,11 +135,10 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       mockFetchApiCategoryDetails(Environment.SANDBOX, Seq(category1, category2, category3))
       mockFetchApiCategoryDetails(Environment.PRODUCTION, Seq(category1, category2))
 
-      val response = await(wsClient.url(s"$baseUrl/api-categories")
+      val response = await(wsClient.url(s"$baseUrl/api-categories/combined")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       response.status shouldBe OK
       val result: Seq[ApiCategoryDetails] = Json.parse(response.body).validate[Seq[ApiCategoryDetails]] match {

@@ -1,1 +1,2 @@
-GET        /           uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.ApiCategoriesController.fetchAllAPICategories()
+GET        /                uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiCategoriesController.fetchAllAPICategories()
+GET        /combined        uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.ApiCategoriesController.fetchAllAPICategories()
