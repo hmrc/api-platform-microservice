@@ -4,8 +4,11 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
+
+import java.util.UUID
 
 trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -17,6 +20,59 @@ trait ApplicationMock {
           .withStatus(NOT_FOUND)
       ))
   }
+
+  def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, developerIdentifier: DeveloperIdentifier) {
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/applications"))
+      .willReturn(  aResponse()
+        .withStatus(NOT_FOUND)
+      ))
+  }
+
+
+  def mockFetchApplicationsForDeveloper(deployedTo: Environment, developerIdentifier: DeveloperIdentifier) {
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/applications"))
+      .willReturn(
+        aResponse()
+          .withBody(s"""[{
+                       |  "id": "${UUID.randomUUID()}",
+                       |  "clientId": "somCLientId",
+                       |  "gatewayId": "w7dwd9GFZX",
+                       |  "name": "giu",
+                       |  "deployedTo": "$deployedTo",
+                       |  "description": "Some test data",
+                       |  "collaborators": [
+                       |      {
+                       |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
+                       |          "role": "ADMINISTRATOR"
+                       |      }
+                       |  ],
+                       |  "createdOn": 1504526587272,
+                       |  "lastAccess": 1561071600000,
+                       |  "grantLength": 547,
+                       |  "redirectUris": [],
+                       |  "access": {
+                       |      "accessType": "STANDARD",
+                       |      "overrides": [],
+                       |      "redirectUris": []
+                       |  },
+                       |  "state": {
+                       |      "name": "PRODUCTION",
+                       |      "updatedOn": 1504784641632
+                       |  },
+                       |  "rateLimitTier": "BRONZE",
+                       |  "blocked": false,
+                       |  "ipWhitelist": [],
+                       |  "ipAllowlist": {
+                       |      "required": false,
+                       |      "allowlist": []
+                       |  },
+                       |  "trusted": false
+                       |}]""".stripMargin)
+          .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
+          .withStatus(OK)
+      ))
+  }
+
 
   def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId("dummyProdId")) {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))
@@ -57,6 +113,35 @@ trait ApplicationMock {
                        |  },
                        |  "trusted": false
                        |}""".stripMargin)
+          .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
+          .withStatus(OK)
+      ))
+  }
+
+  def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, developerIdentifier: DeveloperIdentifier) {
+    stubFor(env)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/subscriptions"))
+      .willReturn(
+        aResponse()
+          .withStatus(NOT_FOUND)
+      ))
+  }
+
+  def mockFetchSubscriptionsForDeveloper(env: Environment, developerIdentifier: DeveloperIdentifier) {
+    stubFor(env)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/subscriptions"))
+      .willReturn(
+        aResponse()
+          .withBody("""
+                      |[
+                      |    {
+                      |        "context": "individual-benefits",
+                      |        "version": "1.0"
+                      |    },
+                      |    {
+                      |        "context": "individual-employment",
+                      |        "version": "1.0"
+                      |    }
+                      |]
+          """.stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
       ))

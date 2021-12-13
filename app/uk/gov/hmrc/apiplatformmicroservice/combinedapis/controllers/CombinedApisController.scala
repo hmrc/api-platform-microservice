@@ -37,4 +37,10 @@ class CombinedApisController @Inject()(combinedApisService: CombinedApisService,
   }
 
 
+  def fetchApiForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]) = Action.async { implicit request =>
+    combinedApisService.fetchApiForCollaborator(serviceName, developerId)
+      .map(x => Ok(Json.toJson(x))) recover recovery
+
+  }
+
 }

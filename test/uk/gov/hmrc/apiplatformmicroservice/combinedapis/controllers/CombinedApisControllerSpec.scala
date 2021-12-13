@@ -32,27 +32,45 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters{
+class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters {
 
   trait SetUp {
     val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
-    val combinedApis = List(CombinedApi("restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", List(ApiCategory("OTHER")), XML_API))
+    val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API))
 
-    def primeCombinedApisService(apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] ={
-      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(*)(*)).thenReturn(Future.successful(apis))
+    def primeCombinedApisService(developerId: Option[DeveloperIdentifier], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
+      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
     }
+    def primeCombinedApisServiceForCollaborator(developerId: Option[DeveloperIdentifier], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
+      when(mockCombinedApisService.fetchApiForCollaborator(eqTo(serviceName), eqTo(developerId))(*)).thenReturn(Future.successful(Some(apis)))
+    }
+
   }
 
 
-  "CombinedApisController" should {
-    "return 200 and apis when service returns apis" in new SetUp {
-      primeCombinedApisService(combinedApis)
+  "CombinedApisController" when {
 
-      val result: Future[Result] = objInTest.getCombinedApisForDeveloper(developerId)(FakeRequest())
-      status(result) shouldBe 200
-      contentAsString(result) shouldBe Json.toJson(combinedApis).toString()
+    "getCombinedApisForDeveloper" should {
+      "return 200 and apis when service returns apis" in new SetUp {
+        primeCombinedApisService(developerId, combinedApis)
+
+        val result: Future[Result] = objInTest.getCombinedApisForDeveloper(developerId)(FakeRequest())
+        status(result) shouldBe 200
+        contentAsString(result) shouldBe Json.toJson(combinedApis).toString()
+      }
+    }
+
+    "fetchApiForCollaborator" should {
+      "return 200 and apis when service returns apis" in new SetUp {
+        val serviceName = "some-service-name"
+        primeCombinedApisServiceForCollaborator(developerId, serviceName, combinedApis.head)
+
+        val result: Future[Result] = objInTest.fetchApiForCollaborator(serviceName, developerId)(FakeRequest())
+        status(result) shouldBe 200
+        contentAsString(result) shouldBe Json.toJson(combinedApis.head).toString()
+      }
     }
 
   }

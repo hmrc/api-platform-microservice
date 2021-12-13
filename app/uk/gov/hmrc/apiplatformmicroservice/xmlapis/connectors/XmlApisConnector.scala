@@ -38,9 +38,9 @@ class XmlApisConnector @Inject()(httpClient: HttpClient, appConfig: XmlApisConne
     httpClient.GET[Seq[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/apis") recover recovery
   }
 
-  def fetchXmlApiByName(name: String)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
-    logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $name")
-    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api/$name")  recover recovery
+  def fetchXmlApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
+    logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $serviceName")
+    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api", queryParams = Seq("serviceName" -> s"$serviceName"))  recover recovery
   }
 
 }

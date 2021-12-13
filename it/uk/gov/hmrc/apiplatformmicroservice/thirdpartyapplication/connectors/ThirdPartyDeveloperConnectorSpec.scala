@@ -13,9 +13,9 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 class ThirdPartyDeveloperConnectorSpec
-    extends AsyncHmrcSpec 
-    with WireMockSugar 
-    with WireMockSugarExtensions 
+    extends AsyncHmrcSpec
+    with WireMockSugar
+    with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with UserResponseBuilder {
 

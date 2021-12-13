@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinition, ApiDefinitionTestDataHelper}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForCollaboratorFetcher
-import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinition, ApiDefinitionTestDataHelper, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
@@ -34,16 +34,19 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
   trait SetUp {
     implicit val hc = mock[HeaderCarrier]
     val mockApiDefinitionsForCollaboratorFetcher = mock[ApiDefinitionsForCollaboratorFetcher]
+    val mockExtendedApiDefinitionForCollaboratorFetcher = mock[ExtendedApiDefinitionForCollaboratorFetcher]
     val mockXmlApisConnector = mock[XmlApisConnector]
-    val objInTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockXmlApisConnector)
+    val objInTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector)
     val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
     val apiDefinition2 = apiDefinition(name = "service2").copy( categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
     val listOfDefinitions = List(apiDefinition1, apiDefinition2)
 
-    val xmlApi1 = XmlApi("xmlService1", "context", "desc", Some(List(ApiCategory("SELF_ASSESSMENT"), ApiCategory("CUSTOMS"))))
-    val xmlApi2 = XmlApi("xmlService2", "context", "desc", Some(List(ApiCategory("OTHER"), ApiCategory("CUSTOMS"))))
+    val extendedApiDefinition1 = extendedApiDefinition("service-name1")
+
+    val xmlApi1 = XmlApi("xmlService1", "xml-service-1", "context", "desc", Some(List(ApiCategory("SELF_ASSESSMENT"), ApiCategory("CUSTOMS"))))
+    val xmlApi2 = XmlApi("xmlService2", "xml-service-2", "context", "desc", Some(List(ApiCategory("OTHER"), ApiCategory("CUSTOMS"))))
     val xmlApis = List(xmlApi1, xmlApi2)
 
     val combinedList = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
@@ -52,19 +55,60 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         .thenReturn(Future.successful(apisToReturn))
     }
 
-    def primeAXmlConnector(xmlApis: List[XmlApi]) ={
+    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[DeveloperIdentifier], apiToReturn: Option[ExtendedApiDefinition]) = {
+      when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(*))
+        .thenReturn(Future.successful(apiToReturn))
+    }
+
+    def primeXmlConnectorFetchAll(xmlApis: List[XmlApi]) ={
       when(mockXmlApisConnector.fetchAllXmlApis()(*)).thenReturn(Future.successful(xmlApis))
     }
-  }
-  "CombinedApisService" should {
-    "return combined list of xml and rest apis" in new SetUp {
-      primeApiDefinitionsForCollaboratorFetcher(developerId, listOfDefinitions)
-      primeAXmlConnector(xmlApis)
-
-      val result = await(objInTest.fetchCombinedApisForDeveloperId(developerId))
-      result.size shouldBe 4
-      result shouldBe combinedList
+    def primeXmlConnectorFetchByServiceName(serviceName: String, xmlApis: Option[XmlApi]) ={
+      when(mockXmlApisConnector.fetchXmlApiByServiceName(eqTo(serviceName))(*)).thenReturn(Future.successful(xmlApis))
     }
+
+  }
+  "CombinedApisService" when {
+
+    "fetchCombinedApisForDeveloperId" should {
+
+      "return combined list of xml and rest apis" in new SetUp {
+        primeApiDefinitionsForCollaboratorFetcher(developerId, listOfDefinitions)
+        primeXmlConnectorFetchAll(xmlApis)
+
+        val result = await(objInTest.fetchCombinedApisForDeveloperId(developerId))
+        result.size shouldBe 4
+        result shouldBe combinedList
+      }
+    }
+    "fetchApiForCollaborator" should {
+
+      "return exact matched api from api definition if matched" in new SetUp {
+        val serviceName = "service-name"
+
+        primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, Some(extendedApiDefinition1))
+
+
+        val result = await(objInTest.fetchApiForCollaborator(serviceName, developerId))
+        result.size shouldBe 1
+        result shouldBe Some(fromExtendedApiDefinition(extendedApiDefinition1))
+
+        verifyZeroInteractions(mockXmlApisConnector)
+      }
+
+      "return matched api from api definition if matched" in new SetUp {
+        val serviceName = "service-name"
+
+        primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, None)
+        primeXmlConnectorFetchByServiceName(serviceName, Some(xmlApi1))
+
+        val result = await(objInTest.fetchApiForCollaborator(serviceName, developerId))
+        result.size shouldBe 1
+        result shouldBe Some(fromXmlApi(xmlApi1))
+
+      }
+    }
+
   }
 
 }

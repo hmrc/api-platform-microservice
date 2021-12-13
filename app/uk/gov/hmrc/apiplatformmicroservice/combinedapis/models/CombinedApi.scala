@@ -28,6 +28,7 @@ object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
   case object XML_API extends ApiType
 }
 
-case class CombinedApi(serviceName: String,
+case class CombinedApi(displayName: String,
+                       serviceName: String,
                         categories: List[ApiCategory],
                         apiType: ApiType)
