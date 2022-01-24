@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 final case class ResponsibleIndividual(fullName: String, emailAddress: String)
 
@@ -36,7 +37,8 @@ object SellResellOrDistribute {
 case class UpliftRequest(
   responsibleIndividual: ResponsibleIndividual,
   sellResellOrDistribute: SellResellOrDistribute,
-  subscriptions: Set[ApiIdentifier]
+  subscriptions: Set[ApiIdentifier],
+  requestedBy: UserId
 )
   
 object UpliftRequest {

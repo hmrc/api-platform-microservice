@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait UpliftRequestSamples {
   val aResponsibleIndividual = ResponsibleIndividual("test full name", "test email address")
   val sellResellOrDistribute = SellResellOrDistribute("Yes")
   val doNotSellResellOrDistribute = SellResellOrDistribute("No")
+  val requestedBy = UserId.random
 
-  def makeUpliftRequest(subscriptions: Set[ApiIdentifier]): UpliftRequest = UpliftRequest(aResponsibleIndividual, sellResellOrDistribute, subscriptions)
+  def makeUpliftRequest(subscriptions: Set[ApiIdentifier]): UpliftRequest = UpliftRequest(aResponsibleIndividual, sellResellOrDistribute, subscriptions, requestedBy)
   def makeUpliftRequest(subscriptions: ApiIdentifier*): UpliftRequest = makeUpliftRequest(subscriptions.toSet)
 }
