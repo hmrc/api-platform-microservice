@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 final case class ResponsibleIndividual(fullName: String, emailAddress: String)
 
@@ -38,7 +37,7 @@ case class UpliftRequest(
   responsibleIndividual: ResponsibleIndividual,
   sellResellOrDistribute: SellResellOrDistribute,
   subscriptions: Set[ApiIdentifier],
-  requestedBy: UserId
+  requestedBy: String
 )
   
 object UpliftRequest {
