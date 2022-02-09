@@ -18,13 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.do
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
-final case class ResponsibleIndividual(fullName: String, emailAddress: String)
-
-object ResponsibleIndividual {
-  import play.api.libs.json.{Format, Json}
-  implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
-}
-
 final case class SellResellOrDistribute(answer: String) extends AnyVal
 
 object SellResellOrDistribute {
@@ -34,7 +27,6 @@ object SellResellOrDistribute {
 
 
 case class UpliftRequest(
-  responsibleIndividual: ResponsibleIndividual,
   sellResellOrDistribute: SellResellOrDistribute,
   subscriptions: Set[ApiIdentifier],
   requestedBy: String
