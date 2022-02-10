@@ -78,7 +78,8 @@ class UpliftApplicationService @Inject() (
                                       Environment.PRODUCTION,
                                       app.collaborators,
                                       filteredUpliftRequest,
-                                      filteredUpliftRequest.requestedBy
+                                      filteredUpliftRequest.requestedBy,
+                                      app.id
                                     )
         newAppId                  <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
       } yield newAppId
