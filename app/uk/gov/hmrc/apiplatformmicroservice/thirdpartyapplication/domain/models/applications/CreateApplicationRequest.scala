@@ -20,6 +20,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait CreateApplicationRequest {
   def name: String
@@ -72,7 +73,8 @@ case class CreateApplicationRequestV2(
   environment: Environment,
   collaborators: Set[Collaborator],
   upliftRequest: UpliftRequest,
-  requestedBy: String
+  requestedBy: String,
+  sandboxApplicationId: ApplicationId
 ) extends CreateApplicationRequest {
                                       
   validate(this)

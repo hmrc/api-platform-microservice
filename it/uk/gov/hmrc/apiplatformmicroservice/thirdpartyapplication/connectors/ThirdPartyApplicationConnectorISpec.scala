@@ -117,7 +117,8 @@ class ThirdPartyApplicationConnectorISpec
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
       upliftRequest = makeUpliftRequest(ApiIdentifier.random),
-      "bob@example.com"
+      "bob@example.com",
+      ApplicationId.random
     )
   }
 
