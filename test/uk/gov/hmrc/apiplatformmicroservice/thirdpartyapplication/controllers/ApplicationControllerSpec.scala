@@ -33,10 +33,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples with SubordinateApplicationFetcherModule with ApplicationJsonFormatters{
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = app.materializer
 
@@ -52,6 +53,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       mockAuthConnector,
       ApplicationCollaboratorServiceMock.aMock,
       mockUpliftService,
+      SubordinateApplicationFetcherMock.aMock,
       Helpers.stubControllerComponents()
     )
   }
@@ -125,6 +127,28 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe(Json.toJson(newAppId))
+    }
+  }
+
+  "fetchLinkedSubordinateApplication" should {
+    val principalAppId = ApplicationId.random
+    val subordinateAppId = ApplicationId.random
+    
+    "return 200 if subordinate application is found" in new Setup {
+      val subordinateApplication = buildApplication(subordinateAppId)
+      SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnApplication(subordinateApplication)
+
+      val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))
+      
+      status(result) shouldBe OK
+      contentAsJson(result) shouldBe(Json.toJson(subordinateApplication))
+    }
+    "return 404 if subordinate application is not found" in new Setup {
+      SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnNothing
+
+      val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))
+      
+      status(result) shouldBe NOT_FOUND
     }
   }
 }
