@@ -81,6 +81,7 @@ trait ThirdPartyApplicationConnector {
   def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
+  
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector with ApplicationLogger {
@@ -179,7 +180,13 @@ class PrincipalThirdPartyApplicationConnector @Inject() (
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext)
-    extends AbstractThirdPartyApplicationConnector
+    extends AbstractThirdPartyApplicationConnector {
+
+  def getLinkedSubordinateApplicationId(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationId]] = {
+    http.GET[Option[ApplicationId]](s"$serviceBaseUrl/application/${principalApplicationId.value}/linked-subordinate-id")
+  }
+
+}
 
 @Singleton
 class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
