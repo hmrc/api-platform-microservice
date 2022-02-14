@@ -130,6 +130,12 @@ trait ThirdPartyApplicationConnectorModule {
   }
 
   object PrincipalThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
+
+    object GetLinkedSubordinateApplicationId {
+      def thenReturn(subordinateAppId: ApplicationId) = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(Some(subordinateAppId)))
+      
+      def thenReturnNothing = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(None))
+    }
     override val aMock: PrincipalThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
   }
 

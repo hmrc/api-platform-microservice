@@ -36,6 +36,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubordinateApplicationFetcher
 
 object ApplicationController {
   import play.api.libs.functional.syntax._
@@ -57,6 +58,7 @@ class ApplicationController @Inject() (
     val authConnector: AuthConnector,
     val applicationCollaboratorService : ApplicationCollaboratorService,
     val upliftApplicationService: UpliftApplicationService,
+    val subordinateApplicationFetcher: SubordinateApplicationFetcher,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext)
     extends BackendController(cc) with ActionBuilders with ApplicationLogger {
@@ -100,4 +102,10 @@ class ApplicationController @Inject() (
         )
       }
     }
+
+  def fetchLinkedSubordinateApplication(principalApplicationId: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      subordinateApplication <- subordinateApplicationFetcher.fetchSubordinateApplication(principalApplicationId)
+    } yield subordinateApplication.fold[Result](NotFound)(application => Ok(Json.toJson(application)))
+  }
 }
