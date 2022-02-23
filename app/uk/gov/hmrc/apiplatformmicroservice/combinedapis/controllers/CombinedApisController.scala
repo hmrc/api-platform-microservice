@@ -31,6 +31,17 @@ import scala.concurrent.ExecutionContext
 class CombinedApisController @Inject()(combinedApisService: CombinedApisService, cc: ControllerComponents)
                                       (implicit ec: ExecutionContext) extends BackendController(cc) with BasicCombinedApiJsonFormatters {
 
+  def getCombinedApisForDeveloperNew(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
+    combinedApisService.fetchCombinedApisForDeveloperId(developerId)
+      .map(x => Ok(Json.toJson(x))) recover recovery
+  }
+
+  def fetchApiForCollaboratorNew(serviceName: String, developerId: Option[DeveloperIdentifier]) = Action.async { implicit request =>
+    combinedApisService.fetchApiForCollaborator(serviceName, developerId)
+      .map(x => Ok(Json.toJson(x))) recover recovery
+
+  }
+
   def getCombinedApisForDeveloper(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApisForDeveloperId(developerId)
       .map(x => Ok(Json.toJson(x))) recover recovery
@@ -39,6 +50,12 @@ class CombinedApisController @Inject()(combinedApisService: CombinedApisService,
 
   def fetchApiForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]) = Action.async { implicit request =>
     combinedApisService.fetchApiForCollaborator(serviceName, developerId)
+      .map(x => Ok(Json.toJson(x))) recover recovery
+
+  }
+
+  def fetchAllApis() = Action.async { implicit request =>
+    combinedApisService.fetchAllCombinedApis()
       .map(x => Ok(Json.toJson(x))) recover recovery
 
   }

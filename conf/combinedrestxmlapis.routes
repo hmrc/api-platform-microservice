@@ -1,0 +1,7 @@
+# microservice specific routes
+
+# routes need fixing but will need changes to TPDFE
+
+GET        /developer/                    uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.getCombinedApisForDeveloperNew(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
+GET        /                              uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchAllApis
+GET        /developer/:serviceName        uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchApiForCollaboratorNew(serviceName: String, developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])

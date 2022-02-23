@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionService
 
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -36,7 +37,8 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val mockApiDefinitionsForCollaboratorFetcher = mock[ApiDefinitionsForCollaboratorFetcher]
     val mockExtendedApiDefinitionForCollaboratorFetcher = mock[ExtendedApiDefinitionForCollaboratorFetcher]
     val mockXmlApisConnector = mock[XmlApisConnector]
-    val objInTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector)
+    val mockApiDefinitionService = mock[ApiDefinitionService]
+    val objInTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockApiDefinitionService)
     val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
