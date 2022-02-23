@@ -28,26 +28,22 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class CombinedApisController @Inject()(combinedApisService: CombinedApisService, cc: ControllerComponents)
+class CombinedApisOldController @Inject()(combinedApisService: CombinedApisService, cc: ControllerComponents)
                                       (implicit ec: ExecutionContext) extends BackendController(cc) with BasicCombinedApiJsonFormatters {
 
 
+  @deprecated("please use getCombinedApisForDeveloper in CombinedApisController")
   def getCombinedApisForDeveloper(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApisForDeveloperId(developerId)
       .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
-
+ @deprecated("please use fetchApiForCollaborator in CombinedApisController")
   def fetchApiForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]) = Action.async { implicit request =>
     combinedApisService.fetchApiForCollaborator(serviceName, developerId)
       .map(x => Ok(Json.toJson(x))) recover recovery
 
   }
 
-  def fetchAllApis() = Action.async { implicit request =>
-    combinedApisService.fetchAllCombinedApis()
-      .map(x => Ok(Json.toJson(x))) recover recovery
-
-  }
 
 }

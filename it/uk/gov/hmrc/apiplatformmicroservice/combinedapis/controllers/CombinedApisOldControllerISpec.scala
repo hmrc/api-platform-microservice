@@ -19,7 +19,7 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
 
-class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters {
+class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMock with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters {
 
 
   trait Setup {
@@ -47,7 +47,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
       mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
 
-     val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+     val result =  await(wsClient.url(s"$baseUrl/combined-apis")
        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
       result.status shouldBe 200
@@ -65,7 +65,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
       whenGetAllXmlApisReturnsError(500)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result =  await(wsClient.url(s"$baseUrl/combined-apis")
         .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
       result.status shouldBe 500
@@ -77,7 +77,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       whenGetAllDefinitionsFails(PRODUCTION)(500)
       whenGetAllXmlApis(xmlApis: _*)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
         .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
 
@@ -91,7 +91,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       mockFetchApplicationsForDeveloperNotFound(PRODUCTION, developerId)
       mockFetchSubscriptionsForDeveloper(PRODUCTION,developerId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
         .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
 
@@ -105,7 +105,7 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
       mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,developerId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
         .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
 
@@ -118,14 +118,13 @@ class CombinedApisControllerISpec  extends WireMockSpec  with ApiDefinitionMock 
       whenGetAllDefinitionsFails(PRODUCTION)(500)
       mockFetchApplicationsForDeveloperNotFound(PRODUCTION,developerId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
         .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
 
 
       result.status shouldBe 500
 
     }
-    
     "stub requests to fetch all API Category details" in  new Setup {
       val category1 = ApiCategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
       val category2 = ApiCategoryDetails("AGENTS", "Agents")

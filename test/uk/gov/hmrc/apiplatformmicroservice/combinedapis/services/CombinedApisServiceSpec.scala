@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionService
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
 
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -37,8 +37,8 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val mockApiDefinitionsForCollaboratorFetcher = mock[ApiDefinitionsForCollaboratorFetcher]
     val mockExtendedApiDefinitionForCollaboratorFetcher = mock[ExtendedApiDefinitionForCollaboratorFetcher]
     val mockXmlApisConnector = mock[XmlApisConnector]
-    val mockApiDefinitionService = mock[ApiDefinitionService]
-    val objInTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockApiDefinitionService)
+    val mockAllApisFetcher = mock[AllApisFetcher]
+    val inTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockAllApisFetcher)
     val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
@@ -78,7 +78,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         primeApiDefinitionsForCollaboratorFetcher(developerId, listOfDefinitions)
         primeXmlConnectorFetchAll(xmlApis)
 
-        val result = await(objInTest.fetchCombinedApisForDeveloperId(developerId))
+        val result = await(inTest.fetchCombinedApisForDeveloperId(developerId))
         result.size shouldBe 4
         result shouldBe combinedList
       }
@@ -91,7 +91,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, Some(extendedApiDefinition1))
 
 
-        val result = await(objInTest.fetchApiForCollaborator(serviceName, developerId))
+        val result = await(inTest.fetchApiForCollaborator(serviceName, developerId))
         result.size shouldBe 1
         result shouldBe Some(fromExtendedApiDefinition(extendedApiDefinition1))
 
@@ -104,11 +104,54 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, None)
         primeXmlConnectorFetchByServiceName(serviceName, Some(xmlApi1))
 
-        val result = await(objInTest.fetchApiForCollaborator(serviceName, developerId))
+        val result = await(inTest.fetchApiForCollaborator(serviceName, developerId))
         result.size shouldBe 1
         result shouldBe Some(fromXmlApi(xmlApi1))
 
       }
+    }
+
+    "fetchAllCombinedApis" should {
+
+      "return combined list of apis when both services return results" in new SetUp {
+          primeXmlConnectorFetchAll(xmlApis)
+          when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(listOfDefinitions))
+          
+
+          val result = await(inTest.fetchAllCombinedApis())
+          result should contain only (combinedList: _*)
+
+      }
+
+      "return combined list of apis when only xml service returns results" in new SetUp {
+          primeXmlConnectorFetchAll(xmlApis)
+          when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(List.empty))
+
+          val expectedResults = xmlApis.map(fromXmlApi)
+            
+          val result = await(inTest.fetchAllCombinedApis())
+          result should contain only (expectedResults: _*)
+      }
+
+      "return combined list of apis when only AllApisFetcher returns results" in new SetUp {
+          primeXmlConnectorFetchAll(List.empty)
+          when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(listOfDefinitions))
+
+          val expectedResults = listOfDefinitions.map(fromApiDefinition)
+
+          val result = await(inTest.fetchAllCombinedApis())
+          result should contain only (expectedResults: _*)        
+      }
+
+      
+      "return empty list of apis when no results returned from either service" in new SetUp {
+          primeXmlConnectorFetchAll(List.empty)
+          when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(List.empty))
+
+          val result = await(inTest.fetchAllCombinedApis())
+          result shouldBe Nil        
+      }
+
     }
 
   }
