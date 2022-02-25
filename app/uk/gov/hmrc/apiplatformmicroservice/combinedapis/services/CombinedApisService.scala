@@ -26,10 +26,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
 
 @Singleton
 class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
-                                    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher, xmlApisConnector: XmlApisConnector)
+                                    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
+                                    xmlApisConnector: XmlApisConnector,
+                                    allApisFetcher: AllApisFetcher)
                                    (implicit ec: ExecutionContext) {
 
 
@@ -47,5 +50,12 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
       case Some(y: ExtendedApiDefinition) => Future.successful(Some(fromExtendedApiDefinition(y)))
       case _ => xmlApisConnector.fetchXmlApiByServiceName(serviceName).map(_.map(fromXmlApi))
     }
+  }
+
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+    for {
+      restApis <- allApisFetcher.fetch()
+      xmlApis <- xmlApisConnector.fetchAllXmlApis()
+    } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 }
