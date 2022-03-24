@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, status}
 import play.api.test.{FakeRequest, StubControllerComponentsFactory}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessType, ApiCategory}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApiJsonFormatters, CombinedApi}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
@@ -38,7 +38,7 @@ class CombinedApisOldControllerSpec extends AsyncHmrcSpec with StubControllerCom
     val userId = Some(UserId(UUID.randomUUID()))
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest = new CombinedApisOldController(mockCombinedApisService, stubControllerComponents())
-    val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API))
+    val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API, ApiAccessType.PUBLIC), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API, ApiAccessType.PUBLIC))
 
     def primeCombinedApisService(userId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(userId))(*)).thenReturn(Future.successful(apis))

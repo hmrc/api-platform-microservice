@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessRules, ExtendedApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
+import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,7 +35,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
                                     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
                                     xmlApisConnector: XmlApisConnector,
                                     allApisFetcher: AllApisFetcher)
-                                   (implicit ec: ExecutionContext) {
+                                   (implicit ec: ExecutionContext) extends ApiAccessRules {
 
 
   def fetchCombinedApisForDeveloperId(userId: Option[UserId])
@@ -55,7 +57,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
-      restApis <- allApisFetcher.fetch()
+      restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }

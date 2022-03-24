@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRE
 @Singleton
 class OpenAccessApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext) extends OpenAccessRules {
+  )(implicit ec: ExecutionContext) {
 
   private def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
     val filteredVersions = definition.versions.filterNot(_.status == RETIRED)

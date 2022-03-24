@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 @Singleton
 class ApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext) extends OpenAccessRules {
+  )(implicit ec: ExecutionContext) {
 
   def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apiDefinitionService(environment).fetchAllApiDefinitions
