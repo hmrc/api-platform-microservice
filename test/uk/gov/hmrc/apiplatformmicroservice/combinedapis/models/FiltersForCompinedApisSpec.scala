@@ -18,11 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import cats.data.NonEmptyList
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterForCompinedApis
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCompinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class FilterForCompinedApisSpec extends AsyncHmrcSpec with  FilterForCompinedApis{
+class FiltersForCompinedApisSpec extends AsyncHmrcSpec with  FiltersForCompinedApis{
 
   val endpoint1 = Endpoint("endpoint1", "/some/endpoint1", HttpMethod.POST, AuthType.USER)
   def versionDefinition(version : String, status: ApiStatus, apiAccess: ApiAccess) ={
@@ -39,7 +39,7 @@ class FilterForCompinedApisSpec extends AsyncHmrcSpec with  FilterForCompinedApi
   val api1mixedAccess = newDefinition(mixedAccessVersions)
 
 
-  "ApiAccessRules" when {
+  "FiltersForCompinedApis" when {
 
     "allVersionsArePublicAccess" should {
       "return true when an apis has only public accessTypes" in {

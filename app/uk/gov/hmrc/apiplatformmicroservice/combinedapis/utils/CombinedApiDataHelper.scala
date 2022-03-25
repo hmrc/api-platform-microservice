@@ -18,25 +18,17 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{FilterForCompinedApis, FilterApis}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{FiltersForCompinedApis, FilterApis}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
-object CombinedApiDataHelper extends FilterForCompinedApis {
+object CombinedApiDataHelper extends FiltersForCompinedApis {
   private def determineApiAccessType(api: ApiDefinition): ApiAccessType ={
     if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
   }
   private def determineApiAccessType(api: ExtendedApiDefinition): ApiAccessType ={
     if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
-  }
-
-   def filterOutRetiredApis(definitions: List[ApiDefinition]): List[ApiDefinition] = {
-     def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-       val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
-       if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
-     }
-     definitions.flatMap(filterOutRetiredVersions)
   }
 
   def fromApiDefinition(api: ApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
