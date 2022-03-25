@@ -54,7 +54,18 @@ class ApiAccessRulesSpec extends AsyncHmrcSpec with ApiAccessRules {
       "not filter out api with only one version retired"  in {
         val testData = List(api1AllPublic, api1mixedAccess, api1AllPublic.copy(serviceName = "newName"))
         val filteredList = CombinedApiDataHelper.filterOutRetiredApis(testData)
-        filteredList should contain only (testData : _*)
+        filteredList should contain only (api1AllPublic, api1AllPublic.copy(serviceName = "newName"),
+          api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, PublicApiAccess()),
+            versionDefinition("1.0", ApiStatus.STABLE, PrivateApiAccess()))))
+      }
+
+      "filter out api with only retired versions"  in {
+        val apiWithOnlyRetiredVersions = api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.RETIRED, PublicApiAccess()),
+            versionDefinition("2.0", ApiStatus.RETIRED, PublicApiAccess()),
+            versionDefinition("3.0", ApiStatus.RETIRED, PrivateApiAccess())))
+        val testData = List(api1AllPublic, api1AllPublic.copy(serviceName = "newName"), apiWithOnlyRetiredVersions)
+        val filteredList = CombinedApiDataHelper.filterOutRetiredApis(testData)
+        filteredList should contain only (api1AllPublic, api1AllPublic.copy(serviceName = "newName"))
       }
     }
   }

@@ -32,7 +32,8 @@ object CombinedApiDataHelper extends ApiAccessRules{
 
    def filterOutRetiredApis(definitions: List[ApiDefinition]): List[ApiDefinition] = {
      def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-       if(definition.versions.forall(_.status == ApiStatus.RETIRED)) None else Some(definition)
+       val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
+       if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
      }
      definitions.flatMap(filterOutRetiredVersions)
   }
