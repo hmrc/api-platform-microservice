@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-trait ApiAccessRules {
+trait OpenAccessRules {
   
   def isPublicAccess(a: ApiAccess): Boolean = a match {
     case PublicApiAccess() => true
     case _ => false
   }
-  def isPublicAccess(availability: Option[ApiAvailability]): Boolean = availability.exists(x => isPublicAccess(x.access))
-
-  def allVersionsArePublicAccess(a: ApiDefinition): Boolean = a.versions.forall(v => isPublicAccess(v.access))
-  def isPublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isPublicAccess(v.productionAvailability) && isPublicAccess(v.sandboxAvailability))
 
   def isOpenAccess(e: Endpoint): Boolean = e.authType == AuthType.NONE
   def isOpenAccess(v: ApiVersionDefinition): Boolean = v.endpoints.toList.forall(e => isOpenAccess(e))

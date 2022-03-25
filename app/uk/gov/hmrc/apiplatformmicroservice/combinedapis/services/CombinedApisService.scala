@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessRules, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ExtendedApiDefinition, OpenAccessRules}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
@@ -35,7 +35,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
                                     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
                                     xmlApisConnector: XmlApisConnector,
                                     allApisFetcher: AllApisFetcher)
-                                   (implicit ec: ExecutionContext) extends ApiAccessRules {
+                                   (implicit ec: ExecutionContext) extends OpenAccessRules {
 
 
   def fetchCombinedApisForDeveloperId(userId: Option[UserId])
@@ -43,7 +43,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
     for {
       restApis <- apiDefinitionsForCollaboratorFetcher.fetch(userId)
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
-    } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
+    } yield restApis.map(fromApiDefinition).distinct ++ xmlApis.map(fromXmlApi)
   }
 
   @deprecated("please use fetchCombinedApiByServiceName", "2022")

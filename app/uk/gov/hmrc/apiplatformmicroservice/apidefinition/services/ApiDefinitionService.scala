@@ -27,9 +27,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessRules
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.OpenAccessRules
 
-abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with ApiAccessRules {
+abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 

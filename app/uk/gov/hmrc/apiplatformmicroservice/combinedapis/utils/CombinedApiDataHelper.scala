@@ -17,17 +17,18 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessRules, ApiAccessType, ApiDefinition, ApiStatus, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{FilterForCompinedApis, FilterApis}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
-object CombinedApiDataHelper extends ApiAccessRules{
+object CombinedApiDataHelper extends FilterForCompinedApis {
   private def determineApiAccessType(api: ApiDefinition): ApiAccessType ={
     if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
   }
   private def determineApiAccessType(api: ExtendedApiDefinition): ApiAccessType ={
-    if(isPublicAccess(api)) PUBLIC else PRIVATE
+    if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
   }
 
    def filterOutRetiredApis(definitions: List[ApiDefinition]): List[ApiDefinition] = {

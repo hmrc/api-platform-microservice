@@ -17,11 +17,12 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import cats.data.NonEmptyList
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccess, ApiAccessRules, ApiAccessType, ApiContext, ApiDefinition, ApiStatus, ApiVersion, ApiVersionDefinition, AuthType, Endpoint, HttpMethod, PrivateApiAccess, PublicApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterForCompinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class ApiAccessRulesSpec extends AsyncHmrcSpec with ApiAccessRules {
+class FilterForCompinedApisSpec extends AsyncHmrcSpec with  FilterForCompinedApis{
 
   val endpoint1 = Endpoint("endpoint1", "/some/endpoint1", HttpMethod.POST, AuthType.USER)
   def versionDefinition(version : String, status: ApiStatus, apiAccess: ApiAccess) ={
