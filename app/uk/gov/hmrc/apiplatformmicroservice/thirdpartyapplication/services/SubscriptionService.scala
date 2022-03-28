@@ -33,6 +33,11 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.PublicApiAccess
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersionDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
+
 
 @Singleton
 class SubscriptionService @Inject()(
@@ -67,11 +72,44 @@ class SubscriptionService @Inject()(
         (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => successful(CreateSubscriptionDuplicate)
           case (false, _) => successful(CreateSubscriptionDenied)
-          case _ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess)
+          case _ => subscribeToApi(application, newSubscriptionApiIdentifier)
         }
       }
     )
   }
+
+  type ApiMap[V] = Map[ApiContext, Map[ApiVersion, V]]
+  type FieldMap[V] = ApiMap[Map[FieldName,V]]
+
+  private def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateSuccessful] = {
+
+    def ensureEmptyValuesWhenNoneExists(fieldDefinitions: Seq[SubscriptionFieldsDomain.SubscriptionFieldDefinition]): Future[Unit] = {
+      for {
+        oldValues <- subscriptionFieldsService.fetchFieldsValues(application, fieldDefinitions, apiIdentifier)
+        saveResponse <- subscriptionFieldsService.saveBlankFieldValues(application, apiIdentifier.context, apiIdentifier.version, oldValues)
+      } yield saveResponse match {
+        case SaveSubscriptionFieldsSuccessResponse => ()
+        case error =>
+          val errorMessage = s"Failed to save blank subscription field values: $error"
+          throw new RuntimeException(errorMessage)
+      }
+    }
+
+    def ensureSavedValuesForAnyDefinitions(defns: Seq[SubscriptionFieldsDomain.SubscriptionFieldDefinition]): Future[Unit] = {
+      if (defns.nonEmpty) {
+        ensureEmptyValuesWhenNoneExists(defns)
+      } else {
+        Future.successful(())
+      }
+    }
+
+    val fieldDefinitions: Future[Seq[SubscriptionFieldsDomain.SubscriptionFieldDefinition]] = subscriptionFieldsService.getFieldDefinitions(application, apiIdentifier)
+
+    fieldDefinitions
+      .flatMap(ensureSavedValuesForAnyDefinitions)
+      .flatMap(_ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess))
+  }
+
 }
 
 object SubscriptionService {

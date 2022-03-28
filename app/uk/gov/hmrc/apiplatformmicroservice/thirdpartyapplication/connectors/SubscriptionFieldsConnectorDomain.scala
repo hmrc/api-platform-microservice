@@ -17,22 +17,19 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.{ApplicationJsonFormatters, FieldsJsonFormatters}
-
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
-  case class SubscriptionFields(
+  case class SimpleSubscriptionFields(
       apiContext: ApiContext,
       apiVersion: ApiVersion,
       fields: Map[FieldName, FieldValue])
 
-  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
+  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SimpleSubscriptionFields])
 
   case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
 
@@ -55,7 +52,7 @@ object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
+  def asMapOfMaps(subscriptions: Seq[SimpleSubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
     import cats._
     import cats.implicits._
     type MapType = Map[ApiVersion, Map[FieldName, FieldValue]]
@@ -75,15 +72,15 @@ object SubscriptionFieldsConnectorDomain {
   trait SubscriptionFieldValuesJsonFormatters extends ApplicationJsonFormatters with CommonJsonFormatters {
     import play.api.libs.json._
 
-    implicit val writeSubscriptionFields: OWrites[SubscriptionFields] = Json.writes[SubscriptionFields]
+    implicit val writeSubscriptionFields: OWrites[SimpleSubscriptionFields] = Json.writes[SimpleSubscriptionFields]
 
     import play.api.libs.functional.syntax._
 
-    implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
+    implicit val readsSubscriptionFields: Reads[SimpleSubscriptionFields] = (
       (JsPath \ "apiContext").read[ApiContext] and
         (JsPath \ "apiVersion").read[ApiVersion] and
         (JsPath \ "fields").read[Map[FieldName, FieldValue]]
-    )(SubscriptionFields.apply _)
+    )(SimpleSubscriptionFields.apply _)
 
     implicit val readsBulkSubscriptionFieldsResponse: Reads[BulkSubscriptionFieldsResponse] = Json.reads[BulkSubscriptionFieldsResponse]
   }

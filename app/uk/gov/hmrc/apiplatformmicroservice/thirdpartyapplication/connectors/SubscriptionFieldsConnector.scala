@@ -22,13 +22,12 @@ import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
-
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
 import scala.concurrent.{ExecutionContext, Future}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
@@ -36,6 +35,8 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
+
+
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {

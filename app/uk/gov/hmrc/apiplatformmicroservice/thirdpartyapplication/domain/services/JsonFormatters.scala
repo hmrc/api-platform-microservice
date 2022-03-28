@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.service
 import play.api.libs.json.Json.JsValueWrapper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._
@@ -88,7 +89,6 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 object ApplicationJsonFormatters extends ApplicationJsonFormatters
 
 trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with NonEmptyListFormatters {
-  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.DevhubAccessRequirement._
   // TODO switch to easier Enumeratum

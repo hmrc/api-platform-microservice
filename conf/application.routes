@@ -1,13 +1,9 @@
 # microservice specific routes
 
 GET        /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchAppplicationById(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
+POST       /:id/collaborators                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.addCollaborator(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
+POST       /:id/uplift                                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.upliftApplication(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
+GET        /:id/linked-subordinate                            uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchLinkedSubordinateApplication(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
 
 POST       /:id/subscriptions                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApi(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, restricted: Option[Boolean])
-
 GET        /:id/upliftableSubscriptions                       uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.fetchUpliftableSubscriptions(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
-
-POST       /:id/collaborators                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.addCollaborator(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
-
-POST       /:id/uplift                                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.upliftApplication(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
-
-GET        /:id/linked-subordinate                            uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchLinkedSubordinateApplication(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
