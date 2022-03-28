@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
 
 import cats.data.{NonEmptyList => NEL}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
 
 sealed trait ValidationRule
 

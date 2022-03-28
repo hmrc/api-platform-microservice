@@ -21,6 +21,7 @@ import java.time.Period
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
 import java.util.UUID
 
 case class ClientId(value: String) extends AnyVal

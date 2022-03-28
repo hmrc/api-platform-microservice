@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.f
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion, ApiIdentifier}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.FieldName
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinitionType
 

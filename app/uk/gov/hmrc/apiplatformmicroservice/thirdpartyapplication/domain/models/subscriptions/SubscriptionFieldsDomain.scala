@@ -17,7 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{FieldName, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.AccessRequirements
 
