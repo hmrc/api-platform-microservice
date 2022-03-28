@@ -21,12 +21,13 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{FieldValue, ClientId}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 
 @Singleton
 class SubscriptionFieldsFetcher @Inject()(

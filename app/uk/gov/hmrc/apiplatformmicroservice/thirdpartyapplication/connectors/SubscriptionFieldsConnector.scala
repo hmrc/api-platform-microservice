@@ -23,20 +23,22 @@ import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
+  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -48,7 +50,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
 
   protected def http: HttpClient
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
     import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
 
     http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefinitions)
@@ -58,7 +60,7 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   def bulkFetchFieldValues(
       clientId: ClientId
     )(implicit hc: HeaderCarrier
-    ): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
+    ): Future[ApiFieldMap[FieldValue]] = {
     import SubscriptionFieldsConnectorDomain.SubscriptionFieldValuesJsonFormatters._
 
     val url = urlBulkSubscriptionFieldValues(clientId)

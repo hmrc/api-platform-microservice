@@ -21,11 +21,8 @@ import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 trait CommonJsonFormatters {
   // TODO - move these
-  implicit val formatFieldName = Json.valueFormat[FieldName]
-
   implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
-
 }
 
 object CommonJsonFormatters extends CommonJsonFormatters

@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
+package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import play.api.libs.json.Json
-import play.api.libs.json.JsSuccess
 
-class FieldNameAndValueSpec extends HmrcSpec with ApplicationJsonFormatters {
-  "JsonFormatter" should {
-    "Read raw map" in {
-      import play.api.libs.json._
-      Json.fromJson[Map[FieldName, FieldValue]](Json.parse("""{ "a": "1", "b": "2" }""")) shouldBe JsSuccess(Map(FieldName("a") -> FieldValue("1"), FieldName("b") -> FieldValue("2")))
-    }
-  }
+case class FieldValue(value: String) extends AnyVal
+
+object FieldValue {
+  implicit val format = Json.valueFormat[FieldValue]
 }

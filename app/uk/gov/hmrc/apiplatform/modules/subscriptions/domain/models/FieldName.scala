@@ -16,4 +16,10 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
+import play.api.libs.json.Json
+
 case class FieldName(value: String) extends AnyVal
+
+object FieldName {
+  implicit val format = Json.valueFormat[FieldName]
+}

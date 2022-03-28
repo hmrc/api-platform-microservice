@@ -17,14 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.{ApplicationJsonFormatters, FieldsJsonFormatters}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.FieldValue
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
   case class SubscriptionFields(
@@ -38,7 +38,7 @@ object SubscriptionFieldsConnectorDomain {
 
   case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
 
-  def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]] = {
+  def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
     import cats.implicits._
     type MapType = Map[ApiVersion, Map[FieldName, FieldDefinition]]
@@ -55,7 +55,7 @@ object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = {
+  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): ApiFieldMap[FieldValue] = {
     import cats._
     import cats.implicits._
     type MapType = Map[ApiVersion, Map[FieldName, FieldValue]]
