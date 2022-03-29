@@ -25,13 +25,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
-    val email = EmailIdentifier("joebloggs@example.com")
+    val email = UserId.random
     val subordinateApplicationIds = (1 to 3).map(_ => ApplicationId.random)
     val principalApplicationIds = (1 to 2).map(_ => ApplicationId.random)
     val underTest = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
@@ -39,8 +39,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
   "ApplicationIdsForCollaboratorFetcher" should {
     "concatenate both subordinate and principal application Ids" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(subordinateApplicationIds: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest.fetch(email))
 
@@ -48,8 +48,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "return subordinate application Ids if there are no matching principal applications" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(subordinateApplicationIds: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(subordinateApplicationIds: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest.fetch(email))
 
@@ -57,8 +57,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "return principal application Ids if there are no matching subordinate applications" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest.fetch(email))
 
@@ -66,8 +66,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     }
 
     "return an empty sequence if there are no matching applications in any environment" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
 
       val result = await(underTest.fetch(email))
 
@@ -76,8 +76,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "return principal application Ids if something goes wrong in subordinate" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(principalApplicationIds: _*)
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
       val result = await(underTest.fetch(email))
 
@@ -86,8 +86,8 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "throw exception if something goes wrong in principal" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willReturnApplicationIds(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
+      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
+      PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
         await(underTest.fetch(email))

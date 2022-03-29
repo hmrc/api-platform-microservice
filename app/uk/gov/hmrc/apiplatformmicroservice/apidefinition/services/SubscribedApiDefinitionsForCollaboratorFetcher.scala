@@ -22,9 +22,9 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, 
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
 class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
@@ -33,10 +33,10 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetch(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
-      apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(developerId))
-      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(developerId)
+      apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
+      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(userId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 

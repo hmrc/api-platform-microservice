@@ -21,11 +21,11 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.BasicCombinedApiJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
 class CombinedApisOldController @Inject()(combinedApisService: CombinedApisService, cc: ControllerComponents)
@@ -33,14 +33,14 @@ class CombinedApisOldController @Inject()(combinedApisService: CombinedApisServi
 
 
   @deprecated("please use getCombinedApisForDeveloper in CombinedApisController")
-  def getCombinedApisForDeveloper(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
-    combinedApisService.fetchCombinedApisForDeveloperId(developerId)
+  def getCombinedApisForDeveloper(userId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
+    combinedApisService.fetchCombinedApisForDeveloperId(userId)
       .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
  @deprecated("please use fetchApiForCollaborator in CombinedApisController")
-  def fetchApiForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]) = Action.async { implicit request =>
-    combinedApisService.fetchApiForCollaborator(serviceName, developerId)
+  def fetchApiForCollaborator(serviceName: String, userId: Option[UserId]) = Action.async { implicit request =>
+    combinedApisService.fetchApiForCollaborator(serviceName, userId)
       .map(x => Ok(Json.toJson(x))) recover recovery
 
   }

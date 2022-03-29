@@ -20,7 +20,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, Ap
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,6 +28,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -39,7 +39,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val mockXmlApisConnector = mock[XmlApisConnector]
     val mockAllApisFetcher = mock[AllApisFetcher]
     val inTest = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockAllApisFetcher)
-    val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
+    val developerId = Some(UserId.random)
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
     val apiDefinition2 = apiDefinition(name = "service2").copy( categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
@@ -52,12 +52,12 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val xmlApis = List(xmlApi1, xmlApi2)
 
     val combinedList = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
-    def primeApiDefinitionsForCollaboratorFetcher(developerIdentifier: Option[DeveloperIdentifier], apisToReturn: List[ApiDefinition]) ={
+    def primeApiDefinitionsForCollaboratorFetcher(developerIdentifier: Option[UserId], apisToReturn: List[ApiDefinition]) ={
       when(mockApiDefinitionsForCollaboratorFetcher.fetch(eqTo(developerIdentifier))(*))
         .thenReturn(Future.successful(apisToReturn))
     }
 
-    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[DeveloperIdentifier], apiToReturn: Option[ExtendedApiDefinition]) = {
+    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedApiDefinition]) = {
       when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(*))
         .thenReturn(Future.successful(apiToReturn))
     }

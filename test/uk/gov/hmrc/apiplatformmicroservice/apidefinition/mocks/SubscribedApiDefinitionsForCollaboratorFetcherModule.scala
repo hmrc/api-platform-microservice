@@ -22,6 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.SubscribedApiDefinitionsForCollaboratorFetcher
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait SubscribedApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -29,12 +30,11 @@ trait SubscribedApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with
     val aMock = mock[SubscribedApiDefinitionsForCollaboratorFetcher]
 
     def willReturnApiDefinitions(apis: ApiDefinition*) = {
-      when(aMock.fetch(*)(*)).thenReturn(Future.successful(apis.toList))
+      when(aMock.fetch(*[UserId])(*)).thenReturn(Future.successful(apis.toList))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock.fetch(*)(*)).thenReturn(Future.failed(e))
+      when(aMock.fetch(*[UserId])(*)).thenReturn(Future.failed(e))
     }
   }
-
 }

@@ -17,14 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.{DeveloperIdentifier, EmailIdentifier}
-import play.api.Logger
 
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
-
-  private val logger: Logger = Logger("application")
 
    implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
     override def bind(key: String, value: String): Either[String, Environment] = {
@@ -93,44 +89,6 @@ package object binders {
 
     override def unbind(key: String, version: ApiVersion): String = {
       textBinder.unbind(key, version.value)
-    }
-  }
-
-  private def warnOnEmailId(id: DeveloperIdentifier): DeveloperIdentifier = id match {
-    case EmailIdentifier(_) => logger.warn("Still using emails as identifier"); id
-    case _ => id
-  }
-
-  implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
-    override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
-      for {
-        text <- textBinder.bind(key, value)
-        id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
-        _ = warnOnEmailId(id)
-      } yield id
-    }
-
-    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      DeveloperIdentifier.asText(warnOnEmailId(developerId))
-    }
-  }
-
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
-      for {
-        textOrBindError <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
-      } yield textOrBindError match {
-        case Right(idText) =>
-          for {
-            id <- DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
-            _ = warnOnEmailId(id)
-          } yield id
-        case _ => Left("Unable to bind a developer identifier")
-      }
-    }
-
-    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      textBinder.unbind("developerId", DeveloperIdentifier.asText(warnOnEmailId(developerId)))
     }
   }
 }

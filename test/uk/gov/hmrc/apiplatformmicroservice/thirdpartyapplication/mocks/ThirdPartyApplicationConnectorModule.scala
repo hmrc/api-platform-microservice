@@ -49,26 +49,26 @@ trait ThirdPartyApplicationConnectorModule {
       }
     }
 
-    object FetchApplicationsByEmail {
+    object FetchApplicationsByUserId {
 
       def willReturnApplicationIds(applicationIds: ApplicationId*) = {
-        when(aMock.fetchApplications(*)(*)).thenReturn(successful(applicationIds))
+        when(aMock.fetchApplications(*[UserId])(*)).thenReturn(successful(applicationIds))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApplications(*)(*))
+        when(aMock.fetchApplications(*[UserId])(*))
           .thenReturn(failed(e))
       }
     }
 
-    object FetchSubscriptionsByEmail {
+    object FetchSubscriptionsByUserId {
 
       def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
-        when(aMock.fetchSubscriptions(*)(*)).thenReturn(successful(subscriptions))
+        when(aMock.fetchSubscriptions(*[UserId])(*)).thenReturn(successful(subscriptions))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchSubscriptions(*)(*)).thenReturn(failed(e))
+        when(aMock.fetchSubscriptions(*[UserId])(*)).thenReturn(failed(e))
       }
     }
 
