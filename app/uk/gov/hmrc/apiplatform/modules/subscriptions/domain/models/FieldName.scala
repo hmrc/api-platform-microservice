@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 case class FieldName(value: String) extends AnyVal
 
 object FieldName {
   implicit val format = Json.valueFormat[FieldName]
+  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
+  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 }

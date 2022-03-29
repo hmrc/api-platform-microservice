@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
+// NOT TO BE USED FOR JSON FORMATTING !!
 object ThreeDMap {
 
   type Type[X,Y,Z,V] = Map[X, Map[Y, Map[Z, V]]]

@@ -20,9 +20,9 @@ import cats.data.{NonEmptyList => NEL}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{PRIVATE, PUBLIC}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 
-trait BasicApiDefinitionJsonFormatters extends CommonJsonFormatters {
+trait BasicApiDefinitionJsonFormatters {
   implicit val formatApiContext: Format[ApiContext] = Json.valueFormat[ApiContext]
   implicit val formatApiVersion: Format[ApiVersion] = Json.valueFormat[ApiVersion]
   implicit val formatApiCategory: Format[ApiCategory] = Json.valueFormat[ApiCategory]
@@ -52,7 +52,7 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
   implicit val endpointWrites: Writes[Endpoint] = Json.writes[Endpoint]
 }
 
-trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters with CommonJsonFormatters {
+trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters {
   import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
   implicit val apiAccessReads: Reads[ApiAccess] = (

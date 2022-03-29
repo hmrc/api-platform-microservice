@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.{CommonJsonFormatters, NonEmptyListFormatters}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.{ApplicationJsonFormatters, FieldsJsonFormatters}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 
@@ -72,7 +72,7 @@ object SubscriptionFieldsConnectorDomain {
     )
   }
 
-  trait SubscriptionFieldValuesJsonFormatters extends ApplicationJsonFormatters with CommonJsonFormatters {
+  trait SubscriptionFieldValuesJsonFormatters extends ApplicationJsonFormatters {
     import play.api.libs.json._
 
     implicit val writeSubscriptionFields: OWrites[SubscriptionFields] = Json.writes[SubscriptionFields]
