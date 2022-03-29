@@ -22,7 +22,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 trait SubscriptionFieldsConnectorModule {

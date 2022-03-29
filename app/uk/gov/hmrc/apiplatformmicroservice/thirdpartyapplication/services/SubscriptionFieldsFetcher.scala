@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldDefinition
 import scala.concurrent.Future
 
 @Singleton

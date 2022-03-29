@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
+package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
 case class AccessRequirements(devhub: DevhubAccessRequirements)
 

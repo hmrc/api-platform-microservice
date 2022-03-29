@@ -32,7 +32,7 @@ class FieldDefinitionsController @Inject() (
   )(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.FieldsJsonFormatters._
+  import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters._
 
   def fetchFieldDefinitions(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
     subscriptionsFieldsConnector(environment).bulkFetchFieldDefinitions.map(fds => {

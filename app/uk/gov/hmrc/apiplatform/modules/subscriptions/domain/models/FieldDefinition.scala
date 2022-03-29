@@ -14,26 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
+package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-import cats.data.{NonEmptyList => NEL}
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldName
-
-sealed trait ValidationRule
-
-case class RegexValidationRule(regex: String) extends ValidationRule
-case object UrlValidationRule extends ValidationRule
-case class ValidationGroup(errorMessage: String, rules: NEL[ValidationRule])
-
-object FieldDefinitionType extends Enumeration {
-  type FieldDefinitionType = Value
-
-  @deprecated("We don't use URL type for any validation", since = "0.5x")
-  val URL = Value("URL")
-  val SECURE_TOKEN = Value("SecureToken")
-  val STRING = Value("STRING")
-  val PPNS_FIELD = Value("PPNSField")
-}
 
 case class FieldDefinition(
     name: FieldName,

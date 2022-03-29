@@ -28,9 +28,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
