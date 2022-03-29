@@ -12,11 +12,12 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisMock
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import java.util.UUID
 
 
 class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMock with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters {
@@ -36,7 +37,7 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
     val xmlApis = Seq(xmlApi1, xmlApi2)
 
-    val developerId = DeveloperIdentifier("e8d1adb7-e211-4da2-89e8-2bf089a01833").get
+    val developerId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
   }
 
   "CombinedApisController" should {

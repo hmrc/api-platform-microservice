@@ -12,12 +12,13 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisMock
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import java.util.UUID
 
 
 class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
@@ -38,7 +39,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
     val xmlApis = Seq(xmlApi1, xmlApi2)
 
-    val developerId = DeveloperIdentifier("e8d1adb7-e211-4da2-89e8-2bf089a01833").get
+    val developerId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
     val apiDefinition2 = apiDefinition(name = "service2").copy( categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))

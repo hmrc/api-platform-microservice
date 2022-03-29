@@ -31,7 +31,6 @@ import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import play.api.libs.json.Json
 
@@ -68,9 +67,9 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
 trait ThirdPartyApplicationConnector {
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
 
-  def fetchApplications(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
+  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
 
-  def fetchSubscriptions(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
+  def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
@@ -104,16 +103,12 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
     http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
   }
 
-  def fetchApplications(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    developerId match {
-      case UuidIdentifier(userId) => http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.value}/applications").map(_.map(_.id))
-    }
+  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.value}/applications").map(_.map(_.id))
   }
 
-  def fetchSubscriptions(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    developerId match {
-      case UuidIdentifier(userId) => http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId.value}/subscriptions")
-    }
+  def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
+    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId.value}/subscriptions")
   }
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {

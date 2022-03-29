@@ -1,4 +1,4 @@
 # microservice specific routes
 
-GET        /                    uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisOldController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
-GET        /:serviceName        uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisOldController.fetchApiForCollaborator(serviceName: String, developerId: Option[uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier])
+GET        /                    uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisOldController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId])
+GET        /:serviceName        uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisOldController.fetchApiForCollaborator(serviceName: String, developerId: Option[uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId])

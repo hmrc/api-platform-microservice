@@ -79,7 +79,7 @@ package object binders {
     }
 
     override def unbind(key: String, userId: UserId): String = {
-      userId.value.toString()
+      userId.asText
     }
   }
 

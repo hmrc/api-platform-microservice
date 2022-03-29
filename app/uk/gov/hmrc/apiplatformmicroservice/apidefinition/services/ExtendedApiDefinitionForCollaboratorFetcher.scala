@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
@@ -36,7 +36,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
   )(implicit ec: ExecutionContext) {
 
-  def fetch(serviceName: String, developerId: Option[DeveloperIdentifier])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
+  def fetch(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     for {
       principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
@@ -50,7 +50,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateDefinition: Option[ApiDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[DeveloperIdentifier]
+      developerId: Option[UserId]
     ): Option[ExtendedApiDefinition] = {
 
     def toCombinedApiDefinition(
@@ -96,7 +96,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subordinateVersions: List[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[DeveloperIdentifier]
+      developerId: Option[UserId]
     ): List[ExtendedApiVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
     allVersions map { version =>
@@ -112,7 +112,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateVersion: Option[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[DeveloperIdentifier]
+      developerId: Option[UserId]
     ): ExtendedApiVersion = {
 
     (maybePrincipalVersion, maybeSubordinateVersion) match {
@@ -141,7 +141,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[DeveloperIdentifier]): Option[ApiAvailability] = {
+  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[UserId]): Option[ApiAvailability] = {
     version.access match {
       case PrivateApiAccess(allowlist, isTrial) =>
         val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))

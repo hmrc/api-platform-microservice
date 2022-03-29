@@ -161,8 +161,8 @@ class ThirdPartyApplicationConnectorISpec
 
 
   "fetchApplications for a collaborator by user id" should {
-    val userId = UuidIdentifier(UserId.random)
-    val url = s"/developer/${userId.userId.value}/applications"
+    val userId = UserId.random
+    val url = s"/developer/${userId.value}/applications"
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
@@ -199,8 +199,8 @@ class ThirdPartyApplicationConnectorISpec
   import ApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
-    val userId = UuidIdentifier(UserId.random)
-    val url = s"/developer/${userId.userId.value}/subscriptions"
+    val userId = UserId.random
+    val url = s"/developer/${userId.value}/subscriptions"
 
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 

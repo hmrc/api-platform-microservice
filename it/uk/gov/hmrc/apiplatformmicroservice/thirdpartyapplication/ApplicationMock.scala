@@ -4,11 +4,11 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
 import java.util.UUID
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -21,16 +21,16 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, developerIdentifier: DeveloperIdentifier) {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/applications"))
+  def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId) {
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(  aResponse()
         .withStatus(NOT_FOUND)
       ))
   }
 
 
-  def mockFetchApplicationsForDeveloper(deployedTo: Environment, developerIdentifier: DeveloperIdentifier) {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/applications"))
+  def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId) {
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.asText}/applications"))
       .willReturn(
         aResponse()
           .withBody(s"""[{
@@ -118,16 +118,16 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, developerIdentifier: DeveloperIdentifier) {
-    stubFor(env)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/subscriptions"))
+  def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId) {
+    stubFor(env)(get(urlEqualTo(s"/developer/${userId.asText}/subscriptions"))
       .willReturn(
         aResponse()
           .withStatus(NOT_FOUND)
       ))
   }
 
-  def mockFetchSubscriptionsForDeveloper(env: Environment, developerIdentifier: DeveloperIdentifier) {
-    stubFor(env)(get(urlEqualTo(s"/developer/${developerIdentifier.asText}/subscriptions"))
+  def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId) {
+    stubFor(env)(get(urlEqualTo(s"/developer/${userId.asText}/subscriptions"))
       .willReturn(
         aResponse()
           .withBody("""
