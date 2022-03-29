@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -35,7 +35,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    val email = EmailIdentifier("joebloggs@example.com")
+    val email = UserId.random
     val helloWorldDefinition = apiDefinition(helloWorldContext.value, apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
     val helloAgentsDefinition = apiDefinition("hello-agents", apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
     val helloVatDefinition = apiDefinition("hello-vat", apiVersion(versionOne, STABLE))

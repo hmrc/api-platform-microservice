@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait ApplicationIdsForCollaboratorFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -31,11 +32,11 @@ trait ApplicationIdsForCollaboratorFetcherModule {
     object FetchAllApplicationIds {
 
       def willReturnApplicationIds(appIds: ApplicationId*) = {
-        when(aMock.fetch(*)(*)).thenReturn(Future.successful(appIds.toSet))
+        when(aMock.fetch(*[UserId])(*)).thenReturn(Future.successful(appIds.toSet))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetch(*)(*)).thenReturn(Future.failed(e))
+        when(aMock.fetch(*[UserId])(*)).thenReturn(Future.failed(e))
       }
     }
   }

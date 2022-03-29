@@ -20,6 +20,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 import scala.concurrent.Future.{failed, successful}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait SubscriptionsForCollaboratorFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -29,11 +30,11 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 
     def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
-      when(aMock.fetch(*)(*)).thenReturn(successful(subscriptions.toSet))
+      when(aMock.fetch(*[UserId])(*)).thenReturn(successful(subscriptions.toSet))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock.fetch(*)(*)).thenReturn(failed(e))
+      when(aMock.fetch(*[UserId])(*)).thenReturn(failed(e))
     }
   }
 

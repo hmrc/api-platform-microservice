@@ -26,24 +26,23 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApiJsonFormatters, CombinedApi}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters {
 
   trait SetUp {
-    val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
+    val developerId = Some(UserId.random)
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
     val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API))
 
-    def primeCombinedApisService(developerId: Option[DeveloperIdentifier], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
+    def primeCombinedApisService(developerId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
     }
-    def primeCombinedApisServiceForCollaborator(developerId: Option[DeveloperIdentifier], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
+    def primeCombinedApisServiceForCollaborator(developerId: Option[UserId], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
       when(mockCombinedApisService.fetchApiForCollaborator(eqTo(serviceName), eqTo(developerId))(*)).thenReturn(Future.successful(Some(apis)))
     }
 

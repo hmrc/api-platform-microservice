@@ -26,25 +26,25 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApiJsonFormatters, CombinedApi}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class CombinedApisOldControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters {
 
   trait SetUp {
-    val developerId = DeveloperIdentifier(UUID.randomUUID().toString)
+    val userId = Some(UserId(UUID.randomUUID()))
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest = new CombinedApisOldController(mockCombinedApisService, stubControllerComponents())
     val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API))
 
-    def primeCombinedApisService(developerId: Option[DeveloperIdentifier], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
-      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
+    def primeCombinedApisService(userId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
+      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(userId))(*)).thenReturn(Future.successful(apis))
     }
-    def primeCombinedApisServiceForCollaborator(developerId: Option[DeveloperIdentifier], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
-      when(mockCombinedApisService.fetchApiForCollaborator(eqTo(serviceName), eqTo(developerId))(*)).thenReturn(Future.successful(Some(apis)))
+    def primeCombinedApisServiceForCollaborator(userId: Option[UserId], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
+      when(mockCombinedApisService.fetchApiForCollaborator(eqTo(serviceName), eqTo(userId))(*)).thenReturn(Future.successful(Some(apis)))
     }
 
   }
@@ -54,9 +54,9 @@ class CombinedApisOldControllerSpec extends AsyncHmrcSpec with StubControllerCom
 
     "getCombinedApisForDeveloper" should {
       "return 200 and apis when service returns apis" in new SetUp {
-        primeCombinedApisService(developerId, combinedApis)
+        primeCombinedApisService(userId, combinedApis)
 
-        val result: Future[Result] = objInTest.getCombinedApisForDeveloper(developerId)(FakeRequest())
+        val result: Future[Result] = objInTest.getCombinedApisForDeveloper(userId)(FakeRequest())
         status(result) shouldBe 200
         contentAsString(result) shouldBe Json.toJson(combinedApis).toString()
       }
@@ -65,9 +65,9 @@ class CombinedApisOldControllerSpec extends AsyncHmrcSpec with StubControllerCom
     "fetchApiForCollaborator" should {
       "return 200 and apis when service returns apis" in new SetUp {
         val serviceName = "some-service-name"
-        primeCombinedApisServiceForCollaborator(developerId, serviceName, combinedApis.head)
+        primeCombinedApisServiceForCollaborator(userId, serviceName, combinedApis.head)
 
-        val result: Future[Result] = objInTest.fetchApiForCollaborator(serviceName, developerId)(FakeRequest())
+        val result: Future[Result] = objInTest.fetchApiForCollaborator(serviceName, userId)(FakeRequest())
         status(result) shouldBe 200
         contentAsString(result) shouldBe Json.toJson(combinedApis.head).toString()
       }

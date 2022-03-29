@@ -30,8 +30,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundExcepti
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
 import akka.stream.testkit.NoMaterializer
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -68,12 +68,12 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
   }
 
   "fetchApiDefinitionsForCollaborator" should {
-    val email = Some(EmailIdentifier("joebloggs@example.com"))
+    val userId = Some(UserId.random)
 
     "return the API definitions when email provided" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
 
-      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
@@ -91,7 +91,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return an empty when there are no api definitions available" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
 
-      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.parse("[]")
@@ -100,7 +100,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return error when the service throws and exception" in new Setup {
       ApiDefinitionsForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
 
-      val result = controller.fetchApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
@@ -108,12 +108,12 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
   }
 
   "fetchSubscribedApiDefinitionsForCollaborator" should {
-    val email = EmailIdentifier("joebloggs@example.com")
+    val userId = UserId.random
 
     "return the API definitions the user is subscribed to" in new Setup {
       SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(anApiDefinition)
 
-      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(List(anApiDefinition))
@@ -122,7 +122,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return an empty List when there are no api definitions available" in new Setup {
       SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
 
-      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.parse("[]")
@@ -131,7 +131,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return error when the service throws and exception" in new Setup {
       SubscribedApiDefinitionsForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
 
-      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(email)(request)
+      val result = controller.fetchSubscribedApiDefinitionsForCollaborator(userId)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
@@ -139,12 +139,12 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
   }
 
   "fetchExtendedApiDefinitionForCollaborator" should {
-    val email = Some(EmailIdentifier("joebloggs@example.com"))
+    val userId = Some(UserId.random)
 
     "return the extended API definition when email provided" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(anExtendedApiDefinition)
@@ -162,7 +162,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return 404 when there is no matching API definition" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 
       status(result) mustBe NOT_FOUND
     }
@@ -170,7 +170,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return error when the service throws and exception" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, email)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")

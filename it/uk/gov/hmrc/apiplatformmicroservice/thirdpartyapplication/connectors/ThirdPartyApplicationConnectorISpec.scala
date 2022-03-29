@@ -46,6 +46,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -159,46 +160,9 @@ class ThirdPartyApplicationConnectorISpec
   }
 
 
-  "fetchApplications for a collaborator by email" should {
-    val email = EmailIdentifier("email@example.com")
-    val url = "/application"
-    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
-
-    
-    "return application Ids" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlPathEqualTo(url))
-        .withQueryParam("emailAddress", equalTo(email.email))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(applicationResponses)
-        )
-      )
-      val result = await(connector.fetchApplications(email))
-
-      result.size shouldBe 2
-      result should contain allOf (applicationIdOne, applicationIdTwo)
-    }
-
-    "propagate error when endpoint returns error" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlPathEqualTo(url))
-        .withQueryParam("emailAddress", equalTo(email.email))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
-      )
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchApplications(email))
-      }.statusCode shouldBe NOT_FOUND
-    }
-  }
-
   "fetchApplications for a collaborator by user id" should {
-    val userId = UuidIdentifier(UserId.random)
-    val url = s"/developer/${userId.userId.value}/applications"
+    val userId = UserId.random
+    val url = s"/developer/${userId.value}/applications"
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
@@ -235,8 +199,8 @@ class ThirdPartyApplicationConnectorISpec
   import ApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
-    val userId = UuidIdentifier(UserId.random)
-    val url = s"/developer/${userId.userId.value}/subscriptions"
+    val userId = UserId.random
+    val url = s"/developer/${userId.value}/subscriptions"
 
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 

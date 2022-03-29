@@ -20,13 +20,13 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefin
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
 class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
@@ -36,17 +36,17 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
                                    (implicit ec: ExecutionContext) {
 
 
-  def fetchCombinedApisForDeveloperId(developerId: Option[DeveloperIdentifier])
+  def fetchCombinedApisForDeveloperId(userId: Option[UserId])
                                      (implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
-      restApis <- apiDefinitionsForCollaboratorFetcher.fetch(developerId)
+      restApis <- apiDefinitionsForCollaboratorFetcher.fetch(userId)
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 
-  def fetchApiForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier])
+  def fetchApiForCollaborator(serviceName: String, userId: Option[UserId])
                              (implicit hc: HeaderCarrier): Future[Option[CombinedApi]]= {
-    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, developerId) flatMap  {
+    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, userId) flatMap  {
       case Some(y: ExtendedApiDefinition) => Future.successful(Some(fromExtendedApiDefinition(y)))
       case _ => xmlApisConnector.fetchXmlApiByServiceName(serviceName).map(_.map(fromXmlApi))
     }

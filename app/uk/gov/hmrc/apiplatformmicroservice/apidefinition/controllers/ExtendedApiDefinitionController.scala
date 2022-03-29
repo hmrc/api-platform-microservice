@@ -29,7 +29,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.DeveloperIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton()
 class ExtendedApiDefinitionController @Inject()(
@@ -43,19 +43,19 @@ class ExtendedApiDefinitionController @Inject()(
     extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
-  def fetchApiDefinitionsForCollaborator(developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
+  def fetchApiDefinitionsForCollaborator(developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
     apiDefinitionsForCollaboratorFetcher.fetch(developerId) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
-  def fetchSubscribedApiDefinitionsForCollaborator(developerId: DeveloperIdentifier): Action[AnyContent] = Action.async { implicit request =>
+  def fetchSubscribedApiDefinitionsForCollaborator(developerId: UserId): Action[AnyContent] = Action.async { implicit request =>
     subscribedApiDefinitionsForCollaboratorFetcher.fetch(developerId) map { definitions =>
       Ok(Json.toJson(definitions))
     } recover recovery
   }
 
-  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, developerId: Option[DeveloperIdentifier]): Action[AnyContent] = Action.async { implicit request =>
+  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
     extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, developerId) map {
       case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
       case _                        => NotFound
