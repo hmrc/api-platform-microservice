@@ -20,7 +20,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJs
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.{ApplicationJsonFormatters, FieldsJsonFormatters}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}

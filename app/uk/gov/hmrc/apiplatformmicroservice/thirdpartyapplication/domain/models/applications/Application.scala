@@ -19,11 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 import java.time.Period
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import java.util.UUID
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 case class ClientId(value: String) extends AnyVal
 

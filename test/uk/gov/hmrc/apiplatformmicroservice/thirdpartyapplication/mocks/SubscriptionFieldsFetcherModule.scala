@@ -21,7 +21,6 @@ import org.mockito.ArgumentMatchersSugar
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 trait SubscriptionFieldsFetcherModule {
