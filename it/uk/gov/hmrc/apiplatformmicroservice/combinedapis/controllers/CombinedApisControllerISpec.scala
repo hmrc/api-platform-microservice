@@ -39,7 +39,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
     val xmlApis = Seq(xmlApi1, xmlApi2)
 
-    val developerId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
+    val userId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
     val apiDefinition2 = apiDefinition(name = "service2").copy( categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
@@ -51,11 +51,11 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
 
       mockFetchApiDefinition(PRODUCTION)
       whenGetAllXmlApis(xmlApis: _*)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
 
      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-       .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+       .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe OK
       val body = result.body
@@ -68,12 +68,12 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     "return INTERNAL_SERVER_ERROR when xml services returns Internal server error" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe INTERNAL_SERVER_ERROR
 
@@ -85,7 +85,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       whenGetAllXmlApis(xmlApis: _*)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe INTERNAL_SERVER_ERROR
@@ -95,11 +95,11 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     "return INTERNAL_SERVER_ERROR when get applications as colloborator returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe INTERNAL_SERVER_ERROR
@@ -109,11 +109,11 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     "return INTERNAL_SERVER_ERROR when get developer subscriptions returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe INTERNAL_SERVER_ERROR
@@ -123,10 +123,10 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     "return INTERNAL_SERVER_ERROR when getcolloborators returns Not Found" in new Setup {
 
       whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloperNotFound(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe INTERNAL_SERVER_ERROR

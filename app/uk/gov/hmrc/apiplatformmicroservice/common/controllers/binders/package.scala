@@ -72,17 +72,6 @@ package object binders {
     }
   }
 
-  
-  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
-    override def bind(key: String, value: String): Either[String, UserId] = {
-      textBinder.bind(key, value).flatMap(userIdFromString)
-    }
-
-    override def unbind(key: String, userId: UserId): String = {
-      userId.asText
-    }
-  }
-
   implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[Environment] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Environment]] = {
@@ -98,6 +87,35 @@ package object binders {
 
     override def unbind(key: String, environment: Environment): String = {
       textBinder.unbind(key, environment.entryName)
+    }
+  }
+
+  
+  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+    override def bind(key: String, value: String): Either[String, UserId] = {
+      textBinder.bind(key, value).flatMap(userIdFromString)
+    }
+
+    override def unbind(key: String, userId: UserId): String = {
+      userId.value.toString
+    }
+  }
+
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[UserId] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
+      for {
+        textOrBindError <- textBinder.bind(key, params)
+      } yield textOrBindError match {
+        case Right(idText) =>
+          for {
+            id <- UserId.parse(idText).toRight(s"Cannot accept $idText as a user identifier")
+          } yield id
+        case _ => Left("Unable to bind a user identifier")
+      }
+    }
+
+    override def unbind(key: String, userId: UserId): String = {
+      textBinder.unbind(key, userId.value.toString)
     }
   }
 

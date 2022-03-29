@@ -37,7 +37,7 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
     val xmlApis = Seq(xmlApi1, xmlApi2)
 
-    val developerId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
+    val userId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
   }
 
   "CombinedApisController" should {
@@ -45,11 +45,11 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
 
       mockFetchApiDefinition(PRODUCTION)
       whenGetAllXmlApis(xmlApis: _*)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
 
      val result =  await(wsClient.url(s"$baseUrl/combined-apis")
-       .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+       .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe 200
       val body = result.body
@@ -62,12 +62,12 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     "return 500 when xml services returns Internal server error" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
       whenGetAllXmlApisReturnsError(500)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-apis")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe 500
 
@@ -79,7 +79,7 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
       whenGetAllXmlApis(xmlApis: _*)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe 500
@@ -89,11 +89,11 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     "return 500 when get applications as colloborator returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe 500
@@ -103,11 +103,11 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     "return 500 when get developer subscriptions returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, developerId)
-      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe 500
@@ -117,10 +117,10 @@ class CombinedApisOldControllerISpec  extends WireMockSpec  with ApiDefinitionMo
     "return 500 when getcolloborators returns Not Found" in new Setup {
 
       whenGetAllDefinitionsFails(PRODUCTION)(500)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION,developerId)
+      mockFetchApplicationsForDeveloperNotFound(PRODUCTION,userId)
 
       val result =  await(wsClient.url(s"$baseUrl/combined-apis/")
-        .withQueryStringParameters("developerId" -> s"${developerId.asText}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
 
       result.status shouldBe 500

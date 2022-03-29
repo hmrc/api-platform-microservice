@@ -37,5 +37,4 @@ trait SubscribedApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with
       when(aMock.fetch(*[UserId])(*)).thenReturn(Future.failed(e))
     }
   }
-
 }

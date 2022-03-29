@@ -22,7 +22,7 @@ trait ApplicationMock {
   }
 
   def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId) {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.asText}/applications"))
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
       .willReturn(  aResponse()
         .withStatus(NOT_FOUND)
       ))
@@ -30,7 +30,7 @@ trait ApplicationMock {
 
 
   def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId) {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.asText}/applications"))
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
       .willReturn(
         aResponse()
           .withBody(s"""[{
@@ -119,7 +119,7 @@ trait ApplicationMock {
   }
 
   def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId) {
-    stubFor(env)(get(urlEqualTo(s"/developer/${userId.asText}/subscriptions"))
+    stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
       .willReturn(
         aResponse()
           .withStatus(NOT_FOUND)
@@ -127,7 +127,7 @@ trait ApplicationMock {
   }
 
   def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId) {
-    stubFor(env)(get(urlEqualTo(s"/developer/${userId.asText}/subscriptions"))
+    stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
       .willReturn(
         aResponse()
           .withBody("""

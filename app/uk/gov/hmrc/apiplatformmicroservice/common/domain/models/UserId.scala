@@ -19,9 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 import java.{util => ju}
 import scala.util.Try
 
-case class UserId(value: ju.UUID) extends AnyVal {
-  def asText: String = this.value.toString
-}
+case class UserId(value: ju.UUID) extends AnyVal
 
 object UserId {
   import play.api.libs.json.Json

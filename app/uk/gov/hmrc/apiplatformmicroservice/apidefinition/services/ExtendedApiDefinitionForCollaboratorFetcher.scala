@@ -50,7 +50,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateDefinition: Option[ApiDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[UserId]
+      userId: Option[UserId]
     ): Option[ExtendedApiDefinition] = {
 
     def toCombinedApiDefinition(
@@ -61,7 +61,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       if (apiDefinition.requiresTrust) {
         None
       } else {
-        val extendedVersions = createExtendedApiVersions(apiDefinition.context, principalVersions, subordinateVersions, applicationIds, subscriptions, developerId)
+        val extendedVersions = createExtendedApiVersions(apiDefinition.context, principalVersions, subordinateVersions, applicationIds, subscriptions, userId)
         if (extendedVersions.isEmpty) {
           None
         } else {
@@ -96,11 +96,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subordinateVersions: List[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[UserId]
+      userId: Option[UserId]
     ): List[ExtendedApiVersion] = {
     val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
     allVersions map { version =>
-      combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, developerId)
+      combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, userId)
     } filter { version =>
       version.status != RETIRED
     }
@@ -112,16 +112,16 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateVersion: Option[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
       subscriptions: Set[ApiIdentifier],
-      developerId: Option[UserId]
+      userId: Option[UserId]
     ): ExtendedApiVersion = {
 
     (maybePrincipalVersion, maybeSubordinateVersion) match {
       case (Some(principalVersion), None)                     =>
-        toExtendedApiVersion(principalVersion, availability(context, principalVersion, applicationIds, subscriptions, developerId), None)
+        toExtendedApiVersion(principalVersion, availability(context, principalVersion, applicationIds, subscriptions, userId), None)
       case (None, Some(subordinateVersion))                   =>
-        toExtendedApiVersion(subordinateVersion, None, availability(context, subordinateVersion, applicationIds, subscriptions, developerId))
+        toExtendedApiVersion(subordinateVersion, None, availability(context, subordinateVersion, applicationIds, subscriptions, userId))
       case (Some(principalVersion), Some(subordinateVersion)) =>
-        toExtendedApiVersion(subordinateVersion, availability(context, principalVersion, applicationIds, subscriptions, developerId), availability(context, subordinateVersion, applicationIds, subscriptions, developerId))
+        toExtendedApiVersion(subordinateVersion, availability(context, principalVersion, applicationIds, subscriptions, userId), availability(context, subordinateVersion, applicationIds, subscriptions, userId))
       case (None, None)                                       =>
         throw new IllegalStateException("It's impossible to get here from the call site")
     }
@@ -141,12 +141,12 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], developerId: Option[UserId]): Option[ApiAvailability] = {
+  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], userId: Option[UserId]): Option[ApiAvailability] = {
     version.access match {
       case PrivateApiAccess(allowlist, isTrial) =>
         val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
-        Some(ApiAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), developerId.isDefined, authorised))
-      case _                                    => Some(ApiAvailability(version.endpointsEnabled, PublicApiAccess(), developerId.isDefined, authorised = true))
+        Some(ApiAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), userId.isDefined, authorised))
+      case _                                    => Some(ApiAvailability(version.endpointsEnabled, PublicApiAccess(), userId.isDefined, authorised = true))
     }
   }
 }
