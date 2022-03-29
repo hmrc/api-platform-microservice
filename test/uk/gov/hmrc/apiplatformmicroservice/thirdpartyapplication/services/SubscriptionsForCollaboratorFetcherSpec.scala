@@ -25,13 +25,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.EmailIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.UuidIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
-    val email = EmailIdentifier("joebloggs@example.com")
+    val developer = UuidIdentifier(UserId.random)
 
     val apiContextHelloWorld = ApiContext("hello-world")
     val apiContextHelloAgents = ApiContext("hello-agents")
@@ -48,7 +49,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(subordinateSubscriptions: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(principalSubscriptions: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(developer))
 
       result shouldBe Set(
         models.ApiIdentifier(apiContextHelloWorld, apiVersionOne),
@@ -61,7 +62,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(subordinateSubscriptions: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(Seq.empty: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(developer))
 
       result should contain theSameElementsAs subordinateSubscriptions
     }
@@ -70,7 +71,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(principalSubscriptions: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(developer))
 
       result should contain theSameElementsAs principalSubscriptions
     }
@@ -79,7 +80,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(Seq.empty: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(developer))
 
       result shouldBe Set.empty
     }
@@ -89,7 +90,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willReturnSubscriptions(principalSubscriptions: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(developer))
 
       result should contain theSameElementsAs principalSubscriptions
     }
@@ -100,7 +101,7 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByEmail.willThrowException(new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
-        await(underTest.fetch(email))
+        await(underTest.fetch(developer))
       }
 
       ex.getMessage shouldBe expectedExceptionMessage
