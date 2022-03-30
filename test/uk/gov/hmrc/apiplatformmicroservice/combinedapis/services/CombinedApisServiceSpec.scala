@@ -16,20 +16,17 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.BETA
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

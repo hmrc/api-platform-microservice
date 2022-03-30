@@ -32,4 +32,4 @@ case class CombinedApi(displayName: String,
                        serviceName: String,
                         categories: List[ApiCategory],
                         apiType: ApiType,
-                        accessType: Option[ApiAccessType])
+                        accessType: ApiAccessType)
