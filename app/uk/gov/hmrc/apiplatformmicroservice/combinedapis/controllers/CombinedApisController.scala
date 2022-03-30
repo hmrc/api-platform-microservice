@@ -37,17 +37,22 @@ class CombinedApisController @Inject()(combinedApisService: CombinedApisService,
       .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
-
+@deprecated("please use fetchApiByServiceName", "")
   def fetchApiForCollaborator(serviceName: String, userId: Option[UserId]) = Action.async { implicit request =>
     combinedApisService.fetchApiForCollaborator(serviceName, userId)
       .map(x => Ok(Json.toJson(x))) recover recovery
 
   }
 
-  def fetchAllApis() = Action.async { implicit request =>
+  def fetchAllApis(): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchAllCombinedApis()
       .map(x => Ok(Json.toJson(x))) recover recovery
 
+  }
+
+  def fetchApiByServiceName(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
+    combinedApisService.fetchCombinedApiByServiceName(serviceName)
+      .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
 }

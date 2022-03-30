@@ -44,6 +44,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 
+  @deprecated("please use fetchCombinedApiByServiceName", "")
   def fetchApiForCollaborator(serviceName: String, userId: Option[UserId])
                              (implicit hc: HeaderCarrier): Future[Option[CombinedApi]]= {
     extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, userId) flatMap  {
@@ -57,5 +58,16 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
       restApis <- allApisFetcher.fetch()
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
+  }
+
+  def fetchCombinedApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
+    def filterApis(apis: List[CombinedApi]): Option[CombinedApi] ={
+      apis.find(_.serviceName == serviceName)
+    }
+    val allApis = for {
+      restApis <- allApisFetcher.fetch()
+      xmlApis <- xmlApisConnector.fetchAllXmlApis()
+    } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
+    allApis.map(filterApis)
   }
 }
