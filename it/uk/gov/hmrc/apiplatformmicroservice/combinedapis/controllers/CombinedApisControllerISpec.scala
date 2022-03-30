@@ -22,19 +22,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 import java.util.UUID
 
-
-class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
- with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters with ApiDefinitionTestDataHelper {
-
-  override def beforeEach(): Unit = {
-    wireMockPrincipalServer.resetMappings()
-    wireMockPrincipalServer.resetRequests()
-    wireMockPrincipalServer.resetScenarios()
-
-    wireMockSubordinateServer.resetMappings()
-    wireMockSubordinateServer.resetRequests()
-    wireMockSubordinateServer.resetScenarios()
-  }
+class CombinedApisControllerISpec
+    extends WireMockSpec
+    with ApiDefinitionMock
+    with ApplicationMock
+    with XmlApisMock
+    with BasicCombinedApiJsonFormatters
+    with ApiDefinitionTestDataHelper {
 
   trait Setup {
     val wsClient = app.injector.instanceOf[WSClient]
@@ -53,7 +47,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     val userId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
 
     val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
-    val apiDefinition2 = apiDefinition(name = "service2").copy( categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
+    val apiDefinition2 = apiDefinition(name = "service2").copy(categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
     val listOfDefinitions = List(apiDefinition1, apiDefinition2)
   }
 
@@ -65,10 +59,8 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       mockFetchApiDefinition(PRODUCTION)
       whenGetAllXmlApis(xmlApis: _*)
 
-     val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-       .withQueryStringParameters("developerId" -> s"${userId.value}").get())
-
-      println(s"******result:\n$result")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe OK
       val body = result.body
@@ -85,7 +77,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe INTERNAL_SERVER_ERROR
@@ -97,9 +89,8 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
       whenGetAllXmlApis(xmlApis: _*)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
-
 
       result.status shouldBe INTERNAL_SERVER_ERROR
 
@@ -109,11 +100,10 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
 
       mockFetchApiDefinition(PRODUCTION)
       mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION,userId)
+      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
-
 
       result.status shouldBe INTERNAL_SERVER_ERROR
 
@@ -123,11 +113,10 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
 
       mockFetchApiDefinition(PRODUCTION)
       mockFetchApplicationsForDeveloper(PRODUCTION, userId)
-      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION,userId)
+      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION, userId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
-
 
       result.status shouldBe INTERNAL_SERVER_ERROR
 
@@ -136,17 +125,16 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     "return INTERNAL_SERVER_ERROR when getcolloborators returns Not Found" in new Setup {
 
       whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION,userId)
+      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
 
-      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
+      val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
-
 
       result.status shouldBe INTERNAL_SERVER_ERROR
 
     }
-    
-    "stub requests to fetch all API Category details" in  new Setup {
+
+    "stub requests to fetch all API Category details" in new Setup {
       val category1 = ApiCategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
       val category2 = ApiCategoryDetails("AGENTS", "Agents")
       val category3 = ApiCategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
@@ -160,14 +148,13 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-
       response.status shouldBe OK
       val result: Seq[ApiCategoryDetails] = Json.parse(response.body).validate[Seq[ApiCategoryDetails]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
-      result.size should be (5)
+      result.size should be(5)
       result should contain only (category1, category2, category3, xmlCategory)
     }
 
@@ -226,7 +213,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
     }
 
     "return no apis when no xml or rest apis are returned" in new Setup {
-      whenGetAllXmlApis(List.empty : _*)
+      whenGetAllXmlApis(List.empty: _*)
       whenGetAllDefinitionsFindsNothing(Environment.SANDBOX)
       whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
 
@@ -237,7 +224,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       result.status shouldBe OK
       val body = result.body
       body shouldBe """[]"""
-   
+
     }
 
     "return error when no xml returns error" in new Setup {
@@ -252,11 +239,11 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       result.status shouldBe INTERNAL_SERVER_ERROR
       val body = result.body
       body shouldBe """{"code":"UNKNOWN_ERROR","message":"An unexpected error occurred"}"""
-   
+
     }
 
     "return a rest definition when sandbox definitions returns error" in new Setup {
-      whenGetAllXmlApis(List.empty : _*)
+      whenGetAllXmlApis(List.empty: _*)
       whenGetAllDefinitionsFails(Environment.SANDBOX)(INTERNAL_SERVER_ERROR)
       whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition2)
 
@@ -271,39 +258,37 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 0
       apiList.count(_.apiType == REST_API) shouldBe 1
-  
+
     }
 
     "return error when production definition returns error" in new Setup {
-      whenGetAllXmlApis(List.empty : _*)
+      whenGetAllXmlApis(List.empty: _*)
       whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition2)
       whenGetAllDefinitionsFails(Environment.PRODUCTION)(INTERNAL_SERVER_ERROR)
-      
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      result.status  shouldBe INTERNAL_SERVER_ERROR
+      result.status shouldBe INTERNAL_SERVER_ERROR
       val body = result.body
       body shouldBe """{"code":"UNKNOWN_ERROR","message":"An unexpected error occurred"}"""
-   
+
     }
 
     "return error when xml api fetcher and production definition returns error" in new Setup {
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
       whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition2)
       whenGetAllDefinitionsFails(Environment.PRODUCTION)(INTERNAL_SERVER_ERROR)
-      
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      result.status  shouldBe INTERNAL_SERVER_ERROR
-       val body = result.body
+      result.status shouldBe INTERNAL_SERVER_ERROR
+      val body = result.body
       body shouldBe """{"code":"UNKNOWN_ERROR","message":"An unexpected error occurred"}"""
-   
+
     }
   }
 }
