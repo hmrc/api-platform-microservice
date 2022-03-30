@@ -34,8 +34,7 @@ class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec 
     with WireMockSugar 
     with WireMockSugarExtensions 
-    with GuiceOneServerPerSuite
-    with SubscriptionFieldValuesJsonFormatters {
+    with GuiceOneServerPerSuite {
 
   val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
   val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
@@ -69,6 +68,7 @@ class SubscriptionFieldsConnectorSpec
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
+      implicit val SubscriptionFields = Json.writes[SubscriptionFields]
       implicit val writes = Json.writes[BulkSubscriptionFieldsResponse]
 
       stubFor(

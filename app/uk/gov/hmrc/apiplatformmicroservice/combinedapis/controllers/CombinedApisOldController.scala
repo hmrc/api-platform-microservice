@@ -32,13 +32,13 @@ class CombinedApisOldController @Inject()(combinedApisService: CombinedApisServi
                                       (implicit ec: ExecutionContext) extends BackendController(cc) with BasicCombinedApiJsonFormatters {
 
 
-  @deprecated("please use getCombinedApisForDeveloper in CombinedApisController")
+  @deprecated("please use getCombinedApisForDeveloper in CombinedApisController", "2021")
   def getCombinedApisForDeveloper(userId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApisForDeveloperId(userId)
       .map(x => Ok(Json.toJson(x))) recover recovery
   }
 
- @deprecated("please use fetchApiForCollaborator in CombinedApisController")
+ @deprecated("please use fetchApiForCollaborator in CombinedApisController", "2021")
   def fetchApiForCollaborator(serviceName: String, userId: Option[UserId]) = Action.async { implicit request =>
     combinedApisService.fetchApiForCollaborator(serviceName, userId)
       .map(x => Ok(Json.toJson(x))) recover recovery

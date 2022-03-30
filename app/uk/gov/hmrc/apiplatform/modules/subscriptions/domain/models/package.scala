@@ -16,8 +16,17 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiIdentifier, ApiContext, ApiVersion}
 
 package object models {
   type ApiFieldMap[V] = Map[ApiContext, Map[ApiVersion, Map[FieldName, V]]]
+
+  object ApiFieldMap {
+    def empty[V]: ApiFieldMap[V] = Map.empty
+
+    def extractApi[V](apiIdentifier: ApiIdentifier)(map: ApiFieldMap[V]): Map[FieldName, V] = 
+      map
+      .getOrElse(apiIdentifier.context, Map.empty)
+      .getOrElse(apiIdentifier.version, Map.empty)
+  }
 }
