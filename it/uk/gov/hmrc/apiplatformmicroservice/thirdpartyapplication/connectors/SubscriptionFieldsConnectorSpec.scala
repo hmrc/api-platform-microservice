@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugar, WireMockSugarExtensions}
@@ -68,7 +69,6 @@ class SubscriptionFieldsConnectorSpec
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      implicit val SubscriptionFields = Json.writes[SubscriptionFields]
       implicit val writes = Json.writes[BulkSubscriptionFieldsResponse]
 
       stubFor(
@@ -81,6 +81,44 @@ class SubscriptionFieldsConnectorSpec
       )
 
       await(connector.bulkFetchFieldValues(clientId)) shouldBe subsFields
+    }
+
+    "save field values" should {
+      "work with good values" in new SetupPrincipal {
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+
+        stubFor(
+          put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
+          .withJsonRequestBody(request)
+          .willReturn(
+            aResponse()
+            .withStatus(OK)
+          )
+        )
+
+        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+
+        result shouldBe Right(())
+      }
+
+      "return field errors with bad values" in new SetupPrincipal {
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val error = "This is wrong"
+
+        stubFor(
+          put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
+          .withJsonRequestBody(request)
+          .willReturn(
+            aResponse()
+            .withStatus(BAD_REQUEST)
+            .withJsonBody(Map(FieldNameOne -> error))
+          )
+        )
+
+        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+
+        result shouldBe Left(Map(FieldNameOne -> error))
+      }
     }
   }
 }

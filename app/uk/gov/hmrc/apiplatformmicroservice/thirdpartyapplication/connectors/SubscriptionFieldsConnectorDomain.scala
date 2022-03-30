@@ -101,6 +101,8 @@ object SubscriptionFieldsConnectorDomain {
 
     implicit val writeSubscriptionFields: OWrites[SubscriptionFields] = Json.writes[SubscriptionFields]
 
+    implicit val writeSubscriptionFieldsPutRequest: Writes[SubscriptionFieldsPutRequest] = Json.writes[SubscriptionFieldsPutRequest]
+
     implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
       (JsPath \ "apiContext").read[ApiContext] and
         (JsPath \ "apiVersion").read[ApiVersion] and
@@ -116,7 +118,5 @@ object SubscriptionFieldsConnectorDomain {
     implicit val readsApiFieldDefinitions: Reads[ApiFieldDefinitions] = Json.reads[ApiFieldDefinitions]
 
     implicit val readsBulkApiFieldDefinitionsResponse: Reads[BulkApiFieldDefinitionsResponse] = Json.reads[BulkApiFieldDefinitionsResponse]
-
-    implicit val writeSubscriptionFieldsPutRequest: Writes[SubscriptionFieldsPutRequest] = Json.writes[SubscriptionFieldsPutRequest]
   }
 }

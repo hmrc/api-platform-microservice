@@ -96,6 +96,8 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
       val goodApi = apiIdentifierThree
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
+      SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
+      EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.SaveFieldValues.willReturn(goodApi)
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi, false))

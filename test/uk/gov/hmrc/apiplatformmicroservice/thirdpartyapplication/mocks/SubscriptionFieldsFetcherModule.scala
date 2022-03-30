@@ -29,7 +29,7 @@ trait SubscriptionFieldsFetcherModule {
   object SubscriptionFieldsFetcherMock {
     val aMock = mock[SubscriptionFieldsFetcher]
 
-    object fetchFieldValuesWithDefaults {
+    object FetchFieldValuesWithDefaults {
       def willReturnFieldValues(subs: ApiFieldMap[FieldValue]) = {
         when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(*)).thenReturn(successful(subs))
       }

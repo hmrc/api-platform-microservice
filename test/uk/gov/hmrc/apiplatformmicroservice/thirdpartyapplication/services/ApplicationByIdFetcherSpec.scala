@@ -105,7 +105,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
-        SubscriptionFieldsFetcherMock.fetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
+        SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
         val expect = ApplicationWithSubscriptionData(
           application,
