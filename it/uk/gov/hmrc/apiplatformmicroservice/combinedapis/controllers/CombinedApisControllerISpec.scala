@@ -1,5 +1,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 
+import org.scalatest.BeforeAndAfterEach
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status._
@@ -18,12 +19,22 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+
 import java.util.UUID
 
 
 class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
  with ApplicationMock with XmlApisMock with BasicCombinedApiJsonFormatters with ApiDefinitionTestDataHelper {
 
+  override def beforeEach(): Unit = {
+    wireMockPrincipalServer.resetMappings()
+    wireMockPrincipalServer.resetRequests()
+    wireMockPrincipalServer.resetScenarios()
+
+    wireMockSubordinateServer.resetMappings()
+    wireMockSubordinateServer.resetRequests()
+    wireMockSubordinateServer.resetScenarios()
+  }
 
   trait Setup {
     val wsClient = app.injector.instanceOf[WSClient]
@@ -49,13 +60,15 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
   "CombinedApisController" should {
     "return OK with a combination of xml and rest apis when api definitions and xml services return results" in new Setup {
 
-      mockFetchApiDefinition(PRODUCTION)
-      whenGetAllXmlApis(xmlApis: _*)
       mockFetchApplicationsForDeveloper(PRODUCTION, userId)
       mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
+      mockFetchApiDefinition(PRODUCTION)
+      whenGetAllXmlApis(xmlApis: _*)
 
      val result =  await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
+
+      println(s"******result:\n$result")
 
       result.status shouldBe OK
       val body = result.body
@@ -92,7 +105,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
 
     }
 
-    "return INTERNAL_SERVER_ERROR when get applications as colloborator returns Not Found" in new Setup {
+    "return INTERNAL_SERVER_ERROR when get applications as collaborator returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
       mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
@@ -242,7 +255,7 @@ class CombinedApisControllerISpec extends WireMockSpec with ApiDefinitionMock
    
     }
 
-    "return a rest definition when sandox definitions returns error" in new Setup {
+    "return a rest definition when sandbox definitions returns error" in new Setup {
       whenGetAllXmlApis(List.empty : _*)
       whenGetAllDefinitionsFails(Environment.SANDBOX)(INTERNAL_SERVER_ERROR)
       whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition2)

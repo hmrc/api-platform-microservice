@@ -61,13 +61,8 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
   }
 
   def fetchCombinedApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
-    def filterApis(apis: List[CombinedApi]): Option[CombinedApi] ={
-      apis.find(_.serviceName == serviceName)
-    }
-    val allApis = for {
-      restApis <- allApisFetcher.fetch()
-      xmlApis <- xmlApisConnector.fetchAllXmlApis()
-    } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
-    allApis.map(filterApis)
+    def filterApis(apis: List[CombinedApi]): Option[CombinedApi] = apis.find(_.serviceName == serviceName)
+
+    fetchAllCombinedApis.map(filterApis)
   }
 }
