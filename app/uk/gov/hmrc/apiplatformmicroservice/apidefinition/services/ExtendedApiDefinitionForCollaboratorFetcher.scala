@@ -91,7 +91,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def createExtendedApiVersions(
-      context: ApiContext, 
+      context: ApiContext,
       principalVersions: List[ApiVersionDefinition],
       subordinateVersions: List[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],
@@ -107,7 +107,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
   }
 
   private def combineVersion(
-      context: ApiContext, 
+      context: ApiContext,
       maybePrincipalVersion: Option[ApiVersionDefinition],
       maybeSubordinateVersion: Option[ApiVersionDefinition],
       applicationIds: Set[ApplicationId],

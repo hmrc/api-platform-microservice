@@ -31,7 +31,7 @@ object CombinedApiDataHelper extends FiltersForCompinedApis {
     if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
   }
 
-  def fromApiDefinition(api: ApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
+  def fromApiDefinition(api: ApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, Some(determineApiAccessType(api)))
   def fromExtendedApiDefinition(api: ExtendedApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
   def fromXmlApi(api: XmlApi) = CombinedApi(api.name, api.serviceName, api.categories.getOrElse(List.empty), XML_API, PUBLIC)
 }
