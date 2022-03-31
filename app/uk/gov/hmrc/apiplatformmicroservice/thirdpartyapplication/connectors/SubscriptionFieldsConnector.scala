@@ -22,20 +22,30 @@ import com.google.inject.{Inject, Singleton}
 import com.google.inject.name.Named
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
-
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import play.api.http.Status._
+import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpResponse
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]]
+  import SubscriptionFieldsConnectorDomain._
 
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]]
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
+
+  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
+  
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
 }
 
 private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -44,32 +54,54 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   val serviceBaseUrl: String
 
   import SubscriptionFieldsConnectorDomain._
+  import SubscriptionFieldsConnectorDomain.JsonFormatters._
 
   protected def http: HttpClient
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldDefinition]]]] = {
-    import SubscriptionFieldsConnectorDomain.SubscriptionFieldDefinitionJsonFormatters._
-
+  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
     http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefinitions)
       .map(r => asMapOfMapsOfFieldDefns(r.apis))
   }
 
-  def bulkFetchFieldValues(
-      clientId: ClientId
-    )(implicit hc: HeaderCarrier
-    ): Future[Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]]] = {
-    import SubscriptionFieldsConnectorDomain.SubscriptionFieldValuesJsonFormatters._
+  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
       .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
+    lazy val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
+
+    if(fields.isEmpty) {
+      successful(Right(()))
+    }
+    else {
+      http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.version, fields)).map { response =>
+        response.status match {
+          case BAD_REQUEST =>
+            Json.parse(response.body).validate[Map[FieldName, String]] match {
+              case s: JsSuccess[Map[FieldName, String]] => Left(s.get)
+              case _                                    => Left(Map.empty)
+            }
+          case OK | CREATED => Right(())
+          case statusCode => throw UpstreamErrorResponse("Failed to put subscription fields",statusCode)
+        }
+      }
+    }
+  }
+
+
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private lazy val urlBulkSubscriptionFieldDefinitions = s"$serviceBaseUrl/definition"
+  private lazy val urlBulkSubscriptionFieldDefinitions = 
+    s"$serviceBaseUrl/definition"
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) = s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
+  private def urlBulkSubscriptionFieldValues(clientId: ClientId) = 
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
+
+  private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {

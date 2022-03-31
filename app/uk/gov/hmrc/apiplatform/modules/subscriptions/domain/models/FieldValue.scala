@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
+package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-case class FieldName(value: String) extends AnyVal
+import play.api.libs.json.Json
+
+case class FieldValue(value: String) extends AnyVal
+
+object FieldValue {
+  implicit val format = Json.valueFormat[FieldValue]
+}

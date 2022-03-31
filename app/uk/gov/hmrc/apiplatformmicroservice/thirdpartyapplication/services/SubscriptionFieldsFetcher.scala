@@ -21,10 +21,10 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, FieldName, ThreeDMap}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{FieldValue, ClientId}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldDefinition
 import scala.concurrent.Future
 
 @Singleton
@@ -38,7 +38,7 @@ class SubscriptionFieldsFetcher @Inject()(
       ThreeDMap.filter( (c: ApiContext, v: ApiVersion, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c,v)) )(data)
     }
 
-    def fillFields(fields: ApiFieldMap[FieldValue], defns: ApiFieldMap[FieldDefinition]): ApiFieldMap[FieldValue] = {
+    def fillFields(defns: ApiFieldMap[FieldDefinition])(fields: ApiFieldMap[FieldValue]): ApiFieldMap[FieldValue] = {
       ThreeDMap.map( (c: ApiContext, v: ApiVersion, fn: FieldName, fv: FieldDefinition) => ThreeDMap.get( (c,v,fn) )(fields).getOrElse(FieldValue("")))(defns)
     }
 
@@ -49,7 +49,7 @@ class SubscriptionFieldsFetcher @Inject()(
       subsDefs = filterBySubs(definitions)
       fields <- connector.bulkFetchFieldValues(clientId)
       subsFields = filterBySubs(fields)
-      filledFields = fillFields(subsFields, subsDefs)
+      filledFields = fillFields(subsDefs)(subsFields)
     } yield filledFields
   }
 }

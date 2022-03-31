@@ -19,9 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 import java.time.Period
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import java.util.UUID
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 case class ClientId(value: String) extends AnyVal
 
@@ -32,7 +33,6 @@ object ClientId {
 
 case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
 
-case class FieldValue(value: String) extends AnyVal
 
 
 case class Application(
@@ -57,7 +57,7 @@ case class Application(
 case class ApplicationWithSubscriptionData(
     application: Application,
     subscriptions: Set[ApiIdentifier] = Set.empty,
-    subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]] = Map.empty)
+    subscriptionFieldValues: ApiFieldMap[FieldValue] = Map.empty)
 
 object Application {
   implicit val ordering: Ordering[Application] = Ordering.by(_.name)

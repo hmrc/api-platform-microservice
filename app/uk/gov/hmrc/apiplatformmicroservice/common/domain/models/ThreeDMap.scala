@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 
+// NOT TO BE USED FOR JSON FORMATTING !!
 object ThreeDMap {
 
   type Type[X,Y,Z,V] = Map[X, Map[Y, Map[Z, V]]]
 
+  def empty[X,Y,Z,V,W]: Type[X,Y,Z,V] = Map.empty
+  
   def map[X,Y,Z,V,W](fn: (X,Y,Z,V) => W)(in: Type[X,Y,Z,V]): Type[X,Y,Z,W] = {
     in.flatMap { 
       case (x,m2) => {

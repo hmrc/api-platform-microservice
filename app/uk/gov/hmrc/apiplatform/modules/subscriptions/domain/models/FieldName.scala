@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields
+package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-case class AccessRequirements(devhub: DevhubAccessRequirements)
+import play.api.libs.json._
 
-object AccessRequirements {
-  final val Default = AccessRequirements(devhub = DevhubAccessRequirements.Default)
+case class FieldName(value: String) extends AnyVal
+
+object FieldName {
+  implicit val format = Json.valueFormat[FieldName]
+  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
+  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 }

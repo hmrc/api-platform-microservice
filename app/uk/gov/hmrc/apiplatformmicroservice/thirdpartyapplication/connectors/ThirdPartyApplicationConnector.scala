@@ -21,7 +21,6 @@ import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
@@ -34,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import play.api.libs.json.Json
 
-private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector extends CommonJsonFormatters {
+private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
   class ApplicationNotFound extends RuntimeException
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
@@ -46,7 +45,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector ext
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
   private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
 
-  private[connectors] object JsonFormatters extends CommonJsonFormatters {
+  private[connectors] object JsonFormatters {
     import play.api.libs.json._
     
     implicit val readsApiIdentifier = Json.reads[ApiIdentifier]

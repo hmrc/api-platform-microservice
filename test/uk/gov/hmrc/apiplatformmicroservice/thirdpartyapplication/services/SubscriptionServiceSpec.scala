@@ -34,11 +34,26 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsFetcherModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsConnectorModule
 
 class SubscriptionServiceSpec extends AsyncHmrcSpec {
-  trait Setup extends ApplicationBuilder with ApiDefinitionTestDataHelper with ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup 
+      extends ApplicationBuilder
+      with ApiDefinitionTestDataHelper
+      with ThirdPartyApplicationConnectorModule
+      with SubscriptionFieldsFetcherModule
+      with SubscriptionFieldsConnectorModule
+      with MockitoSugar
+      with ArgumentMatchersSugar {
+        
     val mockApiDefinitionsForApplicationFetcher = mock[ApiDefinitionsForApplicationFetcher]
-    val underTest = new SubscriptionService(mockApiDefinitionsForApplicationFetcher, EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
+    val underTest = new SubscriptionService(
+      mockApiDefinitionsForApplicationFetcher,
+      EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
+      EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
+      SubscriptionFieldsFetcherMock.aMock
+    )
 
     implicit val hc = HeaderCarrier()
     
@@ -81,6 +96,8 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
       val goodApi = apiIdentifierThree
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
+      SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
+      EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.SaveFieldValues.willReturn(goodApi)
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi, false))

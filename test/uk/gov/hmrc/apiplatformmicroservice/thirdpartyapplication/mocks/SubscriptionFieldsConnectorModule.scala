@@ -22,8 +22,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import scala.concurrent.Future.{failed, successful}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.fields.FieldDefinition
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.subscriptions.SubscriptionFieldsDomain.ApiFieldMap
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 trait SubscriptionFieldsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -44,6 +44,12 @@ trait SubscriptionFieldsConnectorModule {
     object BulkFetchFieldDefinitions {
       def willReturnDefinitions(defns: ApiFieldMap[FieldDefinition]) = {
         when(aMock.bulkFetchFieldDefinitions(*)).thenReturn(successful(defns))
+      }
+    }
+
+    object SaveFieldValues {
+      def willReturn(apiIdentifier: ApiIdentifier) = {
+        when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(Right(())))
       }
     }
   }

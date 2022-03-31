@@ -17,27 +17,28 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterGateKeeperSubscriptions
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionResult
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.PublicApiAccess
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersionDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 
 @Singleton
 class SubscriptionService @Inject()(
-  val apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
-  val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
+  apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
+  thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
+  subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
+  subscriptionFieldsFetcher: SubscriptionFieldsFetcher
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
@@ -67,10 +68,19 @@ class SubscriptionService @Inject()(
         (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
           case (_, true) => successful(CreateSubscriptionDuplicate)
           case (false, _) => successful(CreateSubscriptionDenied)
-          case _ => thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, newSubscriptionApiIdentifier).map(_ => CreateSubscriptionSuccess)
+          case _ => subscribeToApiAndCreateFieldValues(application, newSubscriptionApiIdentifier)
         }
       }
     )
+  }
+
+  private def subscribeToApiAndCreateFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    for {
+      fieldValues         <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
+      fieldValuesForApi    = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
+      fvResuls            <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
+      subscribeApiResult  <- thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, apiIdentifier)
+    } yield CreateSubscriptionSuccess
   }
 }
 

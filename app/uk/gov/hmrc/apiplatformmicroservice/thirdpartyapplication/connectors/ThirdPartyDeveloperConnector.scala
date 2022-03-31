@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.CommonJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpClient
@@ -27,7 +26,7 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-private[thirdpartyapplication] object ThirdPartyDeveloperConnector extends CommonJsonFormatters {
+private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 
   class ApplicationNotFound extends RuntimeException
 
