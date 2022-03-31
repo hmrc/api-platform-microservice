@@ -41,13 +41,18 @@ object UpliftApplicationService {
 
 @Singleton
 class UpliftApplicationService @Inject() (
-    val apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
-    val principalTPAConnector: PrincipalThirdPartyApplicationConnector,
-    val applicationByIdFetcher: ApplicationByIdFetcher
+    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
+    principalTPAConnector: PrincipalThirdPartyApplicationConnector,
+    applicationByIdFetcher: ApplicationByIdFetcher,
+    subscriptionService: SubscriptionService
   )(implicit val ec: ExecutionContext) extends ApplicationLogger with EitherTHelper[String] {
 
   import UpliftApplicationService.BadRequestMessage
 
+  private def subscribeAll(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[SubscriptionService.CreateSubscriptionResult] = {
+    subscriptionService.createManySubscriptionsForApplication(application, apis)
+  }
+  
   /*
   *   Params:
   *     app - the sandbox application in all it's glory
@@ -70,7 +75,7 @@ class UpliftApplicationService @Inject() (
         remappedRequestSubs        = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
         filteredSubs               = remappedRequestSubs.filter(upliftableApis.contains)
         _                         <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
-        filteredUpliftRequest      = upliftRequest.copy(subscriptions = filteredSubs)
+        filteredUpliftRequest      = upliftRequest.copy(subscriptions = Set.empty)
         createApplicationRequest   = CreateApplicationRequestV2(
                                       app.name,
                                       app.access,
@@ -82,6 +87,8 @@ class UpliftApplicationService @Inject() (
                                       app.id
                                     )
         newAppId                  <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
+        app                       <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")
+        _                         <- liftF(subscribeAll(app, filteredSubs))
       } yield newAppId
     ).value
   }
@@ -103,9 +110,11 @@ class UpliftApplicationService @Inject() (
                                       app.description,
                                       Environment.PRODUCTION,
                                       app.collaborators,
-                                      Some(filteredSubs)
+                                      None
                                     )
         newAppId                  <- liftF(principalTPAConnector.createApplicationV1(createApplicationRequest))
+        app                       <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")
+        _                         <- liftF(subscribeAll(app, filteredSubs))
       } yield newAppId
     ).value
   }
