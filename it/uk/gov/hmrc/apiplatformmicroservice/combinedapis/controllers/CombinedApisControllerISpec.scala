@@ -1,6 +1,5 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 
-import org.scalatest.BeforeAndAfterEach
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status._
