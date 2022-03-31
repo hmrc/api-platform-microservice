@@ -18,10 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
-import scala.concurrent.Future
+import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar {
   object SubscriptionServiceMock {
@@ -29,13 +30,23 @@ trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar 
 
     object CreateSubscriptionForApplication {
       def willReturnSuccess = {
-        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionSuccess))
+        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }
       def willReturnDenied = {
-        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionDenied))
+        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(successful(CreateSubscriptionDenied))
       }
       def willReturnDuplicate = {
-        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(Future.successful(CreateSubscriptionDuplicate))
+        when(aMock.createSubscriptionForApplication(*, *, *, *)(*)).thenReturn(successful(CreateSubscriptionDuplicate))
+      }
+    }
+
+    object CreateManySubscriptionsForApplication {
+      def willReturnOk = {
+        when(aMock.createManySubscriptionsForApplication(*, *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
+      }
+
+      def verifyCalled(apis: Set[ApiIdentifier]) = {
+        verify(aMock).createManySubscriptionsForApplication(*, eqTo(apis))(*)
       }
     }
   }
