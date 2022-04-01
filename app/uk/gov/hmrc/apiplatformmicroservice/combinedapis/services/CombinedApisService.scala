@@ -56,7 +56,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
     for {
       restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
-    } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
+    } yield restApis.map(fromApiDefinition).distinct ++ xmlApis.map(fromXmlApi)
   }
 
   def fetchCombinedApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
