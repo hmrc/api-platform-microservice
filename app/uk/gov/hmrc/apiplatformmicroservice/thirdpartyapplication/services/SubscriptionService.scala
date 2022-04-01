@@ -74,6 +74,31 @@ class SubscriptionService @Inject()(
     )
   }
 
+  def createManySubscriptionsForApplication(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+   
+    def canSubscribeToAll(allowedSubscriptions : Seq[ApiDefinition]) : Boolean = {
+      val allowedApiIdentifiers : Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.version)))
+
+      (apis -- allowedApiIdentifiers) isEmpty
+    }
+
+    apiDefinitionsForApplicationFetcher.fetch(application, Set.empty, false)
+      .flatMap(possibleSubscriptions => {
+        
+        if(canSubscribeToAll(possibleSubscriptions)) {
+          subscribeToAllApisAndCreateFieldValues(application, apis)
+        } else {
+          successful(CreateSubscriptionDenied)
+        }
+      }
+    )
+  }
+
+  private def subscribeToAllApisAndCreateFieldValues(application: Application, apiIdentifiers: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    Future.sequence(apiIdentifiers.map(api => subscribeToApiAndCreateFieldValues(application, api)))
+    .map(_ => CreateSubscriptionSuccess)
+  }
+
   private def subscribeToApiAndCreateFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
       fieldValues         <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
