@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIRED, STABLE}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinition, ApiDefinitionTestDataHelper, ApiVersion, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
@@ -117,7 +120,20 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
           
 
           val result = await(inTest.fetchAllCombinedApis())
+          result.size shouldBe 4
           result should contain only (combinedList: _*)
+
+      }
+
+      "return distinct combined list of apis when both services return results and all api fetcher has `duplicates`" in new SetUp {
+        primeXmlConnectorFetchAll(xmlApis)
+        val sameApiFromDifferentEnv = apiDefinition("service1", apiVersion(ApiVersion("1.0"), RETIRED), apiVersion(ApiVersion("2.0"), STABLE)).copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
+        val apisToReturn = listOfDefinitions ++ List(sameApiFromDifferentEnv)
+        when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(apisToReturn))
+
+        val result = await(inTest.fetchAllCombinedApis())
+        result.size shouldBe 4
+        result should contain only (combinedList: _*)
 
       }
 
