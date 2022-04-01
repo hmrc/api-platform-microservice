@@ -41,7 +41,6 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       with SubscriptionFieldsConnectorModule
       with SubscriptionFieldsFetcherModule
       with SubscriptionServiceModule {
-    // val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
 
     val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, ApplicationByIdFetcherMock.aMock, SubscriptionServiceMock.aMock)
   }
