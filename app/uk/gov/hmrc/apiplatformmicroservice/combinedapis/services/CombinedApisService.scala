@@ -17,16 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
-import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
 class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
@@ -55,7 +54,7 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
-      restApis <- allApisFetcher.fetch()
+      restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)
       xmlApis <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }

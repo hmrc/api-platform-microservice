@@ -48,9 +48,13 @@ trait FilterApis {
     case _ => false 
   }
 
-  protected val isPublicAccess: ApiFilterFn = t => t._2.access match {
-    case PublicApiAccess() => true
-    case _                 => false
+  protected val isPublicAccess: ApiFilterFn = t => isPublicAccess(t._2.access)
+
+  protected def isPublicAccess(access: ApiAccess) ={
+    access match {
+      case PublicApiAccess() => true
+      case _                 => false
+    }
   }
 
   protected def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
@@ -102,4 +106,30 @@ trait FilterGateKeeperSubscriptions extends FilterApis {
       .isDefined
     )(apis)
   }
+}
+
+trait FiltersForCompinedApis extends FilterApis {
+  private def isOnlyPublicAccess(v: ExtendedApiVersion): Boolean ={
+    (v.productionAvailability, v.sandboxAvailability) match {
+      case (Some(prod: ApiAvailability), Some(sand: ApiAvailability)) =>
+        isPublicAccess(prod.access) && isPublicAccess(sand.access)
+      case _ => false
+    }
+  }
+
+  def filterOutRetiredApis(definitions: List[ApiDefinition]): List[ApiDefinition] = {
+    def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
+      val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
+      if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
+    }
+    definitions.flatMap(filterOutRetiredVersions)
+  }
+
+  def allVersionsArePublicAccess(a: ApiDefinition): Boolean = a.versions.forall(v => isPublicAccess(a.context, v))
+  def allVersionsArePublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
+
+
+
+
+
 }

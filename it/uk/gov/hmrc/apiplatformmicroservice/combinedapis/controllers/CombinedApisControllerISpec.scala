@@ -63,7 +63,7 @@ class CombinedApisControllerISpec
 
       result.status shouldBe OK
       val body = result.body
-      body shouldBe "[{\"displayName\":\"Hello Another\",\"serviceName\":\"api-example-another\",\"categories\":[],\"apiType\":\"REST_API\"},{\"displayName\":\"Hello World\",\"serviceName\":\"api-example-microservice\",\"categories\":[],\"apiType\":\"REST_API\"},{\"displayName\":\"xml api 1\",\"serviceName\":\"xml-api-1\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"},{\"displayName\":\"xml api 2\",\"serviceName\":\"xml-api-1\",\"categories\":[{\"value\":\"VAT\"}],\"apiType\":\"XML_API\"}]"
+      body shouldBe """[{"displayName":"Hello Another","serviceName":"api-example-another","categories":[],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"Hello World","serviceName":"api-example-microservice","categories":[],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
       apiList.count(_.apiType == REST_API) shouldBe 2
@@ -171,7 +171,7 @@ class CombinedApisControllerISpec
 
       result.status shouldBe OK
       val body = result.body
-      body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API"}]"""
+      body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
       apiList.count(_.apiType == REST_API) shouldBe 2
@@ -188,7 +188,7 @@ class CombinedApisControllerISpec
 
       result.status shouldBe OK
       val body = result.body
-      body shouldBe """[{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API"}]"""
+      body shouldBe """[{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
       apiList.count(_.apiType == REST_API) shouldBe 0
@@ -205,7 +205,7 @@ class CombinedApisControllerISpec
 
       result.status shouldBe OK
       val body = result.body
-      body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API"}]"""
+      body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 0
       apiList.count(_.apiType == REST_API) shouldBe 2
@@ -253,7 +253,7 @@ class CombinedApisControllerISpec
       result.status shouldBe OK
       val body = result.body
       println(body)
-      body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API"}]"""
+      body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 0
       apiList.count(_.apiType == REST_API) shouldBe 1
