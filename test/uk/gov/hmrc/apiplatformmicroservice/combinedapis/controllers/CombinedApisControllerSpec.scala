@@ -43,10 +43,6 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
     }
 
-    def primeCombinedApisServiceForCollaborator(developerId: Option[UserId], serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
-      when(mockCombinedApisService.fetchApiForCollaborator(eqTo(serviceName), eqTo(developerId))(*)).thenReturn(Future.successful(Some(apis)))
-    }
-
     def primeCombinedApiByServiceName(serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApiByServiceName(eqTo(serviceName))(*)).thenReturn(Future.successful(Some(apis)))
     }
@@ -64,16 +60,6 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
       }
     }
 
-    "fetchApiForCollaborator" should {
-      "return 200 and apis when service returns apis" in new SetUp {
-        val serviceName = "some-service-name"
-        primeCombinedApisServiceForCollaborator(developerId, serviceName, combinedApis.head)
-
-        val result: Future[Result] = objInTest.fetchApiForCollaborator(serviceName, developerId)(FakeRequest())
-        status(result) shouldBe 200
-        contentAsString(result) shouldBe Json.toJson(combinedApis.head).toString()
-      }
-    }
 
     "fetchCombinedApiByServiceName" should {
       "return 200 and apis when service returns apis" in new SetUp {

@@ -43,15 +43,6 @@ class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDef
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 
-  @deprecated("please use fetchCombinedApiByServiceName", "2022")
-  def fetchApiForCollaborator(serviceName: String, userId: Option[UserId])
-                             (implicit hc: HeaderCarrier): Future[Option[CombinedApi]]= {
-    extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, userId) flatMap  {
-      case Some(y: ExtendedApiDefinition) => Future.successful(Some(fromExtendedApiDefinition(y)))
-      case _ => xmlApisConnector.fetchXmlApiByServiceName(serviceName).map(_.map(fromXmlApi))
-    }
-  }
-
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
       restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)

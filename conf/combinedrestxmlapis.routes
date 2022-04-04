@@ -4,7 +4,5 @@
 
 GET        /                              uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchAllApis
 GET        /developer                     uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId])
-#endpoint below is deprecated and needs removing eventually
-GET        /developer/:serviceName        uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchApiForCollaborator(serviceName: String, developerId: Option[uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId])
 GET        /:serviceName                  uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchApiByServiceName(serviceName: String)
 

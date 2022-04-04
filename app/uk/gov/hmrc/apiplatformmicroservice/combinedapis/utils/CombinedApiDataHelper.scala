@@ -18,12 +18,12 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCompinedApis
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCombinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
-object CombinedApiDataHelper extends FiltersForCompinedApis {
+object CombinedApiDataHelper extends FiltersForCombinedApis {
   private def determineApiAccessType(api: ApiDefinition): ApiAccessType ={
     if(allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
   }

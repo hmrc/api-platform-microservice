@@ -19,9 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.services
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIRED, STABLE}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinition, ApiDefinitionTestDataHelper, ApiVersion, ExtendedApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
-import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromExtendedApiDefinition, fromXmlApi}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.AllApisFetcher
+import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
@@ -82,33 +81,6 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         val result = await(inTest.fetchCombinedApisForDeveloperId(developerId))
         result.size shouldBe 4
         result shouldBe combinedList
-      }
-    }
-    "fetchApiForCollaborator" should {
-
-      "return exact matched api from api definition if matched" in new SetUp {
-        val serviceName = "service-name"
-
-        primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, Some(extendedApiDefinition1))
-
-
-        val result = await(inTest.fetchApiForCollaborator(serviceName, developerId))
-        result.size shouldBe 1
-        result shouldBe Some(fromExtendedApiDefinition(extendedApiDefinition1))
-
-        verifyZeroInteractions(mockXmlApisConnector)
-      }
-
-      "return matched api from api definition if matched" in new SetUp {
-        val serviceName = "service-name"
-
-        primeExtendedApiDefinitionForCollaboratorFetcher(serviceName, developerId, None)
-        primeXmlConnectorFetchByServiceName(serviceName, Some(xmlApi1))
-
-        val result = await(inTest.fetchApiForCollaborator(serviceName, developerId))
-        result.size shouldBe 1
-        result shouldBe Some(fromXmlApi(xmlApi1))
-
       }
     }
 
