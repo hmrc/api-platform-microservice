@@ -25,6 +25,9 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.json.JsValue
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import play.api.libs.json.JsObject
 
 trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters
   with ApplicationLogger with ConnectorRecovery {
@@ -35,7 +38,7 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    http.GET[Option[List[ApiDefinition]]](definitionsUrl(serviceBaseUrl), Seq("type" -> "all"))
+    http.GET[Option[List[ApiDefinition]]](definitionsUrl, Seq("type" -> "all"))
     .map(_ match {
       case None => List.empty
       case Some(apiDefinitions) => apiDefinitions.sortBy(_.name)
@@ -44,13 +47,19 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
 
   def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    http.GET[Option[ApiDefinition]](definitionUrl(serviceBaseUrl, serviceName)) recover recovery
+    http.GET[Option[ApiDefinition]](definitionUrl(serviceName)) recover recovery
   }
 
   def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
-    http.GET[List[ApiCategoryDetails]](categoriesUrl(serviceBaseUrl))  recover recovery
+    http.GET[List[ApiCategoryDetails]](categoriesUrl)  recover recovery
   }
 
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
+
+  def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+    logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
+    http.GET[Option[JsObject]](specificationUrl(serviceName, version)) recover recovery
+  }
+
 }

@@ -41,12 +41,12 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
     val service = new EnvironmentAwareApiDefinitionService(SubordinateApiDefinitionServiceMock.aMock, PrincipalApiDefinitionServiceMock.aMock)
 
     val underTest = new ApiIdentifiersForUpliftFetcher(service)
-    SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNoApiDefinitions()
+    SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
   }
 
   "ApiIdentifiersForUpliftFetcher" should {
     "fetch nothing when no apis are suitable" in new Setup() {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNoApiDefinitions()
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
       await(underTest.fetch) shouldBe Set.empty
     }
 

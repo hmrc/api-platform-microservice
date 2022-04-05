@@ -59,7 +59,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
         ApplicationIdsForCollaboratorFetcherMock.aMock,
         SubscriptionsForCollaboratorFetcherMock.aMock
       )
-    SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNoApiDefinitions()
+    SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
     SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
   }
 

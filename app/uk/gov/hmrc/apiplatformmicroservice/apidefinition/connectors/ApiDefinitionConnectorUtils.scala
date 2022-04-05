@@ -17,20 +17,24 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
 trait ApiDefinitionConnectorUtils {
+  def serviceBaseUrl: String
 
-  def  definitionsUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-definition"
+  lazy val definitionsUrl = s"$serviceBaseUrl/api-definition"
 
-  def definitionUrl(serviceBaseUrl: String, serviceName: String) =
+  def definitionUrl(serviceName: String) =
     s"$serviceBaseUrl/api-definition/$serviceName"
 
-  def categoriesUrl(serviceBaseUrl: String) = s"$serviceBaseUrl/api-categories"
+  lazy val categoriesUrl = s"$serviceBaseUrl/api-categories"
 
-  def documentationUrl(serviceBaseUrl: String, resourceId: ResourceId): String = {
+  def documentationUrl(resourceId: ResourceId): String = {
     import resourceId._
     s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/documentation/$resource"
   }
-}
 
-object ApiDefinitionConnectorUtils extends ApiDefinitionConnectorUtils
+  def specificationUrl(serviceName: String, version: ApiVersion): String = {
+    s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/specification"
+  }
+}

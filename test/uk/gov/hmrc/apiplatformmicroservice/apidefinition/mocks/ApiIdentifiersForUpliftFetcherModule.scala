@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
 
-trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMatchersSugar{
+trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
 
   object ApiIdentifiersForUpliftFetcherMock {
     val aMock = mock[ApiIdentifiersForUpliftFetcher]

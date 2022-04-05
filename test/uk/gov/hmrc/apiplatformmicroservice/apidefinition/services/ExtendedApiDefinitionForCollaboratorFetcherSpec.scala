@@ -66,8 +66,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
     "return an extended api with categories from the definition" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withCategories(List(incomeTaxCategory, vatTaxCategory)))
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withCategories(List(incomeTaxCategory, vatTaxCategory)))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -79,8 +79,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return an extended api with only production availability when api only in principal" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -89,8 +89,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return an extended api with only sandbox availability when api only in subordinate" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -99,8 +99,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return an extended api with production and sandbox availability when api in both environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -110,8 +110,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "prefer subordinate API when it exists in both environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withName("hello-principal"))
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withName("hello-subordinate"))
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withName("hello-principal"))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withName("hello-subordinate"))
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -119,8 +119,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "prefer subordinate version when it exists in both environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(apiVersion(versionOne, BETA)))
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(helloApiDefinition.withVersions(apiVersion(versionOne, STABLE)))
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, BETA)))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, STABLE)))
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -129,8 +129,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return none when api doesn't exist in any environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -138,8 +138,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return none when apis requires trust" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(requiresTrustApi)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(requiresTrustApi)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(requiresTrustApi)
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -147,8 +147,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "filter out retired versions" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithRetiredVersions)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithRetiredVersions)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -157,8 +157,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return none if all verions are retired" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithOnlyRetiredVersions)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithOnlyRetiredVersions)
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -166,8 +166,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return public and private availability for api public and private versions " in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithPublicAndPrivateVersions)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPublicAndPrivateVersions)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -176,8 +176,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return true when application ids are matching" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithAllowlisting)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
 
@@ -187,8 +187,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return false when applications ids are not matching" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithAllowlisting)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
 
@@ -198,8 +198,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "return true when applications ids are not matching but it is subscribed to" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNoApiDefinition()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnApiDefinition(apiWithAllowlisting)
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
       val apiId = ApiIdentifier(apiWithAllowlisting.context, apiWithAllowlisting.versions.head.version)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)

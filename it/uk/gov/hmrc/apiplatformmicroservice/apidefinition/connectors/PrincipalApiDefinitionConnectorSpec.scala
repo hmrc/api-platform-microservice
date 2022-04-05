@@ -31,6 +31,9 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec 
@@ -47,6 +50,7 @@ class PrincipalApiDefinitionConnectorSpec
   val apiKeyTest = UUID.randomUUID().toString
 
   val serviceName = "someService"
+  val version = ApiVersion("1.0")
   val userEmail = "3rdparty@example.com"
 
   val apiName1 = "Calendar"
@@ -137,6 +141,24 @@ class PrincipalApiDefinitionConnectorSpec
         }.statusCode shouldBe INTERNAL_SERVER_ERROR
       }
 
+    }
+
+    "fetchApiSpecification" should {
+      "call out and get json value" in new Setup {
+        val jsValue: JsValue = Json.parse("""{ "x": 1 }""")
+        whenFetchApiSpecification(PRODUCTION)(serviceName, version, jsValue)
+
+        val result = await(connector.fetchApiSpecification(serviceName, version))
+
+        result shouldBe Some(jsValue)
+      }
+    }
+    "call out and get no value" in new Setup {
+      whenFetchApiSpecificationFindsNothing(PRODUCTION)(serviceName, version)
+
+      val result = await(connector.fetchApiSpecification(serviceName, version))
+
+      result shouldBe None
     }
   }
 }

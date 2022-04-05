@@ -22,7 +22,9 @@ import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
-import scala.concurrent.Future
+import scala.concurrent.Future._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import play.api.libs.json.JsValue
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -31,43 +33,43 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
     object FetchAllApiDefinitions {
       def willReturn(apiDefinitions: ApiDefinition*) = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
       }
 
-      def willReturnNoApiDefinitions() = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.successful(List.empty))
+      def willReturnNones() = {
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(Future.failed(e))
+        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(failed(e))
       }
     }
 
     object FetchAllNonOpenAccessDefinitions {
       def willReturn(apiDefinitions: ApiDefinition*) = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(apiDefinitions.toList))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
       }
 
-      def willReturnNoApiDefinitions() = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.successful(List.empty))
+      def willReturnNones() = {
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(Future.failed(e))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(failed(e))
       }
     }
 
     object FetchApiDocumentationResource {
       def willReturnWsResponse(wsResponse: WSResponse) = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.successful(Some(wsResponse)))
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(Some(wsResponse)))
       }
 
       def willReturnNoResponse() = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.successful(None))
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(Future.failed(e))
+        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(failed(e))
       }
 
       def verifyCalled(wantedNumberOfInvocations: Int) = {
@@ -76,22 +78,32 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchDefinition {
-      def willReturnApiDefinition(apiDefinition: ApiDefinition) = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.successful(Some(apiDefinition)))
+      def willReturn(apiDefinition: ApiDefinition) = {
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(successful(Some(apiDefinition)))
       }
 
-      def willReturnNoApiDefinition() = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.successful(None))
+      def willReturnNone() = {
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(Future.failed(e))
+        when(aMock.fetchDefinition(*)(*, *)).thenReturn(failed(e))
       }
     }
 
     object FetchApiCategoryDetails {
-      def willReturnApiCategoryDetails(apiCategoryDetails: ApiCategoryDetails*) = {
-        when(aMock.fetchAllApiCategoryDetails(*, *)).thenReturn(Future.successful(apiCategoryDetails.toList))
+      def willReturn(apiCategoryDetails: ApiCategoryDetails*) = {
+        when(aMock.fetchAllApiCategoryDetails(*, *)).thenReturn(successful(apiCategoryDetails.toList))
+      }
+    }
+
+    object FetchApiSpecification {
+      def willReturn(response: JsValue) = {
+        when(aMock.fetchApiSpecification(*, *[ApiVersion])(*, *)).thenReturn(successful(Some(response)))
+      }
+
+      def willReturnNone = {
+        when(aMock.fetchApiSpecification(*, *[ApiVersion])(*, *)).thenReturn(successful(None))
       }
     }
   }
