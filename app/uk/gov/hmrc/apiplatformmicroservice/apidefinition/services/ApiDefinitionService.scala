@@ -28,6 +28,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.OpenAccessRules
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import play.api.libs.json.JsValue
 
 abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
@@ -99,6 +101,21 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
       record {
         log(failFn) {
           connector.fetchApiDocumentationResource(resourceId)
+        }
+      }
+    } else {
+      Future.successful(None)
+    }
+  }
+
+  
+  def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
+    lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
+
+    if (enabled) {
+      record {
+        log(failFn) {
+          connector.fetchApiSpecification(serviceName, version)
         }
       }
     } else {

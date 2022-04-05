@@ -20,48 +20,26 @@ import org.scalatest.Assertion
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAvailability, ApiDefinitionTestDataHelper, ApiVersion, PublicApiAccess, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.stream.testkit.NoMaterializer
 
-class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+
+class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
   trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = NoMaterializer
     val serviceName = "api-example-microservice"
-    val versionOne = ApiVersion("1.0")
     val resource = "someResource"
     val resourceId = ResourceId(serviceName, versionOne, resource)
     val mockWSResponse = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     val mockErrorWSResponse = mock[WSResponse]
     when(mockErrorWSResponse.status).thenReturn(INTERNAL_SERVER_ERROR)
-    val apiName = "hello-api"
-
-    val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
-      apiName,
-      List(extendedApiVersion(versionOne, STABLE, None, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
-    )
-
-    val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
-      apiName,
-      List(extendedApiVersion(versionOne, STABLE, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
-    )
-
-    val anExtendedApiDefinitionWithPrincipalAndSubordinate = extendedApiDefinition(
-      apiName,
-      List(extendedApiVersion(
-        versionOne,
-        STABLE,
-        Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),
-        Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))
-      ))
-    )
 
     def ensureResult: Assertion = {
       val oresult: Option[WSResponse] = await(underTest.fetch(resourceId))

@@ -47,14 +47,15 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val apiName1 = "Calendar"
   private val apiName2 = "HelloWorld"
 
-  class Setup(proxyEnabled: Boolean = true) extends ApiDefinitionHttpMockingHelper {
+  class Setup(proxyEnabled: Boolean = true) extends ApiDefinitionHttpMockingHelper with ApiDefinitionConnectorUtils {
 
     private implicit val materializer: Materializer = NoMaterializer
 
+    val serviceBaseUrl = "/mockUrl"
     val apiDefinitionUrl = "/mockUrl"
 
     val config = SubordinateApiDefinitionConnector.Config(
-      serviceBaseUrl = apiDefinitionUrl,
+      serviceBaseUrl,
       useProxy = proxyEnabled,
       bearerToken = bearer,
       apiKey = apiKeyTest

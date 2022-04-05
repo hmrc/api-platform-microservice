@@ -17,25 +17,24 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
+import org.scalatestplus.play.PlaySpec
+import play.api.libs.json.JsValue 
+import scala.concurrent.Future.successful
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
+trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+  object ApiSpecificationFetcherMock {
+    val aMock = mock[ApiSpecificationFetcher]
 
-trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
-
-  object ApiIdentifiersForUpliftFetcherMock {
-    val aMock = mock[ApiIdentifiersForUpliftFetcher]
-
-    object FetchUpliftableApis {
-      def willReturn(ids: ApiIdentifier*) = {
-        when(aMock.fetch(*)).thenReturn(Future.successful(ids.toSet))
+    object Fetch {
+      def willReturn(response: JsValue) {
+        when(aMock.fetch(*, *[ApiVersion])(*)).thenReturn(successful(Some(response)))
       }
 
-      def willThrowException(e: Exception) = {
-        when(aMock.fetch(*)).thenReturn(Future.failed(e))
+      def willReturnNotFound() {
+        when(aMock.fetch(*, *[ApiVersion])(*)).thenReturn(successful(None))
       }
     }
   }
-
 }

@@ -40,7 +40,7 @@ class PrincipalApiDefinitionConnector @Inject() (
       resourceId: ResourceId
     )(implicit hc: HeaderCarrier
     ): Future[Option[WSResponse]] = {
-    val url = documentationUrl(serviceBaseUrl, resourceId)
+    val url = documentationUrl(resourceId)
 
     logger.info(
       s"${this.getClass.getSimpleName} - P - fetchApiDocumentationResource. Url: $url"

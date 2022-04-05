@@ -42,8 +42,8 @@ class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTest
     val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
 
     "retrieve all API Categories from PRODUCTION and SANDBOX environments and combine them" in new Setup {
-      SubordinateApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnApiCategoryDetails(subordinateEnvironmentOnlyCategory, category1, category2)
-      PrincipalApiDefinitionServiceMock.FetchApiCategoryDetails.willReturnApiCategoryDetails(principalEnvironmentOnlyCategory, category1, category2)
+      SubordinateApiDefinitionServiceMock.FetchApiCategoryDetails.willReturn(subordinateEnvironmentOnlyCategory, category1, category2)
+      PrincipalApiDefinitionServiceMock.FetchApiCategoryDetails.willReturn(principalEnvironmentOnlyCategory, category1, category2)
 
       val result = await(fetcherUnderTest.fetch())
 

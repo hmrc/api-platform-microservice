@@ -125,7 +125,7 @@ trait FiltersForCombinedApis extends FilterApis {
     definitions.flatMap(filterOutRetiredVersions)
   }
 
-  def allVersionsArePublicAccess(a: ApiDefinition): Boolean = a.versions.forall(v => isPublicAccess(a.context, v))
+  def allVersionsArePublicAccess(a: ApiDefinition): Boolean = a.versions.forall(v => isPublicAccess( (a.context, v) ))
   def allVersionsArePublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
 
 

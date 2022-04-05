@@ -9,6 +9,9 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMock
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -285,4 +288,23 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
             .withBody(categoriesJsonString)))
   }
 
+  def whenFetchApiSpecification(environment: Environment)(serviceName: String, version: ApiVersion, jsValue: JsValue) = {
+    stubFor(environment)(
+      get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
+      .willReturn(
+        aResponse()
+        .withBody(Json.stringify(jsValue))
+      )
+    )
+  }
+
+  def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: String, version: ApiVersion) = {
+    stubFor(environment)(
+      get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
+      .willReturn(
+        aResponse()
+        .withStatus(NOT_FOUND)
+      )
+    )
+  }
 }
