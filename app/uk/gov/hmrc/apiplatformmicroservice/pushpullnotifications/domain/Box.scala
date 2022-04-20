@@ -17,5 +17,20 @@
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import org.joda.time.DateTime
 
-case class Box(applicationId : ApplicationId)
+
+case class Box(
+  boxId: String, // TODO: Create BoxId class
+  boxCreator : BoxCreator,
+  applicationId : ApplicationId,
+  subscriber: Option[BoxSubscriber],
+)
+
+case class BoxCreator(clientId: ClientId) 
+case class BoxSubscriber(
+  callBackUrl: String,
+  subscribedDateTime: DateTime,
+  subscriptionType: String // TODO. Optional? Enum?
+)

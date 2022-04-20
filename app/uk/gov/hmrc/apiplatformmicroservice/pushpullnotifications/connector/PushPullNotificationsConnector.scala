@@ -16,25 +16,32 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors
 
-import javax.inject.{Inject, Named, Singleton}
-import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-
-import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
+import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http._
+
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 
-  private[connectors] object JsonFormatters {
-    import play.api.libs.json._
-    
+  private[connectors] object JsonFormatters extends ApplicationJsonFormatters{
+    import play.api.libs.json._  
+    import play.api.libs.json.JodaReads._
+    import play.api.libs.json.JodaWrites._
+
+    implicit val formatDateTime = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
+
+    implicit val readsBoxCreator = Json.reads[BoxCreator]
+    implicit val readsBoxSubscriber = Json.format[BoxSubscriber]
     implicit val readsBox = Json.reads[Box]
   }
 
@@ -67,12 +74,8 @@ private[pushpullnotifications] abstract class AbstractPushPullNotificationsConne
 
   // TODO: Call real service
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
-    val box = Box(ApplicationId.random)
-    Future.successful(List(box))
-
-    // // TODO: Fix URL
-    // val url = s"$serviceBaseUrl/application/"
-    // http.GET[List[Box]](url)
+    val url = s"$serviceBaseUrl/box"
+    http.GET[List[Box]](url)
   }
 }
 
