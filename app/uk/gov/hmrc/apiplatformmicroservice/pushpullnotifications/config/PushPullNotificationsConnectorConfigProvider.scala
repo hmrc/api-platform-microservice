@@ -27,7 +27,7 @@ class PrincipalPushPullNotificationsConnectorConfigProvider @Inject() (override 
     with ConfigProviderHelper {
 
   override def get(): AbstractPushPullNotificationsConnector.Config = {
-    val serviceName = "push-pull-notifications-principal"
+    val serviceName = "push-pull-notifications-api-principal"
     AbstractPushPullNotificationsConnector.Config(
       serviceUrl("push-pull-notifications-api")(serviceName),
       useProxy(serviceName),

@@ -23,13 +23,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PushPullNotificationsConnector
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
 
 @Singleton
-class BoxFetcher @Inject() ()(implicit ec: ExecutionContext)
+class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
     extends Recoveries {
 
+
+  // TODO: Test me
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
-    val box = Box(ApplicationId.random)
-    Future.successful(List(box))
+
+    for {
+      principalBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
+      subordinateBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
+    } yield (principalBoxes ++ subordinateBoxes)
   }
 }
