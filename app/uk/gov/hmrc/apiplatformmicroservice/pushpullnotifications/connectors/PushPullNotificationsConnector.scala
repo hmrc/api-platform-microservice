@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
@@ -42,7 +43,7 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 
     implicit val readsBoxCreator = Json.reads[BoxCreator]
     implicit val readsBoxSubscriber = Json.format[BoxSubscriber]
-    implicit val readsBox = Json.reads[Box]
+    implicit val readsBox = Json.reads[BoxResponse]
   }
 
   case class Config(
@@ -53,11 +54,10 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 }
 
 trait PushPullNotificationsConnector {
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]]
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]]
 }
 
 private[pushpullnotifications] abstract class AbstractPushPullNotificationsConnector(implicit val ec: ExecutionContext) extends PushPullNotificationsConnector {
-  import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.AbstractPushPullNotificationsConnector._
   import AbstractPushPullNotificationsConnector.JsonFormatters._
 
   protected val httpClient: HttpClient
@@ -73,9 +73,9 @@ private[pushpullnotifications] abstract class AbstractPushPullNotificationsConne
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   // TODO: Call real service
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]] = {
     val url = s"$serviceBaseUrl/box"
-    http.GET[List[Box]](url)
+    http.GET[List[BoxResponse]](url)
   }
 }
 

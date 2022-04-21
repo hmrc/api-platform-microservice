@@ -22,8 +22,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PushPullNotificationsConnector
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
@@ -32,17 +31,17 @@ class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePush
     extends Recoveries {
 
   // TODO: Test me
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box2]] = {
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
 
-    def toBox2(environment: Environment)(box: Box) : Box2 = {
-      Box2(box.boxId, box.boxCreator, box.applicationId, box.subscriber, environment)
+    def toBox(environment: Environment)(box: BoxResponse) : Box = {
+      Box(box.boxId, box.boxCreator, box.applicationId, box.subscriber, environment)
     }
 
     for {
       principalBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
       subordinateBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
-      principalBoxesWithEnvironment = principalBoxes.map(toBox2(Environment.PRODUCTION))
-      subordinateBoxesWithEnvironment = subordinateBoxes.map(toBox2(Environment.SANDBOX))
+      principalBoxesWithEnvironment = principalBoxes.map(toBox(Environment.PRODUCTION))
+      subordinateBoxesWithEnvironment = subordinateBoxes.map(toBox(Environment.SANDBOX))
     } yield (principalBoxesWithEnvironment ++ subordinateBoxesWithEnvironment)
   }
 }
