@@ -19,6 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import org.joda.time.DateTime
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
 
 
 case class Box(
@@ -28,9 +30,23 @@ case class Box(
   subscriber: Option[BoxSubscriber],
 )
 
-case class BoxCreator(clientId: ClientId) 
+case class BoxCreator(clientId: ClientId)
 case class BoxSubscriber(
   callBackUrl: String,
   subscribedDateTime: DateTime,
-  subscriptionType: String // TODO. Optional? Enum?
+  subscriptionType: SubscriptionType
 )
+
+
+sealed trait SubscriptionType extends EnumEntry
+object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType]  {
+   val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
+
+  case object API_PUSH_SUBSCRIBER extends SubscriptionType
+  case object API_PULL_SUBSCRIBER extends SubscriptionType // Does this need to exist?
+}
+
+sealed trait Subscriber {
+  val subscribedDateTime: DateTime
+  val subscriptionType: SubscriptionType
+}
