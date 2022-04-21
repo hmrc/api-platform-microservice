@@ -20,9 +20,17 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
+case class Box2(
+  boxId: String, // TODO: Create BoxId class
+  boxCreator : BoxCreator,
+  applicationId : ApplicationId,
+  subscriber: Option[BoxSubscriber],
+  environment: Environment
+)
 
-
+// TODO: Move to connector
 case class Box(
   boxId: String, // TODO: Create BoxId class
   boxCreator : BoxCreator,

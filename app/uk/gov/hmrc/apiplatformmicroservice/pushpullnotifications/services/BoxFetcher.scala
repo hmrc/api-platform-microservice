@@ -21,22 +21,28 @@ import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PushPullNotificationsConnector
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 @Singleton
 class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
     extends Recoveries {
 
-
   // TODO: Test me
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box2]] = {
+
+    def toBox2(environment: Environment)(box: Box) : Box2 = {
+      Box2(box.boxId, box.boxCreator, box.applicationId, box.subscriber, environment)
+    }
 
     for {
       principalBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
       subordinateBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
-    } yield (principalBoxes ++ subordinateBoxes)
+      principalBoxesWithEnvironment = principalBoxes.map(toBox2(Environment.PRODUCTION))
+      subordinateBoxesWithEnvironment = subordinateBoxes.map(toBox2(Environment.SANDBOX))
+    } yield (principalBoxesWithEnvironment ++ subordinateBoxesWithEnvironment)
   }
 }

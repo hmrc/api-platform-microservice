@@ -30,7 +30,8 @@ trait PushPullNotificationJsonFormatters extends ApplicationJsonFormatters {
 
   implicit val formatBoxCreator: Format[BoxCreator] = Json.format[BoxCreator]
   implicit val formatBoxSubscriber: Format[BoxSubscriber]  = Json.format[BoxSubscriber]
-  implicit val formatBox: Format[Box] = Json.format[Box]
+  implicit val formatBox: Format[Box] = Json.format[Box] // TODO: Can we delete this?
+  implicit val formatBox2: Format[Box2] = Json.format[Box2]
 }
 
 object PushPullNotificationJsonFormatters extends PushPullNotificationJsonFormatters
