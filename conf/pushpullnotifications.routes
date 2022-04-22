@@ -1,1 +1,1 @@
-GET        /           uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.PushPullNotificationsController.getAll()
+GET        /box          uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.PushPullNotificationsController.getAll()
