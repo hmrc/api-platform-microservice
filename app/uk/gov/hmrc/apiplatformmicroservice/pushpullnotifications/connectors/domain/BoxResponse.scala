@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 case class BoxResponse(
   boxId: String, // TODO: Create BoxId class
+  boxName : String,
   boxCreator : BoxCreator,
   applicationId : ApplicationId,
   subscriber: Option[BoxSubscriber],

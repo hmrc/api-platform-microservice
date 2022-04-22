@@ -72,7 +72,6 @@ private[pushpullnotifications] abstract class AbstractPushPullNotificationsConne
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
-  // TODO: Call real service
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]] = {
     val url = s"$serviceBaseUrl/box"
     http.GET[List[BoxResponse]](url)
