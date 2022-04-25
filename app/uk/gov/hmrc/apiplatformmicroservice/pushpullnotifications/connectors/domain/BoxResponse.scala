@@ -18,11 +18,16 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.dom
 
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 case class BoxResponse(
   boxId: String, // TODO: Create BoxId class
   boxName : String,
   boxCreator : BoxCreator,
   applicationId : ApplicationId,
-  subscriber: Option[BoxSubscriber],
-)
+  subscriber: Option[BoxSubscriber]
+){
+  def toBox(environment: Environment) : Box = {
+    Box(this.boxId, this.boxName, this.boxCreator, this.applicationId, this.subscriber, environment)
+  }
+}
