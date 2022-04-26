@@ -7,3 +7,4 @@
 ->       /api-categories                   apicategories.Routes
 ->       /applications                     application.Routes
 ->       /subscription-fields              subscriptionfields.Routes
+->       /push-pull-notifications          pushpullnotifications.Routes
