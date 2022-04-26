@@ -58,7 +58,6 @@ trait PushPullNotificationsConnectorModule {
     }
 
     lazy val Principal = principalConnector
-
     lazy val Subordinate = subordinateConnector
   }
 }

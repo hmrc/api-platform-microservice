@@ -14,30 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.PushPullNotifications.services
+package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services
 
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks._
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks.PushPullNotificationsConnectorModule
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxCreator
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
 
 class BoxFetcherSpec extends AsyncHmrcSpec {
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar with BoxBuilder{
     val fetcher = new BoxFetcher(EnvironmentAwarePushPullNotificationsConnectorMock.instance)
   }
 
@@ -52,23 +46,11 @@ class BoxFetcherSpec extends AsyncHmrcSpec {
 
       "return principal and subordinate boxes" in new Setup {
         
-        val subordinateBoxResponse = BoxResponse("boxId-1", "subordinateboxName", BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),ApplicationId(java.util.UUID.randomUUID()),None)
-        val principalBoxResponse = BoxResponse("boxId-2", "principalBoxName", BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),ApplicationId(java.util.UUID.randomUUID()),None)
+        private val subordinateBoxResponse = buildBoxResponse("1")
+        private val principalBoxResponse = buildBoxResponse("2")
 
-      
-        val subordinateBox = Box(subordinateBoxResponse.boxId,
-          subordinateBoxResponse.boxName,
-          subordinateBoxResponse.boxCreator,
-          subordinateBoxResponse.applicationId,
-          subordinateBoxResponse.subscriber,
-          Environment.SANDBOX)
-
-        val principalBox = Box(principalBoxResponse.boxId,
-          principalBoxResponse.boxName,
-          principalBoxResponse.boxCreator,
-          principalBoxResponse.applicationId,
-          principalBoxResponse.subscriber,
-          Environment.PRODUCTION)
+        private val subordinateBox = buildBoxFromBoxResponse(subordinateBoxResponse, Environment.SANDBOX)
+        private val principalBox = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
 
         EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List(subordinateBoxResponse))
         EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List(principalBoxResponse))

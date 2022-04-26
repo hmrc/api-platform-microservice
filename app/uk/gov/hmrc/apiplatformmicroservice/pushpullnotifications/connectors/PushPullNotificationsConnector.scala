@@ -65,7 +65,6 @@ private[pushpullnotifications] abstract class AbstractPushPullNotificationsConne
   protected val config: AbstractPushPullNotificationsConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  // TODO Tidy this like Subs Fields to remove redundant "fixed" config for Principal connector
   lazy val useProxy: Boolean = config.applicationUseProxy
   lazy val bearerToken: String = config.applicationBearerToken
   lazy val apiKey: String = config.applicationApiKey

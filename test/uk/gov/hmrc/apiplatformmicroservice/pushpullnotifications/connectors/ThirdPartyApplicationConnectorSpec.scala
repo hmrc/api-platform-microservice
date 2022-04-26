@@ -80,5 +80,4 @@ class PushPullNotificationsConnectorSpec extends AsyncHmrcSpec {
       }
     }
   }
-
 }
