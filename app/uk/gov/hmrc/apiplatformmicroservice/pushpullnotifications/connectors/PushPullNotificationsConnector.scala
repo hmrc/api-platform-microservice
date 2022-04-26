@@ -41,6 +41,7 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 
     implicit val formatDateTime = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
 
+    implicit val readsBoxId = Json.valueFormat[BoxId]
     implicit val readsBoxCreator = Json.reads[BoxCreator]
     implicit val readsBoxSubscriber = Json.format[BoxSubscriber]
     implicit val readsBox = Json.reads[BoxResponse]

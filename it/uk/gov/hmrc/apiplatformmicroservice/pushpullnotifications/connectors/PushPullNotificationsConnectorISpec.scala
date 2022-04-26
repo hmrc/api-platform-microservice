@@ -22,13 +22,13 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxCreator
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxSubscriber
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
@@ -36,6 +36,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxId
 
 class PushPullNotificationsConnectorISpec
     extends AsyncHmrcSpec
@@ -45,17 +46,17 @@ class PushPullNotificationsConnectorISpec
     with PrincipalAndSubordinateWireMockSetup
     with ApplicationBuilder {
 
-  trait Setup {
+  trait Setup extends BoxBuilder {
 
     import play.api.libs.json._  
     import play.api.libs.json.JodaWrites._
 
 
     implicit val clientIdWrites = Json.valueFormat[ClientId]
-    
+  
     implicit val boxCreatorWrites = Json.writes[BoxCreator]
     implicit val boxSubscriberWrites = Json.writes[BoxSubscriber]
-
+    implicit val boxIdWrites = Json.valueFormat[BoxId]
     implicit val boxResponseWrites = Json.writes[BoxResponse]
 
     implicit val hc = HeaderCarrier()
@@ -88,8 +89,7 @@ class PushPullNotificationsConnectorISpec
     val url = "/box"
     
     "return all boxes" in new Setup {
-
-      val boxes = List[BoxResponse](BoxResponse("boxId","boxName", BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),ApplicationId.random, None))
+      val boxes = List(buildBoxResponse("1"))
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))

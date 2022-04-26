@@ -19,17 +19,19 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxCreator
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.SubscriptionType
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxSubscriber
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxSubscriber
-import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.SubscriptionType
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+
+import org.joda.time.DateTime
 
 trait BoxBuilder {
   
   def buildBox(boxId: String): Box = {
-    Box(boxId,
+    Box(BoxId(boxId),
         s"boxName-$boxId",
         buildBoxCreator(),
         ApplicationId(java.util.UUID.randomUUID()),
@@ -38,7 +40,7 @@ trait BoxBuilder {
   }
 
   def buildBoxResponse(boxId: String) : BoxResponse = {
-    BoxResponse(boxId,
+    BoxResponse(BoxId(boxId),
                 s"boxName-$boxId",
                 buildBoxCreator(),
                 ApplicationId(java.util.UUID.randomUUID()),

@@ -22,8 +22,10 @@ import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
+case class BoxId(value: String) extends AnyVal
+
 case class Box(
-  boxId: String, // TODO: Create BoxId class
+  boxId: BoxId,
   boxName: String,
   boxCreator : BoxCreator,
   applicationId : ApplicationId,
@@ -44,7 +46,7 @@ object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[Subscri
    val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
 
   case object API_PUSH_SUBSCRIBER extends SubscriptionType
-  case object API_PULL_SUBSCRIBER extends SubscriptionType // Does this need to exist?
+  case object API_PULL_SUBSCRIBER extends SubscriptionType
 }
 
 sealed trait Subscriber {
