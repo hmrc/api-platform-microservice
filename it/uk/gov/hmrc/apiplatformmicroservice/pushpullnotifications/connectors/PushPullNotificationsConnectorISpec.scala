@@ -51,7 +51,6 @@ class PushPullNotificationsConnectorISpec
     import play.api.libs.json._  
     import play.api.libs.json.JodaWrites._
 
-
     implicit val clientIdWrites = Json.valueFormat[ClientId]
   
     implicit val boxCreatorWrites = Json.writes[BoxCreator]
@@ -64,7 +63,6 @@ class PushPullNotificationsConnectorISpec
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer = "TestBearerToken"
-
 
     val config = AbstractPushPullNotificationsConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort",
@@ -90,6 +88,25 @@ class PushPullNotificationsConnectorISpec
     
     "return all boxes" in new Setup {
       val boxes = List(buildBoxResponse("1"))
+
+      stubFor(PRODUCTION)(
+        get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+          .withStatus(OK)
+          .withJsonBody(boxes)
+        )
+      )
+      val boxResponse = await(connector.fetchAllBoxes())
+
+      boxResponse shouldBe boxes
+    }
+
+    "return boxes with no applicationId" in new Setup {
+      val boxes = List(buildBoxResponse(
+        boxId = "1", 
+        applicationId = None)
+      )
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))

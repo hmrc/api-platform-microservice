@@ -34,16 +34,16 @@ trait BoxBuilder {
     Box(BoxId(boxId),
         s"boxName-$boxId",
         buildBoxCreator(),
-        ApplicationId(java.util.UUID.randomUUID()),
+        Some(ApplicationId(java.util.UUID.randomUUID())),
         Some(buildSubscriber()),
         Environment.PRODUCTION)
   }
 
-  def buildBoxResponse(boxId: String) : BoxResponse = {
+  def buildBoxResponse(boxId: String, applicationId : Option[ApplicationId] = Some(ApplicationId.random)) : BoxResponse = {
     BoxResponse(BoxId(boxId),
                 s"boxName-$boxId",
                 buildBoxCreator(),
-                ApplicationId(java.util.UUID.randomUUID()),
+                applicationId,
                 Some(buildSubscriber()))
   }
 
