@@ -39,7 +39,7 @@ trait BoxBuilder {
         Environment.PRODUCTION)
   }
 
-  def buildBoxResponse(boxId: String, applicationId : Option[ApplicationId] = Some(ApplicationId(java.util.UUID.randomUUID()))) : BoxResponse = {
+  def buildBoxResponse(boxId: String, applicationId : Option[ApplicationId] = Some(ApplicationId.random)) : BoxResponse = {
     BoxResponse(BoxId(boxId),
                 s"boxName-$boxId",
                 buildBoxCreator(),
