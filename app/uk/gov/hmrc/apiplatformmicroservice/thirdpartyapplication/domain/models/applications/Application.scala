@@ -41,7 +41,7 @@ case class Application(
     gatewayId: String,
     name: String,
     createdOn: DateTime,
-    lastAccess: DateTime,
+    lastAccess: Option[DateTime],
     grantLength: Period,
     lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
