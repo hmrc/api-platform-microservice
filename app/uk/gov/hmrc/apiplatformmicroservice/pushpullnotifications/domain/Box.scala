@@ -28,7 +28,7 @@ case class Box(
   boxId: BoxId,
   boxName: String,
   boxCreator : BoxCreator,
-  applicationId : ApplicationId,
+  applicationId : Option[ApplicationId],
   subscriber: Option[BoxSubscriber],
   environment: Environment
 )
@@ -39,7 +39,6 @@ case class BoxSubscriber(
   subscribedDateTime: DateTime,
   subscriptionType: SubscriptionType
 )
-
 
 sealed trait SubscriptionType extends EnumEntry
 object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType]  {

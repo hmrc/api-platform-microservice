@@ -24,7 +24,7 @@ case class BoxResponse(
   boxId: BoxId,
   boxName : String,
   boxCreator : BoxCreator,
-  applicationId : ApplicationId,
+  applicationId : Option[ApplicationId],
   subscriber: Option[BoxSubscriber]
 ){
   def toBox(environment: Environment) : Box = {
