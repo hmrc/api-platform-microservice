@@ -47,7 +47,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       gatewayId = "",
       name = s"${appId.value}-name",
       createdOn = createdOn,
-      lastAccess = lastAccess,
+      lastAccess = Some(lastAccess),
       grantLength = grantLength,
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
@@ -118,6 +118,6 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def allowIPs(ips: String*) = app.copy(ipAllowlist = app.ipAllowlist.copy(allowlist = app.ipAllowlist.allowlist ++ ips))
 
     def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = lastAccessDate)
-  }  
+    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
+  }
 }

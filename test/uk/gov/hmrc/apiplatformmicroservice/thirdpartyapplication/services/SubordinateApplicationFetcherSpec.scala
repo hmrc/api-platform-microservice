@@ -34,7 +34,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec {
     val subordinateAppId = ApplicationId.random
     val principalAppId = ApplicationId.random
 
-    val subordinateApplication = Application(subordinateAppId, ClientId("123"), "gatewayId", "name", DateTimeUtils.now, DateTimeUtils.now, java.time.Period.ofDays(1), None, Environment.SANDBOX, Some("description"))
+    val subordinateApplication = Application(subordinateAppId, ClientId("123"), "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), java.time.Period.ofDays(1), None, Environment.SANDBOX, Some("description"))
 
     val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock.aMock
     val principalConnector = PrincipalThirdPartyApplicationConnectorMock.aMock
