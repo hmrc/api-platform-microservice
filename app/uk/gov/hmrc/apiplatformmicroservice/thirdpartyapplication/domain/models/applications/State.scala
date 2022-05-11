@@ -32,6 +32,7 @@ object State extends Enum[State] with PlayJsonEnum[State] {
   val values = findValues
 
   final case object TESTING extends State
+  final case object PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION extends State
   final case object PENDING_GATEKEEPER_APPROVAL extends State
   final case object PENDING_REQUESTER_VERIFICATION extends State
   final case object PRE_PRODUCTION extends State
