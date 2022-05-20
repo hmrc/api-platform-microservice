@@ -29,7 +29,21 @@ trait ExtendedApiDefinitionExampleData {
 
   val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
     apiName,
-    List(extendedApiVersion(versionOne, STABLE, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)), None))
+    List(
+      extendedApiVersion(
+        versionOne,
+        STABLE,
+        Some(
+          ApiAvailability(
+            endpointsEnabled = true,
+            PublicApiAccess(),
+            loggedIn = true,
+            authorised = true
+          )
+        ),
+        None
+      )
+    )
   )
 
   val anExtendedApiDefinitionWithPrincipalAndSubordinate = extendedApiDefinition(

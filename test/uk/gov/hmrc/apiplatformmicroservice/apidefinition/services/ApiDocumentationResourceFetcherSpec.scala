@@ -22,10 +22,11 @@ import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.{HeaderCarrier}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.stream.testkit.NoMaterializer
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
 
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
@@ -35,7 +36,10 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     implicit val mat = NoMaterializer
     val serviceName = "api-example-microservice"
     val resource = "someResource"
+    
     val resourceId = ResourceId(serviceName, versionOne, resource)
+    val noSuchVersion = resourceId.copy(version = ApiVersion("YouWontFindMe"))
+
     val mockWSResponse = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     val mockErrorWSResponse = mock[WSResponse]
@@ -49,18 +53,96 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       oresult mustBe Some(mockWSResponse)
     }
 
+    def verifyNoEnvsCalled() = {
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
+    }
+    
+    def verifyBothEnvsCalled() = {
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
+    }
+
+    def verifyOnlySubordinateEnvCalled() = {
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
+    }
+
+    def verifyOnlyPrincipalEnvCalled() = {
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
+    }
+
     val underTest =
       new ApiDocumentationResourceFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }
 
   "ApiDocumentationResourceFetcher" should {
-    "will not invoke subordinate resource search if the subordinate is disabled" in new Setup {
+
+    "return a resource from Subordinate when api and version exists" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
+
+      val result = await(underTest.fetch(resourceId))
+
+      result shouldBe 'defined
+      
+      verifyOnlySubordinateEnvCalled
+    }
+
+    "not attempt to fetch from subordinate when api version exists but is only present in principal environment" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 
-      ensureResult
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
+      val result = await(underTest.fetch(resourceId))
+
+      result shouldBe 'defined
+      
+      verifyOnlyPrincipalEnvCalled
+    }
+
+    "return nothing when api does not exist" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
+
+      val result = await(underTest.fetch(resourceId))
+
+      result shouldBe None
+      
+      verifyNoEnvsCalled
+    }
+
+    "return nothing when api exists but version does not exist" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+
+      val result = await(underTest.fetch(noSuchVersion))
+
+      result shouldBe None
+      
+      verifyNoEnvsCalled
+    }
+
+    "return the resource from principal when the subordinate fails" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
+
+      val result = await(underTest.fetch(resourceId))
+
+      result shouldBe 'defined
+      
+      verifyBothEnvsCalled
+    }
+
+    "return nothing when both environments return nothing" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
+      
+      val result = await(underTest.fetch(resourceId))
+
+      result shouldBe None
+
+      verifyBothEnvsCalled      
     }
 
     "will fail when extended api definition fetch fails" in new Setup {
@@ -73,65 +155,12 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       ex.getMessage mustBe "unexpected error"
     }
 
-    "will fail with not found when no apis available" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
-
-      private val ex = intercept[IllegalArgumentException] {
-        await(underTest.fetch(resourceId))
-      }
-
-      ex.getMessage mustBe "Version 1.0 of api-example-microservice not found"
-    }
-
-    "return the resource fetched from the subordinate when the version exists in both locations" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
-
-      ensureResult
-
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
-    }
-
-    "return the resource from principal when the subordinate fails" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
-
-      ensureResult
-    }
-
-    "return the resource when the principal would have failed but we already got a response from subordinate" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
-
-      ensureResult
-    }
-
     "fail when both locations fail" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
 
-      private val ex = intercept[NotFoundException] {
-        await(underTest.fetch(resourceId))
-      }
-
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
-    }
-
-    "fail with not found when both locations return nothing" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
-      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
-      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
-
-      private val ex = intercept[NotFoundException] {
-        await(underTest.fetch(resourceId))
-      }
-
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
+      await(underTest.fetch(resourceId)) shouldBe None
     }
 
     "fail with not found when principal returns nothing and it's not available in sandbox" in new Setup {
@@ -139,11 +168,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 
-      private val ex = intercept[NotFoundException] {
-        await(underTest.fetch(resourceId))
-      }
-
-      ex.getMessage mustBe "someResource not found for api-example-microservice 1.0"
+      await(underTest.fetch(resourceId)) shouldBe None
     }
   }
 }
