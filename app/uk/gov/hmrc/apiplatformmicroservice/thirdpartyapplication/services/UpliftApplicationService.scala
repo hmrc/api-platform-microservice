@@ -75,7 +75,7 @@ class UpliftApplicationService @Inject() (
         remappedRequestSubs        = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
         filteredSubs               = remappedRequestSubs.filter(upliftableApis.contains)
         _                         <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
-        filteredUpliftRequest      = upliftRequest.copy(subscriptions = Set.empty)
+        filteredUpliftRequest      = upliftRequest.copy(subscriptions = filteredSubs)
         createApplicationRequest   = CreateApplicationRequestV2(
                                       app.name,
                                       app.access,
