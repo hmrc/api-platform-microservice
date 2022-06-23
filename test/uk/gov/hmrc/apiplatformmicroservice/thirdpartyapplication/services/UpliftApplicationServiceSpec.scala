@@ -67,7 +67,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
       createAppRequest match {
-        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set.empty
+        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(context1)
         case _ => fail("Not the expected request")
       }
 
@@ -86,7 +86,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
       createAppRequest match {
-        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set.empty
+        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
         case _ => fail("Not the expected request")
       }
 
