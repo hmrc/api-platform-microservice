@@ -86,7 +86,7 @@ class SubscriptionService @Inject()(
       .flatMap(possibleSubscriptions => {
         
         if(canSubscribeToAll(possibleSubscriptions)) {
-          subscribeToAllApisAndCreateFieldValues(application, apis)
+          createFieldValuesForGivenApis(application, apis)
         } else {
           successful(CreateSubscriptionDenied)
         }
@@ -94,16 +94,22 @@ class SubscriptionService @Inject()(
     )
   }
 
-  private def subscribeToAllApisAndCreateFieldValues(application: Application, apiIdentifiers: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
-    Future.sequence(apiIdentifiers.map(api => subscribeToApiAndCreateFieldValues(application, api)))
+  private def createFieldValuesForGivenApis(application: Application, apiIdentifiers: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    Future.sequence(apiIdentifiers.map(api => createFieldValues(application, api)))
     .map(_ => CreateSubscriptionSuccess)
   }
 
-  private def subscribeToApiAndCreateFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
       fieldValues         <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
       fieldValuesForApi    = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
       fvResuls            <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
+    } yield CreateSubscriptionSuccess
+  }
+
+  private def subscribeToApiAndCreateFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    for {
+      _ <- createFieldValues(application, apiIdentifier)
       subscribeApiResult  <- thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, apiIdentifier)
     } yield CreateSubscriptionSuccess
   }
