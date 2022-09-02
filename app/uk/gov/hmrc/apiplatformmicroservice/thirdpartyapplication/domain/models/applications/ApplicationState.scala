@@ -21,19 +21,20 @@ import org.joda.time.DateTime
 case class ApplicationState(
     name: State,
     requestedByEmailAddress: Option[String],
+    requestedByName: Option[String],
     verificationCode: Option[String] = None,
     updatedOn: DateTime = DateTime.now)
 
 object ApplicationState {
-  val testing = ApplicationState(State.TESTING, None)
-  val production = ApplicationState(State.PRODUCTION, None)
+  val testing = ApplicationState(State.TESTING, None, None)
+  val production = ApplicationState(State.PRODUCTION, None, None)
 
   def pendingGatekeeperApproval(requestedBy: String) =
-    ApplicationState(State.PENDING_GATEKEEPER_APPROVAL, Some(requestedBy))
+    ApplicationState(State.PENDING_GATEKEEPER_APPROVAL, Some(requestedBy), Some(requestedBy))
 
   def pendingRequesterVerification(requestedBy: String, verificationCode: String) =
-    ApplicationState(State.PENDING_REQUESTER_VERIFICATION, Some(requestedBy), Some(verificationCode))
+    ApplicationState(State.PENDING_REQUESTER_VERIFICATION, Some(requestedBy), Some(requestedBy), Some(verificationCode))
 
   def production(requestedBy: String, verificationCode: String) =
-    ApplicationState(State.PRODUCTION, Some(requestedBy), Some(verificationCode))
+    ApplicationState(State.PRODUCTION, Some(requestedBy), Some(requestedBy), Some(verificationCode))
 }
