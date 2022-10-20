@@ -30,9 +30,6 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-object ApplicationUpdateController {
-}
-
 @Singleton
 class ApplicationUpdateController @Inject()(
                                              val authConfig: AuthConnector.Config,
@@ -47,7 +44,7 @@ class ApplicationUpdateController @Inject()(
     
     def handleUpdate(app: Application, applicationUpdate: ApplicationUpdate): Future[Result] = {
       applicationUpdateService.updateApplication(app, applicationUpdate)
-      .map(app => Ok(Json.toJson(app)))
+        .map(app => Ok(Json.toJson(app)))
     }
     
     withJsonBody[ApplicationUpdate] { applicationUpdate =>

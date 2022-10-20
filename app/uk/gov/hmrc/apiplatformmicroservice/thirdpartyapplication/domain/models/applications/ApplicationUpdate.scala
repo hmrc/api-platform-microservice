@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.play.json.Union
 
 import java.time.LocalDateTime
@@ -43,20 +43,19 @@ object Actor {
     .and[CollaboratorActor]("COLLABORATOR")
     .format
 }
+
 sealed trait ApplicationUpdate {
   def timestamp: LocalDateTime
 }
 trait UpdateRequest extends ApplicationUpdate
 
-trait GatekeeperApplicationUpdate extends ApplicationUpdate {
-   def gatekeeperUser: String
-}
-
 case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime) extends UpdateRequest
 case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
 case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime) extends UpdateRequest
-
 case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
+case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+
 trait ApplicationUpdateFormatters {
 
   implicit val collaboratorFormat = Json.format[Collaborator]
@@ -64,6 +63,8 @@ trait ApplicationUpdateFormatters {
   implicit val addCollaboratorUpdateRequestFormatter = Json.format[AddCollaboratorRequest]
   implicit val removeCollaboratorFormatter = Json.format[RemoveCollaborator]
   implicit val removeCollaboratorRequestFormatter = Json.format[RemoveCollaboratorRequest]
+  implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
+  implicit val unsubscribeFromApiFormatter = Json.format[UnsubscribeFromApi]
 
 
   implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
@@ -71,6 +72,8 @@ trait ApplicationUpdateFormatters {
     .and[AddCollaborator]("addCollaborator")
     .and[RemoveCollaborator]("removeCollaborator")
     .and[RemoveCollaboratorRequest]("removeCollaboratorRequest")
+    .and[SubscribeToApi]("subscribeToApi")
+    .and[UnsubscribeFromApi]("unsubscribeFromApi")
     .format
 
 }

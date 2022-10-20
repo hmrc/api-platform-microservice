@@ -73,6 +73,7 @@ trait ThirdPartyApplicationConnector {
 
   def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application]
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
   @deprecated("remove after clients are no longer using the old endpoint")
@@ -131,6 +132,17 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       }
   }
 
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)
+                       (implicit hc: HeaderCarrier): Future[Application] = {
+    http.PATCH[ApplicationUpdate,  Application](
+      s"$serviceBaseUrl/application/${applicationId.value}", applicationUpdate
+    )
+      .recover {
+        case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
+      }
+  }
+
+  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
     http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
       .map {
@@ -201,6 +213,7 @@ class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
     @Named("principal") val principal: ThirdPartyApplicationConnector)
     extends EnvironmentAware[ThirdPartyApplicationConnector]
 
+@deprecated("remove after clients are no longer using the old endpoint")
 sealed trait SubscriptionUpdateResult
 case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
 case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult
