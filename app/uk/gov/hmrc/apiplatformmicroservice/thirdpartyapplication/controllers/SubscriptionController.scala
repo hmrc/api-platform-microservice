@@ -48,6 +48,7 @@ class SubscriptionController @Inject()(
 )(implicit val ec: ExecutionContext)
 extends BackendController(cc) with ActionBuilders {
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>

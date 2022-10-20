@@ -33,6 +33,7 @@ class ApplicationCollaboratorService @Inject() (
   )(implicit ec: ExecutionContext)
     extends Recoveries {
 
+      @deprecated("remove after clients are no longer using the old endpoint")
       def addCollaborator(app: Application, email: String, role: Role, requestingEmail: Option[String])
                          (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
 

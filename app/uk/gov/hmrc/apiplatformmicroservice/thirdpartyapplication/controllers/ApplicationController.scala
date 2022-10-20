@@ -69,6 +69,7 @@ class ApplicationController @Inject() (
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   def addCollaborator(applicationId: ApplicationId): Action[JsValue] =
     ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
       withJsonBody[AddCollaboratorRequest] { collaboratorRequest =>

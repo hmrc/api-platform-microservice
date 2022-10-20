@@ -31,7 +31,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import play.api.libs.json.Json
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
@@ -72,8 +71,12 @@ trait ThirdPartyApplicationConnector {
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResponse]
+
+  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult]
 
   def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId]
@@ -82,7 +85,9 @@ trait ThirdPartyApplicationConnector {
   
 }
 
-private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector with ApplicationLogger {
+private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
+  with ApplicationUpdateFormatters with ApplicationLogger {
+
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
   import AbstractThirdPartyApplicationConnector.JsonFormatters._
 
@@ -117,23 +122,36 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       }
   }
 
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, Either[UpstreamErrorResponse,Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
-    .map( _ match {
-      case Left(errorResponse) => throw errorResponse
-      case Right(_) =>  SubscriptionUpdateSuccessResult
-    })
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)
+                       (implicit hc: HeaderCarrier): Future[ApplicationUpdateResponse] = {
+    http.PATCH[ApplicationUpdate, Either[UpstreamErrorResponse, ApplicationUpdateResponse]](
+      s"$serviceBaseUrl/application/${applicationId.value}", applicationUpdate
+    )
+      .map {
+        case Left(errorResponse) => throw errorResponse
+        case Right(x) => x
+      }
   }
 
+  @deprecated("remove after clients are no longer using the old endpoint")
+  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
+    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
+      .map {
+        case Left(errorResponse) => throw errorResponse
+        case Right(_) => SubscriptionUpdateSuccessResult
+      }
+  }
+
+  @deprecated("remove after clients are no longer using the old endpoint")
   def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)
                      (implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
     http.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](s"$serviceBaseUrl/application/${applicationId.value}/collaborator", addCollaboratorRequest)
-    .map(_ match {
-      case Right(response) => AddCollaboratorSuccessResult(response.registeredUser)
-      case Left(UpstreamErrorResponse(_,NOT_FOUND, _, _)) => throw new ApplicationNotFound
-      case Left(UpstreamErrorResponse(_,CONFLICT, _, _)) => CollaboratorAlreadyExistsFailureResult
-      case Left(errorResponse) => throw errorResponse
-    })
+      .map {
+        case Right(response) => AddCollaboratorSuccessResult(response.registeredUser)
+        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw new ApplicationNotFound
+        case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => CollaboratorAlreadyExistsFailureResult
+        case Left(errorResponse) => throw errorResponse
+      }
   }
 
   def createApplicationV1(createAppRequest: CreateApplicationRequestV1)
