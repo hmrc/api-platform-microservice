@@ -34,7 +34,6 @@ object ClientId {
 case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
 
 
-
 case class Application(
     id: ApplicationId,
     clientId: ClientId,

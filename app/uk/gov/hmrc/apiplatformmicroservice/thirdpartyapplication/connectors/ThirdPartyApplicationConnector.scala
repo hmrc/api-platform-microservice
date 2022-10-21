@@ -28,6 +28,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.ApplicationResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -71,7 +72,7 @@ trait ThirdPartyApplicationConnector {
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResponse]
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application]
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
@@ -123,8 +124,8 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
   }
 
   def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)
-                       (implicit hc: HeaderCarrier): Future[ApplicationUpdateResponse] = {
-    http.PATCH[ApplicationUpdate, Either[UpstreamErrorResponse, ApplicationUpdateResponse]](
+                       (implicit hc: HeaderCarrier): Future[Application] = {
+    http.PATCH[ApplicationUpdate, Either[UpstreamErrorResponse, Application]](
       s"$serviceBaseUrl/application/${applicationId.value}", applicationUpdate
     )
       .map {

@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationUpdate, ApplicationUpdateFormatters}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, ApplicationUpdateService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -38,7 +38,7 @@ class ApplicationUpdateController @Inject()(
                                              val authConfig: AuthConnector.Config,
                                              val authConnector: AuthConnector,
                                              val applicationService: ApplicationByIdFetcher,
-                                             val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
+                                             val applicationUpdateService: ApplicationUpdateService,
                                              cc: ControllerComponents
                                            )(implicit val ec: ExecutionContext)
   extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationUpdateFormatters {
@@ -46,7 +46,7 @@ class ApplicationUpdateController @Inject()(
   def update(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
     
     def handleUpdate(app: Application, applicationUpdate: ApplicationUpdate): Future[Status] = {
-      thirdPartyApplicationConnector(app.deployedTo).updateApplication(id, applicationUpdate)
+      applicationUpdateService.updateApplication(app, applicationUpdate)
       Future.successful(Ok)
     }
     
