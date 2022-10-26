@@ -41,11 +41,10 @@ class SubscriptionService @Inject()(
   subscriptionFieldsFetcher: SubscriptionFieldsFetcher
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
-  @deprecated("remove after clients are no longer using the old endpoint")
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     def isPublic(in: ApiVersionDefinition) = in.access match {
       case PublicApiAccess() => true
-      case _ => false
+      case _ => false      
     }
     
     def removePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] = 

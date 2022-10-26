@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.play.json.Union
 
@@ -33,20 +33,13 @@ trait GatekeeperApplicationUpdate extends ApplicationUpdate {
 case class AddCollaborator(userId: UserId, email: String, version: String, timestamp: LocalDateTime) extends ApplicationUpdate
 case class AddCollaboratorGatekeeper(gatekeeperUser: String, email: String, version: String, timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
 
-case class SubscribeToApi(userId: UserId, email: String, version: String, timestamp: LocalDateTime) extends ApplicationUpdate
-case class SubscribeToApiGatekeeper(gatekeeperUser: String, email: String, version: String, timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
-
 trait ApplicationUpdateFormatters {
   implicit val addCollaboratorFormatter = Json.format[AddCollaborator]
   implicit val addCollaboratorGatekeeperFormatter = Json.format[AddCollaboratorGatekeeper]
-  implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
-  implicit val subscribeToApiGatekeeperFormatter = Json.format[SubscribeToApiGatekeeper]
 
   implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[AddCollaborator]("addCollaborator")
     .and[AddCollaboratorGatekeeper]("addCollaboratorGatekeeper")
-    .and[SubscribeToApi]("subscribeToApi")
-    .and[SubscribeToApiGatekeeper]("subscribeToApiGatekeeper")
     .format
 
 }

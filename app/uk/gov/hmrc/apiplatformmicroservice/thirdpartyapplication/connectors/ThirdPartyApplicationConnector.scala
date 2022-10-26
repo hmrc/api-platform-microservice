@@ -28,7 +28,6 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector.ApplicationResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -74,7 +73,6 @@ trait ThirdPartyApplicationConnector {
 
   def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application]
 
-  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
 
   @deprecated("remove after clients are no longer using the old endpoint")
@@ -134,7 +132,6 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       }
   }
 
-  @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
     http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
       .map {
