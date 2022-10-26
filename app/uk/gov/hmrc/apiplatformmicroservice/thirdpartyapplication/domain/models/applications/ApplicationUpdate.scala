@@ -30,14 +30,21 @@ trait GatekeeperApplicationUpdate extends ApplicationUpdate {
    def gatekeeperUser: String
 }
 
-case class AddCollaborator(userId: UserId, email: String, version: String, timestamp: LocalDateTime) extends ApplicationUpdate
-case class AddCollaboratorGatekeeper(gatekeeperUser: String, email: String, version: String, timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
 
-trait ApplicationUpdateFormatters {
+case class AddCollaboratorRequest(email: String, version: String, timestamp: LocalDateTime) extends ApplicationUpdate
+case class AddCollaboratorGatekeeperRequest(gatekeeperUser: String, email: String, version: String, timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
+case class AddCollaborator(instigator: UserId, email: String,  collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
+case class AddCollaboratorGatekeeper(gatekeeperUser: String, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
+
+trait ApplicationUpdateRequestFormatters {
+  implicit val addCollaboratorRequestFormatter = Json.format[AddCollaboratorRequest]
+  implicit val addCollaboratorGatekeeperRequestFormatter = Json.format[AddCollaboratorGatekeeperRequest]
   implicit val addCollaboratorFormatter = Json.format[AddCollaborator]
   implicit val addCollaboratorGatekeeperFormatter = Json.format[AddCollaboratorGatekeeper]
 
   implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
+    .and[AddCollaboratorRequest]("addCollaboratorRequest")
+    .and[AddCollaboratorGatekeeperRequest]("addCollaboratorGatekeeperRequest")
     .and[AddCollaborator]("addCollaborator")
     .and[AddCollaboratorGatekeeper]("addCollaboratorGatekeeper")
     .format
