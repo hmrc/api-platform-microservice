@@ -25,24 +25,26 @@ import java.time.LocalDateTime
 sealed trait ApplicationUpdate {
   def timestamp: LocalDateTime
 }
+trait UpdateRequest extends ApplicationUpdate
 
 trait GatekeeperApplicationUpdate extends ApplicationUpdate {
    def gatekeeperUser: String
 }
 
-
-case class AddCollaboratorRequest(email: String, version: String, timestamp: LocalDateTime) extends ApplicationUpdate
-case class AddCollaboratorGatekeeperRequest(gatekeeperUser: String, email: String, version: String, timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
+case class AddCollaboratorRequest(instigator: UserId, email: String, collaboratorEmail: String, collaborator: Role, timestamp: LocalDateTime) extends UpdateRequest
+case class AddCollaboratorGatekeeperRequest(gatekeeperUser: String, collaboratorEmail: String, collaborator: Role, timestamp: LocalDateTime) extends UpdateRequest
 case class AddCollaborator(instigator: UserId, email: String,  collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
 case class AddCollaboratorGatekeeper(gatekeeperUser: String, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
 
-trait ApplicationUpdateRequestFormatters {
-  implicit val addCollaboratorRequestFormatter = Json.format[AddCollaboratorRequest]
-  implicit val addCollaboratorGatekeeperRequestFormatter = Json.format[AddCollaboratorGatekeeperRequest]
+
+trait ApplicationUpdateFormatters {
+
   implicit val addCollaboratorFormatter = Json.format[AddCollaborator]
   implicit val addCollaboratorGatekeeperFormatter = Json.format[AddCollaboratorGatekeeper]
+  implicit val addCollaboratorRequestFormatter = Json.format[AddCollaboratorRequest]
+  implicit val addCollaboratorGatekeeperRequestFormatter = Json.format[AddCollaboratorGatekeeperRequest]
 
-  implicit val applicationUpdateRequestFormatter = Union.from[ApplicationUpdate]("updateType")
+  implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[AddCollaboratorRequest]("addCollaboratorRequest")
     .and[AddCollaboratorGatekeeperRequest]("addCollaboratorGatekeeperRequest")
     .and[AddCollaborator]("addCollaborator")
