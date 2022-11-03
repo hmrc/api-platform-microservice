@@ -58,7 +58,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApp.copy(deployedTo = Environment.PRODUCTION))
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.copy(deployedTo = Environment.PRODUCTION)))
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.willReturnOk
 
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2), makeUpliftRequest(context1)))
@@ -77,7 +77,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
     "successfully create an uplifted application AND handle CDS uplift" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2, contextCDSv1)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApp.copy(deployedTo = Environment.PRODUCTION))
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.copy(deployedTo = Environment.PRODUCTION)))
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.willReturnOk
 
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2, contextCDSv2), makeUpliftRequest(contextCDSv2)))

@@ -123,12 +123,11 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
 
   def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)
                        (implicit hc: HeaderCarrier): Future[Application] = {
-    http.PATCH[ApplicationUpdate, Either[UpstreamErrorResponse, Application]](
+    http.PATCH[ApplicationUpdate,  Application](
       s"$serviceBaseUrl/application/${applicationId.value}", applicationUpdate
     )
-      .map {
-        case Left(errorResponse) => throw errorResponse
-        case Right(x) => x
+      .recover {
+        case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
       }
   }
 

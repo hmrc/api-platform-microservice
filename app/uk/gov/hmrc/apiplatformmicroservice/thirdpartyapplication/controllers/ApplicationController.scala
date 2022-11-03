@@ -21,7 +21,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequest, UpliftRequest}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequestOld, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -72,7 +72,7 @@ class ApplicationController @Inject() (
   @deprecated("remove after clients are no longer using the old endpoint")
   def addCollaborator(applicationId: ApplicationId): Action[JsValue] =
     ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
-      withJsonBody[AddCollaboratorRequest] { collaboratorRequest =>
+      withJsonBody[AddCollaboratorRequestOld] { collaboratorRequest =>
         applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role, collaboratorRequest.requestingEmail)
           .map{
             case AddCollaboratorSuccessResult(_) => Created

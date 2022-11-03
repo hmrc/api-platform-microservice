@@ -16,12 +16,44 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import play.api.libs.json.Json
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.play.json.Union
 
 import java.time.LocalDateTime
 
+sealed trait ActorType extends EnumEntry
+
+object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
+  val values = findValues
+
+  final case object COLLABORATOR extends ActorType
+  final case object GATEKEEPER extends ActorType
+  final case object SCHEDULED_JOB extends ActorType
+}
+
+sealed trait Actor
+
+case class GatekeeperUserActor(user: String) extends Actor
+
+case class CollaboratorActor(email: String) extends Actor
+
+case class ScheduledJobActor(jobId: String) extends Actor
+
+object Actor {
+  implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
+  implicit val collaboratorActorFormat: OFormat[CollaboratorActor] = Json.format[CollaboratorActor]
+  implicit val scheduledJobActorFormat: OFormat[ScheduledJobActor] = Json.format[ScheduledJobActor]
+  //    implicit val unknownActorFormat: OFormat[UnknownActor] = Json.format[UnknownActor]
+
+  implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
+    //      .and[UnknownActor](ActorType.UNKNOWN.toString)
+    .and[ScheduledJobActor](ActorType.SCHEDULED_JOB.toString)
+    .and[GatekeeperUserActor](ActorType.GATEKEEPER.toString)
+    .and[CollaboratorActor](ActorType.COLLABORATOR.toString)
+    .format
+}
 sealed trait ApplicationUpdate {
   def timestamp: LocalDateTime
 }
@@ -31,24 +63,25 @@ trait GatekeeperApplicationUpdate extends ApplicationUpdate {
    def gatekeeperUser: String
 }
 
-case class AddCollaboratorRequest(instigator: UserId, email: String, collaboratorEmail: String, collaborator: Role, timestamp: LocalDateTime) extends UpdateRequest
-case class AddCollaboratorGatekeeperRequest(gatekeeperUser: String, collaboratorEmail: String, collaborator: Role, timestamp: LocalDateTime) extends UpdateRequest
-case class AddCollaborator(instigator: UserId, email: String,  collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
-case class AddCollaboratorGatekeeper(gatekeeperUser: String, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends GatekeeperApplicationUpdate
+case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime) extends UpdateRequest
+case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
+case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime) extends UpdateRequest
 
-
+case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
 trait ApplicationUpdateFormatters {
 
+  implicit val collaboratorFormat = Json.format[Collaborator]
   implicit val addCollaboratorFormatter = Json.format[AddCollaborator]
-  implicit val addCollaboratorGatekeeperFormatter = Json.format[AddCollaboratorGatekeeper]
-  implicit val addCollaboratorRequestFormatter = Json.format[AddCollaboratorRequest]
-  implicit val addCollaboratorGatekeeperRequestFormatter = Json.format[AddCollaboratorGatekeeperRequest]
+  implicit val addCollaboratorUpdateRequestFormatter = Json.format[AddCollaboratorRequest]
+  implicit val removeCollaboratorFormatter = Json.format[RemoveCollaborator]
+  implicit val removeCollaboratorRequestFormatter = Json.format[RemoveCollaboratorRequest]
+
 
   implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[AddCollaboratorRequest]("addCollaboratorRequest")
-    .and[AddCollaboratorGatekeeperRequest]("addCollaboratorGatekeeperRequest")
     .and[AddCollaborator]("addCollaborator")
-    .and[AddCollaboratorGatekeeper]("addCollaboratorGatekeeper")
+    .and[RemoveCollaborator]("removeCollaborator")
+    .and[RemoveCollaboratorRequest]("removeCollaboratorRequest")
     .format
 
 }

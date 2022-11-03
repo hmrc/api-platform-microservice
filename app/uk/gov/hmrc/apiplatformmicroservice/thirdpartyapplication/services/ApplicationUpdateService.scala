@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaboratorGatekeeperRequest, AddCollaboratorRequest, Application, ApplicationUpdate, UpdateRequest}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaboratorRequest, Application, ApplicationUpdate, RemoveCollaboratorRequest, UpdateRequest}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -46,7 +46,7 @@ class ApplicationUpdateService @Inject()(val collaboratorService: ApplicationCol
     def handleRequest(updateRequest: UpdateRequest)= {
       updateRequest match {
         case x: AddCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
-        case x: AddCollaboratorGatekeeperRequest => collaboratorService.handleRequestCommand(app, x)
+        case x: RemoveCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
         case x => Future.successful(x)
       }
     }

@@ -17,11 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaborator, AddCollaboratorGatekeeper, AddCollaboratorGatekeeperRequest, AddCollaboratorRequest, Application, Collaborator, Role}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Actor, AddCollaborator, AddCollaboratorRequest, Application, Collaborator, CollaboratorActor, RemoveCollaborator, RemoveCollaboratorRequest, Role}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDateTime
@@ -34,25 +33,23 @@ class ApplicationCollaboratorService @Inject() (
   )(implicit ec: ExecutionContext) {
 
   def handleRequestCommand(app: Application, cmd: AddCollaboratorRequest)(implicit hc: HeaderCarrier): Future[AddCollaborator] ={
+
     for {
-      otherAdmins <- thirdPartyDeveloperConnector.fetchByEmails(getOtherAdmins(app, Option(cmd.email)))
-      adminsToEmail = otherAdmins.filter(_.verified).map(_.email).toSet
+      admins <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
+      verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId <- getUserId(cmd.collaboratorEmail)
-      collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaborator, Some(userId))
-    } yield AddCollaborator(cmd.instigator, cmd.email, collaborator, adminsToEmail, LocalDateTime.now)
+      collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
+    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now)
   }
 
-  def handleRequestCommand(app: Application, cmd: AddCollaboratorGatekeeperRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorGatekeeper] = {
+  def handleRequestCommand(app: Application, cmd: RemoveCollaboratorRequest)(implicit hc: HeaderCarrier): Future[RemoveCollaborator] = {
     for {
-      otherAdmins <- thirdPartyDeveloperConnector.fetchByEmails(getOtherAdmins(app, None))
-      adminsToEmail = otherAdmins.filter(_.verified).map(_.email).toSet
+      admins <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
+      verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId <- getUserId(cmd.collaboratorEmail)
-      collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaborator, Some(userId))
-    } yield AddCollaboratorGatekeeper(cmd.gatekeeperUser, collaborator, adminsToEmail, LocalDateTime.now)
+      collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
+    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now)
   }
-
-
-
 
   def generateCreateRequest(app: Application, email: String, role: Role, requestingEmail: Option[String])(implicit hc: HeaderCarrier):
   Future[AddCollaboratorToTpaRequest] = {
@@ -76,11 +73,14 @@ class ApplicationCollaboratorService @Inject() (
         } yield response
       }
 
-  private def getOtherAdmins(app: Application, requestingEmail: Option[String]) ={
-     app.collaborators
+  private def getOtherAdmins(app: Application, requestingEmail: Option[String]): Set[String] ={
+    getApplicationAdmins(app).filterNot(requestingEmail.contains(_))
+  }
+
+  private def getApplicationAdmins(app: Application): Set[String] = {
+    app.collaborators
       .filter(_.role.isAdministrator)
       .map(_.emailAddress)
-      .filterNot(requestingEmail.contains(_))
   }
   private def getUserId(collaboratorEmail: String)(implicit hc: HeaderCarrier): Future[UserId] =
     thirdPartyDeveloperConnector

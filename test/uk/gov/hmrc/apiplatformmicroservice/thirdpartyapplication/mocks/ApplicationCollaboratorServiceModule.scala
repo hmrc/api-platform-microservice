@@ -18,7 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AddCollaboratorResult
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaborator, AddCollaboratorRequest, RemoveCollaborator, RemoveCollaboratorRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
@@ -27,6 +29,27 @@ trait ApplicationCollaboratorServiceModule extends MockitoSugar with ArgumentMat
   object ApplicationCollaboratorServiceMock {
     val aMock = mock[ApplicationCollaboratorService]
 
+
+
+    object handleRequestCommand {
+      def willReturnAddCollaborator(addCollaborator: AddCollaborator) = {
+        when(aMock.handleRequestCommand(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.successful(addCollaborator))
+      }
+
+      def willReturnRemoveCollaborator(removeCollaborator: RemoveCollaborator) = {
+        when(aMock.handleRequestCommand(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.successful(removeCollaborator))
+      }
+
+      def willReturnErrorsAddCollaborator(): Unit ={
+        when(aMock.handleRequestCommand(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
+      }
+
+      def willReturnErrorsRemoveCollaborator(): Unit = {
+        when(aMock.handleRequestCommand(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
+      }
+
+
+    }
     object AddCollaborator {
       def willReturnAddCollaboratorResponse(addCollaboratorResponse: AddCollaboratorResult) = {
         when(aMock.addCollaborator(*, *, *, *)(*)).thenReturn(Future.successful(addCollaboratorResponse))

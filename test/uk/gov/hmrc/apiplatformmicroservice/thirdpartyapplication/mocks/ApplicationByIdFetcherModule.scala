@@ -29,9 +29,10 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
     val aMock = mock[ApplicationByIdFetcher]
 
     object FetchApplication {
-      def willReturnApplication(app: Application) = {
-        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(Future.successful(Some(app)))
+      def willReturnApplication(app: Option[Application]) = {
+        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(Future.successful(app))
       }
+
 
       def willThrowException(e: Exception) = {
         when(aMock.fetchApplication(*)(*)).thenReturn(Future.failed(e))
