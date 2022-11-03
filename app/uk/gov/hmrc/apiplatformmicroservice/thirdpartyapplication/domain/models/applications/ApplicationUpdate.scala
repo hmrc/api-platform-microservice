@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.play.json.Union
 
 import java.time.LocalDateTime

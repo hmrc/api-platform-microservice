@@ -24,16 +24,13 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTes
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
 
 class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -46,7 +43,6 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     val mockAuthConfig = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
 
-
     val controller = new ApplicationUpdateController(
       mockAuthConfig,
       mockAuthConnector,
@@ -56,7 +52,7 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     )
   }
 
-  "addCollaborator" should {
+  "update" should {
     val payload =
       s"""{
          |        "actor": {
@@ -101,39 +97,5 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     }
 
   }
-
-
-  "removeCollaborator" should {
-    "return Ok when update service is successful" in new Setup {
-      val application = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}")
-      val payload =
-        s"""{
-           |        "actor": {
-           |          "email": "someone@digital.hmrc.gov.uk",
-           |          "actorType": "COLLABORATOR"
-           |        }
-           |        ,
-           |        "collaboratorEmail": "thecollaborator@digital.hmrc.gov.uk"
-           |        ,
-           |        "collaboratorRole": "ADMINISTRATOR"
-           |        ,
-           |        "timestamp": "2022-10-12T08:06:46.706"
-           |        ,
-           |        "updateType": "removeCollaboratorRequest"
-           |      }""".stripMargin
-
-
-      ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
-
-      val result = controller.update(applicationId)(request.withBody(Json.parse(payload)))
-
-      status(result) shouldBe OK
-    }
-
-  }
-
 
 }
