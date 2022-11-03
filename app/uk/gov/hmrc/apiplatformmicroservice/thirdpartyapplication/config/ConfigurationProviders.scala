@@ -20,6 +20,8 @@ import com.google.inject.name.Names.named
 import com.google.inject.AbstractModule
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 
+import java.time.Clock
+
 class ConfigurationModule extends AbstractModule {
 
   override def configure(): Unit = {

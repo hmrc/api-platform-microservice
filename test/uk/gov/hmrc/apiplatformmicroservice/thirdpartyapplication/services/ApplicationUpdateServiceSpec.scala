@@ -126,4 +126,22 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
 
   }
+
+
+  "non request Type command" should {
+    val actor = CollaboratorActor("someEMail")
+    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(UserId.random))
+
+    "call third party application  with same command as passed in" in new Setup {
+      val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), LocalDateTime.now())
+
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
+
+      val result: Application = await(service.updateApplication(productionApplication, request))
+
+      result shouldBe productionApplication
+    }
+
+
+  }
 }

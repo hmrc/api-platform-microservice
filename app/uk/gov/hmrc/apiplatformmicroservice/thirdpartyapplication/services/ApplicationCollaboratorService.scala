@@ -23,13 +23,14 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Add
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Actor, AddCollaborator, AddCollaboratorRequest, Application, Collaborator, CollaboratorActor, RemoveCollaborator, RemoveCollaboratorRequest, Role}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.LocalDateTime
+import java.time.{Clock, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
-    thirdPartyDeveloperConnector: ThirdPartyDeveloperConnector
+    thirdPartyDeveloperConnector: ThirdPartyDeveloperConnector,
+    clock: Clock
   )(implicit ec: ExecutionContext) {
 
   def handleRequestCommand(app: Application, cmd: AddCollaboratorRequest)(implicit hc: HeaderCarrier): Future[AddCollaborator] ={
@@ -39,7 +40,7 @@ class ApplicationCollaboratorService @Inject() (
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId <- getUserId(cmd.collaboratorEmail)
       collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
-    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now)
+    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
   def handleRequestCommand(app: Application, cmd: RemoveCollaboratorRequest)(implicit hc: HeaderCarrier): Future[RemoveCollaborator] = {
@@ -48,7 +49,7 @@ class ApplicationCollaboratorService @Inject() (
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId <- getUserId(cmd.collaboratorEmail)
       collaborator = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
-    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now)
+    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
   def generateCreateRequest(app: Application, email: String, role: Role, requestingEmail: Option[String])(implicit hc: HeaderCarrier):
