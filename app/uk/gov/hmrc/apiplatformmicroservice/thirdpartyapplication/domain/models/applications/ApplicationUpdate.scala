@@ -22,16 +22,6 @@ import uk.gov.hmrc.play.json.Union
 
 import java.time.LocalDateTime
 
-sealed trait ActorType extends EnumEntry
-
-object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
-  val values = findValues
-
-  final case object COLLABORATOR extends ActorType
-  final case object GATEKEEPER extends ActorType
-  final case object SCHEDULED_JOB extends ActorType
-}
-
 sealed trait Actor
 
 case class GatekeeperUserActor(user: String) extends Actor
@@ -48,9 +38,9 @@ object Actor {
 
   implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
     //      .and[UnknownActor](ActorType.UNKNOWN.toString)
-    .and[ScheduledJobActor](ActorType.SCHEDULED_JOB.toString)
-    .and[GatekeeperUserActor](ActorType.GATEKEEPER.toString)
-    .and[CollaboratorActor](ActorType.COLLABORATOR.toString)
+    .and[ScheduledJobActor]("SCHEDULED_JOB")
+    .and[GatekeeperUserActor]("GATEKEEPER")
+    .and[CollaboratorActor]("COLLABORATOR")
     .format
 }
 sealed trait ApplicationUpdate {
