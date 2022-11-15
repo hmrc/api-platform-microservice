@@ -62,7 +62,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return Created when successfully adding a Collaborator" in new Setup {
       val application = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application)
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
       val response = AddCollaboratorSuccessResult(true)
@@ -77,7 +77,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     "return Conflict when Collaborator already exists" in new Setup {
       val application = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application)
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
       val response = CollaboratorAlreadyExistsFailureResult

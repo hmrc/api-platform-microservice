@@ -21,12 +21,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserResponse, UserResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaborator, AddCollaboratorRequest, Collaborator, CollaboratorActor, RemoveCollaborator, RemoveCollaboratorRequest, Role}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -38,7 +40,8 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
     with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
 
     val mockThirdPartyDeveloperConnector = mock[ThirdPartyDeveloperConnector]
-    val service = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector)
+    val fixedClock = Clock.fixed(Instant.now(), ZoneOffset.UTC)
+    val service = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector, fixedClock)
 
     val newCollaboratorEmail = "newCollaborator@testuser.com"
     val newCollaboratorUserId = UserId.random
@@ -128,5 +131,36 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
       }
+  }
+
+  "handleRequest" should {
+    val actor = CollaboratorActor("someEMail")
+
+
+    "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
+      val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
+      val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val request = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
+
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
+
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(userResponse))
+
+      val response = await(service.handleRequestCommand(productionApplication, request))
+      response shouldBe RemoveCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), LocalDateTime.now(fixedClock))
+    }
+
+    "decorate AddCollaborator Request when third party developer call is successful" in new Setup {
+      val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
+      val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val request = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
+
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
+
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(userResponse))
+
+      val response = await(service.handleRequestCommand(productionApplication, request))
+      response shouldBe AddCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), LocalDateTime.now(fixedClock))
+    }
   }
 }
