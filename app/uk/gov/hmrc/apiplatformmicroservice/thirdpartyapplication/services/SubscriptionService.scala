@@ -18,11 +18,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FilterGateKeeperSubscriptions
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Actor, Application, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
+
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionResult
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
@@ -41,6 +43,7 @@ class SubscriptionService @Inject()(
   subscriptionFieldsFetcher: SubscriptionFieldsFetcher
 )(implicit ec: ExecutionContext) extends FilterGateKeeperSubscriptions {
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     def isPublic(in: ApiVersionDefinition) = in.access match {
       case PublicApiAccess() => true
@@ -72,6 +75,40 @@ class SubscriptionService @Inject()(
         }
       }
     )
+  }
+
+  def createSubscriptionForApplication(application: Application, existingSubscriptions: Set[ApiIdentifier], newSubscribeToApi: SubscribeToApi, restricted: Boolean)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    val newSubscriptionApiIdentifier = newSubscribeToApi.apiIdentifier
+
+    def isPublic(in: ApiVersionDefinition) = in.access match {
+      case PublicApiAccess() => true
+      case _ => false
+    }
+
+    def removePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
+      in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
+
+    def canSubscribe(allowedSubscriptions: Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
+      val allVersions: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.version)))
+
+      allVersions.contains(newSubscriptionApiIdentifier)
+    }
+
+    def isSubscribed(existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
+      existingSubscriptions.contains(newSubscriptionApiIdentifier)
+    }
+
+    apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, restricted)
+      .flatMap(possibleSubscriptions => {
+
+        val allowedSubscriptions = if (restricted) removePrivateVersions(possibleSubscriptions) else possibleSubscriptions
+
+        (canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier), isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)) match {
+          case (_, true) => successful(CreateSubscriptionDuplicate)
+          case (false, _) => successful(CreateSubscriptionDenied)
+          case _ => subscribeToApiAndCreateFieldValues(application, newSubscribeToApi)
+        }
+      })
   }
 
   def createManySubscriptionsForApplication(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
@@ -107,10 +144,18 @@ class SubscriptionService @Inject()(
     } yield CreateSubscriptionSuccess
   }
 
+  @deprecated("remove after clients are no longer using the old endpoint")
   private def subscribeToApiAndCreateFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
       _ <- createFieldValues(application, apiIdentifier)
       subscribeApiResult  <- thirdPartyApplicationConnector(application.deployedTo).subscribeToApi(application.id, apiIdentifier)
+    } yield CreateSubscriptionSuccess
+  }
+
+  private def subscribeToApiAndCreateFieldValues(application: Application, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+    for {
+      _ <- createFieldValues(application, subscribeToApi.apiIdentifier)
+      _ <- thirdPartyApplicationConnector(application.deployedTo).updateApplication(application.id, subscribeToApi)
     } yield CreateSubscriptionSuccess
   }
 }

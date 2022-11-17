@@ -4,6 +4,7 @@ GET        /:id                                               uk.gov.hmrc.apipla
 PATCH      /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationUpdateController.update(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
 
 POST       /:id/subscriptions                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApi(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, restricted: Option[Boolean])
+POST       /:id/subscriptionsAppUpdate                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApiAppUpdate(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId, restricted: Option[Boolean])
 
 GET        /:id/upliftableSubscriptions                       uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.fetchUpliftableSubscriptions(id: uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId)
 

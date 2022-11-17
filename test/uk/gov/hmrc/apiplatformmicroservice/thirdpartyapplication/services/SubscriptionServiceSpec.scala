@@ -34,8 +34,11 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CollaboratorActor, GatekeeperUserActor, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsConnectorModule
+
+import java.time.LocalDateTime
 
 class SubscriptionServiceSpec extends AsyncHmrcSpec {
   trait Setup 
@@ -73,7 +76,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
     val application = buildApplication(appId = applicationId)
   }
 
-  "createSubscriptionForApplication" should {
+  "createSubscriptionForApplication (deprecated)" should {
     "CreateSubscriptionDuplicate when application is already subscribed to the API " in new Setup {
       val duplicateApi = apiIdentifierOne
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
@@ -101,6 +104,42 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, goodApi, false))
+
+      result shouldBe CreateSubscriptionSuccess
+    }
+  }
+  
+  "createSubscriptionForApplication" should {
+    "CreateSubscriptionDuplicate when application is already subscribed to the API " in new Setup {
+      val duplicateApi = apiIdentifierOne
+      val subscribeToApi = SubscribeToApi(CollaboratorActor("dev@example.com"), duplicateApi, LocalDateTime.now())
+      val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
+
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, subscribeToApi, false))
+
+      result shouldBe CreateSubscriptionDuplicate
+    }
+
+    "CreateSubscriptionDenied when the application cannot subscribe to the API " in new Setup {
+      val deniedApi = ApiIdentifier(apiDefinitionOne.context, apiVersionTwo)
+      val subscribeToApi = SubscribeToApi(CollaboratorActor("dev@example.com"), deniedApi, LocalDateTime.now())
+      val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
+
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, subscribeToApi, false))
+
+      result shouldBe CreateSubscriptionDenied
+    }
+
+    "CreateSubscriptionSuccess when successfully subscribing to API " in new Setup {
+      val goodApi = apiIdentifierThree
+      val subscribeToApi = SubscribeToApi(GatekeeperUserActor("Gate Keeper"), goodApi, LocalDateTime.now())
+      val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
+
+      SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
+      EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.SaveFieldValues.willReturn(goodApi)
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.UpdateApplication.willReturnSuccess(application)
+
+      val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, subscribeToApi, false))
 
       result shouldBe CreateSubscriptionSuccess
     }

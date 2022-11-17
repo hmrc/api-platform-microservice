@@ -35,17 +35,15 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CreateApplicationRequestV1, CreateApplicationRequestV2}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Standard
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+
+import java.time.LocalDateTime
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -53,7 +51,8 @@ class ThirdPartyApplicationConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder {
+    with ApplicationBuilder
+    with ApplicationUpdateFormatters {
 
   private val helloWorldContext = ApiContext("hello-world")
   private val versionOne = ApiVersion("1.0")
@@ -348,6 +347,34 @@ class ThirdPartyApplicationConnectorISpec
         ApiIdentifier(ContextA, VersionOne),
         ApiIdentifier(ContextB, VersionTwo)
       )
+    }
+  }
+
+  "updateApplication" should {
+
+    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+
+    val apiIdentifier = ApiIdentifier(ContextA, VersionOne)
+    val applicationId = ApplicationId.random
+    val url = s"/application/${applicationId.value}"
+
+    val actor = CollaboratorActor("dev@example.com")
+    val timestamp = LocalDateTime.now()
+    val subscribeToApi = SubscribeToApi(actor, apiIdentifier, timestamp)
+    val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
+    val application = buildApplication(applicationId)
+
+    "return success when everything works" in new Setup {
+      stubFor(PRODUCTION)(
+        patch(urlEqualTo(url))
+          .withJsonRequestBody(subscribeToApiRequestBody)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(application)
+          )
+      )
+      await(connector.updateApplication(applicationId, subscribeToApi)) shouldBe application
     }
   }
 

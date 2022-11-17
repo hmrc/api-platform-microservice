@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -32,14 +32,17 @@ import play.api.test.Helpers.{contentAsJson, status}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, CollaboratorActor, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+
 import scala.concurrent.Future.successful
 import akka.stream.testkit.NoMaterializer
 
+import java.time.LocalDateTime
+
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder with ApplicationUpdateFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat = NoMaterializer
 
@@ -47,6 +50,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val context = ApiContext("hello")
     val version = ApiVersion("1.0")
     val apiIdentifier = ApiIdentifier(context, version)
+    val subscribeToApi = SubscribeToApi(CollaboratorActor("dev@example.com"), apiIdentifier, LocalDateTime.now())
 
     val apiId1 = "context1".asIdentifier()
     val apiId2 = "context2".asIdentifier()
@@ -65,7 +69,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     )
   }
 
-  "createSubscriptionForApplication" should {
+  "createSubscriptionForApplication (deprecated)" should {
     "return NO CONTENT when successfully subscribing to API" in new Setup() {
       val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
@@ -73,7 +77,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
       val payload = s"""{"context":"${context.value}", "version":"${version.value}"}"""
 
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
-    
+
       val result = controller.subscribeToApi(applicationId, Some(false))(request.withBody(Json.parse(payload)))
 
       status(result) shouldBe NO_CONTENT
@@ -105,6 +109,55 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
       SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
 
       val result = controller.subscribeToApi(applicationId, Some(false))(request.withBody(Json.parse(payload)))
+
+      status(result) shouldBe CONFLICT
+      contentAsJson(result) shouldBe Json.obj(
+        "code" -> "SUBSCRIPTION_ALREADY_EXISTS",
+        "message" -> s"Application: '${application.name}' is already Subscribed to API: ${context.value}: ${version.value}"
+      )
+    }
+  }
+
+  "createSubscriptionForApplication" should {
+    "return NO CONTENT when successfully subscribing to API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
+      val payload = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
+
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnSuccess
+
+      val result = controller.subscribeToApiAppUpdate(applicationId, Some(false))(request.withBody(payload))
+
+      status(result) shouldBe NO_CONTENT
+    }
+
+    "return NOT FOUND when the application cannot subscribe to the API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
+      val payload = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
+
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDenied
+
+      val result = controller.subscribeToApiAppUpdate(applicationId, Some(false))(request.withBody(payload))
+
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.obj(
+        "code" -> "APPLICATION_NOT_FOUND",
+        "message" -> s"API $apiIdentifier is not available for application ${applicationId.value}"
+      )
+    }
+
+    "return CONFLICT when the application is already subscribed to the API" in new Setup() {
+      val application = buildApplication(appId = applicationId)
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application)
+      val request = FakeRequest("POST", s"/applications/${applicationId.value}/subscriptions")
+      val payload = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
+
+      SubscriptionServiceMock.CreateSubscriptionForApplication.willReturnDuplicate
+
+      val result = controller.subscribeToApiAppUpdate(applicationId, Some(false))(request.withBody(payload))
 
       status(result) shouldBe CONFLICT
       contentAsJson(result) shouldBe Json.obj(
