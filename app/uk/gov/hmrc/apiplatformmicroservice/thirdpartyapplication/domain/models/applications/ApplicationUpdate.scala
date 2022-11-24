@@ -55,6 +55,7 @@ case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: String, co
 case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail:Set[String], timestamp: LocalDateTime) extends ApplicationUpdate
 case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
 case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime) extends ApplicationUpdate
+case class UpdateRedirectUris(actor: Actor, oldRedirectUris: String, newRedirectUris: String, timestamp: LocalDateTime) extends ApplicationUpdate
 
 trait ApplicationUpdateFormatters {
 
@@ -65,6 +66,7 @@ trait ApplicationUpdateFormatters {
   implicit val removeCollaboratorRequestFormatter = Json.format[RemoveCollaboratorRequest]
   implicit val subscribeToApiFormatter = Json.format[SubscribeToApi]
   implicit val unsubscribeFromApiFormatter = Json.format[UnsubscribeFromApi]
+  implicit val updateRedirectUrisFormatter = Json.format[UpdateRedirectUris]
 
 
   implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
@@ -74,6 +76,7 @@ trait ApplicationUpdateFormatters {
     .and[RemoveCollaboratorRequest]("removeCollaboratorRequest")
     .and[SubscribeToApi]("subscribeToApi")
     .and[UnsubscribeFromApi]("unsubscribeFromApi")
+    .and[UpdateRedirectUris]("updateRedirectUris")
     .format
 
 }
