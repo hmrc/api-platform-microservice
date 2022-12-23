@@ -110,6 +110,7 @@ object HttpMethod extends Enum[HttpMethod] with PlayJsonEnum[HttpMethod] {
   case object PATCH extends HttpMethod
   case object DELETE extends HttpMethod
   case object OPTIONS extends HttpMethod
+  case object HEAD extends HttpMethod
 }
 
 sealed trait AuthType extends EnumEntry
