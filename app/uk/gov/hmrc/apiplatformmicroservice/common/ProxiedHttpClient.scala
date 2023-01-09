@@ -43,7 +43,7 @@ class ProxiedHttpClient @Inject() (config: Configuration, httpAuditing: HttpAudi
 
   override def wsProxyServer: Option[WSProxyServer] = WSProxyConfiguration("proxy", config)
 
-  override def buildRequest[A](url: String, headers: Seq[(String, String)]): PlayWSRequest = {
+  override def buildRequest(url: String, headers: Seq[(String, String)]): PlayWSRequest = {
     val extraHeaders: Seq[(String,String)] = headers ++ 
       authorization.map(v => (HeaderNames.AUTHORIZATION -> v.value)).toSeq ++
       apiKeyHeader.map(v => ProxiedHttpClient.API_KEY_HEADER_NAME -> v).toSeq ++
