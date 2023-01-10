@@ -6,6 +6,16 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-microservice"
 
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+
+inThisBuild(
+  List(
+    scalaVersion := "2.12.12",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
+
 lazy val root = Project(appName, file("."))
   .settings(
     name := appName,
