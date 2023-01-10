@@ -29,16 +29,16 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 class SubscriptionsForCollaboratorFetcher @Inject() (
     @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
     @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptions(userId).map(_.toSet) recover recoverWithDefault(Set.empty[ApiIdentifier])
-    val principalSubscriptions = principalTpaConnector.fetchSubscriptions(userId).map(_.toSet)
+    val principalSubscriptions   = principalTpaConnector.fetchSubscriptions(userId).map(_.toSet)
 
     for {
       subordinate <- subordinateSubscriptions
-      principal <- principalSubscriptions
+      principal   <- principalSubscriptions
     } yield subordinate ++ principal
   }
 }

@@ -27,18 +27,22 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
 
 trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar {
+
   object SubscriptionServiceMock {
     val aMock = mock[SubscriptionService]
 
     object CreateSubscriptionForApplication {
-      def willReturnSuccess = {
+
+      def willReturnSuccess   = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }
-      def willReturnDenied = {
+
+      def willReturnDenied    = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
       }
+
       def willReturnDuplicate = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionDuplicate))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionDuplicate))
@@ -46,6 +50,7 @@ trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar 
     }
 
     object CreateManySubscriptionsForApplication {
+
       def willReturnOk = {
         when(aMock.createManySubscriptionsForApplication(*, *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }

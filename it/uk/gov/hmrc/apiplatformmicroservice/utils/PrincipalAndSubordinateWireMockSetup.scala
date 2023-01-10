@@ -31,14 +31,14 @@ import org.scalatest.Suite
 trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with BeforeAndAfterAll {
   self: Suite with ConfigBuilder with FakeApplicationFactory =>
 
-  val WireMockHost = "localhost"
-  val WireMockPrincipalPort = 11111
+  val WireMockHost            = "localhost"
+  val WireMockPrincipalPort   = 11111
   val WireMockSubordinatePort = 22222
 
-  val wireMockPrincipalServer = new WireMockServer(wireMockConfig().port(WireMockPrincipalPort))
+  val wireMockPrincipalServer   = new WireMockServer(wireMockConfig().port(WireMockPrincipalPort))
   val wireMockSubordinateServer = new WireMockServer(wireMockConfig().port(WireMockSubordinatePort))
 
-  val principalWireMock = WireMock.create().host(WireMockHost).port(WireMockPrincipalPort).build()
+  val principalWireMock   = WireMock.create().host(WireMockHost).port(WireMockPrincipalPort).build()
   val subordinateWireMock = WireMock.create().host(WireMockHost).port(WireMockSubordinatePort).build()
 
   def stubFor(environment: Environment = Environment.PRODUCTION)(mappingBuilder: MappingBuilder): StubMapping = environment match {

@@ -29,11 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PrincipalApiDefinitionConnector @Inject() (
-  val http: HttpClient with WSGet,
-  val config: Config
-)(
-  implicit val ec: ExecutionContext
-) extends ApiDefinitionConnector with ApplicationLogger {
+    val http: HttpClient with WSGet,
+    val config: Config
+  )(implicit val ec: ExecutionContext
+  ) extends ApiDefinitionConnector with ApplicationLogger {
   val serviceBaseUrl: String = config.baseUrl
 
   override def fetchApiDocumentationResource(

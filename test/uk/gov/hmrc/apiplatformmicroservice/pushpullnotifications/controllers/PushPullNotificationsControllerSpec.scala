@@ -33,14 +33,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters{
+class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
 
-  trait Setup extends BoxBuilder { 
+  trait Setup extends BoxBuilder {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = app.materializer
+    implicit val mat           = app.materializer
 
     val mockBoxFetcher = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
-  
+
     val controller = new PushPullNotificationsController(
       mockBoxFetcher,
       Helpers.stubControllerComponents()
@@ -50,8 +50,8 @@ class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneApp
   "GET /boxes" should {
     "return a list of boxes" in new Setup {
       val boxes = List(buildBox("1"))
-      
-      when(mockBoxFetcher.fetchAllBoxes()( * )).thenReturn(successful(boxes))
+
+      when(mockBoxFetcher.fetchAllBoxes()(*)).thenReturn(successful(boxes))
 
       val result = controller.getAll()(FakeRequest("GET", "/"))
 

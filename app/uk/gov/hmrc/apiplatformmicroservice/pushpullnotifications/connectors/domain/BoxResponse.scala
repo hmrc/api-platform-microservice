@@ -21,13 +21,14 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 case class BoxResponse(
-  boxId: BoxId,
-  boxName : String,
-  boxCreator : BoxCreator,
-  applicationId : Option[ApplicationId],
-  subscriber: Option[BoxSubscriber]
-){
-  def toBox(environment: Environment) : Box = {
+    boxId: BoxId,
+    boxName: String,
+    boxCreator: BoxCreator,
+    applicationId: Option[ApplicationId],
+    subscriber: Option[BoxSubscriber]
+  ) {
+
+  def toBox(environment: Environment): Box = {
     Box(this.boxId, this.boxName, this.boxCreator, this.applicationId, this.subscriber, environment)
   }
 }

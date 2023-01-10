@@ -44,7 +44,7 @@ object ApplicationController {
 
   case class RequestUpliftV1(subscriptions: Set[ApiIdentifier])
   implicit val readsV1: Reads[RequestUpliftV1] = Json.reads[RequestUpliftV1]
-  
+
   case class RequestUpliftV2(upliftRequest: UpliftRequest)
   implicit val readsV2: Reads[RequestUpliftV2] = Json.reads[RequestUpliftV2]
 
@@ -56,12 +56,12 @@ class ApplicationController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    val applicationCollaboratorService : ApplicationCollaboratorService,
+    val applicationCollaboratorService: ApplicationCollaboratorService,
     val upliftApplicationService: UpliftApplicationService,
     val subordinateApplicationFetcher: SubordinateApplicationFetcher,
     cc: ControllerComponents
-  )(implicit val ec: ExecutionContext)
-    extends BackendController(cc) with ActionBuilders with ApplicationLogger {
+  )(implicit val ec: ExecutionContext
+  ) extends BackendController(cc) with ActionBuilders with ApplicationLogger {
 
   def fetchAppplicationById(id: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
     for {
@@ -74,33 +74,31 @@ class ApplicationController @Inject() (
     ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
       withJsonBody[AddCollaboratorRequestOld] { collaboratorRequest =>
         applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role, collaboratorRequest.requestingEmail)
-          .map{
-            case AddCollaboratorSuccessResult(_) => Created
+          .map {
+            case AddCollaboratorSuccessResult(_)        => Created
             case CollaboratorAlreadyExistsFailureResult => Conflict(Json.toJson(Map("message" -> "Collaborator already exists on the Appication")))
           }
       }
     }
 
-
   import ApplicationController._
 
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     ApplicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
-      withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest => 
-        
+      withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest =>
         logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
 
         upliftRequest
-        .fold(
-          v1 => upliftApplicationService.upliftApplicationV1(appData.application, appData.subscriptions, v1.subscriptions),
-          v2 => upliftApplicationService.upliftApplicationV2(appData.application, appData.subscriptions, v2.upliftRequest)
-        )
-        .map(
-          _.fold(
-            msg => BadRequest(Json.toJson(Map("message" -> msg))),
-            id => Created(Json.toJson(id))
+          .fold(
+            v1 => upliftApplicationService.upliftApplicationV1(appData.application, appData.subscriptions, v1.subscriptions),
+            v2 => upliftApplicationService.upliftApplicationV2(appData.application, appData.subscriptions, v2.upliftRequest)
           )
-        )
+          .map(
+            _.fold(
+              msg => BadRequest(Json.toJson(Map("message" -> msg))),
+              id => Created(Json.toJson(id))
+            )
+          )
       }
     }
 

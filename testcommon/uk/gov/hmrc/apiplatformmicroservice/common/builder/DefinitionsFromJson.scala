@@ -21,7 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, 
 
 trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
 
-  //noinspection ScalaStyle
+  // noinspection ScalaStyle
   def extendedApiDefinition(name: String): ExtendedApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
@@ -118,5 +118,5 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |  ]
                   |}""".stripMargin.replaceAll("\n", " ")).as[ApiDefinition]
   }
-  def apiDefinitions(names: String*) = names.map(apiDefinition)
+  def apiDefinitions(names: String*)             = names.map(apiDefinition)
 }

@@ -55,9 +55,8 @@ class ThirdPartyApplicationConnectorISpec
     with ApplicationUpdateFormatters {
 
   private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne = ApiVersion("1.0")
-  private val versionTwo = ApiVersion("2.0")
-
+  private val versionOne        = ApiVersion("1.0")
+  private val versionTwo        = ApiVersion("2.0")
 
   private val applicationIdOne = ApplicationId.random
   private val applicationIdTwo = ApplicationId.random
@@ -65,14 +64,13 @@ class ThirdPartyApplicationConnectorISpec
   trait Setup {
     implicit val applicationResponseWrites = Json.writes[ApplicationResponse]
 
-    implicit val hc = HeaderCarrier()
-    val httpClient = app.injector.instanceOf[HttpClient]
+    implicit val hc                     = HeaderCarrier()
+    val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer = "TestBearerToken"
+    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
+    val bearer                          = "TestBearerToken"
 
-
-    val config = AbstractThirdPartyApplicationConnector.Config(
+    val config                                            = AbstractThirdPartyApplicationConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort",
       applicationUseProxy = false,
       applicationBearerToken = bearer,
@@ -82,7 +80,8 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   trait SubordinateSetup extends Setup {
-    override val config = AbstractThirdPartyApplicationConnector.Config(
+
+    override val config    = AbstractThirdPartyApplicationConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockSubordinatePort",
       applicationUseProxy = false,
       applicationBearerToken = bearer,
@@ -90,8 +89,7 @@ class ThirdPartyApplicationConnectorISpec
     )
     override val connector = new SubordinateThirdPartyApplicationConnector(config, httpClient, mockProxiedHttpClient)
   }
-  
-  
+
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
@@ -102,13 +100,13 @@ class ThirdPartyApplicationConnectorISpec
 
     val createAppRequestV1 = CreateApplicationRequestV1(
       name = "V1 Create Application Request",
-      access= standardAccess,
+      access = standardAccess,
       description = None,
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
       subscriptions = Some(Set(ApiIdentifier.random))
     )
-    
+
     val createAppRequestV2 = CreateApplicationRequestV2(
       name = "V2 Create Application Request",
       access = standardAccess,
@@ -122,55 +120,54 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   "create application v1" should {
-    val url = "/application"
+    val url   = "/application"
     val appId = ApplicationId.random
-    
+
     "return application Id" in new ApplicationCreateSetup {
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(createAppRequestV1)
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(ApplicationResponse(appId))
-        )
+          .withJsonRequestBody(createAppRequestV1)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(ApplicationResponse(appId))
+          )
       )
       await(connector.createApplicationV1(createAppRequestV1))
     }
   }
 
   "create application v2" should {
-    val url = "/application"
+    val url   = "/application"
     val appId = ApplicationId.random
-    
+
     "return application Id" in new ApplicationCreateSetup {
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(createAppRequestV2)
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(ApplicationResponse(appId))
-        )
+          .withJsonRequestBody(createAppRequestV2)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(ApplicationResponse(appId))
+          )
       )
       await(connector.createApplicationV2(createAppRequestV2))
     }
   }
 
-
   "fetchApplications for a collaborator by user id" should {
-    val userId = UserId.random
-    val url = s"/developer/${userId.value}/applications"
+    val userId               = UserId.random
+    val url                  = s"/developer/${userId.value}/applications"
     val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
       stubFor(PRODUCTION)(
         get(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(applicationResponses)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(applicationResponses)
+          )
       )
 
       val result = await(connector.fetchApplications(userId))
@@ -182,10 +179,10 @@ class ThirdPartyApplicationConnectorISpec
     "propagate error when endpoint returns error" in new Setup {
       stubFor(PRODUCTION)(
         get(urlPathEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -193,23 +190,23 @@ class ThirdPartyApplicationConnectorISpec
       }.statusCode shouldBe NOT_FOUND
     }
   }
-  
+
   import ApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random
-    val url = s"/developer/${userId.value}/subscriptions"
+    val url    = s"/developer/${userId.value}/subscriptions"
 
     val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
 
     "return subscriptions" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(expectedSubscriptions)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(expectedSubscriptions)
+          )
       )
 
       val result = await(connector.fetchSubscriptions(userId))
@@ -220,10 +217,10 @@ class ThirdPartyApplicationConnectorISpec
     "propagate error when endpoint returns error" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -234,16 +231,16 @@ class ThirdPartyApplicationConnectorISpec
 
   "fetchApplication" should {
     val applicationId = ApplicationId.random
-    val url = s"/application/${applicationId.value}"
+    val url           = s"/application/${applicationId.value}"
     import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
     "propagate error when endpoint returns error" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
       intercept[UpstreamErrorResponse] {
         await(connector.fetchApplication(applicationId))
@@ -253,10 +250,10 @@ class ThirdPartyApplicationConnectorISpec
     "return None when appropriate" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
       await(connector.fetchApplication(applicationId)) shouldBe None
     }
@@ -266,11 +263,11 @@ class ThirdPartyApplicationConnectorISpec
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(application)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(application)
+          )
       )
 
       await(connector.fetchApplication(applicationId)) shouldBe Some(application)
@@ -280,15 +277,15 @@ class ThirdPartyApplicationConnectorISpec
   "fetchSubscriptions" should {
     import AbstractThirdPartyApplicationConnector._
     val applicationId = ApplicationId.random
-    val url = s"/application/${applicationId.value}/subscription"
+    val url           = s"/application/${applicationId.value}/subscription"
 
     "propagate error when endpoint returns 5xx error" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
       intercept[UpstreamErrorResponse] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -298,10 +295,10 @@ class ThirdPartyApplicationConnectorISpec
     "handle 5xx from subordinate" in new SubordinateSetup {
       stubFor(SANDBOX)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
@@ -310,10 +307,10 @@ class ThirdPartyApplicationConnectorISpec
     "handle Not Found" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
       intercept[ApplicationNotFound] {
         await(connector.fetchSubscriptionsById(applicationId))
@@ -323,11 +320,11 @@ class ThirdPartyApplicationConnectorISpec
     "return None when appropriate" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(Set.empty[ApiIdentifier])
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(Set.empty[ApiIdentifier])
+          )
       )
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
@@ -336,11 +333,11 @@ class ThirdPartyApplicationConnectorISpec
     "return the subscription versions that are subscribed to" in new Setup {
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(MixedSubscriptions)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(MixedSubscriptions)
+          )
       )
 
       await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
@@ -356,13 +353,13 @@ class ThirdPartyApplicationConnectorISpec
 
     val apiIdentifier = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random
-    val url = s"/application/${applicationId.value}"
+    val url           = s"/application/${applicationId.value}"
 
-    val actor = CollaboratorActor("dev@example.com")
-    val timestamp = LocalDateTime.now()
-    val subscribeToApi = SubscribeToApi(actor, apiIdentifier, timestamp)
+    val actor                     = CollaboratorActor("dev@example.com")
+    val timestamp                 = LocalDateTime.now()
+    val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
-    val application = buildApplication(applicationId)
+    val application               = buildApplication(applicationId)
 
     "return success when everything works" in new Setup {
       stubFor(PRODUCTION)(
@@ -380,31 +377,31 @@ class ThirdPartyApplicationConnectorISpec
 
   "subscribeToApi" should {
 
-    val apiId = ApiIdentifier(ContextA, VersionOne)
+    val apiId         = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random
-    val url = s"/application/${applicationId.value}/subscription"
+    val url           = s"/application/${applicationId.value}/subscription"
 
     "return the success when everything works" in new Setup {
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(apiId)
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-        )
+          .withJsonRequestBody(apiId)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+          )
       )
       await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
     }
   }
 
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
-    val applicationId = ApplicationId.random
-    val requestorEmail = "requestor@example.com"
-    val newTeamMemberEmail = "newTeamMember@example.com"
-    val adminsToEmail = Set("bobby@example.com", "daisy@example.com")
-    val newCollaborator = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
+    val applicationId          = ApplicationId.random
+    val requestorEmail         = "requestor@example.com"
+    val newTeamMemberEmail     = "newTeamMember@example.com"
+    val adminsToEmail          = Set("bobby@example.com", "daisy@example.com")
+    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
     val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
-    val url = s"/application/${applicationId.value}/collaborator"
+    val url                    = s"/application/${applicationId.value}/collaborator"
   }
 
   "addCollaborator" should {
@@ -413,12 +410,12 @@ class ThirdPartyApplicationConnectorISpec
 
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(addCollaboratorRequest)
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(addCollaboratorResponse)
-        )
+          .withJsonRequestBody(addCollaboratorRequest)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(addCollaboratorResponse)
+          )
       )
       val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 
@@ -428,11 +425,11 @@ class ThirdPartyApplicationConnectorISpec
     "return teamMember already exists response" in new CollaboratorSetup {
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(addCollaboratorRequest)
-        .willReturn(
-          aResponse()
-          .withStatus(CONFLICT)
-        )
+          .withJsonRequestBody(addCollaboratorRequest)
+          .willReturn(
+            aResponse()
+              .withStatus(CONFLICT)
+          )
       )
       val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
 
@@ -442,11 +439,11 @@ class ThirdPartyApplicationConnectorISpec
     "return application not found response" in new CollaboratorSetup {
       stubFor(PRODUCTION)(
         post(urlEqualTo(url))
-        .withJsonRequestBody(addCollaboratorRequest)
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .withJsonRequestBody(addCollaboratorRequest)
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       intercept[ApplicationNotFound] {

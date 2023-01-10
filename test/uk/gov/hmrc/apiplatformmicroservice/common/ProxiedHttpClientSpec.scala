@@ -33,15 +33,15 @@ class ProxiedHttpClientSpec extends AsyncHmrcSpec {
   private val actorSystem = ActorSystem("test-actor-system")
 
   trait Setup {
-    val apiKey: String = UUID.randomUUID().toString
-    val bearerToken: String = UUID.randomUUID().toString
-    val url = "http://example.com"
+    val apiKey: String            = UUID.randomUUID().toString
+    val bearerToken: String       = UUID.randomUUID().toString
+    val url                       = "http://example.com"
     val mockConfig: Configuration = mock[Configuration]
     when(mockConfig.underlying).thenReturn(mock[Config])
 
     val mockHttpAuditing: HttpAuditing = mock[HttpAuditing]
-    val mockWsClient: WSClient = mock[WSClient]
-    val mockWSRequest: WSRequest = mock[WSRequest]
+    val mockWsClient: WSClient         = mock[WSClient]
+    val mockWSRequest: WSRequest       = mock[WSRequest]
     when(mockWsClient.url(url)).thenReturn(mockWSRequest)
 
     val underTest = new ProxiedHttpClient(mockConfig, mockHttpAuditing, mockWsClient, actorSystem)

@@ -20,13 +20,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
-case class UserResponse(userId: UserId,
-                         email: String,
-                        firstName: String,
-                        lastName: String,
-                        registrationTime: DateTime,
-                        lastModified: DateTime,
-                        verified: Boolean)
+case class UserResponse(userId: UserId, email: String, firstName: String, lastName: String, registrationTime: DateTime, lastModified: DateTime, verified: Boolean)
 
 object UserResponse {
 
@@ -34,5 +28,5 @@ object UserResponse {
   import play.api.libs.json.JodaWrites.JodaDateTimeWrites
 
   implicit val dateTimeFormat: Format[DateTime] = Format(DefaultJodaDateTimeReads, JodaDateTimeWrites)
-  implicit val format = Json.format[UserResponse]
+  implicit val format                           = Json.format[UserResponse]
 }

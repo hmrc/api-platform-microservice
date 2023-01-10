@@ -28,9 +28,8 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton
-class CombinedApisController @Inject()(combinedApisService: CombinedApisService, cc: ControllerComponents)
-                                      (implicit ec: ExecutionContext) extends BackendController(cc) with BasicCombinedApiJsonFormatters {
-
+class CombinedApisController @Inject() (combinedApisService: CombinedApisService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends BackendController(cc)
+    with BasicCombinedApiJsonFormatters {
 
   def getCombinedApisForDeveloper(userId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApisForDeveloperId(userId)

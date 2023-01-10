@@ -36,8 +36,8 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
 class PrincipalApiDefinitionConnectorSpec
-    extends AsyncHmrcSpec 
-    with WireMockSugarExtensions 
+    extends AsyncHmrcSpec
+    with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with DefinitionsFromJson
     with ConfigBuilder
@@ -46,12 +46,12 @@ class PrincipalApiDefinitionConnectorSpec
 
   val UpstreamInternalServerError = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
-  val bearer = "TestBearerToken"
+  val bearer     = "TestBearerToken"
   val apiKeyTest = UUID.randomUUID().toString
 
   val serviceName = "someService"
-  val version = ApiVersion("1.0")
-  val userEmail = "3rdparty@example.com"
+  val version     = ApiVersion("1.0")
+  val userEmail   = "3rdparty@example.com"
 
   val apiName1 = "Calendar"
   val apiName2 = "HelloWorld"
@@ -59,7 +59,7 @@ class PrincipalApiDefinitionConnectorSpec
   trait Setup {
     import PrincipalApiDefinitionConnector._
     val apiDefinitionUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
-    val config = Config(baseUrl = apiDefinitionUrl)
+    val config           = Config(baseUrl = apiDefinitionUrl)
 
     val httpClient = app.injector.instanceOf[HttpClient with WSGet]
 

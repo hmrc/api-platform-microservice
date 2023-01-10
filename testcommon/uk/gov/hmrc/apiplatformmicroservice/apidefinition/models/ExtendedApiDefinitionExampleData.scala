@@ -15,13 +15,15 @@
  */
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 
 trait ExtendedApiDefinitionExampleData {
   self: ApiDefinitionTestDataHelper =>
 
-  val apiName = "hello-api"
+  val apiName    = "hello-api"
   val versionOne = ApiVersion("1.0")
+
   val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
     apiName,
     List(extendedApiVersion(versionOne, STABLE, None, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))

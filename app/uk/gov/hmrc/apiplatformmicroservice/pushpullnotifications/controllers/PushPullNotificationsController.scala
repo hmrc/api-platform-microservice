@@ -31,13 +31,11 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class PushPullNotificationsController @Inject()(boxFetcher: BoxFetcher, cc: ControllerComponents)
-                                       (implicit override val ec: ExecutionContext, override val mat: Materializer)
-  extends BackendController(cc) with StreamedResponseResourceHelper {
+class PushPullNotificationsController @Inject() (boxFetcher: BoxFetcher, cc: ControllerComponents)(implicit override val ec: ExecutionContext, override val mat: Materializer)
+    extends BackendController(cc) with StreamedResponseResourceHelper {
 
   def getAll(): Action[AnyContent] = Action.async { implicit request =>
-
-    boxFetcher.fetchAllBoxes().map(boxes =>{
+    boxFetcher.fetchAllBoxes().map(boxes => {
       Ok(Json.toJson(boxes))
     })
   }

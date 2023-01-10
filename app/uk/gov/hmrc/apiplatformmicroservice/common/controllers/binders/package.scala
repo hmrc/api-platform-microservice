@@ -24,21 +24,22 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 package object binders {
 
-    private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
+  private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
     Try(ju.UUID.fromString(text))
-    .toOption
-    .toRight(s"Cannot accept $text as ApplicationId")
-    .map(ApplicationId(_))
+      .toOption
+      .toRight(s"Cannot accept $text as ApplicationId")
+      .map(ApplicationId(_))
   }
-  
+
   private def userIdFromString(text: String): Either[String, UserId] = {
     Try(ju.UUID.fromString(text))
-    .toOption
-    .toRight(s"Cannot accept $text as UserId")
-    .map(UserId(_))
+      .toOption
+      .toRight(s"Cannot accept $text as UserId")
+      .map(UserId(_))
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
       textBinder.bind(key, value).flatMap(applicationIdFromString)
     }
@@ -49,6 +50,7 @@ package object binders {
   }
 
   implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
       textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
     }
@@ -63,7 +65,7 @@ package object binders {
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
         text <- textBinder.bind(key, value).right
-        env <- Environment.from(text).toRight("Not a valid environment").right
+        env  <- Environment.from(text).toRight("Not a valid environment").right
       } yield env
     }
 
@@ -90,8 +92,8 @@ package object binders {
     }
   }
 
-  
   implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+
     override def bind(key: String, value: String): Either[String, UserId] = {
       textBinder.bind(key, value).flatMap(userIdFromString)
     }
@@ -102,6 +104,7 @@ package object binders {
   }
 
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[UserId] {
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
       for {
         textOrBindError <- textBinder.bind(key, params)
@@ -110,7 +113,7 @@ package object binders {
           for {
             id <- UserId.parse(idText).toRight(s"Cannot accept $idText as a user identifier")
           } yield id
-        case _ => Left("Unable to bind a user identifier")
+        case _             => Left("Unable to bind a user identifier")
       }
     }
 

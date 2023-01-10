@@ -30,13 +30,13 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
-      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(userId)
+      subscriptions  <- subscriptionsForCollaboratorFetcher.fetch(userId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 

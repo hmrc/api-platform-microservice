@@ -50,7 +50,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
           aResponse()
             .withStatus(NOT_FOUND)
         )
-    )    
+    )
   }
 
   def whenGetDefinitionFails(env: Environment)(serviceName: String, statusCode: Int) = {
@@ -60,61 +60,61 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
           aResponse()
             .withStatus(statusCode)
         )
-    ) 
+    )
   }
-  
+
   def whenGetAllDefinitions(env: Environment)(definitions: ApiDefinition*) = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-definition"))
-      .withQueryParam("type", equalTo("all"))
-      .willReturn(
-        aResponse()
-        .withStatus(OK)
-        .withJsonBody(definitions.toList)
-      )
+        .withQueryParam("type", equalTo("all"))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(definitions.toList)
+        )
     )
   }
 
   def whenGetAllDefinitionsFindsNothing(env: Environment): Unit = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-definition"))
-      .withQueryParam("type", equalTo("all"))
-      .willReturn(
-        aResponse()
-        .withStatus(NOT_FOUND)
-      )
+        .withQueryParam("type", equalTo("all"))
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND)
+        )
     )
   }
 
   def whenGetAllDefinitionsFails(env: Environment)(statusCode: Int): Unit = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-definition"))
-      .withQueryParam("type", equalTo("all"))
-      .willReturn(
-        aResponse()
-        .withStatus(statusCode)
-      )
+        .withQueryParam("type", equalTo("all"))
+        .willReturn(
+          aResponse()
+            .withStatus(statusCode)
+        )
     )
   }
 
   def whenGetAPICategoryDetails(env: Environment)(categories: ApiCategoryDetails*): Unit = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-categories"))
-      .willReturn(
-        aResponse()
-        .withStatus(OK)
-        .withJsonBody(categories.toList)
-      )
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(categories.toList)
+        )
     )
   }
 
   def whenGetAPICategoryDetailsFails(env: Environment)(statusCode: Int): Unit = {
     stubFor(env)(
       get(urlPathEqualTo(s"/api-categories"))
-      .willReturn(
-        aResponse()
-        .withStatus(statusCode)
-      )
+        .willReturn(
+          aResponse()
+            .withStatus(statusCode)
+        )
     )
   }
 
@@ -301,26 +301,28 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
       get(urlEqualTo("/api-categories"))
         .willReturn(
           aResponse()
-            .withBody(categoriesJsonString)))
+            .withBody(categoriesJsonString)
+        )
+    )
   }
 
   def whenFetchApiSpecification(environment: Environment)(serviceName: String, version: ApiVersion, jsValue: JsValue) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
-      .willReturn(
-        aResponse()
-        .withBody(Json.stringify(jsValue))
-      )
+        .willReturn(
+          aResponse()
+            .withBody(Json.stringify(jsValue))
+        )
     )
   }
 
   def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: String, version: ApiVersion) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
-      .willReturn(
-        aResponse()
-        .withStatus(NOT_FOUND)
-      )
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND)
+        )
     )
   }
 }

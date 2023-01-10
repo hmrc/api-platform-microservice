@@ -32,15 +32,15 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton()
-class ExtendedApiDefinitionController @Inject()(
+class ExtendedApiDefinitionController @Inject() (
     cc: ControllerComponents,
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
     subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends BackendController(cc)
+    override val mat: Materializer
+  ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>

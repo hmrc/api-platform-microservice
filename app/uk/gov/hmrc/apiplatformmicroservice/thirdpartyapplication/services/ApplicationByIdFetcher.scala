@@ -30,16 +30,16 @@ class ApplicationByIdFetcher @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
     subscriptionFieldsFetcher: SubscriptionFieldsFetcher
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
     val subordinateApp: Future[Option[Application]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
-    val principalApp: Future[Option[Application]] = thirdPartyApplicationConnector.principal.fetchApplication(id)
+    val principalApp: Future[Option[Application]]   = thirdPartyApplicationConnector.principal.fetchApplication(id)
 
     for {
       subordinate <- subordinateApp
-      principal <- principalApp
+      principal   <- principalApp
     } yield principal.orElse(subordinate)
   }
 
@@ -51,8 +51,8 @@ class ApplicationByIdFetcher @Inject() (
 
     (
       for {
-        app <- OptionT(foapp)
-        subs <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
+        app          <- OptionT(foapp)
+        subs         <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
         filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
       } yield ApplicationWithSubscriptionData(app, subs, filledFields)
     ).value

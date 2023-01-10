@@ -21,15 +21,15 @@ import cats.data.{NonEmptyList => NEL}
 sealed trait ValidationRule
 
 case class RegexValidationRule(regex: String) extends ValidationRule
-case object UrlValidationRule extends ValidationRule
+case object UrlValidationRule                 extends ValidationRule
 case class ValidationGroup(errorMessage: String, rules: NEL[ValidationRule])
 
 object FieldDefinitionType extends Enumeration {
   type FieldDefinitionType = Value
 
   @deprecated("We don't use URL type for any validation", since = "0.5x")
-  val URL = Value("URL")
+  val URL          = Value("URL")
   val SECURE_TOKEN = Value("SecureToken")
-  val STRING = Value("STRING")
-  val PPNS_FIELD = Value("PPNSField")
+  val STRING       = Value("STRING")
+  val PPNS_FIELD   = Value("PPNSField")
 }

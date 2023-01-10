@@ -39,11 +39,9 @@ trait ApplicationMock {
 
   def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId) {
     stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
-      .willReturn(  aResponse()
-        .withStatus(NOT_FOUND)
-      ))
+      .willReturn(aResponse()
+        .withStatus(NOT_FOUND)))
   }
-
 
   def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId) {
     stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
@@ -88,7 +86,6 @@ trait ApplicationMock {
           .withStatus(OK)
       ))
   }
-
 
   def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId("dummyProdId")) {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))

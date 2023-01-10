@@ -20,14 +20,14 @@ import enumeratum.{Enum, EnumEntry}
 import enumeratum.PlayJsonEnum
 
 sealed trait Role extends EnumEntry {
-  def isDeveloper: Boolean = this == Role.DEVELOPER
+  def isDeveloper: Boolean     = this == Role.DEVELOPER
   def isAdministrator: Boolean = this == Role.ADMINISTRATOR
 }
 
 object Role extends Enum[Role] with PlayJsonEnum[Role] {
   val values = findValues
 
-  final case object DEVELOPER extends Role
+  final case object DEVELOPER     extends Role
   final case object ADMINISTRATOR extends Role
 
   def from(role: Option[String]) = role match {

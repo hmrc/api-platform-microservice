@@ -32,8 +32,8 @@ class ApiSpecificationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends StreamedResponseResourceHelper 
+    override val mat: Materializer
+  ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
   def fetch(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
@@ -43,7 +43,7 @@ class ApiSpecificationFetcher @Inject() (
         response   <- fetchApiSpecification(apiVersion.sandboxAvailability.isDefined, serviceName, version)
       } yield response
     )
-    .value
+      .value
   }
 
   private def fetchApiVersion(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
@@ -61,7 +61,7 @@ class ApiSpecificationFetcher @Inject() (
 
   private def fetchSubordinateOrPrincipal(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     fetchSubordinateApiSpecification(serviceName, version)
-    .orElse(fetchPrincipalApiSpecification(serviceName, version))
+      .orElse(fetchPrincipalApiSpecification(serviceName, version))
   }
 
   private def fetchSubordinateApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {

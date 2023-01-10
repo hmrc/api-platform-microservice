@@ -32,9 +32,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Subs
 import uk.gov.hmrc.http.HeaderCarrier
 
 class SubscriptionFieldsConnectorSpec
-    extends AsyncHmrcSpec 
-    with WireMockSugar 
-    with WireMockSugarExtensions 
+    extends AsyncHmrcSpec
+    with WireMockSugar
+    with WireMockSugarExtensions
     with GuiceOneServerPerSuite {
 
   val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
@@ -60,11 +60,11 @@ class SubscriptionFieldsConnectorSpec
 
   class SetupPrincipal {
     implicit val hc = HeaderCarrier()
-    val clientId = ClientId("123")
+    val clientId    = ClientId("123")
 
     val httpClient = app.injector.instanceOf[HttpClient]
-    val config = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
-    val connector = new PrincipalSubscriptionFieldsConnector(config, httpClient)
+    val config     = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
+    val connector  = new PrincipalSubscriptionFieldsConnector(config, httpClient)
   }
 
   "SubscriptionFieldsConnector" should {
@@ -73,11 +73,11 @@ class SubscriptionFieldsConnectorSpec
 
       stubFor(
         get(urlEqualTo(s"/field/application/${clientId.value}"))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(BulkSubscriptionFieldsResponse(bulkSubscriptions))
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(BulkSubscriptionFieldsResponse(bulkSubscriptions))
+          )
       )
 
       await(connector.bulkFetchFieldValues(clientId)) shouldBe subsFields
@@ -89,11 +89,11 @@ class SubscriptionFieldsConnectorSpec
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
-          .withJsonRequestBody(request)
-          .willReturn(
-            aResponse()
-            .withStatus(OK)
-          )
+            .withJsonRequestBody(request)
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+            )
         )
 
         val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
@@ -103,16 +103,16 @@ class SubscriptionFieldsConnectorSpec
 
       "return field errors with bad values" in new SetupPrincipal {
         val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
-        val error = "This is wrong"
+        val error                                 = "This is wrong"
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
-          .withJsonRequestBody(request)
-          .willReturn(
-            aResponse()
-            .withStatus(BAD_REQUEST)
-            .withJsonBody(Map(FieldNameOne -> error))
-          )
+            .withJsonRequestBody(request)
+            .willReturn(
+              aResponse()
+                .withStatus(BAD_REQUEST)
+                .withJsonBody(Map(FieldNameOne -> error))
+            )
         )
 
         val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))

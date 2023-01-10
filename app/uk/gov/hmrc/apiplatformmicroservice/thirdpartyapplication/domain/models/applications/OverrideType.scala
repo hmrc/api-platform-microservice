@@ -24,9 +24,9 @@ sealed trait OverrideType extends EnumEntry
 object OverrideType extends Enum[OverrideType] with PlayJsonEnum[OverrideType] {
   val values = findValues
 
-  final case object PERSIST_LOGIN_AFTER_GRANT extends OverrideType
+  final case object PERSIST_LOGIN_AFTER_GRANT      extends OverrideType
   final case object GRANT_WITHOUT_TAXPAYER_CONSENT extends OverrideType
-  final case object SUPPRESS_IV_FOR_AGENTS extends OverrideType
-  final case object SUPPRESS_IV_FOR_ORGANISATIONS extends OverrideType
-  final case object SUPPRESS_IV_FOR_INDIVIDUALS extends OverrideType
+  final case object SUPPRESS_IV_FOR_AGENTS         extends OverrideType
+  final case object SUPPRESS_IV_FOR_ORGANISATIONS  extends OverrideType
+  final case object SUPPRESS_IV_FOR_INDIVIDUALS    extends OverrideType
 }

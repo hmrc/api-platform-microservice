@@ -28,7 +28,7 @@ object Environment extends Enum[Environment] with PlayJsonEnum[Environment] {
   val values = findValues
 
   final case object PRODUCTION extends Environment
-  final case object SANDBOX extends Environment
+  final case object SANDBOX    extends Environment
 
   def from(env: String) = values.find(e => e.toString == env.toUpperCase)
 }

@@ -27,25 +27,25 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CombinedApisService @Inject()(apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
-                                    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
-                                    xmlApisConnector: XmlApisConnector,
-                                    allApisFetcher: AllApisFetcher)
-                                   (implicit ec: ExecutionContext) {
+class CombinedApisService @Inject() (
+    apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
+    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
+    xmlApisConnector: XmlApisConnector,
+    allApisFetcher: AllApisFetcher
+  )(implicit ec: ExecutionContext
+  ) {
 
-
-  def fetchCombinedApisForDeveloperId(userId: Option[UserId])
-                                     (implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchCombinedApisForDeveloperId(userId: Option[UserId])(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
       restApis <- apiDefinitionsForCollaboratorFetcher.fetch(userId)
-      xmlApis <- xmlApisConnector.fetchAllXmlApis()
+      xmlApis  <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     for {
       restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)
-      xmlApis <- xmlApisConnector.fetchAllXmlApis()
+      xmlApis  <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition).distinct ++ xmlApis.map(fromXmlApi)
   }
 

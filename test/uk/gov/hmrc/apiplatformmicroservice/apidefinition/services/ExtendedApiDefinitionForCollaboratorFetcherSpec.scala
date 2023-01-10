@@ -36,11 +36,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
   private val versionTwo = ApiVersion("2.0")
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier = HeaderCarrier()
-    val email = Some(UserId.random)
-    val applicationId = ApplicationId.random
-    val helloApiDefinition = apiDefinition("hello-api")
-    val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
+    implicit val headerCarrier     = HeaderCarrier()
+    val email                      = Some(UserId.random)
+    val applicationId              = ApplicationId.random
+    val helloApiDefinition         = apiDefinition("hello-api")
+    val requiresTrustApi           = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE))
@@ -57,11 +57,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       SubscriptionsForCollaboratorFetcherMock.aMock
     )
 
-    val publicApiAvailability = ApiAvailability(false, PublicApiAccess(), false, true)
+    val publicApiAvailability  = ApiAvailability(false, PublicApiAccess(), false, true)
     val privateApiAvailability = ApiAvailability(false, PrivateApiAccess(List(), false), false, false)
 
     val incomeTaxCategory = ApiCategory("INCOME_TAX")
-    val vatTaxCategory = ApiCategory("VAT")
+    val vatTaxCategory    = ApiCategory("VAT")
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {

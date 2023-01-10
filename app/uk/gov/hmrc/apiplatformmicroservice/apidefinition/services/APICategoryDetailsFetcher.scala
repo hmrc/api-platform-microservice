@@ -23,14 +23,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiCategoryDetailsFetcher @Inject()(apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
+class ApiCategoryDetailsFetcher @Inject() (apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {
 
   def fetch()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
-    val principalAPICategoriesCall = apiDefinitionService.principal.fetchAllApiCategoryDetails
+    val principalAPICategoriesCall   = apiDefinitionService.principal.fetchAllApiCategoryDetails
     val subordinateAPICategoriesCall = apiDefinitionService.subordinate.fetchAllApiCategoryDetails
 
     for {
-      principalAPICategories <- principalAPICategoriesCall
+      principalAPICategories   <- principalAPICategoriesCall
       subordinateAPICategories <- subordinateAPICategoriesCall
     } yield (principalAPICategories ++ subordinateAPICategories).distinct
   }

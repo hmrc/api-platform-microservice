@@ -25,15 +25,14 @@ object SellResellOrDistribute {
   implicit val format: Format[SellResellOrDistribute] = Json.valueFormat[SellResellOrDistribute]
 }
 
-
 case class UpliftRequest(
-  sellResellOrDistribute: SellResellOrDistribute,
-  subscriptions: Set[ApiIdentifier],
-  requestedBy: String
-)
-  
+    sellResellOrDistribute: SellResellOrDistribute,
+    subscriptions: Set[ApiIdentifier],
+    requestedBy: String
+  )
+
 object UpliftRequest {
   import play.api.libs.json.{Format, Json, Reads}
-  implicit val reads: Reads[UpliftRequest] = Json.reads[UpliftRequest]
+  implicit val reads: Reads[UpliftRequest]   = Json.reads[UpliftRequest]
   implicit val format: Format[UpliftRequest] = Json.format[UpliftRequest]
 }

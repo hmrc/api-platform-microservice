@@ -26,15 +26,15 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.Envi
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 @Singleton
-class BoxFetcher @Inject()(pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
+class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
     extends Recoveries {
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     for {
-      subordinateBoxes <- pushpullnotificationsConnector.subordinate.fetchAllBoxes()
-      principalBoxes <- pushpullnotificationsConnector.principal.fetchAllBoxes()
+      subordinateBoxes               <- pushpullnotificationsConnector.subordinate.fetchAllBoxes()
+      principalBoxes                 <- pushpullnotificationsConnector.principal.fetchAllBoxes()
       subordinateBoxesWithEnvironment = subordinateBoxes.map(_.toBox(Environment.SANDBOX))
-      principalBoxesWithEnvironment = principalBoxes.map(_.toBox(Environment.PRODUCTION))
+      principalBoxesWithEnvironment   = principalBoxes.map(_.toBox(Environment.PRODUCTION))
 
     } yield (subordinateBoxesWithEnvironment ++ principalBoxesWithEnvironment)
   }

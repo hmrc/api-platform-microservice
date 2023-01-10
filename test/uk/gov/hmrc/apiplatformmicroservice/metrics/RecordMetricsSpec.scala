@@ -25,12 +25,12 @@ import scala.concurrent.Future
 class RecordMetricsSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
 
   trait Setup {
-    val testApi = API("test-metrics")
+    val testApi        = API("test-metrics")
     val apiMetricsMock = mock[ApiMetrics]
 
     val recordMetrics: RecordMetrics = new RecordMetrics {
       override val apiMetrics: ApiMetrics = apiMetricsMock
-      override val api: API = testApi
+      override val api: API               = testApi
     }
   }
 

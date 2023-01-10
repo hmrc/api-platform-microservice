@@ -22,5 +22,3 @@ object AddCollaboratorToTpaResponse {
   import play.api.libs.json._
   implicit val addCollaboratorToTpaResponseFormat = Json.format[AddCollaboratorToTpaResponse]
 }
-
-

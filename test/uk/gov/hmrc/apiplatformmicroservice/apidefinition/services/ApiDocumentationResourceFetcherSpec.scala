@@ -22,25 +22,24 @@ import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.{HeaderCarrier}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.stream.testkit.NoMaterializer
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 
-
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
   trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
-    val serviceName = "api-example-microservice"
-    val resource = "someResource"
-    
-    val resourceId = ResourceId(serviceName, versionOne, resource)
+    implicit val mat           = NoMaterializer
+    val serviceName            = "api-example-microservice"
+    val resource               = "someResource"
+
+    val resourceId    = ResourceId(serviceName, versionOne, resource)
     val noSuchVersion = resourceId.copy(version = ApiVersion("YouWontFindMe"))
 
-    val mockWSResponse = mock[WSResponse]
+    val mockWSResponse      = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)
     val mockErrorWSResponse = mock[WSResponse]
     when(mockErrorWSResponse.status).thenReturn(INTERNAL_SERVER_ERROR)
@@ -57,7 +56,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(0)
     }
-    
+
     def verifyBothEnvsCalled() = {
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.verifyCalled(1)
@@ -86,7 +85,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       val result = await(underTest.fetch(resourceId))
 
       result shouldBe 'defined
-      
+
       verifyOnlySubordinateEnvCalled
     }
 
@@ -97,7 +96,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       val result = await(underTest.fetch(resourceId))
 
       result shouldBe 'defined
-      
+
       verifyOnlyPrincipalEnvCalled
     }
 
@@ -107,7 +106,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       val result = await(underTest.fetch(resourceId))
 
       result shouldBe None
-      
+
       verifyNoEnvsCalled
     }
 
@@ -117,7 +116,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       val result = await(underTest.fetch(noSuchVersion))
 
       result shouldBe None
-      
+
       verifyNoEnvsCalled
     }
 
@@ -129,7 +128,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       val result = await(underTest.fetch(resourceId))
 
       result shouldBe 'defined
-      
+
       verifyBothEnvsCalled
     }
 
@@ -137,12 +136,12 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
       ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
-      
+
       val result = await(underTest.fetch(resourceId))
 
       result shouldBe None
 
-      verifyBothEnvsCalled      
+      verifyBothEnvsCalled
     }
 
     "will fail when extended api definition fetch fails" in new Setup {

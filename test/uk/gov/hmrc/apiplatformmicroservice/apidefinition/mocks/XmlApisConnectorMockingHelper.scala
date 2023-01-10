@@ -23,7 +23,8 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
 import scala.concurrent.Future
 
-trait XmlApisConnectorMockingHelper  extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+trait XmlApisConnectorMockingHelper extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
+
   object XmlApisConnectorMock {
     val aMock = mock[XmlApisConnector]
 

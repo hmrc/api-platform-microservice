@@ -27,34 +27,35 @@ import java.util.UUID
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  
+
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
   case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
-  
+
   type FieldErrors = Map[FieldName, String]
 
   case class SubscriptionFields(
       apiContext: ApiContext,
       apiVersion: ApiVersion,
-      fields: Map[FieldName, FieldValue])
+      fields: Map[FieldName, FieldValue]
+    )
 
   case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
-    clientId: ClientId,
-    apiContext: ApiContext,
-    apiVersion: ApiVersion,
-    fields: Map[FieldName, FieldValue]
-  )
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fields: Map[FieldName, FieldValue]
+    )
 
   case class ApplicationApiFieldValues(
-    clientId: ClientId,
-    apiContext: ApiContext,
-    apiVersion: ApiVersion,
-    fieldsId: UUID,
-    fields: Map[FieldName, FieldValue]
-  )
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fieldsId: UUID,
+      fields: Map[FieldName, FieldValue]
+    )
 
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
@@ -65,7 +66,7 @@ object SubscriptionFieldsConnectorDomain {
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-        override def empty: MapType = Map.empty
+        override def empty: MapType                           = Map.empty
       }
 
     Monoid.combineAll(
@@ -82,20 +83,20 @@ object SubscriptionFieldsConnectorDomain {
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-        override def empty: MapType = Map.empty
+        override def empty: MapType                           = Map.empty
       }
 
     Monoid.combineAll(
       subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
     )
   }
-  
-  object JsonFormatters 
+
+  object JsonFormatters
       extends ApplicationJsonFormatters
       with ApiDefinitionJsonFormatters
       with FieldsJsonFormatters
       with NonEmptyListFormatters {
-    
+
     import play.api.libs.json._
     import play.api.libs.functional.syntax._
 

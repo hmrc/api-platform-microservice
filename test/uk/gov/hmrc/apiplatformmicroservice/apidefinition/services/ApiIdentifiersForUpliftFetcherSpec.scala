@@ -18,23 +18,23 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIRED, STABLE, ALPHA}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{ALPHA, RETIRED, STABLE}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  private val versionOne = ApiVersion("1.0")
-  private val versionTwo = ApiVersion("2.0")
+  private val versionOne   = ApiVersion("1.0")
+  private val versionTwo   = ApiVersion("2.0")
   private val versionThree = ApiVersion("3.0")
 
   trait Setup extends ApiDefinitionServiceModule {
-    val upliftableApiDefinition = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
-    val exampleApiDefinition = apiDefinition("hello-api").withCategories(List(ApiCategory("EXAMPLE")))
-    val apiWithARetiredVersion = apiDefinition("api-with-retired-version", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE), apiVersion(versionThree, ALPHA))
+    val upliftableApiDefinition          = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
+    val exampleApiDefinition             = apiDefinition("hello-api").withCategories(List(ApiCategory("EXAMPLE")))
+    val apiWithARetiredVersion           = apiDefinition("api-with-retired-version", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE), apiVersion(versionThree, ALPHA))
     val customsDeclarationsApiDefinition = apiDefinition("customs/declarations", apiVersion(versionOne))
-    val testSupportApiDefinition = upliftableApiDefinition.isTestSupport()
+    val testSupportApiDefinition         = upliftableApiDefinition.isTestSupport()
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -54,12 +54,12 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition)
       await(underTest.fetch) shouldBe Set.empty
     }
-    
+
     "fetch nothing when only test support apis are present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(testSupportApiDefinition)
       await(underTest.fetch) shouldBe Set.empty
     }
-    
+
     "fetch an active version when api with retired version is present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithARetiredVersion)
       await(underTest.fetch) shouldBe Set("api-with-retired-version".asIdentifier(versionTwo))
@@ -69,7 +69,7 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(upliftableApiDefinition, testSupportApiDefinition, apiWithARetiredVersion, exampleApiDefinition)
       await(underTest.fetch) shouldBe Set("uplift".asIdentifier, "uplift".asIdentifier(versionTwo), "api-with-retired-version".asIdentifier(versionTwo))
     }
-  
+
     "fetch all upliftable APIs including additional special cases for CDS" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(customsDeclarationsApiDefinition)
 

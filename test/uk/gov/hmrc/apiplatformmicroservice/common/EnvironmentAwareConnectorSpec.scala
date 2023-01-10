@@ -27,11 +27,11 @@ class EnvironmentAwareSpec extends HmrcSpec with MockitoSugar with ArgumentMatch
     trait Something {}
 
     val subordinateSomething = mock[Something]
-    val principalSomething = mock[Something]
+    val principalSomething   = mock[Something]
 
     val eatpac = new EnvironmentAware[Something] {
       def subordinate: Something = subordinateSomething
-      def principal: Something = principalSomething
+      def principal: Something   = principalSomething
     }
   }
 

@@ -39,7 +39,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiers
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApisFetcher
 
-
 @Singleton
 class ApiDefinitionController @Inject() (
     val applicationService: ApplicationByIdFetcher,
@@ -50,43 +49,42 @@ class ApiDefinitionController @Inject() (
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents,
     apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher
-  )(implicit val ec: ExecutionContext)
-    extends BackendController(controllerComponents)
-    with ActionBuilders
- {
+  )(implicit val ec: ExecutionContext
+  ) extends BackendController(controllerComponents)
+    with ActionBuilders {
 
   import ApiDefinitionController.JsonFormatters._
   import ApiDefinitionController._
 
-  private def fetchApiDefinitions( fetch: => Future[List[ApiDefinition]]): Future[Result] = {
+  private def fetchApiDefinitions(fetch: => Future[List[ApiDefinition]]): Future[Result] = {
     for {
-      defs <- fetch
+      defs     <- fetch
       converted = convert(defs)
     } yield Ok(Json.toJson(converted))
   }
 
   def fetchAllOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    fetchApiDefinitions( openAccessApisFetcher.fetchAllForEnvironment(environment) ) 
+    fetchApiDefinitions(openAccessApisFetcher.fetchAllForEnvironment(environment))
   }
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
-    if(restricted.getOrElse(true)) {
+    if (restricted.getOrElse(true)) {
       ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
-        fetchApiDefinitions( applicationBasedApiFetcher.fetchRestricted(request.application, request.subscriptions) )
+        fetchApiDefinitions(applicationBasedApiFetcher.fetchRestricted(request.application, request.subscriptions))
       }
     } else {
-      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] => 
-        fetchApiDefinitions( applicationBasedApiFetcher.fetchUnrestricted(request.application) )
+      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
+        fetchApiDefinitions(applicationBasedApiFetcher.fetchUnrestricted(request.application))
       }
     }
 
   def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    fetchApiDefinitions( apisFetcher.fetchAllForEnvironment(environment) ) 
+    fetchApiDefinitions(apisFetcher.fetchAllForEnvironment(environment))
   }
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
     import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
-  
+
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
   }
 }
@@ -111,15 +109,16 @@ object ApiDefinitionController {
       isTestSupport: Boolean,
       versions: Map[ApiVersion, VersionData],
       categories: List[ApiCategory]
-  )
+    )
 
   object ApiData {
+
     implicit val ordering: Ordering[(ApiVersion, VersionData)] = new Ordering[(ApiVersion, VersionData)] {
       override def compare(x: (ApiVersion, VersionData), y: (ApiVersion, VersionData)): Int = y._1.value.compareTo(x._1.value)
     }
 
     def fromDefinition(in: ApiDefinition): ApiData = {
-      val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted:_*)
+      val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted: _*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
     }
   }
@@ -127,6 +126,6 @@ object ApiDefinitionController {
   object JsonFormatters extends ApiDefinitionJsonFormatters {
     import play.api.libs.json._
     implicit val writesVersionData: OWrites[VersionData] = Json.writes[VersionData]
-    implicit val writesApiData: OWrites[ApiData] = Json.writes[ApiData]
+    implicit val writesApiData: OWrites[ApiData]         = Json.writes[ApiData]
   }
 }

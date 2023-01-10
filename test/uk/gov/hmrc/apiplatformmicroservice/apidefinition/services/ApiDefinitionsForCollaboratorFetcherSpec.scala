@@ -34,11 +34,11 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   private val versionTwo = ApiVersion("2.0")
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier = HeaderCarrier()
-    val userId = Some(UserId.random)
-    val applicationId = ApplicationId.random
-    val helloApiDefinition = apiDefinition("hello-api")
-    val requiresTrustApi = apiDefinition("requires-trust-api").doesRequireTrust
+    implicit val headerCarrier     = HeaderCarrier()
+    val userId                     = Some(UserId.random)
+    val applicationId              = ApplicationId.random
+    val helloApiDefinition         = apiDefinition("hello-api")
+    val requiresTrustApi           = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE))
@@ -50,7 +50,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       apiDefinition("api-with-private-versions", apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = PrivateApiAccess()))
 
     val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = PrivateApiAccess().asTrial))
-    val apiWithAllowlisting = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = PrivateApiAccess().withAllowlistedAppIds(applicationId)))
+    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = PrivateApiAccess().withAllowlistedAppIds(applicationId)))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(
@@ -70,11 +70,11 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only(helloApiDefinition)
+      result should contain only (helloApiDefinition)
     }
 
     "prefer subordinate API when it is present in both environments" in new Setup {
-      val principalHelloApi = helloApiDefinition.withName("hello-principal")
+      val principalHelloApi   = helloApiDefinition.withName("hello-principal")
       val subordinateHelloApi = helloApiDefinition.withName("hello-subordinate")
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(principalHelloApi)
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(subordinateHelloApi)
@@ -82,7 +82,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only(subordinateHelloApi)
+      result should contain only (subordinateHelloApi)
     }
 
     "filter out an api that requires trust" in new Setup {
@@ -91,7 +91,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only(helloApiDefinition)
+      result should contain only (helloApiDefinition)
     }
 
     "filter out an api that only has retired versions" in new Setup {
@@ -100,8 +100,8 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result.map(_.name) should contain only(apiWithRetiredVersions.name)
-      result.head.versions.map(_.version) should contain only(versionTwo)
+      result.map(_.name) should contain only (apiWithRetiredVersions.name)
+      result.head.versions.map(_.version) should contain only (versionTwo)
     }
 
     "filter out private versions for an api" in new Setup {
@@ -110,7 +110,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result.head.versions should contain only(apiVersion(versionTwo, access = apiAccess()))
+      result.head.versions should contain only (apiVersion(versionTwo, access = apiAccess()))
     }
 
     "filter out private versions for an api if no email provided" in new Setup {
@@ -118,7 +118,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(None))
 
-      result.head.versions should contain only(apiVersion(versionTwo, access = apiAccess()))
+      result.head.versions should contain only (apiVersion(versionTwo, access = apiAccess()))
     }
 
     "filter out an api if it only has private versions" in new Setup {
@@ -136,7 +136,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only(apiWithPrivateTrials)
+      result should contain only (apiWithPrivateTrials)
     }
 
     "return api if it's private but the user has an allowlisted application" in new Setup {
@@ -145,7 +145,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only(apiWithAllowlisting)
+      result should contain only (apiWithAllowlisting)
     }
   }
 }

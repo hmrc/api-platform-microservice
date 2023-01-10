@@ -41,15 +41,15 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       with ApiDocumentationResourceFetcherModule
       with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
+    implicit val mat           = NoMaterializer
 
-    val request = FakeRequest("GET", "/")
-    val apiName = "hello-api"
-    val version = "1.0"
-    val anApiDefinition = apiDefinition(apiName)
+    val request                 = FakeRequest("GET", "/")
+    val apiName                 = "hello-api"
+    val version                 = "1.0"
+    val anApiDefinition         = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
 
-    val controller = new ExtendedApiDefinitionController(
+    val controller     = new ExtendedApiDefinitionController(
       Helpers.stubControllerComponents(),
       ApiDefinitionsForCollaboratorFetcherMock.aMock,
       ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,

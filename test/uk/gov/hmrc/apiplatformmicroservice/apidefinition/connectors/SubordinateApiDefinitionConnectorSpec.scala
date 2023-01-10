@@ -37,9 +37,9 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val futureTimeoutSupport = new FutureTimeoutSupportImpl
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  private val UpstreamException = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+  private val UpstreamException  = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
-  private val bearer = "TestBearerToken"
+  private val bearer     = "TestBearerToken"
   private val apiKeyTest = UUID.randomUUID().toString
 
   private val serviceName = "someService"
@@ -51,7 +51,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
     private implicit val materializer: Materializer = NoMaterializer
 
-    val serviceBaseUrl = "/mockUrl"
+    val serviceBaseUrl   = "/mockUrl"
     val apiDefinitionUrl = "/mockUrl"
 
     val config = SubordinateApiDefinitionConnector.Config(

@@ -31,16 +31,16 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
-    val developer = UserId.random
+    val developer              = UserId.random
 
-    val apiContextHelloWorld = ApiContext("hello-world")
+    val apiContextHelloWorld  = ApiContext("hello-world")
     val apiContextHelloAgents = ApiContext("hello-agents")
-    val apiVersionOne = ApiVersion("1.0")
-    val apiVersionTwo = ApiVersion("2.0")
+    val apiVersionOne         = ApiVersion("1.0")
+    val apiVersionTwo         = ApiVersion("2.0")
 
     val subordinateSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
-    val principalSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloAgents, apiVersionOne))
-    val underTest = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
+    val principalSubscriptions   = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloAgents, apiVersionOne))
+    val underTest                = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "SubscriptionsForCollaboratorFetcher" should {

@@ -23,4 +23,3 @@ case class UnregisteredUserCreationRequest(email: String)
 object UnregisteredUserCreationRequest {
   implicit val format = Json.format[UnregisteredUserCreationRequest]
 }
-

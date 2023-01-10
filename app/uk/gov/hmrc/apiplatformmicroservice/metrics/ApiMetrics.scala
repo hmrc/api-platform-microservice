@@ -70,5 +70,5 @@ object NoopTimer extends Timer {
 class NoopApiMetrics extends ApiMetrics {
   override def recordFailure(api: API) = ()
   override def recordSuccess(api: API) = ()
-  override def startTimer(api: API) = NoopTimer
+  override def startTimer(api: API)    = NoopTimer
 }

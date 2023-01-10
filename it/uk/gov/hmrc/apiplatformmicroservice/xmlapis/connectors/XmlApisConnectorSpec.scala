@@ -22,12 +22,12 @@ import uk.gov.hmrc.http.{HttpClient, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
+class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
   trait Setup {
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient                      = app.injector.instanceOf[HttpClient]
     val config: XmlApisConnector.Config = XmlApisConnector.Config(s"http://$WireMockHost:$WireMockPrincipalPort")
-    val connector = new XmlApisConnector(httpClient, config)
+    val connector                       = new XmlApisConnector(httpClient, config)
 
     val xmlApi1: XmlApi = XmlApi(
       name = "xml api 1",
@@ -38,10 +38,9 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
     )
 
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
-    val xmlApis = Seq(xmlApi1, xmlApi2)
+    val xmlApis         = Seq(xmlApi1, xmlApi2)
 
   }
-
 
   "fetchAllXmlApis" should {
     "return all Xml Apis" in new Setup {
@@ -74,7 +73,7 @@ class XmlApisConnectorSpec  extends WireMockSpec with XmlApisMock {
       whenGetXmlApiReturnsError(xmlApi1.name, 500)
 
       intercept[UpstreamErrorResponse] {
-       await(connector.fetchXmlApiByServiceName(xmlApi1.name))
+        await(connector.fetchXmlApiByServiceName(xmlApi1.name))
       }
     }
   }

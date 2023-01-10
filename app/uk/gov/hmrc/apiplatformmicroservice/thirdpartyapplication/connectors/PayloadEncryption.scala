@@ -34,7 +34,7 @@ class PayloadEncryption @Inject() (localCrypto: LocalCrypto) {
   }
 
   def decrypt[T](payload: JsValue)(implicit reads: Reads[T]): T = {
-    val decryptor = new JsonDecryptor()(crypto, reads)
+    val decryptor                         = new JsonDecryptor()(crypto, reads)
     val decrypted: JsResult[Protected[T]] = decryptor.reads(payload)
 
     decrypted.asOpt.map(_.decryptedValue).getOrElse(throw new scala.RuntimeException(s"Failed to decrypt payload: [$payload]"))
@@ -42,10 +42,11 @@ class PayloadEncryption @Inject() (localCrypto: LocalCrypto) {
 }
 
 class LocalCrypto @Inject() (applicationConfig: ThirdPartyDeveloperConnector.Config) extends CompositeSymmetricCrypto {
+
   override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
     override protected val encryptionKey: String = applicationConfig.jsonEncryptionKey
   }
-  override protected val previousCryptos: Seq[Decrypter] = Seq.empty
+  override protected val previousCryptos: Seq[Decrypter]         = Seq.empty
 }
 
 case class SecretRequest(data: String)
@@ -55,7 +56,8 @@ object SecretRequest {
 }
 
 class EncryptedJson @Inject() (payloadEncryption: PayloadEncryption) {
-  def secretRequest[I,R](input: I, block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
+
+  def secretRequest[I, R](input: I, block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
     block(toSecretRequest(w.writes(input)))
   }
 

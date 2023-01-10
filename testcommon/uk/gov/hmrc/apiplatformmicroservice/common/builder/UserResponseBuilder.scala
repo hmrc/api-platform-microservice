@@ -22,9 +22,8 @@ import org.joda.time.DateTime
 
 trait UserResponseBuilder {
 
-  def buildUserResponse(userId: UserId, email: String,  verified: Boolean = true) : UserResponse = {
-    UserResponse(userId, email, firstName = "firstName", lastName = "lastName",
-      registrationTime = DateTime.now, lastModified = DateTime.now, verified = verified)
+  def buildUserResponse(userId: UserId, email: String, verified: Boolean = true): UserResponse = {
+    UserResponse(userId, email, firstName = "firstName", lastName = "lastName", registrationTime = DateTime.now, lastModified = DateTime.now, verified = verified)
   }
 
 }

@@ -23,8 +23,8 @@ object SubscriptionsHelper {
 
   import AbstractThirdPartyApplicationConnector._
 
-  val ContextA = ApiContext("A")
-  val ContextB = ApiContext("B")
+  val ContextA   = ApiContext("A")
+  val ContextB   = ApiContext("B")
   val VersionOne = ApiVersion("1.0")
   val VersionTwo = ApiVersion("2.0")
 

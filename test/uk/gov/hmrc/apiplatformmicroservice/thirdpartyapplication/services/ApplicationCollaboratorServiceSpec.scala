@@ -21,8 +21,22 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest, GetOrCreateUserIdResponse, UnregisteredUserResponse, UserResponse}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaborator, AddCollaboratorRequest, Collaborator, CollaboratorActor, RemoveCollaborator, RemoveCollaboratorRequest, Role}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{
+  AddCollaboratorToTpaRequest,
+  GetOrCreateUserIdRequest,
+  GetOrCreateUserIdResponse,
+  UnregisteredUserResponse,
+  UserResponse
+}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
+  AddCollaborator,
+  AddCollaboratorRequest,
+  Collaborator,
+  CollaboratorActor,
+  RemoveCollaborator,
+  RemoveCollaboratorRequest,
+  Role
+}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
@@ -37,25 +51,29 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
   implicit val hc = HeaderCarrier()
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar
-    with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
+      with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
 
     val mockThirdPartyDeveloperConnector = mock[ThirdPartyDeveloperConnector]
-    val fixedClock = Clock.fixed(Instant.now(), ZoneOffset.UTC)
-    val service = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector, fixedClock)
+    val fixedClock                       = Clock.fixed(Instant.now(), ZoneOffset.UTC)
+    val service                          = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector, fixedClock)
 
-    val newCollaboratorEmail = "newCollaborator@testuser.com"
-    val newCollaboratorUserId = UserId.random
-    val newCollaborator = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
-    val newCollaboratorUserResponse = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
+    val newCollaboratorEmail                    = "newCollaborator@testuser.com"
+    val newCollaboratorUserId                   = UserId.random
+    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
+    val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
-    val requesterEmail = "adminRequester@example.com"
-    val verifiedAdminEmail = "verifiedAdmin@example.com"
-    val unverifiedAdminEmail = "unverifiedAdmin@example.com"
-    val adminEmailsMinusRequester = Set(verifiedAdminEmail, unverifiedAdminEmail)
-    val adminEmails = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
-    val adminMinusRequesterUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random), buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random))
-    val adminUserResponses = Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random),
+    val requesterEmail                   = "adminRequester@example.com"
+    val verifiedAdminEmail               = "verifiedAdmin@example.com"
+    val unverifiedAdminEmail             = "unverifiedAdmin@example.com"
+    val adminEmailsMinusRequester        = Set(verifiedAdminEmail, unverifiedAdminEmail)
+    val adminEmails                      = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
+
+    val adminMinusRequesterUserResponses =
+      Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random), buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random))
+
+    val adminUserResponses               = Seq(
+      buildUserResponse(email = verifiedAdminEmail, userId = UserId.random),
       buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random),
       buildUserResponse(email = requesterEmail, userId = UserId.random)
     )
@@ -64,83 +82,85 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
       Collaborator("collaborator1@example.com", Role.DEVELOPER, None),
       Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
       Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)))
+      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)
+    ))
 
-    val addCollaboratorToTpaRequestWithRequesterEmail = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
+    val addCollaboratorToTpaRequestWithRequesterEmail    = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
     val addCollaboratorToTpaRequestWithoutRequesterEmail = AddCollaboratorToTpaRequest("", newCollaborator, true, Set(verifiedAdminEmail, requesterEmail))
 
-    val addCollaboratorSuccessResult = AddCollaboratorSuccessResult(userRegistered = true)
+    val addCollaboratorSuccessResult           = AddCollaboratorSuccessResult(userRegistered = true)
     val collaboratorAlreadyExistsFailureResult = CollaboratorAlreadyExistsFailureResult
 
-    val getOrCreateUserIdRequest = GetOrCreateUserIdRequest(newCollaboratorEmail)
+    val getOrCreateUserIdRequest  = GetOrCreateUserIdRequest(newCollaboratorEmail)
     val getOrCreateUserIdResponse = GetOrCreateUserIdResponse(newCollaboratorUserId)
   }
 
-    "addCollaborator" should {
-      "create unregistered user when developer is not registered on principal app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
+  "addCollaborator" should {
+    "create unregistered user when developer is not registered on principal app" in new Setup {
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
-        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+      await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
-      }
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+    }
 
-      "create unregistered user when developer is not registered on subordinate app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
+    "create unregistered user when developer is not registered on subordinate app" in new Setup {
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.willReturnSuccess
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.willReturnSuccess
 
-        await(service.addCollaborator(productionApplication.copy(deployedTo = Environment.SANDBOX), newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+      await(
+        service.addCollaborator(productionApplication.copy(deployedTo = Environment.SANDBOX), newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))
+      ) shouldBe addCollaboratorSuccessResult
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
-      }
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+    }
 
-      "production app with requester email which shouldn't get notification email" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
+    "production app with requester email which shouldn't get notification email" in new Setup {
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
-        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
+      await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe addCollaboratorSuccessResult
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
-      }
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+    }
 
-      "include correct set of admins to email when no requester email is specified (GK case)" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmails))(*)).thenReturn(successful(adminUserResponses))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
+    "include correct set of admins to email when no requester email is specified (GK case)" in new Setup {
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmails))(*)).thenReturn(successful(adminUserResponses))
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnSuccess
 
-        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, None)) shouldBe addCollaboratorSuccessResult
+      await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, None)) shouldBe addCollaboratorSuccessResult
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithoutRequesterEmail)
-      }
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithoutRequesterEmail)
+    }
 
-      "propagate TeamMemberAlreadyExists from connector in production app" in new Setup {
-        when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
-        when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
+    "propagate TeamMemberAlreadyExists from connector in production app" in new Setup {
+      when(mockThirdPartyDeveloperConnector.fetchByEmails(eqTo(adminEmailsMinusRequester))(*)).thenReturn(successful(adminMinusRequesterUserResponses))
+      when(mockThirdPartyDeveloperConnector.getOrCreateUserId(eqTo(GetOrCreateUserIdRequest(newCollaboratorEmail)))(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnFailure
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.willReturnFailure
 
-        await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe collaboratorAlreadyExistsFailureResult
+      await(service.addCollaborator(productionApplication, newCollaboratorEmail, Role.DEVELOPER, Some(requesterEmail))) shouldBe collaboratorAlreadyExistsFailureResult
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
-      }
+      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.AddCollaborator.verifyCalled(1, productionApplication.id, addCollaboratorToTpaRequestWithRequesterEmail)
+    }
   }
 
   "handleRequest" should {
     val actor = CollaboratorActor("someEMail")
 
-
     "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
-      val request = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
+      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val request                         = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
@@ -152,8 +172,8 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     "decorate AddCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
-      val request = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
+      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val request                         = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 

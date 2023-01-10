@@ -34,14 +34,15 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext) {
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetch(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     for {
-      principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
+      principalDefinition   <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      subscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch)
+      applicationIds        <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
+      subscriptions         <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch)
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, developerId)
   }
 
@@ -121,7 +122,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       case (None, Some(subordinateVersion))                   =>
         toExtendedApiVersion(subordinateVersion, None, availability(context, subordinateVersion, applicationIds, subscriptions, userId))
       case (Some(principalVersion), Some(subordinateVersion)) =>
-        toExtendedApiVersion(subordinateVersion, availability(context, principalVersion, applicationIds, subscriptions, userId), availability(context, subordinateVersion, applicationIds, subscriptions, userId))
+        toExtendedApiVersion(
+          subordinateVersion,
+          availability(context, principalVersion, applicationIds, subscriptions, userId),
+          availability(context, subordinateVersion, applicationIds, subscriptions, userId)
+        )
       case (None, None)                                       =>
         throw new IllegalStateException("It's impossible to get here from the call site")
     }
@@ -141,7 +146,13 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], userId: Option[UserId]): Option[ApiAvailability] = {
+  private def availability(
+      context: ApiContext,
+      version: ApiVersionDefinition,
+      applicationIds: Set[ApplicationId],
+      subscriptions: Set[ApiIdentifier],
+      userId: Option[UserId]
+    ): Option[ApiAvailability] = {
     version.access match {
       case PrivateApiAccess(allowlist, isTrial) =>
         val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))

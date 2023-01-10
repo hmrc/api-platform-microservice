@@ -23,19 +23,20 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
+
 class PushPullNotificationsConnectorSpec extends AsyncHmrcSpec {
 
   private val baseUrl = "https://example.com"
 
   class Setup(proxyEnabled: Boolean = false) {
-    implicit val hc = HeaderCarrier()
-    protected val mockHttpClient = mock[HttpClient]
+    implicit val hc                     = HeaderCarrier()
+    protected val mockHttpClient        = mock[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer = "TestBearerToken"
+    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
+    val bearer                          = "TestBearerToken"
 
     val connector = new AbstractPushPullNotificationsConnector {
-      val httpClient = mockHttpClient
+      val httpClient        = mockHttpClient
       val proxiedHttpClient = mockProxiedHttpClient
 
       val config = AbstractPushPullNotificationsConnector.Config(

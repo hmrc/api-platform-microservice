@@ -34,24 +34,25 @@ import scala.concurrent.Future
 
 private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 
-  private[connectors] object JsonFormatters extends ApplicationJsonFormatters{
-    import play.api.libs.json._  
+  private[connectors] object JsonFormatters extends ApplicationJsonFormatters {
+    import play.api.libs.json._
     import play.api.libs.json.JodaReads._
     import play.api.libs.json.JodaWrites._
 
     implicit val formatDateTime = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
 
-    implicit val readsBoxId = Json.valueFormat[BoxId]
-    implicit val readsBoxCreator = Json.reads[BoxCreator]
+    implicit val readsBoxId         = Json.valueFormat[BoxId]
+    implicit val readsBoxCreator    = Json.reads[BoxCreator]
     implicit val readsBoxSubscriber = Json.format[BoxSubscriber]
-    implicit val readsBox = Json.reads[BoxResponse]
+    implicit val readsBox           = Json.reads[BoxResponse]
   }
 
   case class Config(
       applicationBaseUrl: String,
       applicationUseProxy: Boolean,
       applicationBearerToken: String,
-      applicationApiKey: String)
+      applicationApiKey: String
+    )
 }
 
 trait PushPullNotificationsConnector {
@@ -66,9 +67,9 @@ private[pushpullnotifications] abstract class AbstractPushPullNotificationsConne
   protected val config: AbstractPushPullNotificationsConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  lazy val useProxy: Boolean = config.applicationUseProxy
+  lazy val useProxy: Boolean   = config.applicationUseProxy
   lazy val bearerToken: String = config.applicationBearerToken
-  lazy val apiKey: String = config.applicationApiKey
+  lazy val apiKey: String      = config.applicationApiKey
 
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
@@ -84,9 +85,8 @@ class SubordinatePushPullNotificationsConnector @Inject() (
     @Named("subordinate") override val config: AbstractPushPullNotificationsConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext)
-    extends AbstractPushPullNotificationsConnector {
-}
+  )(implicit override val ec: ExecutionContext
+  ) extends AbstractPushPullNotificationsConnector {}
 
 @Singleton
 @Named("principal")
@@ -94,13 +94,11 @@ class PrincipalPushPullNotificationsConnector @Inject() (
     @Named("principal") override val config: AbstractPushPullNotificationsConnector.Config,
     override val httpClient: HttpClient,
     override val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext)
-    extends AbstractPushPullNotificationsConnector {
-
-}
+  )(implicit override val ec: ExecutionContext
+  ) extends AbstractPushPullNotificationsConnector {}
 
 @Singleton
 class EnvironmentAwarePushPullNotificationsConnector @Inject() (
     @Named("subordinate") val subordinate: PushPullNotificationsConnector,
-    @Named("principal") val principal: PushPullNotificationsConnector)
-    extends EnvironmentAware[PushPullNotificationsConnector]
+    @Named("principal") val principal: PushPullNotificationsConnector
+  ) extends EnvironmentAware[PushPullNotificationsConnector]

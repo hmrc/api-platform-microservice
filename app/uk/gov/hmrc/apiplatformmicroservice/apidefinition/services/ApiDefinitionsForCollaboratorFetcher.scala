@@ -35,20 +35,19 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher
-    
-  )(implicit ec: ExecutionContext)
-    extends Recoveries with FilterApiDocumentation {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries with FilterApiDocumentation {
 
   def fetch(developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val principalDefinitionsFuture = principalDefinitionService.fetchAllApiDefinitions
+    val principalDefinitionsFuture   = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 
     for {
-      principalDefinitions <- principalDefinitionsFuture
-      subordinateDefinitions <- subordinateDefinitionsFuture
-      combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
+      principalDefinitions       <- principalDefinitionsFuture
+      subordinateDefinitions     <- subordinateDefinitionsFuture
+      combinedDefinitions         = combineDefinitions(principalDefinitions, subordinateDefinitions)
       collaboratorApplicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      collaboratorSubscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
+      collaboratorSubscriptions  <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
     } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
   }
 

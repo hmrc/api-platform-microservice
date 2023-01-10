@@ -29,15 +29,27 @@ import uk.gov.hmrc.time.DateTimeUtils
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec {
+
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
-    val subordinateAppId = ApplicationId.random
-    val principalAppId = ApplicationId.random
+    val subordinateAppId       = ApplicationId.random
+    val principalAppId         = ApplicationId.random
 
-    val subordinateApplication = Application(subordinateAppId, ClientId("123"), "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), java.time.Period.ofDays(1), None, Environment.SANDBOX, Some("description"))
+    val subordinateApplication = Application(
+      subordinateAppId,
+      ClientId("123"),
+      "gatewayId",
+      "name",
+      DateTimeUtils.now,
+      Some(DateTimeUtils.now),
+      java.time.Period.ofDays(1),
+      None,
+      Environment.SANDBOX,
+      Some("description")
+    )
 
     val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock.aMock
-    val principalConnector = PrincipalThirdPartyApplicationConnectorMock.aMock
+    val principalConnector   = PrincipalThirdPartyApplicationConnectorMock.aMock
 
     val service = new SubordinateApplicationFetcher(subordinateConnector.asInstanceOf[SubordinateThirdPartyApplicationConnector], principalConnector)
   }
@@ -56,7 +68,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec {
       PrincipalThirdPartyApplicationConnectorMock.GetLinkedSubordinateApplicationId.thenReturnNothing
 
       val result = await(service.fetchSubordinateApplication(principalAppId))
-      
+
       result shouldBe None
     }
 

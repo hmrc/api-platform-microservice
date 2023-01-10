@@ -29,17 +29,17 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiSpecificationController @Inject()(
+class ApiSpecificationController @Inject() (
     cc: ControllerComponents,
     apiSpecificationFetcher: ApiSpecificationFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends BackendController(cc)
+    override val mat: Materializer
+  ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
   def fetchApiSpecification(serviceName: String, version: ApiVersion) = Action.async { implicit request =>
-
     OptionT(apiSpecificationFetcher.fetch(serviceName, version))
-    .map(x => Ok(x))
-    .getOrElse(NotFound)
-  }}
+      .map(x => Ok(x))
+      .getOrElse(NotFound)
+  }
+}

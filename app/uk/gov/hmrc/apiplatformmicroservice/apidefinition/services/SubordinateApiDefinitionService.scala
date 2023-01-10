@@ -25,8 +25,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 class SubordinateApiDefinitionService @Inject() (
     val connector: SubordinateApiDefinitionConnector,
     val config: SubordinateApiDefinitionService.Config,
-    val apiMetrics: ApiMetrics)
-    extends ApiDefinitionService with ApplicationLogger {
+    val apiMetrics: ApiMetrics
+  ) extends ApiDefinitionService with ApplicationLogger {
 
   val api: API = API("api-definition-subordinate")
 

@@ -25,10 +25,10 @@ class ServicesConfigBridgeExtensionSpec extends AsyncHmrcSpec with MockitoSugar 
   trait Setup {
 
     val proxiedServiceName = "PROXY"
-    val directServiceName = "DIRECT"
-    val baseUrl = "BASE"
-    val proxySuffix = "SUFFIX"
-    val key = "SOME_KEY"
+    val directServiceName  = "DIRECT"
+    val baseUrl            = "BASE"
+    val proxySuffix        = "SUFFIX"
+    val key                = "SOME_KEY"
 
     val servicesConfig = mock[ServicesConfig]
 

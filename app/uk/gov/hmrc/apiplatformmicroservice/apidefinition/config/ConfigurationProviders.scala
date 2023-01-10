@@ -44,6 +44,7 @@ class ConfigurationModule extends AbstractModule {
 
 @Singleton
 class PrincipalApiDefinitionConnectorConfigProvider @Inject() (sc: ServicesConfig) extends Provider[PrincipalApiDefinitionConnector.Config] {
+
   override def get(): PrincipalApiDefinitionConnector.Config = {
     lazy val principalBaseUrl = sc.baseUrl("api-definition-principal")
     PrincipalApiDefinitionConnector.Config(baseUrl = principalBaseUrl)
@@ -57,11 +58,11 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc
 
   override def get(): SubordinateApiDefinitionConnector.Config = {
     val subordinateServiceName = "api-definition-subordinate"
-    val subordinateBaseUrl =
+    val subordinateBaseUrl     =
       serviceUrl("api-definition")(subordinateServiceName)
-    val subordinateUseProxy = useProxy(subordinateServiceName)
+    val subordinateUseProxy    = useProxy(subordinateServiceName)
     val subordinateBearerToken = bearerToken(subordinateServiceName)
-    val subordiateApiKey = apiKey(subordinateServiceName)
+    val subordiateApiKey       = apiKey(subordinateServiceName)
 
     SubordinateApiDefinitionConnector.Config(
       serviceBaseUrl = subordinateBaseUrl,
@@ -74,6 +75,7 @@ class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc
 
 @Singleton
 class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Configuration) extends Provider[SubordinateApiDefinitionService.Config] {
+
   override def get(): SubordinateApiDefinitionService.Config = {
     val isSubordinateAvailable = configuration.getOptional[Boolean]("features.isSubordinateAvailable").getOrElse(false)
     SubordinateApiDefinitionService.Config(enabled = isSubordinateAvailable)
@@ -81,16 +83,16 @@ class SubordinateApiDefinitionServiceConfigProvider @Inject() (configuration: Co
 }
 
 @Singleton
-class AuthConfigProvider @Inject()(val configuration: Configuration)
-  extends ServicesConfig(configuration)
-  with Provider[AuthConnector.Config] {
+class AuthConfigProvider @Inject() (val configuration: Configuration)
+    extends ServicesConfig(configuration)
+    with Provider[AuthConnector.Config] {
 
   override def get() = {
-    val url = baseUrl("auth")
-    val userRole = getString("roles.user")
-    val superUserRole = getString("roles.super-user")
-    val adminRole = getString("roles.admin")
-    val enabled = getConfBool("auth.enabled", true)
+    val url              = baseUrl("auth")
+    val userRole         = getString("roles.user")
+    val superUserRole    = getString("roles.super-user")
+    val adminRole        = getString("roles.admin")
+    val enabled          = getConfBool("auth.enabled", true)
     val authorisationKey = getString("authorisationKey")
 
     AuthConnector.Config(url, userRole, superUserRole, adminRole, enabled, authorisationKey)
@@ -98,8 +100,8 @@ class AuthConfigProvider @Inject()(val configuration: Configuration)
 }
 
 object ConfigHelper {
+
   def getConfig[T](key: String, f: String => Option[T]): T = {
     f(key).getOrElse(throw new RuntimeException(s"[$key] is not configured!"))
   }
 }
-

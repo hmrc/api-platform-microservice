@@ -25,14 +25,15 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
+
   object ApplicationByIdFetcherMock {
     val aMock = mock[ApplicationByIdFetcher]
 
     object FetchApplication {
+
       def willReturnApplication(app: Option[Application]) = {
         when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(Future.successful(app))
       }
-
 
       def willThrowException(e: Exception) = {
         when(aMock.fetchApplication(*)(*)).thenReturn(Future.failed(e))
@@ -40,7 +41,7 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
     }
 
     object FetchApplicationWithSubscriptionData {
-      
+
       def willReturnApplicationWithSubscriptionData(app: Application, subscriptions: Set[ApiIdentifier] = Set.empty) = {
         when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(app, subscriptions))))
       }

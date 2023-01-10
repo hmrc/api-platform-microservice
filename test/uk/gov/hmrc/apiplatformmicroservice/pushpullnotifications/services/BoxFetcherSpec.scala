@@ -31,26 +31,26 @@ class BoxFetcherSpec extends AsyncHmrcSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar with BoxBuilder{
+  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar with BoxBuilder {
     val fetcher = new BoxFetcher(EnvironmentAwarePushPullNotificationsConnectorMock.instance)
   }
 
   "BoxFetcher" when {
     "fetchAllBoxes" should {
       "return None if none from principal and subordinate" in new Setup {
-          EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List.empty)
-          EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List.empty)
+        EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List.empty)
+        EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List.empty)
 
-          await(fetcher.fetchAllBoxes()) shouldBe List.empty
+        await(fetcher.fetchAllBoxes()) shouldBe List.empty
       }
 
       "return principal and subordinate boxes" in new Setup {
-        
+
         private val subordinateBoxResponse = buildBoxResponse("1")
-        private val principalBoxResponse = buildBoxResponse("2")
+        private val principalBoxResponse   = buildBoxResponse("2")
 
         private val subordinateBox = buildBoxFromBoxResponse(subordinateBoxResponse, Environment.SANDBOX)
-        private val principalBox = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
+        private val principalBox   = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
 
         EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List(subordinateBoxResponse))
         EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List(principalBoxResponse))

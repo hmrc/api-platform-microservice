@@ -33,7 +33,7 @@ class ThirdPartyApplicationSpec extends WireMockSpec with ApplicationMock with S
     val wsClient = app.injector.instanceOf[WSClient]
 
     "stub get request for fetching an application" in {
-      val clientId = ClientId(ju.UUID.randomUUID.toString)
+      val clientId      = ClientId(ju.UUID.randomUUID.toString)
       val applicationId = ApplicationId.random
       mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
       mockFetchApplicationNotFound(Environment.SANDBOX, applicationId)

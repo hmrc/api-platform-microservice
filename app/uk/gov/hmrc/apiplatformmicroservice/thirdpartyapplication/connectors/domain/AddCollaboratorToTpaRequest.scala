@@ -25,4 +25,3 @@ object AddCollaboratorToTpaRequest {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters.formatCollaborator
   implicit val addCollaboratorToTpaRequestFormat = Json.format[AddCollaboratorToTpaRequest]
 }
-

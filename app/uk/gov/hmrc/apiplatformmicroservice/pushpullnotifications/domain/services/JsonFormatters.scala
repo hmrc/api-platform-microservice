@@ -19,19 +19,18 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.service
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
-
 trait PushPullNotificationJsonFormatters extends ApplicationJsonFormatters {
-  import play.api.libs.json._  
-  
-  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-  implicit val JodaDateReads: Reads[org.joda.time.DateTime] = JodaReads.jodaDateReads(dateFormat)
-  implicit val JodaDateWrites: Writes[org.joda.time.DateTime] = JodaWrites.jodaDateWrites(dateFormat)
+  import play.api.libs.json._
+
+  val dateFormat                                                  = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+  implicit val JodaDateReads: Reads[org.joda.time.DateTime]       = JodaReads.jodaDateReads(dateFormat)
+  implicit val JodaDateWrites: Writes[org.joda.time.DateTime]     = JodaWrites.jodaDateWrites(dateFormat)
   implicit val JodaDateTimeFormat: Format[org.joda.time.DateTime] = Format(JodaDateReads, JodaDateWrites)
 
-  implicit val formatBoxId: Format[BoxId] = Json.valueFormat[BoxId]
-  implicit val formatBoxCreator: Format[BoxCreator] = Json.format[BoxCreator]
-  implicit val formatBoxSubscriber: Format[BoxSubscriber]  = Json.format[BoxSubscriber]
-  implicit val formatBox: Format[Box] = Json.format[Box]
+  implicit val formatBoxId: Format[BoxId]                 = Json.valueFormat[BoxId]
+  implicit val formatBoxCreator: Format[BoxCreator]       = Json.format[BoxCreator]
+  implicit val formatBoxSubscriber: Format[BoxSubscriber] = Json.format[BoxSubscriber]
+  implicit val formatBox: Format[Box]                     = Json.format[Box]
 }
 
 object PushPullNotificationJsonFormatters extends PushPullNotificationJsonFormatters

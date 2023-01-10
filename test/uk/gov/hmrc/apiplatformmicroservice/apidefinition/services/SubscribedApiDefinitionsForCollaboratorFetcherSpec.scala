@@ -30,15 +30,15 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne = ApiVersion("1.0")
-  private val versionTwo = ApiVersion("2.0")
+  private val versionOne        = ApiVersion("1.0")
+  private val versionTwo        = ApiVersion("2.0")
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    val email = UserId.random
-    val helloWorldDefinition = apiDefinition(helloWorldContext.value, apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
-    val helloAgentsDefinition = apiDefinition("hello-agents", apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
-    val helloVatDefinition = apiDefinition("hello-vat", apiVersion(versionOne, STABLE))
+    val email                  = UserId.random
+    val helloWorldDefinition   = apiDefinition(helloWorldContext.value, apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
+    val helloAgentsDefinition  = apiDefinition("hello-agents", apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
+    val helloVatDefinition     = apiDefinition("hello-vat", apiVersion(versionOne, STABLE))
 
     val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }

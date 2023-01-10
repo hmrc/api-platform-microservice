@@ -19,17 +19,17 @@ package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
 // NOT TO BE USED FOR JSON FORMATTING !!
 object ThreeDMap {
 
-  type Type[X,Y,Z,V] = Map[X, Map[Y, Map[Z, V]]]
+  type Type[X, Y, Z, V] = Map[X, Map[Y, Map[Z, V]]]
 
-  def empty[X,Y,Z,V,W]: Type[X,Y,Z,V] = Map.empty
-  
-  def map[X,Y,Z,V,W](fn: (X,Y,Z,V) => W)(in: Type[X,Y,Z,V]): Type[X,Y,Z,W] = {
-    in.flatMap { 
-      case (x,m2) => {
-        Map(x -> m2.flatMap { 
+  def empty[X, Y, Z, V, W]: Type[X, Y, Z, V] = Map.empty
+
+  def map[X, Y, Z, V, W](fn: (X, Y, Z, V) => W)(in: Type[X, Y, Z, V]): Type[X, Y, Z, W] = {
+    in.flatMap {
+      case (x, m2) => {
+        Map(x -> m2.flatMap {
           case (y, m3) => {
             Map(y -> m3.flatMap {
-              case (z, v) => Map(z -> fn(x,y,z,v))
+              case (z, v) => Map(z -> fn(x, y, z, v))
             })
           }
         })
@@ -37,37 +37,37 @@ object ThreeDMap {
     }
   }
 
-  def filter[X,Y,Z,V](fn: (X,Y,Z,V) => Boolean)(in: Type[X,Y,Z,V]): Type[X,Y,Z,V] = {
-    in.flatMap { 
-      case (a,m2) => {
-        val n2 = m2.flatMap { 
+  def filter[X, Y, Z, V](fn: (X, Y, Z, V) => Boolean)(in: Type[X, Y, Z, V]): Type[X, Y, Z, V] = {
+    in.flatMap {
+      case (a, m2) => {
+        val n2 = m2.flatMap {
           case (b, m3) => {
-            val n3 = m3.flatMap { 
-              case (c, v) if( fn(a,b,c,v) ) => Map(c -> v)
-              case _ => Map.empty[Z, V]
+            val n3 = m3.flatMap {
+              case (c, v) if (fn(a, b, c, v)) => Map(c -> v)
+              case _                          => Map.empty[Z, V]
             }
-            if(n3.isEmpty) Map.empty[Y,Map[Z,V]] else Map(b -> n3)
+            if (n3.isEmpty) Map.empty[Y, Map[Z, V]] else Map(b -> n3)
           }
         }
-        if(n2.isEmpty) Map.empty[X, Map[Y,Map[Z,V]]] else Map(a -> n2)
+        if (n2.isEmpty) Map.empty[X, Map[Y, Map[Z, V]]] else Map(a -> n2)
       }
     }
   }
-  
-  def get[X,Y,Z,V]( t: (X,Y,Z) )(in: Type[X,Y,Z,V]): Option[V] = {
+
+  def get[X, Y, Z, V](t: (X, Y, Z))(in: Type[X, Y, Z, V]): Option[V] = {
     in.get(t._1).flatMap(
       _.get(t._2).flatMap(
         _.get(t._3)
       )
     )
   }
-  
-  def flatten[X, Y, Z, V](in: Type[X,Y,Z,V]): Type[X,Y,Z,V] = {
+
+  def flatten[X, Y, Z, V](in: Type[X, Y, Z, V]): Type[X, Y, Z, V] = {
     in.flatMap {
       case (x, ys) if ys.isEmpty => Map.empty[X, Map[Y, Map[Z, V]]]
-      case (x, ys)               => Map(x -> ys.filterNot( yzs => yzs._2.isEmpty))
-      }
-      .filterNot( xys => xys._2.isEmpty)
+      case (x, ys)               => Map(x -> ys.filterNot(yzs => yzs._2.isEmpty))
     }
+      .filterNot(xys => xys._2.isEmpty)
+  }
 
 }

@@ -23,6 +23,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubordinateApplicationFetcher
 
 trait SubordinateApplicationFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
+
   object SubordinateApplicationFetcherMock {
     val aMock = mock[SubordinateApplicationFetcher]
 

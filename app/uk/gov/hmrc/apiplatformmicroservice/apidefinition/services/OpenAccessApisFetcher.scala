@@ -27,11 +27,12 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRE
 @Singleton
 class OpenAccessApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext) extends OpenAccessRules {
+  )(implicit ec: ExecutionContext
+  ) extends OpenAccessRules {
 
   private def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
     val filteredVersions = definition.versions.filterNot(_.status == RETIRED)
-    if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
+    if (filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
   }
 
   def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
@@ -39,8 +40,8 @@ class OpenAccessApisFetcher @Inject() (
     import cats.implicits._
 
     Nested(apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions)
-    .map(filterOutRetiredVersions)
-    .collect({ case Some(x) => x})
-    .value
+      .map(filterOutRetiredVersions)
+      .collect({ case Some(x) => x })
+      .value
   }
 }

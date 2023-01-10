@@ -57,12 +57,12 @@ class CombinedApisControllerISpec
     )
 
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
-    val xmlApis = Seq(xmlApi1, xmlApi2)
+    val xmlApis         = Seq(xmlApi1, xmlApi2)
 
     val userId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
 
-    val apiDefinition1 = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
-    val apiDefinition2 = apiDefinition(name = "service2").copy(categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
+    val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
+    val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
     val listOfDefinitions = List(apiDefinition1, apiDefinition2)
   }
 
@@ -78,7 +78,7 @@ class CombinedApisControllerISpec
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe OK
-      val body = result.body
+      val body    = result.body
       body shouldBe """[{"displayName":"Hello Another","serviceName":"api-example-another","categories":[],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"Hello World","serviceName":"api-example-microservice","categories":[],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
@@ -150,9 +150,9 @@ class CombinedApisControllerISpec
     }
 
     "stub requests to fetch all API Category details" in new Setup {
-      val category1 = ApiCategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
-      val category2 = ApiCategoryDetails("AGENTS", "Agents")
-      val category3 = ApiCategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
+      val category1   = ApiCategoryDetails("INCOME_TAX_MTD", "Income Tax (Making Tax Digital")
+      val category2   = ApiCategoryDetails("AGENTS", "Agents")
+      val category3   = ApiCategoryDetails("EXTRA_SANDBOX_CATEGORY", "Extra Sandbox Category")
       val xmlCategory = ApiCategoryDetails("VAT", "VAT")
 
       whenGetAllXmlApis(xmlApis: _*)
@@ -186,7 +186,7 @@ class CombinedApisControllerISpec
         .get())
 
       result.status shouldBe OK
-      val body = result.body
+      val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
@@ -203,7 +203,7 @@ class CombinedApisControllerISpec
         .get())
 
       result.status shouldBe OK
-      val body = result.body
+      val body    = result.body
       body shouldBe """[{"displayName":"xml api 1","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":[{"value":"VAT"}],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 2
@@ -220,7 +220,7 @@ class CombinedApisControllerISpec
         .get())
 
       result.status shouldBe OK
-      val body = result.body
+      val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":[{"value":"OTHER"},{"value":"INCOME_TAX_MTD"}],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 0
@@ -267,7 +267,7 @@ class CombinedApisControllerISpec
         .get())
 
       result.status shouldBe OK
-      val body = result.body
+      val body    = result.body
       println(body)
       body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]

@@ -31,10 +31,10 @@ class ConfigurationModule extends AbstractModule {
 }
 
 @Singleton
-class XmlApisConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[XmlApisConnector.Config] {
+class XmlApisConnectorConfigProvider @Inject() (sc: ServicesConfig) extends Provider[XmlApisConnector.Config] {
+
   override def get(): XmlApisConnector.Config = {
     lazy val baseUrl = sc.baseUrl("api-platform-xml-services")
     XmlApisConnector.Config(baseUrl)
   }
 }
-

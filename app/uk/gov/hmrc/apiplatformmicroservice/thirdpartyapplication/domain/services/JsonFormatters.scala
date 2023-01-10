@@ -30,14 +30,15 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 
   private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
 
-  private implicit val readsPersistLogin: Reads[PersistLogin.type] = Reads { _ => JsSuccess(PersistLogin) }
+  private implicit val readsPersistLogin: Reads[PersistLogin.type]    = Reads { _ => JsSuccess(PersistLogin) }
+
   private implicit val writesPersistLogin: OWrites[PersistLogin.type] = new OWrites[PersistLogin.type] {
     def writes(pl: PersistLogin.type) = Json.obj()
   }
 
-  private implicit val formatSuppressIvForAgents = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForAgents        = Json.format[SuppressIvForAgents]
   private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals = Json.format[SuppressIvForIndividuals]
+  private implicit val formatSuppressIvForIndividuals   = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverrideType: Format[OverrideFlag] = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
@@ -47,13 +48,13 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
     .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
     .format
 
-  implicit val formatStandard = Json.format[Standard]
+  implicit val formatStandard   = Json.format[Standard]
   implicit val formatPrivileged = Json.format[Privileged]
-  implicit val formatROPC = Json.format[ROPC]
+  implicit val formatROPC       = Json.format[ROPC]
 
   object TOUAHelper {
     // DO NOT POLLUTE WHOLE SCOPE WITH THIS WRITER
-    implicit val formatDateTime = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
+    implicit val formatDateTime                 = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
     val formatTOUA: Format[TermsOfUseAgreement] = Json.format[TermsOfUseAgreement]
   }
 
@@ -82,4 +83,3 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 }
 
 object ApplicationJsonFormatters extends ApplicationJsonFormatters
-

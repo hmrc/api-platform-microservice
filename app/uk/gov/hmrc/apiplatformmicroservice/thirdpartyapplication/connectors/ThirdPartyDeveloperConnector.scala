@@ -32,16 +32,19 @@ private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 
   case class Config(
       applicationBaseUrl: String,
-      jsonEncryptionKey: String)
+      jsonEncryptionKey: String
+    )
 }
 
 @Singleton
 private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
-           val config: ThirdPartyDeveloperConnector.Config,
-           http: HttpClient,
-           encryptedJson: EncryptedJson) (implicit val ec: ExecutionContext) {
-  
-  lazy val serviceBaseUrl: String = config.applicationBaseUrl
+    val config: ThirdPartyDeveloperConnector.Config,
+    http: HttpClient,
+    encryptedJson: EncryptedJson
+  )(implicit val ec: ExecutionContext
+  ) {
+
+  lazy val serviceBaseUrl: String    = config.applicationBaseUrl
   lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
   def fetchByEmails(emails: Set[String])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
@@ -49,6 +52,6 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   }
 
   def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
-      http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
   }
 }

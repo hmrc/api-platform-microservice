@@ -34,13 +34,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters{
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = app.materializer
+    implicit val mat           = app.materializer
 
     val applicationId = ApplicationId.random
 
-    val mockAuthConfig = mock[AuthConnector.Config]
+    val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
 
     val controller = new ApplicationUpdateController(
@@ -69,12 +69,11 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
          |        "updateType": "addCollaboratorRequest"
          |      }""".stripMargin
 
-
     "return Ok when update service is successful" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application  = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 
@@ -84,10 +83,10 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     }
 
     "return Not Found when no application is found" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application  = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
-      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 

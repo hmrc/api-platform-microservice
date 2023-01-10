@@ -23,8 +23,8 @@ import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
 @Singleton
 class PrincipalApiDefinitionService @Inject() (
     val connector: PrincipalApiDefinitionConnector,
-    val apiMetrics: ApiMetrics)
-    extends ApiDefinitionService {
+    val apiMetrics: ApiMetrics
+  ) extends ApiDefinitionService {
 
   val api: API = API("api-definition-principal")
 

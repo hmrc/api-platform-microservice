@@ -34,7 +34,7 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
 
     "filtering public api" should {
       "allow alpha, beta and stable" in {
-        testFilter(allPublicApis:_*) should contain only (publicApi.asAlpha, publicApi.asBeta, publicApi.asStable)
+        testFilter(allPublicApis: _*) should contain only (publicApi.asAlpha, publicApi.asBeta, publicApi.asStable)
       }
 
       "reject retired" in {
@@ -44,7 +44,7 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
       "reject deprecated not subscribed to" in {
         testFilter(publicApi.asDeprecated) shouldBe empty
       }
-      
+
       "allow deprecated when subscribed to" in {
         testFilterSubs(apiId)(publicApi.asDeprecated) should contain only (publicApi.asDeprecated)
       }
@@ -52,34 +52,34 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
 
     "filtering private apis where the app is not in the allow list" should {
       "reject any state" in {
-        testFilter(allPrivateApis:_*) shouldBe empty
-       }
+        testFilter(allPrivateApis: _*) shouldBe empty
+      }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateApis:_*) should contain only(
+        testFilterSubs(apiId)(allPrivateApis: _*) should contain only (
           privateApi.asAlpha,
-          privateApi.asBeta, 
-          privateApi.asStable, 
+          privateApi.asBeta,
+          privateApi.asStable,
           privateApi.asDeprecated
         )
-      } 
+      }
     }
 
     "filtering private trial apis where the app is not in the allow list" should {
       // Note - the DocFe will only show the summary docs unless allow listed/ subscribed
       "allow alpha, beta and stable when not subscribed" in {
-        testFilter(allPrivateTrialApis:_*) should contain only (
-          privateApi.asTrial.asAlpha, 
-          privateApi.asTrial.asBeta, 
+        testFilter(allPrivateTrialApis: _*) should contain only (
+          privateApi.asTrial.asAlpha,
+          privateApi.asTrial.asBeta,
           privateApi.asTrial.asStable
         )
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateTrialApis:_*) should contain only (
-          privateApi.asTrial.asAlpha, 
-          privateApi.asTrial.asBeta, 
-          privateApi.asTrial.asStable, 
+        testFilterSubs(apiId)(allPrivateTrialApis: _*) should contain only (
+          privateApi.asTrial.asAlpha,
+          privateApi.asTrial.asBeta,
+          privateApi.asTrial.asStable,
           privateApi.asTrial.asDeprecated
         )
       }
@@ -91,14 +91,14 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
 
     "filtering private apis where the app is in the allow list" should {
       "allow only alpha, beta or stable when not subscribed" in {
-        testFilter(allPrivateAllowListApis:_*) should contain only (privateAllowListApi.asAlpha, privateAllowListApi.asBeta, privateAllowListApi.asStable)
+        testFilter(allPrivateAllowListApis: _*) should contain only (privateAllowListApi.asAlpha, privateAllowListApi.asBeta, privateAllowListApi.asStable)
       }
-      
+
       "allow when subscribed for all states" in {
-        testFilterSubs(apiId)(allPrivateAllowListApis:_*) should contain only (
+        testFilterSubs(apiId)(allPrivateAllowListApis: _*) should contain only (
           privateAllowListApi.asAlpha,
-          privateAllowListApi.asBeta, 
-          privateAllowListApi.asStable, 
+          privateAllowListApi.asBeta,
+          privateAllowListApi.asStable,
           privateAllowListApi.asDeprecated
         )
       }

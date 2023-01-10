@@ -29,38 +29,24 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import org.joda.time.DateTime
 
 trait BoxBuilder {
-  
+
   def buildBox(boxId: String): Box = {
-    Box(BoxId(boxId),
-        s"boxName-$boxId",
-        buildBoxCreator(),
-        Some(ApplicationId(java.util.UUID.randomUUID())),
-        Some(buildSubscriber()),
-        Environment.PRODUCTION)
+    Box(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), Some(ApplicationId(java.util.UUID.randomUUID())), Some(buildSubscriber()), Environment.PRODUCTION)
   }
 
-  def buildBoxResponse(boxId: String, applicationId : Option[ApplicationId] = Some(ApplicationId.random)) : BoxResponse = {
-    BoxResponse(BoxId(boxId),
-                s"boxName-$boxId",
-                buildBoxCreator(),
-                applicationId,
-                Some(buildSubscriber()))
+  def buildBoxResponse(boxId: String, applicationId: Option[ApplicationId] = Some(ApplicationId.random)): BoxResponse = {
+    BoxResponse(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), applicationId, Some(buildSubscriber()))
   }
 
   def buildSubscriber(): BoxSubscriber = {
     BoxSubscriber("callbackUrl", new DateTime(), SubscriptionType.API_PUSH_SUBSCRIBER)
   }
 
-  def buildBoxCreator() : BoxCreator = {
+  def buildBoxCreator(): BoxCreator = {
     BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),
   }
 
-  def buildBoxFromBoxResponse(boxResponse: BoxResponse, environment: Environment) : Box = {
-    Box(boxResponse.boxId,
-        boxResponse.boxName,
-        boxResponse.boxCreator,
-        boxResponse.applicationId,
-        boxResponse.subscriber,
-        environment)
+  def buildBoxFromBoxResponse(boxResponse: BoxResponse, environment: Environment): Box = {
+    Box(boxResponse.boxId, boxResponse.boxName, boxResponse.boxCreator, boxResponse.applicationId, boxResponse.subscriber, environment)
   }
 }

@@ -28,21 +28,21 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import play.api.test.FakeRequest
 
 class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
-  
+
   trait Setup
       extends ApiSpecificationFetcherModule {
-  
+
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
+    implicit val mat           = NoMaterializer
 
     val controller = new ApiSpecificationController(
       stubControllerComponents(),
       ApiSpecificationFetcherMock.aMock
     )
 
-    val request = FakeRequest("GET", "/")
-    val serviceName = "hello"
-    val version = ApiVersion("1.0")
+    val request               = FakeRequest("GET", "/")
+    val serviceName           = "hello"
+    val version               = ApiVersion("1.0")
     val fakeResponse: JsValue = Json.parse("""{ "x" :1 }""")
   }
 
@@ -58,7 +58,6 @@ class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
 
     "returns not found when no such api version" in new Setup {
       ApiSpecificationFetcherMock.Fetch.willReturnNotFound
-
 
       val result = controller.fetchApiSpecification(serviceName, version)(request)
 

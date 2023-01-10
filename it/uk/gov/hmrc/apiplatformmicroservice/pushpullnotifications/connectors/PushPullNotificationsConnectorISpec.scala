@@ -48,23 +48,23 @@ class PushPullNotificationsConnectorISpec
 
   trait Setup extends BoxBuilder {
 
-    import play.api.libs.json._  
+    import play.api.libs.json._
     import play.api.libs.json.JodaWrites._
 
     implicit val clientIdWrites = Json.valueFormat[ClientId]
-  
-    implicit val boxCreatorWrites = Json.writes[BoxCreator]
+
+    implicit val boxCreatorWrites    = Json.writes[BoxCreator]
     implicit val boxSubscriberWrites = Json.writes[BoxSubscriber]
-    implicit val boxIdWrites = Json.valueFormat[BoxId]
-    implicit val boxResponseWrites = Json.writes[BoxResponse]
+    implicit val boxIdWrites         = Json.valueFormat[BoxId]
+    implicit val boxResponseWrites   = Json.writes[BoxResponse]
 
-    implicit val hc = HeaderCarrier()
-    val httpClient = app.injector.instanceOf[HttpClient]
+    implicit val hc                     = HeaderCarrier()
+    val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer = "TestBearerToken"
+    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
+    val bearer                          = "TestBearerToken"
 
-    val config = AbstractPushPullNotificationsConnector.Config(
+    val config                                            = AbstractPushPullNotificationsConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort",
       applicationUseProxy = false,
       applicationBearerToken = bearer,
@@ -74,7 +74,8 @@ class PushPullNotificationsConnectorISpec
   }
 
   trait SubordinateSetup extends Setup {
-    override val config = AbstractPushPullNotificationsConnector.Config(
+
+    override val config    = AbstractPushPullNotificationsConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockSubordinatePort",
       applicationUseProxy = false,
       applicationBearerToken = bearer,
@@ -85,17 +86,17 @@ class PushPullNotificationsConnectorISpec
 
   "Get all boxes" should {
     val url = "/box"
-    
+
     "return all boxes" in new Setup {
       val boxes = List(buildBoxResponse("1"))
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(boxes)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(boxes)
+          )
       )
       val boxResponse = await(connector.fetchAllBoxes())
 
@@ -104,17 +105,17 @@ class PushPullNotificationsConnectorISpec
 
     "return boxes with no applicationId" in new Setup {
       val boxes = List(buildBoxResponse(
-        boxId = "1", 
-        applicationId = None)
-      )
+        boxId = "1",
+        applicationId = None
+      ))
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withJsonBody(boxes)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(boxes)
+          )
       )
       val boxResponse = await(connector.fetchAllBoxes())
 

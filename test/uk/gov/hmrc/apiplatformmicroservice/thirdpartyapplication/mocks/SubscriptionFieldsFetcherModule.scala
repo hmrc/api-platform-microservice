@@ -25,11 +25,12 @@ import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 trait SubscriptionFieldsFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
-  
+
   object SubscriptionFieldsFetcherMock {
     val aMock = mock[SubscriptionFieldsFetcher]
 
     object FetchFieldValuesWithDefaults {
+
       def willReturnFieldValues(subs: ApiFieldMap[FieldValue]) = {
         when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(*)).thenReturn(successful(subs))
       }

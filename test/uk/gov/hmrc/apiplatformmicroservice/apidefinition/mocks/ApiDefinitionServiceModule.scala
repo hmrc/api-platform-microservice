@@ -32,6 +32,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     def aMock: ApiDefinitionService
 
     object FetchAllApiDefinitions {
+
       def willReturn(apiDefinitions: ApiDefinition*) = {
         when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
       }
@@ -46,6 +47,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchAllNonOpenAccessDefinitions {
+
       def willReturn(apiDefinitions: ApiDefinition*) = {
         when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
       }
@@ -60,6 +62,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchApiDocumentationResource {
+
       def willReturnWsResponse(wsResponse: WSResponse) = {
         when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(Some(wsResponse)))
       }
@@ -78,6 +81,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchDefinition {
+
       def willReturn(apiDefinition: ApiDefinition) = {
         when(aMock.fetchDefinition(*)(*, *)).thenReturn(successful(Some(apiDefinition)))
       }
@@ -92,12 +96,14 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     }
 
     object FetchApiCategoryDetails {
+
       def willReturn(apiCategoryDetails: ApiCategoryDetails*) = {
         when(aMock.fetchAllApiCategoryDetails(*, *)).thenReturn(successful(apiCategoryDetails.toList))
       }
     }
 
     object FetchApiSpecification {
+
       def willReturn(response: JsValue) = {
         when(aMock.fetchApiSpecification(*, *[ApiVersion])(*, *)).thenReturn(successful(Some(response)))
       }

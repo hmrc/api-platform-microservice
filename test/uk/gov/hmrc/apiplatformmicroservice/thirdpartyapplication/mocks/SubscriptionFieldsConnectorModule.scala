@@ -42,12 +42,14 @@ trait SubscriptionFieldsConnectorModule {
     }
 
     object BulkFetchFieldDefinitions {
+
       def willReturnDefinitions(defns: ApiFieldMap[FieldDefinition]) = {
         when(aMock.bulkFetchFieldDefinitions(*)).thenReturn(successful(defns))
       }
     }
 
     object SaveFieldValues {
+
       def willReturn(apiIdentifier: ApiIdentifier) = {
         when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(Right(())))
       }
@@ -64,7 +66,7 @@ trait SubscriptionFieldsConnectorModule {
 
   object EnvironmentAwareSubscriptionFieldsConnectorMock {
     private val subordinateConnector = SubordinateSubscriptionFieldsConnectorMock
-    private val principalConnector = PrincipalSubscriptionFieldsConnectorMock
+    private val principalConnector   = PrincipalSubscriptionFieldsConnectorMock
 
     lazy val instance = new EnvironmentAwareSubscriptionFieldsConnector(subordinateConnector.aMock, principalConnector.aMock)
 

@@ -23,15 +23,16 @@ sealed trait DevhubAccessRequirement
 object DevhubAccessRequirement {
   final val Default: DevhubAccessRequirement = Anyone
 
-  case object NoOne extends DevhubAccessRequirement
+  case object NoOne     extends DevhubAccessRequirement
   case object AdminOnly extends DevhubAccessRequirement
-  case object Anyone extends DevhubAccessRequirement
+  case object Anyone    extends DevhubAccessRequirement
 }
 
 case class DevhubAccessRequirements(
     read: DevhubAccessRequirement,
-    write: DevhubAccessRequirement) {
-  def satisfiesRead(dal: DevhubAccessLevel): Boolean = dal.satisfiesRequirement(read) // ReadWrite will be at least as strict.
+    write: DevhubAccessRequirement
+  ) {
+  def satisfiesRead(dal: DevhubAccessLevel): Boolean  = dal.satisfiesRequirement(read) // ReadWrite will be at least as strict.
   def satisfiesWrite(dal: DevhubAccessLevel): Boolean = dal.satisfiesRequirement(write)
 }
 
@@ -62,7 +63,7 @@ object DevhubAccessLevel {
     case Role.DEVELOPER     => DevhubAccessLevel.Developer
   }
 
-  case object Developer extends DevhubAccessLevel
+  case object Developer     extends DevhubAccessLevel
   case object Admininstator extends DevhubAccessLevel
 
   import DevhubAccessRequirement._

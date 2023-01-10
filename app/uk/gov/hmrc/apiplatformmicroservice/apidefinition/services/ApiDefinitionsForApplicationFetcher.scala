@@ -26,14 +26,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApiDefinitionsForApplicationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext)
-    extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
+  )(implicit ec: ExecutionContext
+  ) extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
   def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    if(restricted) {
+    if (restricted) {
       fetchRestricted(application, subscriptions)
-    }
-    else {
+    } else {
       fetchUnrestricted(application)
     }
   }

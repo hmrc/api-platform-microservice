@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitio
 
 trait ApiDefinitionHttpMockingHelper
     extends MockitoSugar
-    with ArgumentMatchersSugar 
+    with ArgumentMatchersSugar
     with ApiDefinitionConnectorUtils {
   val mockThisClient: HttpClient with WSGet
 
@@ -36,8 +36,10 @@ trait ApiDefinitionHttpMockingHelper
     val url = definitionUrl(serviceName)
     when(
       mockThisClient.GET[Option[ApiDefinition]](
-        eqTo(url), *, *
-      )(*,*,*)
+        eqTo(url),
+        *,
+        *
+      )(*, *, *)
     ).thenReturn(response)
   }
 
@@ -56,31 +58,31 @@ trait ApiDefinitionHttpMockingHelper
   def whenGetAllDefinitions(definitions: ApiDefinition*): Unit = {
     val url = definitionsUrl
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*, *, *)
     ).thenReturn(Future.successful(Some(definitions.toList)))
   }
 
   def whenGetAllDefinitionsFindsNothing(): Unit = {
     val url = definitionsUrl
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*, *, *)
     ).thenReturn(Future.successful(None))
   }
 
   def whenGetAllDefinitionsFails(exception: Throwable): Unit = {
     val url = definitionsUrl
     when(
-      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*,*,*)
+      mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*, *, *)
     ).thenReturn(Future.failed(exception))
   }
 
   def whenGetApiCategoryDetails()(categories: ApiCategoryDetails*): Unit = {
     val url = categoriesUrl
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url),*,*)(*,*,*)).thenReturn(Future.successful(categories.toList))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url), *, *)(*, *, *)).thenReturn(Future.successful(categories.toList))
   }
 
   def whenGetApiCategoryDetailsFails(exception: Throwable): Unit = {
     val url = categoriesUrl
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url),*,*)(*,*,*)).thenReturn(Future.failed(exception))
+    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url), *, *)(*, *, *)).thenReturn(Future.failed(exception))
   }
 }

@@ -25,7 +25,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 trait SubscriptionsForCollaboratorFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+
   object SubscriptionsForCollaboratorFetcherMock {
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 

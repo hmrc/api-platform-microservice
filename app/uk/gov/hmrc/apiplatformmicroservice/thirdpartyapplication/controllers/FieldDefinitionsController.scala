@@ -29,14 +29,14 @@ import scala.concurrent.ExecutionContext
 class FieldDefinitionsController @Inject() (
     cc: ControllerComponents,
     subscriptionsFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
-  )(implicit ec: ExecutionContext)
-    extends BackendController(cc) {
+  )(implicit ec: ExecutionContext
+  ) extends BackendController(cc) {
 
   import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters._
 
   def fetchFieldDefinitions(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
     subscriptionsFieldsConnector(environment).bulkFetchFieldDefinitions.map(fds => {
-       Ok(Json.toJson(fds))
+      Ok(Json.toJson(fds))
     })
   }
 

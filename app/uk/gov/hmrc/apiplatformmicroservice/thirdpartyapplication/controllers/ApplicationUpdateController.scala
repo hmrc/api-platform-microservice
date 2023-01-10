@@ -31,26 +31,25 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationUpdateController @Inject()(
-                                             val authConfig: AuthConnector.Config,
-                                             val authConnector: AuthConnector,
-                                             val applicationService: ApplicationByIdFetcher,
-                                             val applicationUpdateService: ApplicationUpdateService,
-                                             cc: ControllerComponents
-                                           )(implicit val ec: ExecutionContext)
-  extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationUpdateFormatters with ApplicationJsonFormatters {
+class ApplicationUpdateController @Inject() (
+    val authConfig: AuthConnector.Config,
+    val authConnector: AuthConnector,
+    val applicationService: ApplicationByIdFetcher,
+    val applicationUpdateService: ApplicationUpdateService,
+    cc: ControllerComponents
+  )(implicit val ec: ExecutionContext
+  ) extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationUpdateFormatters with ApplicationJsonFormatters {
 
   def update(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    
     def handleUpdate(app: Application, applicationUpdate: ApplicationUpdate): Future[Result] = {
       applicationUpdateService.updateApplication(app, applicationUpdate)
         .map(app => Ok(Json.toJson(app)))
     }
-    
+
     withJsonBody[ApplicationUpdate] { applicationUpdate =>
       for {
         mayBeApplication <- applicationService.fetchApplication(id)
-        responseStatus <- mayBeApplication.fold(Future.successful(NotFound("")))(app => handleUpdate(app, applicationUpdate))
+        responseStatus   <- mayBeApplication.fold(Future.successful(NotFound("")))(app => handleUpdate(app, applicationUpdate))
       } yield responseStatus
     }
   }

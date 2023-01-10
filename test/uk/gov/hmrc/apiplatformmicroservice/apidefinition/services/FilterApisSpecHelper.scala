@@ -24,42 +24,42 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
   protected val appId = ApplicationId.random
 
-  protected val api = apiDefinition("test")
-  protected val apiId = ApiIdentifier(api.context, apiVersion().version)
-  protected val publicApi = apiDefinition("test", apiVersion().asStable.asPublic)
-  protected val privateApi = apiDefinition("test", apiVersion().asStable.asPrivate)
-  protected val privateTrialApi = privateApi.asTrial
+  protected val api                 = apiDefinition("test")
+  protected val apiId               = ApiIdentifier(api.context, apiVersion().version)
+  protected val publicApi           = apiDefinition("test", apiVersion().asStable.asPublic)
+  protected val privateApi          = apiDefinition("test", apiVersion().asStable.asPrivate)
+  protected val privateTrialApi     = privateApi.asTrial
   protected val privateAllowListApi = apiDefinition("test", apiVersion().asStable.asPrivate.addAllowList(appId))
 
   protected val allPublicApis = List(
-    publicApi.asAlpha, 
-    publicApi.asBeta, 
-    publicApi.asStable, 
-    publicApi.asDeprecated, 
+    publicApi.asAlpha,
+    publicApi.asBeta,
+    publicApi.asStable,
+    publicApi.asDeprecated,
     publicApi.asRetired
   )
-  
+
   protected val allPrivateAllowListApis = List(
-    privateAllowListApi.asAlpha, 
-    privateAllowListApi.asBeta, 
-    privateAllowListApi.asStable, 
-    privateAllowListApi.asDeprecated, 
+    privateAllowListApi.asAlpha,
+    privateAllowListApi.asBeta,
+    privateAllowListApi.asStable,
+    privateAllowListApi.asDeprecated,
     privateAllowListApi.asRetired
   )
 
   protected val allPrivateTrialApis = List(
-    privateApi.asTrial.asAlpha, 
-    privateApi.asTrial.asBeta, 
-    privateApi.asTrial.asStable, 
-    privateApi.asTrial.asDeprecated, 
+    privateApi.asTrial.asAlpha,
+    privateApi.asTrial.asBeta,
+    privateApi.asTrial.asStable,
+    privateApi.asTrial.asDeprecated,
     privateApi.asTrial.asRetired
   )
 
   protected val allPrivateApis = List(
-    privateApi.asAlpha, 
-    privateApi.asBeta, 
-    privateApi.asStable, 
-    privateApi.asDeprecated, 
+    privateApi.asAlpha,
+    privateApi.asBeta,
+    privateApi.asStable,
+    privateApi.asDeprecated,
     privateApi.asRetired
   )
 }

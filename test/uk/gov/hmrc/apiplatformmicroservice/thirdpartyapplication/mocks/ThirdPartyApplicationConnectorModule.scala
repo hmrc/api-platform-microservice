@@ -84,6 +84,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object SubscribeToApi {
+
       def willReturnSuccess = {
         when(aMock.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(SubscriptionUpdateSuccessResult))
       }
@@ -105,6 +106,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object UpdateApplication {
+
       def willReturnSuccess(application: Application) = {
         when(aMock.updateApplication(*[ApplicationId], *)(*)).thenReturn(successful(application))
 
@@ -113,6 +115,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object CreateApplicationV2 {
+
       def willReturnSuccess(applcationId: ApplicationId) = {
         when(aMock.createApplicationV2(*)(*)).thenReturn(successful(applcationId))
       }
@@ -141,7 +144,7 @@ trait ThirdPartyApplicationConnectorModule {
 
     object GetLinkedSubordinateApplicationId {
       def thenReturn(subordinateAppId: ApplicationId) = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(Some(subordinateAppId)))
-      
+
       def thenReturnNothing = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(None))
     }
     override val aMock: PrincipalThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
@@ -149,7 +152,7 @@ trait ThirdPartyApplicationConnectorModule {
 
   object EnvironmentAwareThirdPartyApplicationConnectorMock {
     private val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock
-    private val principalConnector = PrincipalThirdPartyApplicationConnectorMock
+    private val principalConnector   = PrincipalThirdPartyApplicationConnectorMock
 
     lazy val instance = {
       new EnvironmentAwareThirdPartyApplicationConnector(subordinateConnector.aMock, principalConnector.aMock)

@@ -23,10 +23,11 @@ case class ApplicationState(
     requestedByEmailAddress: Option[String],
     requestedByName: Option[String],
     verificationCode: Option[String] = None,
-    updatedOn: DateTime = DateTime.now)
+    updatedOn: DateTime = DateTime.now
+  )
 
 object ApplicationState {
-  val testing = ApplicationState(State.TESTING, None, None)
+  val testing    = ApplicationState(State.TESTING, None, None)
   val production = ApplicationState(State.PRODUCTION, None, None)
 
   def pendingGatekeeperApproval(requestedBy: String) =

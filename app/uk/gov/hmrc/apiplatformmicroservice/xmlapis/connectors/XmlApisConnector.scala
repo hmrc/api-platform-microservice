@@ -25,11 +25,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 @Singleton
-class XmlApisConnector @Inject()(httpClient: HttpClient, appConfig: XmlApisConnector.Config)
-                                (implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters with ApplicationLogger
-                                with ConnectorRecovery {
+class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConnector.Config)(implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters
+    with ApplicationLogger
+    with ConnectorRecovery {
 
   private lazy val serviceBaseUrl: String = appConfig.serviceBaseUrl
 
@@ -40,7 +39,7 @@ class XmlApisConnector @Inject()(httpClient: HttpClient, appConfig: XmlApisConne
 
   def fetchXmlApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $serviceName")
-    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api", queryParams = Seq("serviceName" -> s"$serviceName"))  recover recovery
+    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api", queryParams = Seq("serviceName" -> s"$serviceName")) recover recovery
   }
 
 }
@@ -48,5 +47,3 @@ class XmlApisConnector @Inject()(httpClient: HttpClient, appConfig: XmlApisConne
 object XmlApisConnector {
   case class Config(serviceBaseUrl: String)
 }
-
-

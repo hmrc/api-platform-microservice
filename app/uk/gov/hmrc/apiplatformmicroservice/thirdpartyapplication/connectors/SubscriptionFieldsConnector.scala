@@ -44,7 +44,7 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
-  
+
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
 }
 
@@ -73,31 +73,29 @@ private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnecto
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
     lazy val url = urlSubscriptionFieldValues(clientId, apiIdentifier)
 
-    if(fields.isEmpty) {
+    if (fields.isEmpty) {
       successful(Right(()))
-    }
-    else {
+    } else {
       http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.version, fields)).map { response =>
         response.status match {
-          case BAD_REQUEST =>
+          case BAD_REQUEST  =>
             Json.parse(response.body).validate[Map[FieldName, String]] match {
               case s: JsSuccess[Map[FieldName, String]] => Left(s.get)
               case _                                    => Left(Map.empty)
             }
           case OK | CREATED => Right(())
-          case statusCode => throw UpstreamErrorResponse("Failed to put subscription fields",statusCode)
+          case statusCode   => throw UpstreamErrorResponse("Failed to put subscription fields", statusCode)
         }
       }
     }
   }
 
-
   private def urlEncode(str: String): String = encode(str, "UTF-8")
 
-  private lazy val urlBulkSubscriptionFieldDefinitions = 
+  private lazy val urlBulkSubscriptionFieldDefinitions =
     s"$serviceBaseUrl/definition"
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) = 
+  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
@@ -113,14 +111,14 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
     val config: SubordinateSubscriptionFieldsConnector.Config,
     val httpClient: HttpClient,
     val proxiedHttpClient: ProxiedHttpClient
-  )(implicit val ec: ExecutionContext)
-    extends AbstractSubscriptionFieldsConnector {
+  )(implicit val ec: ExecutionContext
+  ) extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
-  val serviceBaseUrl: String = config.serviceBaseUrl
-  val useProxy: Boolean = config.useProxy
-  val bearerToken: String = config.bearerToken
-  val apiKey: String = config.apiKey
+  val serviceBaseUrl: String   = config.serviceBaseUrl
+  val useProxy: Boolean        = config.useProxy
+  val bearerToken: String      = config.bearerToken
+  val apiKey: String           = config.apiKey
 
   protected def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
@@ -133,15 +131,15 @@ object PrincipalSubscriptionFieldsConnector {
 class PrincipalSubscriptionFieldsConnector @Inject() (
     val config: PrincipalSubscriptionFieldsConnector.Config,
     val http: HttpClient
-  )(implicit val ec: ExecutionContext)
-    extends AbstractSubscriptionFieldsConnector {
+  )(implicit val ec: ExecutionContext
+  ) extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.PRODUCTION
-  val serviceBaseUrl: String = config.serviceBaseUrl
+  val serviceBaseUrl: String   = config.serviceBaseUrl
 }
 
 @Singleton
 class EnvironmentAwareSubscriptionFieldsConnector @Inject() (
     @Named("subordinate") val subordinate: SubscriptionFieldsConnector,
-    @Named("principal") val principal: SubscriptionFieldsConnector)
-    extends EnvironmentAware[SubscriptionFieldsConnector]
+    @Named("principal") val principal: SubscriptionFieldsConnector
+  ) extends EnvironmentAware[SubscriptionFieldsConnector]

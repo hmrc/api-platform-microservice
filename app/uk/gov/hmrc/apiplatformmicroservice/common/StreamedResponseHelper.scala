@@ -75,9 +75,10 @@ trait StreamedResponseHelper extends ApplicationLogger {
 
   def streamedResponseAsResult(
       handleError: StreamedResponseHandlerPF
-    )(streamedResponse: WSResponse
+    )(
+      streamedResponse: WSResponse
     ): Result = {
-      logger.info(s"Streamed Response status ${streamedResponse.status}")
+    logger.info(s"Streamed Response status ${streamedResponse.status}")
     val fn = handleOkStreamedResponse orElse handleError
 
     if (fn.isDefinedAt(streamedResponse)) {

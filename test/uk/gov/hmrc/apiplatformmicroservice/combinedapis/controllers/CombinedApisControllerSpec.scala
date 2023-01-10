@@ -34,10 +34,14 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters {
 
   trait SetUp {
-    val developerId = Some(UserId.random)
+    val developerId             = Some(UserId.random)
     val mockCombinedApisService = mock[CombinedApisService]
-    val objInTest = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
-    val combinedApis = List(CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API, ApiAccessType.PUBLIC), CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API, ApiAccessType.PUBLIC))
+    val objInTest               = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
+
+    val combinedApis            = List(
+      CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API, ApiAccessType.PUBLIC),
+      CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API, ApiAccessType.PUBLIC)
+    )
 
     def primeCombinedApisService(developerId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
@@ -59,7 +63,6 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
         contentAsString(result) shouldBe Json.toJson(combinedApis).toString()
       }
     }
-
 
     "fetchCombinedApiByServiceName" should {
       "return 200 and apis when service returns apis" in new SetUp {

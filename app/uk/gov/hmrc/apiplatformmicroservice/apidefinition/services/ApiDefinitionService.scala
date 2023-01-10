@@ -55,7 +55,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     if (enabled) {
       record {
         log(failFn) {
-            connector.fetchAllApiDefinitions
+          connector.fetchAllApiDefinitions
         }
       }
     } else {
@@ -66,17 +66,15 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
   def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open = allApis.filterNot(a => isOpenAccess(a))
-    }
-    yield open
+      open     = allApis.filterNot(a => isOpenAccess(a))
+    } yield open
   }
 
   def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open = allApis.filter(a => isOpenAccess(a))
-    }
-    yield open
+      open     = allApis.filter(a => isOpenAccess(a))
+    } yield open
   }
 
   def fetchAllApiCategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiCategoryDetails]] = {
@@ -108,7 +106,6 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  
   def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
 
@@ -127,5 +124,5 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
 @Singleton
 class EnvironmentAwareApiDefinitionService @Inject() (
     @Named("subordinate") val subordinate: ApiDefinitionService,
-    @Named("principal") val principal: ApiDefinitionService)
-    extends EnvironmentAware[ApiDefinitionService]
+    @Named("principal") val principal: ApiDefinitionService
+  ) extends EnvironmentAware[ApiDefinitionService]

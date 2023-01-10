@@ -32,16 +32,16 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Subo
 class SubordinateApplicationFetcher @Inject() (
     subordinateThirdPartyApplicationConnector: SubordinateThirdPartyApplicationConnector,
     principalThirdPartyApplicationConnector: PrincipalThirdPartyApplicationConnector
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetchSubordinateApplication(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
     (
       for {
-        subordinateAppId <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
+        subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
         subordinateApplication <- OptionT(subordinateThirdPartyApplicationConnector.fetchApplication(subordinateAppId))
       } yield subordinateApplication
-    ).value    
+    ).value
   }
 
 }

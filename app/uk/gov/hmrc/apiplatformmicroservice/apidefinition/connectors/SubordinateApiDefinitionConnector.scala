@@ -37,8 +37,8 @@ class SubordinateApiDefinitionConnector @Inject() (
     val proxiedHttpClient: ProxiedHttpClient,
     val futureTimeout: FutureTimeoutSupport
   )(implicit val ec: ExecutionContext,
-    val mat: Materializer)
-    extends ApiDefinitionConnector with ApplicationLogger {
+    val mat: Materializer
+  ) extends ApiDefinitionConnector with ApplicationLogger {
   val serviceBaseUrl: String = config.serviceBaseUrl
 
   import config._
@@ -73,5 +73,6 @@ object SubordinateApiDefinitionConnector {
       serviceBaseUrl: String,
       useProxy: Boolean,
       bearerToken: String,
-      apiKey: String)
+      apiKey: String
+    )
 }
