@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import cats.data.NonEmptyList
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCombinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper

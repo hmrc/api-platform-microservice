@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks.PushPullNotificationsConnectorModule
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks.PushPullNotificationsConnectorModule
 
 class BoxFetcherSpec extends AsyncHmrcSpec {
 

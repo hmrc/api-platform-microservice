@@ -19,21 +19,9 @@ package uk.gov.hmrc.apiplatformmicroservice.common.builder
 import java.time.Period
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CheckInformation
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationState
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Access
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Standard
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Privileged
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationState
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.State
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ROPC
+
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment, _}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 trait ApplicationBuilder extends CollaboratorsBuilder {
 

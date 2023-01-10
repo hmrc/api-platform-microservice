@@ -16,15 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
-import akka.pattern.FutureTimeoutSupport
-import com.google.inject.{AbstractModule, Provider}
-import com.google.inject.name.Names.named
 import javax.inject.{Inject, Singleton}
+
+import akka.pattern.FutureTimeoutSupport
+import com.google.inject.name.Names.named
+import com.google.inject.{AbstractModule, Provider}
+
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 
 class ConfigurationModule extends AbstractModule {

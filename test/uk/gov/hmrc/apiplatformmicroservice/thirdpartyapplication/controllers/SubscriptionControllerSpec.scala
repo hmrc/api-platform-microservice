@@ -16,29 +16,25 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
-import play.api.test.Helpers.{contentAsJson, status}
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, CollaboratorActor, SubscribeToApi}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
-
 import scala.concurrent.Future.successful
+
 import akka.stream.testkit.NoMaterializer
 
-import java.time.LocalDateTime
+import play.api.libs.json.Json
+import play.api.test.Helpers.{contentAsJson, status, _}
+import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, CollaboratorActor, SubscribeToApi}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

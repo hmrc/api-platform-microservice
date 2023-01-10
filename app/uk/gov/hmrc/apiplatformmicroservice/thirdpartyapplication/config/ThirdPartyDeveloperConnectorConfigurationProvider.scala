@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
-import com.google.inject.Provider
 import javax.inject.{Inject, Singleton}
+
+import com.google.inject.Provider
+
 import play.api.Configuration
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyDeveloperConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyDeveloperConnector
 
 @Singleton
 class ThirdPartyDeveloperConnectorConfigurationProvider @Inject() (val configuration: Configuration)

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 case class GetOrCreateUserIdResponse(userId: UserId)

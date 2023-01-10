@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
+import play.api.libs.json.{JsSuccess, Json}
+
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import play.api.libs.json.Json
-import play.api.libs.json.JsSuccess
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
 class FieldNameAndValueSpec extends HmrcSpec with ApplicationJsonFormatters {
   "JsonFormatter" should {

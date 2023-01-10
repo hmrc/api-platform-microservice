@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
-import play.api.mvc.{PathBindable, QueryStringBindable}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
-import scala.util.Try
 import java.{util => ju}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import scala.util.Try
+
+import play.api.mvc.{PathBindable, QueryStringBindable}
+
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment, UserId}
 
 package object binders {
 

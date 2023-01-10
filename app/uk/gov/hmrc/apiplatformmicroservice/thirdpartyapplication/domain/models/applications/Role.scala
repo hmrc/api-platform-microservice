@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import enumeratum.{Enum, EnumEntry}
-import enumeratum.PlayJsonEnum
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait Role extends EnumEntry {
   def isDeveloper: Boolean     = this == Role.DEVELOPER

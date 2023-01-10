@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import play.api.Configuration
-import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.Authorization
-import uk.gov.hmrc.play.audit.http.HttpAuditing
-import play.api.ConfigLoader
 import com.typesafe.config.Config
+
+import play.api.libs.ws.{WSClient, WSRequest}
+import play.api.{ConfigLoader, Configuration}
+import uk.gov.hmrc.http.{Authorization, _}
+import uk.gov.hmrc.play.audit.http.HttpAuditing
+
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 

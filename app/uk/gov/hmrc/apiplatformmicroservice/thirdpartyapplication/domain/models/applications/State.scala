@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import enumeratum.{Enum, EnumEntry}
-import enumeratum.PlayJsonEnum
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait State extends EnumEntry {
   def isApproved: Boolean = this == State.PRODUCTION || this == State.PRE_PRODUCTION

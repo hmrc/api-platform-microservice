@@ -17,8 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.common
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ServicesConfigBridgeExtensionSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
 

@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
   protected val appId = ApplicationId.random

@@ -17,9 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
 
 @Singleton
 class SubordinateApiDefinitionService @Inject() (

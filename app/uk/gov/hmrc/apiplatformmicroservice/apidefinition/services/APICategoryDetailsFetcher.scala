@@ -17,10 +17,11 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 
 @Singleton
 class ApiCategoryDetailsFetcher @Inject() (apiDefinitionService: EnvironmentAwareApiDefinitionService)(implicit ec: ExecutionContext) {

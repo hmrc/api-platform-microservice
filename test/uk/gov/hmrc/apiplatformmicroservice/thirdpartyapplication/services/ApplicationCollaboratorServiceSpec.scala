@@ -16,10 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
+
 import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{
   AddCollaboratorToTpaRequest,
@@ -28,23 +36,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
   UnregisteredUserResponse,
   UserResponse
 }
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
-  AddCollaborator,
-  AddCollaboratorRequest,
-  Collaborator,
-  CollaboratorActor,
-  RemoveCollaborator,
-  RemoveCollaboratorRequest,
-  Role
-}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
-import uk.gov.hmrc.http.HeaderCarrier
-
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 

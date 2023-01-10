@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.common
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 

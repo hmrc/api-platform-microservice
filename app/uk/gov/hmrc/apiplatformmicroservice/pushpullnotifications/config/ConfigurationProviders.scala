@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.config
 
-import com.google.inject.name.Names.named
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names.named
+
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors._
 
 class ConfigurationModule extends AbstractModule {

@@ -16,18 +16,20 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import akka.stream.testkit.NoMaterializer
+
 import play.api.libs.json.Json
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiCategoryDetailsFetcherModule, XmlApisConnectorMockingHelper}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-import akka.stream.testkit.NoMaterializer
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiCategoriesControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

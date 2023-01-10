@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
+import scala.util.Random
+
 import cats.data.{NonEmptyList => NEL}
 import enumeratum._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import scala.util.Random
+
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 case class ApiContext(value: String) extends AnyVal
 

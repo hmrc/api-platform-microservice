@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ResourceId}
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.play.http.ws.WSGet
 
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
-import play.api.libs.json.JsObject
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ApiVersion, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 
 trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters
     with ApplicationLogger with ConnectorRecovery {

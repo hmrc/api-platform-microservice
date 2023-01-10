@@ -17,14 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
-
-import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HttpClient, _}
+
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 

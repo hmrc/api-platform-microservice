@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
+import java.time.LocalDateTime
+
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.play.json.Union
 
-import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 
 sealed trait Actor
 

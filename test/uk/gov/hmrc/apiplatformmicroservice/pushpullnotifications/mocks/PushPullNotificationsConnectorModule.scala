@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks
 
-import org.mockito.ArgumentMatchersSugar
-import org.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PrincipalPushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.SubordinatePushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-
 import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{EnvironmentAwarePushPullNotificationsConnector, PrincipalPushPullNotificationsConnector, PushPullNotificationsConnector, SubordinatePushPullNotificationsConnector, _}
 
 trait PushPullNotificationsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import play.api.libs.json.{Format, Json}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
 
 trait BasicCombinedApiJsonFormatters {

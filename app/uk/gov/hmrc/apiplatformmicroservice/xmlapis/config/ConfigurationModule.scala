@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.config
 
+import javax.inject.{Inject, Singleton}
+
 import com.google.inject.{AbstractModule, Provider}
-import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
+
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 
 class ConfigurationModule extends AbstractModule {
 

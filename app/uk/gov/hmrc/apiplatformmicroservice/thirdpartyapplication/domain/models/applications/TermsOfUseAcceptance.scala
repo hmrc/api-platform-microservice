@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import play.api.libs.json._
 import org.joda.time.{DateTime, DateTimeZone}
+
+import play.api.libs.json._
+
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
 
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: DateTime, submissionId: Submission.Id, submissionInstance: Int)

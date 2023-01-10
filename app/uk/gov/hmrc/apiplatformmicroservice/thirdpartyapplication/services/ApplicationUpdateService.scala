@@ -16,6 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
   AddCollaboratorRequest,
@@ -24,10 +29,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
   RemoveCollaboratorRequest,
   UpdateRequest
 }
-import uk.gov.hmrc.http.HeaderCarrier
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationUpdateService @Inject() (

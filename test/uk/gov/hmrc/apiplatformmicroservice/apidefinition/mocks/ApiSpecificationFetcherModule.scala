@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
-import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.JsValue
 import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.scalatestplus.play.PlaySpec
+
+import play.api.libs.json.JsValue
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
 
 trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 

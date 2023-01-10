@@ -17,22 +17,20 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CreateApplicationRequestV1, CreateApplicationRequestV2}
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.CdsVersionHandler
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftRequest
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
 import cats.instances.future.catsStdInstancesForFuture
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV1, CreateApplicationRequestV2}
 
 object UpliftApplicationService {
   type BadRequestMessage = String

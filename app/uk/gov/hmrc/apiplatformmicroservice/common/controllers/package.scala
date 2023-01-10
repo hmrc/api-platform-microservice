@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import play.api.libs.json.{JsObject, Json}
+import scala.util.control.NonFatal
+
 import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import uk.gov.hmrc.http.NotFoundException
-
-import scala.util.control.NonFatal
 
 package object controllers extends ApplicationLogger {
 

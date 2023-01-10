@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
+import scala.concurrent.Future._
+
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
-import scala.concurrent.Future._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import play.api.libs.json.JsValue
+import play.api.libs.ws.WSResponse
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 

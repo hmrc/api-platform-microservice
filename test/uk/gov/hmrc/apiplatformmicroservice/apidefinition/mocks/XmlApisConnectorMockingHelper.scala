@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
+import scala.concurrent.Future
+
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
+
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
-
-import scala.concurrent.Future
 
 trait XmlApisConnectorMockingHelper extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 

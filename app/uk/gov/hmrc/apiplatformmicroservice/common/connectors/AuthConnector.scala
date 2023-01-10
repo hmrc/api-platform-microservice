@@ -17,12 +17,12 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Config
 
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Config
 
 @Singleton
 class AuthConnector @Inject() (val http: HttpClient, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector {

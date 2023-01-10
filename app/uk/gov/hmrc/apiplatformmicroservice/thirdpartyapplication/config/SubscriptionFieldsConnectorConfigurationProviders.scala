@@ -17,9 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
 import com.google.inject.{Inject, Provider, Singleton}
+
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalSubscriptionFieldsConnector
+
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalSubscriptionFieldsConnector, SubordinateSubscriptionFieldsConnector}
 
 @Singleton
 class PrincipalSubscriptionFieldsConnectorConfigProvider @Inject() (override val sc: ServicesConfig)

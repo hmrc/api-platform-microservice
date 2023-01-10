@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
-import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
+import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
 
 @Singleton
 class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConnector.Config)(implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters
