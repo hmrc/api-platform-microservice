@@ -27,7 +27,12 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, EnvironmentAwareThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, SubscribeToApi}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionResult, CreateSubscriptionSuccess}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{
+  CreateSubscriptionDenied,
+  CreateSubscriptionDuplicate,
+  CreateSubscriptionResult,
+  CreateSubscriptionSuccess
+}
 
 @Singleton
 class SubscriptionService @Inject() (

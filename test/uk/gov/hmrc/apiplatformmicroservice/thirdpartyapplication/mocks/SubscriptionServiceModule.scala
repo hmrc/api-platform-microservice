@@ -32,12 +32,12 @@ trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar 
 
     object CreateSubscriptionForApplication {
 
-      def willReturnSuccess   = {
+      def willReturnSuccess = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }
 
-      def willReturnDenied    = {
+      def willReturnDenied = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
       }

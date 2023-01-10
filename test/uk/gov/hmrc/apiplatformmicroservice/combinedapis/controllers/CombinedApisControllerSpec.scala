@@ -40,7 +40,7 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
     val mockCombinedApisService = mock[CombinedApisService]
     val objInTest               = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
 
-    val combinedApis            = List(
+    val combinedApis = List(
       CombinedApi("restService1", "restService1", List(ApiCategory("VAT")), REST_API, ApiAccessType.PUBLIC),
       CombinedApi("xmlService1", "xmlService1", List(ApiCategory("OTHER")), XML_API, ApiAccessType.PUBLIC)
     )

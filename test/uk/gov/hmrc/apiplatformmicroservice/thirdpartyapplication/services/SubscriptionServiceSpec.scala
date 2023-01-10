@@ -46,7 +46,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
 
     val mockApiDefinitionsForApplicationFetcher = mock[ApiDefinitionsForApplicationFetcher]
 
-    val underTest                               = new SubscriptionService(
+    val underTest = new SubscriptionService(
       mockApiDefinitionsForApplicationFetcher,
       EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
       EnvironmentAwareSubscriptionFieldsConnectorMock.instance,

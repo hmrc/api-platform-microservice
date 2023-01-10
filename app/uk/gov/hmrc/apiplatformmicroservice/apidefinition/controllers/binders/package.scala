@@ -36,7 +36,7 @@ package object binders {
     }
   }
 
-  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext]   = new PathBindable[ApiContext] {
+  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
 
     override def bind(key: String, value: String): Either[String, ApiContext] = {
       textBinder.bind(key, value).map(ApiContext(_))

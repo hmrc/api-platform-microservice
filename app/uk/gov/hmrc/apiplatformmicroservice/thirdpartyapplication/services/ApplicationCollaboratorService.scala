@@ -79,7 +79,7 @@ class ApplicationCollaboratorService @Inject() (
     getApplicationAdmins(app).filterNot(requestingEmail.contains(_))
   }
 
-  private def getApplicationAdmins(app: Application): Set[String]                              = {
+  private def getApplicationAdmins(app: Application): Set[String] = {
     app.collaborators
       .filter(_.role.isAdministrator)
       .map(_.emailAddress)

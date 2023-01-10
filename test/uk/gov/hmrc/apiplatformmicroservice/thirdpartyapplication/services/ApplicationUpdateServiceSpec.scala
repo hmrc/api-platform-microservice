@@ -47,16 +47,16 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
-    val requesterEmail                   = "adminRequester@example.com"
-    val verifiedAdminEmail               = "verifiedAdmin@example.com"
-    val unverifiedAdminEmail             = "unverifiedAdmin@example.com"
-    val adminEmailsMinusRequester        = Set(verifiedAdminEmail, unverifiedAdminEmail)
-    val adminEmails                      = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
+    val requesterEmail            = "adminRequester@example.com"
+    val verifiedAdminEmail        = "verifiedAdmin@example.com"
+    val unverifiedAdminEmail      = "unverifiedAdmin@example.com"
+    val adminEmailsMinusRequester = Set(verifiedAdminEmail, unverifiedAdminEmail)
+    val adminEmails               = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
 
     val adminMinusRequesterUserResponses =
       Seq(buildUserResponse(email = verifiedAdminEmail, userId = UserId.random), buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random))
 
-    val adminUserResponses               = Seq(
+    val adminUserResponses = Seq(
       buildUserResponse(email = verifiedAdminEmail, userId = UserId.random),
       buildUserResponse(email = unverifiedAdminEmail, verified = false, userId = UserId.random),
       buildUserResponse(email = requesterEmail, userId = UserId.random)

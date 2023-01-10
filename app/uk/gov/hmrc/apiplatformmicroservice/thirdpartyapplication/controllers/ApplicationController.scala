@@ -32,7 +32,12 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequestOld, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, ApplicationCollaboratorService, SubordinateApplicationFetcher, UpliftApplicationService}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{
+  ApplicationByIdFetcher,
+  ApplicationCollaboratorService,
+  SubordinateApplicationFetcher,
+  UpliftApplicationService
+}
 
 object ApplicationController {
   import play.api.libs.functional.syntax._

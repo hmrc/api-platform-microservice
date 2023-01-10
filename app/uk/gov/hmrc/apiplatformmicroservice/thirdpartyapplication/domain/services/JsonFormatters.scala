@@ -30,7 +30,7 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 
   private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
 
-  private implicit val readsPersistLogin: Reads[PersistLogin.type]    = Reads { _ => JsSuccess(PersistLogin) }
+  private implicit val readsPersistLogin: Reads[PersistLogin.type] = Reads { _ => JsSuccess(PersistLogin) }
 
   private implicit val writesPersistLogin: OWrites[PersistLogin.type] = new OWrites[PersistLogin.type] {
     def writes(pl: PersistLogin.type) = Json.obj()

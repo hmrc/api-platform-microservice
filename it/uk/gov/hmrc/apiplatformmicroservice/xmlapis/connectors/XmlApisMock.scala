@@ -31,7 +31,7 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
 
   val getXmlApiUrl = "/api-platform-xml-services/xml/api"
 
-  def whenGetAllXmlApis(xmlApis: XmlApi*): Unit               = {
+  def whenGetAllXmlApis(xmlApis: XmlApi*): Unit = {
     stubForProd(
       get(urlEqualTo(s"$getAllXmlApisUrl"))
         .willReturn(
@@ -42,7 +42,7 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
     )
   }
 
-  def whenGetAllXmlApisReturnsError(status: Int): Unit        = {
+  def whenGetAllXmlApisReturnsError(status: Int): Unit = {
     stubForProd(
       get(urlEqualTo(s"$getAllXmlApisUrl"))
         .willReturn(
@@ -75,7 +75,7 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
     )
   }
 
-  def whenGetXmlApiReturnsError(name: String, status: Int): Unit     = {
+  def whenGetXmlApiReturnsError(name: String, status: Int): Unit = {
     stubForProd(
       get(urlPathEqualTo(s"$getXmlApiUrl"))
         .withQueryParam("serviceName", equalTo(name))

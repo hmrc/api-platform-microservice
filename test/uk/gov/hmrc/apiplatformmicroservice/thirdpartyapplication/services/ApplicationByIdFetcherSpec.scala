@@ -37,9 +37,9 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
   val clientId: ClientId            = ClientId("123")
   val grantLength: java.time.Period = java.time.Period.ofDays(547)
 
-  val application: Application      =
+  val application: Application =
     Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), grantLength, None, Environment.SANDBOX, Some("description"))
-  val BANG                          = new RuntimeException("BANG")
+  val BANG                     = new RuntimeException("BANG")
 
   trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar
       with ArgumentMatchersSugar {

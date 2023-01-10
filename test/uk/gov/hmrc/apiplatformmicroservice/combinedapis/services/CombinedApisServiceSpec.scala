@@ -51,7 +51,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val xmlApi2 = XmlApi("xmlService2", "xml-service-2", "context", "desc", Some(List(ApiCategory("OTHER"), ApiCategory("CUSTOMS"))))
     val xmlApis = List(xmlApi1, xmlApi2)
 
-    val combinedList                                                                                                      = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
+    val combinedList = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
 
     def primeApiDefinitionsForCollaboratorFetcher(developerIdentifier: Option[UserId], apisToReturn: List[ApiDefinition]) = {
       when(mockApiDefinitionsForCollaboratorFetcher.fetch(eqTo(developerIdentifier))(*))
@@ -63,7 +63,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         .thenReturn(Future.successful(apiToReturn))
     }
 
-    def primeXmlConnectorFetchAll(xmlApis: List[XmlApi])                                  = {
+    def primeXmlConnectorFetchAll(xmlApis: List[XmlApi]) = {
       when(mockXmlApisConnector.fetchAllXmlApis()(*)).thenReturn(Future.successful(xmlApis))
     }
 
