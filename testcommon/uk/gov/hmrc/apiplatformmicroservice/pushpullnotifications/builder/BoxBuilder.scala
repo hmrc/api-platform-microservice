@@ -38,7 +38,7 @@ trait BoxBuilder {
   }
 
   def buildBoxCreator(): BoxCreator = {
-    BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),
+    BoxCreator(ClientId(java.util.UUID.randomUUID().toString()))
   }
 
   def buildBoxFromBoxResponse(boxResponse: BoxResponse, environment: Environment): Box = {

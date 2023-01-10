@@ -69,7 +69,7 @@ trait FilterApis {
     subscriptions.contains(ApiIdentifier(t._1, t._2.version))
 
   protected def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    isSubscribed(subscriptions)(t) == false
+    !isSubscribed(subscriptions)(t)
 }
 
 trait FilterApiDocumentation extends FilterApis {

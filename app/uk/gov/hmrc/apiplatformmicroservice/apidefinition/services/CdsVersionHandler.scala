@@ -36,18 +36,20 @@ object CdsVersionHandler {
   val populateSpecialCases: (Set[ApiIdentifier]) => Set[ApiIdentifier] =
     (in) =>
       in.flatMap(id =>
-        if (specialCaseContexts.contains(id.context) && id.version == apiVersionOne)
+        if (specialCaseContexts.contains(id.context) && id.version == apiVersionOne) {
           Set(id, id.copy(version = apiVersionTwo))
-        else
+        } else {
           Set(id)
+        }
       )
 
   val adjustSpecialCaseVersions: (Set[ApiIdentifier]) => Set[ApiIdentifier] =
     (in) =>
       in.map(id =>
-        if (specialCaseContexts.contains(id.context) && id.version == apiVersionTwo)
+        if (specialCaseContexts.contains(id.context) && id.version == apiVersionTwo) {
           id.copy(version = apiVersionOne)
-        else
+        } else {
           id
+        }
       )
 }
