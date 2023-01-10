@@ -1,14 +1,14 @@
-import play.core.PlayVersion
-import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
 import AppDependencies._
 
 import bloop.integrations.sbt.BloopDefaults
 
-lazy val root = (project in file("."))
+lazy val appName = "api-platform-microservice"
+
+lazy val root = Project(appName, file("."))
   .settings(
-    name := "api-platform-microservice",
+    name := appName,
     organization := "uk.gov.hmrc",
     scalaVersion := "2.12.12",
     majorVersion := 0,
@@ -42,5 +42,5 @@ lazy val root = (project in file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .settings(scalacOptions ++= Seq("-Ypartial-unification"))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
