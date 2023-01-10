@@ -20,7 +20,7 @@ import java.time.Period
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment, _}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 trait ApplicationBuilder extends CollaboratorsBuilder {
