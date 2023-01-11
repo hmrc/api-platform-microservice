@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-
 import scala.concurrent.Future.{failed, successful}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 trait SubscriptionFieldsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -42,12 +44,14 @@ trait SubscriptionFieldsConnectorModule {
     }
 
     object BulkFetchFieldDefinitions {
+
       def willReturnDefinitions(defns: ApiFieldMap[FieldDefinition]) = {
         when(aMock.bulkFetchFieldDefinitions(*)).thenReturn(successful(defns))
       }
     }
 
     object SaveFieldValues {
+
       def willReturn(apiIdentifier: ApiIdentifier) = {
         when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(Right(())))
       }
@@ -64,7 +68,7 @@ trait SubscriptionFieldsConnectorModule {
 
   object EnvironmentAwareSubscriptionFieldsConnectorMock {
     private val subordinateConnector = SubordinateSubscriptionFieldsConnectorMock
-    private val principalConnector = PrincipalSubscriptionFieldsConnectorMock
+    private val principalConnector   = PrincipalSubscriptionFieldsConnectorMock
 
     lazy val instance = new EnvironmentAwareSubscriptionFieldsConnector(subordinateConnector.aMock, principalConnector.aMock)
 

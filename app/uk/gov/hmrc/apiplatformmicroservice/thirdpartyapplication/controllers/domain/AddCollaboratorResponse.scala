@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
 case class AddCollaboratorResponse(registeredUser: Boolean)
+
 object AddCollaboratorResponse {
   import play.api.libs.json._
   implicit val addCollaboratorResponseFormat = Json.format[AddCollaboratorResponse]

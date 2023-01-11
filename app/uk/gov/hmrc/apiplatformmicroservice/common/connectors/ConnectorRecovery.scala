@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.connectors
 
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-
 import scala.util.control.NonFatal
+
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 trait ConnectorRecovery extends ApplicationLogger {
 

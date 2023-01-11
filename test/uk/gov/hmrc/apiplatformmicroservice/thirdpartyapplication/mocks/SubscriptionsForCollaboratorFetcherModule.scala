@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-
 import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 trait SubscriptionsForCollaboratorFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+
   object SubscriptionsForCollaboratorFetcherMock {
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 

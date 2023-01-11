@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks
 
-import org.mockito.ArgumentMatchersSugar
-import org.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PrincipalPushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.PushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.SubordinatePushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-
 import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{EnvironmentAwarePushPullNotificationsConnector, PrincipalPushPullNotificationsConnector, PushPullNotificationsConnector, SubordinatePushPullNotificationsConnector}
 
 trait PushPullNotificationsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -36,7 +32,7 @@ trait PushPullNotificationsConnectorModule {
     object FetchBoxes {
 
       def willReturnAllBoxes(boxes: List[BoxResponse]) = {
-        when(aMock.fetchAllBoxes()( (*))).thenReturn(successful(boxes))
+        when(aMock.fetchAllBoxes()((*))).thenReturn(successful(boxes))
       }
     }
   }
@@ -51,13 +47,13 @@ trait PushPullNotificationsConnectorModule {
 
   object EnvironmentAwarePushPullNotificationsConnectorMock {
     private val subordinateConnector = SubordinatePushPullNotificationsConnectorMock
-    private val principalConnector = PrincipalPushPullNotificationsConnectorMock
+    private val principalConnector   = PrincipalPushPullNotificationsConnectorMock
 
     lazy val instance = {
       new EnvironmentAwarePushPullNotificationsConnector(subordinateConnector.aMock, principalConnector.aMock)
     }
 
-    lazy val Principal = principalConnector
+    lazy val Principal   = principalConnector
     lazy val Subordinate = subordinateConnector
   }
 }

@@ -17,24 +17,19 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HttpClient
+
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Config
 
-import scala.concurrent.ExecutionContext
-
 @Singleton
-class AuthConnector @Inject()(val http: HttpClient, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector  {
+class AuthConnector @Inject() (val http: HttpClient, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector {
   lazy val serviceUrl: String = authConfig.baseUrl
 
 }
 
 object AuthConnector {
-  case class Config(baseUrl: String,
-                    userRole: String,
-                    superUserRole: String,
-                    adminRole: String,
-                    enabled: Boolean,
-                    authorisationKey: String)
+  case class Config(baseUrl: String, userRole: String, superUserRole: String, adminRole: String, enabled: Boolean, authorisationKey: String)
 }

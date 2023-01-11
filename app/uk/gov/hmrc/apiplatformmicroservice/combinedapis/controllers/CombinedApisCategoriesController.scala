@@ -16,45 +16,49 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import akka.stream.Materializer
 
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiCategoryDetails}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiCategoryDetails}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 
-import scala.concurrent.{ExecutionContext, Future}
-
 @Singleton()
-class ApiCategoriesController @Inject()(cc: ControllerComponents, apiCategoryDetailsFetcher: ApiCategoryDetailsFetcher, xmlApisConnector: XmlApisConnector)
-                                       (implicit override val ec: ExecutionContext, override val mat: Materializer)
-  extends BackendController(cc) with StreamedResponseResourceHelper {
+class ApiCategoriesController @Inject() (
+    cc: ControllerComponents,
+    apiCategoryDetailsFetcher: ApiCategoryDetailsFetcher,
+    xmlApisConnector: XmlApisConnector
+  )(implicit override val ec: ExecutionContext,
+    override val mat: Materializer
+  ) extends BackendController(cc) with StreamedResponseResourceHelper {
 
   private def getXmlCategories(xmlApi: XmlApi) = {
     extractXmlCategories(xmlApi.categories)
   }
 
-  private def extractXmlCategories(x : Option[List[ApiCategory]]) = {
+  private def extractXmlCategories(x: Option[List[ApiCategory]]) = {
     x match {
       case Some(xmlApiList: List[ApiCategory]) => xmlApiList.map(x => ApiCategoryDetails(x.value, x.value))
-      case _ => List.empty
+      case _                                   => List.empty
     }
   }
 
   def fetchAllAPICategories(): Action[AnyContent] = Action.async { implicit request =>
-    val r: Future[Result] = for{
-      apiCategories <-  apiCategoryDetailsFetcher.fetch()
-      xmlApis <- xmlApisConnector.fetchAllXmlApis()
-      xmlCategories = xmlApis.flatMap(getXmlCategories).toList
-                      .filterNot(x =>apiCategories.map(_.category).contains(x.category))
+    val r: Future[Result] = for {
+      apiCategories <- apiCategoryDetailsFetcher.fetch()
+      xmlApis       <- xmlApisConnector.fetchAllXmlApis()
+      xmlCategories  = xmlApis.flatMap(getXmlCategories).toList
+                         .filterNot(x => apiCategories.map(_.category).contains(x.category))
     } yield {
       val combinedCategories: List[ApiCategoryDetails] = xmlCategories ++ apiCategories
       Ok(Json.toJson(combinedCategories))

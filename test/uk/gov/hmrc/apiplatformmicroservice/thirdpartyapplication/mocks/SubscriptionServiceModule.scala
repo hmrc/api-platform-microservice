@@ -16,29 +16,32 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
-
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 
 trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar {
+
   object SubscriptionServiceMock {
     val aMock = mock[SubscriptionService]
 
     object CreateSubscriptionForApplication {
+
       def willReturnSuccess = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }
+
       def willReturnDenied = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionDenied))
       }
+
       def willReturnDuplicate = {
         when(aMock.createSubscriptionForApplication(*, *, *[ApiIdentifier], *)(*)).thenReturn(successful(CreateSubscriptionDuplicate))
         when(aMock.createSubscriptionForApplication(*, *, *[SubscribeToApi], *)(*)).thenReturn(successful(CreateSubscriptionDuplicate))
@@ -46,6 +49,7 @@ trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar 
     }
 
     object CreateManySubscriptionsForApplication {
+
       def willReturnOk = {
         when(aMock.createManySubscriptionsForApplication(*, *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
       }

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
-import com.google.inject.AbstractModule
-
 import java.time.Clock
+
+import com.google.inject.AbstractModule
 
 class ClockModule extends AbstractModule {
 

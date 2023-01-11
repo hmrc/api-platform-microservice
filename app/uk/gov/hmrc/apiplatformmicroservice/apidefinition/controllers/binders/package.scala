@@ -22,18 +22,20 @@ package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiVersion}
 
-   implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
+  implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
+
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
         text <- textBinder.bind(key, value).right
-        env <- Environment.from(text).toRight("Not a valid environment").right
+        env  <- Environment.from(text).toRight("Not a valid environment").right
       } yield env
     }
 
     override def unbind(key: String, env: Environment): String = {
       env.toString.toLowerCase
     }
-   }
+  }
+
   implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
 
     override def bind(key: String, value: String): Either[String, ApiContext] = {

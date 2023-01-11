@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.config
 
-import com.google.inject.name.Names.named
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names.named
+
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors._
 
 class ConfigurationModule extends AbstractModule {
@@ -25,7 +26,7 @@ class ConfigurationModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[AbstractPushPullNotificationsConnector.Config]).annotatedWith(named("principal")).toProvider(classOf[PrincipalPushPullNotificationsConnectorConfigProvider])
     bind(classOf[AbstractPushPullNotificationsConnector.Config]).annotatedWith(named("subordinate")).toProvider(classOf[SubordinatePushPullNotificationsConnectorConfigProvider])
-    
+
     bind(classOf[PushPullNotificationsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinatePushPullNotificationsConnector])
     bind(classOf[PushPullNotificationsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalPushPullNotificationsConnector])
   }

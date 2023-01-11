@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
+import org.mockito.ArgumentMatchersSugar
+
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class RecordMetricsSpec extends AsyncHmrcSpec with ArgumentMatchersSugar {
 
   trait Setup {
-    val testApi = API("test-metrics")
+    val testApi        = API("test-metrics")
     val apiMetricsMock = mock[ApiMetrics]
 
     val recordMetrics: RecordMetrics = new RecordMetrics {
       override val apiMetrics: ApiMetrics = apiMetricsMock
-      override val api: API = testApi
+      override val api: API               = testApi
     }
   }
 

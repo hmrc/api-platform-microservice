@@ -16,44 +16,52 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaboratorRequest, Application, ApplicationUpdate, RemoveCollaboratorRequest, UpdateRequest}
-import uk.gov.hmrc.http.HeaderCarrier
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class ApplicationUpdateService @Inject()(val collaboratorService: ApplicationCollaboratorService,
-                                         val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector) {
-  def updateApplication(app: Application, applicationUpdate: ApplicationUpdate)
-                       (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
+import uk.gov.hmrc.http.HeaderCarrier
 
-    def callTpa(applicationUpdate: ApplicationUpdate): Future[Application] ={
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
+  AddCollaboratorRequest,
+  Application,
+  ApplicationUpdate,
+  RemoveCollaboratorRequest,
+  UpdateRequest
+}
+
+@Singleton
+class ApplicationUpdateService @Inject() (
+    val collaboratorService: ApplicationCollaboratorService,
+    val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
+  ) {
+
+  def updateApplication(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
+
+    def callTpa(applicationUpdate: ApplicationUpdate): Future[Application] = {
       thirdPartyApplicationConnector(app.deployedTo).updateApplication(app.id, applicationUpdate)
     }
 
-    for{
+    for {
       updateCommand <- handleRequestTypes(app, applicationUpdate)
-      result <- callTpa(updateCommand)
+      result        <- callTpa(updateCommand)
     } yield result
 
   }
 
+  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdate] = {
 
-  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdate] ={
-
-    def handleRequest(updateRequest: UpdateRequest)= {
+    def handleRequest(updateRequest: UpdateRequest) = {
       updateRequest match {
-        case x: AddCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
+        case x: AddCollaboratorRequest    => collaboratorService.handleRequestCommand(app, x)
         case x: RemoveCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
-        case x => Future.successful(x)
+        case x                            => Future.successful(x)
       }
     }
 
     applicationUpdate match {
       case request: UpdateRequest => handleRequest(request)
-      case x => Future.successful(x)
+      case x                      => Future.successful(x)
     }
   }
 

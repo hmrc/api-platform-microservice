@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-
 case class FieldDefinition(
     name: FieldName,
     description: String,
@@ -24,4 +23,5 @@ case class FieldDefinition(
     `type`: FieldDefinitionType.FieldDefinitionType,
     shortDescription: String,
     validation: Option[ValidationGroup],
-    access: AccessRequirements = AccessRequirements.Default)
+    access: AccessRequirements = AccessRequirements.Default
+  )

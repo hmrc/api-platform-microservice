@@ -16,20 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ResourceId}
-import uk.gov.hmrc.apiplatformmicroservice.common.LogWrapper
-import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
+
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.OpenAccessRules
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+
 import play.api.libs.json.JsValue
+import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiVersion, OpenAccessRules, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}
+import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 
 abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
@@ -55,7 +54,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     if (enabled) {
       record {
         log(failFn) {
-            connector.fetchAllApiDefinitions
+          connector.fetchAllApiDefinitions
         }
       }
     } else {
@@ -66,17 +65,15 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
   def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open = allApis.filterNot(a => isOpenAccess(a))
-    }
-    yield open
+      open     = allApis.filterNot(a => isOpenAccess(a))
+    } yield open
   }
 
   def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open = allApis.filter(a => isOpenAccess(a))
-    }
-    yield open
+      open     = allApis.filter(a => isOpenAccess(a))
+    } yield open
   }
 
   def fetchAllApiCategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiCategoryDetails]] = {
@@ -108,7 +105,6 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  
   def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
 
@@ -127,5 +123,5 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
 @Singleton
 class EnvironmentAwareApiDefinitionService @Inject() (
     @Named("subordinate") val subordinate: ApiDefinitionService,
-    @Named("principal") val principal: ApiDefinitionService)
-    extends EnvironmentAware[ApiDefinitionService]
+    @Named("principal") val principal: ApiDefinitionService
+  ) extends EnvironmentAware[ApiDefinitionService]

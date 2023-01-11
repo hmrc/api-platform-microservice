@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
-import cats.data.OptionT
-import play.api.mvc._
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType
-
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType.PRIVILEGED
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType.ROPC
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.OptionT
+
+import play.api.mvc._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType.{PRIVILEGED, ROPC}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 trait ActionBuilders {
   self: BackendController =>
@@ -77,7 +78,7 @@ trait ActionBuilders {
             applicationWithSubscriptionData.subscriptions,
             applicationWithSubscriptionData.application.deployedTo,
             request
-        )
+          )
         }).toRight(NotFound).value
       }
     }
@@ -85,23 +86,31 @@ trait ActionBuilders {
   def ApplicationWithSubscriptionDataAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
     Action andThen applicationWithSubscriptionDataRefiner(applicationId)
 
-  def RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
+  def RequiresAuthenticationForPrivilegedOrRopcApplications(
+      applicationId: ApplicationId
+    )(implicit ec: ExecutionContext
+    ): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
     ApplicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(PRIVILEGED, ROPC), false)
 
-  private case class RepositoryBasedApplicationTypeFilter(applicationId: ApplicationId, toMatchAccessTypes: List[AccessType], failOnAccessTypeMismatch: Boolean)
-                                                          (implicit ec: ExecutionContext) extends ActionFilter[ApplicationWithSubscriptionDataRequest] {
+  private case class RepositoryBasedApplicationTypeFilter(
+      applicationId: ApplicationId,
+      toMatchAccessTypes: List[AccessType],
+      failOnAccessTypeMismatch: Boolean
+    )(implicit ec: ExecutionContext
+    ) extends ActionFilter[ApplicationWithSubscriptionDataRequest] {
     protected def executionContext: ExecutionContext = ec
 
     lazy val FAILED_ACCESS_TYPE = successful(Some(Results.Forbidden(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, "application access type mismatch"))))
 
     def filter[A](request: ApplicationWithSubscriptionDataRequest[A]): Future[Option[Result]] =
-      if(toMatchAccessTypes.contains(request.application.access.accessType)) authenticate(request.request)
-      else if(failOnAccessTypeMismatch) FAILED_ACCESS_TYPE else successful(None)
+      if (toMatchAccessTypes.contains(request.application.access.accessType)) authenticate(request.request)
+      else if (failOnAccessTypeMismatch) FAILED_ACCESS_TYPE
+      else successful(None)
   }
 
   private def authenticate[A](input: Request[A]): Future[Option[Result]] = {
     if (authConfig.enabled) {
-      implicit val hc = HeaderCarrierConverter.fromRequest(input)
+      implicit val hc               = HeaderCarrierConverter.fromRequest(input)
       val hasAnyGatekeeperEnrolment = Enrolment(authConfig.userRole) or Enrolment(authConfig.superUserRole) or Enrolment(authConfig.adminRole)
       authConnector.authorise(hasAnyGatekeeperEnrolment, EmptyRetrieval).map { _ => None }
     } else {

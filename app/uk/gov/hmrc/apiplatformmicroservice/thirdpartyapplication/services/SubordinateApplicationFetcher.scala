@@ -17,31 +17,32 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.OptionT
 import cats.implicits._
 
-import scala.concurrent.{ExecutionContext, Future}
-import cats.data.OptionT
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 @Singleton
 class SubordinateApplicationFetcher @Inject() (
     subordinateThirdPartyApplicationConnector: SubordinateThirdPartyApplicationConnector,
     principalThirdPartyApplicationConnector: PrincipalThirdPartyApplicationConnector
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetchSubordinateApplication(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
     (
       for {
-        subordinateAppId <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
+        subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
         subordinateApplication <- OptionT(subordinateThirdPartyApplicationConnector.fetchApplication(subordinateAppId))
       } yield subordinateApplication
-    ).value    
+    ).value
   }
 
 }

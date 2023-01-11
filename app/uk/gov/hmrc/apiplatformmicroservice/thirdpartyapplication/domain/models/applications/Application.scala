@@ -17,23 +17,22 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import java.time.Period
+import java.util.UUID
 
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import java.util.UUID
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
 case class ClientId(value: String) extends AnyVal
 
 object ClientId {
-  def empty: ClientId = ClientId("")
+  def empty: ClientId  = ClientId("")
   def random: ClientId = ClientId(UUID.randomUUID().toString)
 }
 
 case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
-
-
 
 case class Application(
     id: ApplicationId,
@@ -52,12 +51,14 @@ case class Application(
     rateLimitTier: String = "BRONZE",
     blocked: Boolean = false,
     checkInformation: Option[CheckInformation] = None,
-    ipAllowlist: IpAllowlist = IpAllowlist())
+    ipAllowlist: IpAllowlist = IpAllowlist()
+  )
 
 case class ApplicationWithSubscriptionData(
     application: Application,
     subscriptions: Set[ApiIdentifier] = Set.empty,
-    subscriptionFieldValues: ApiFieldMap[FieldValue] = Map.empty)
+    subscriptionFieldValues: ApiFieldMap[FieldValue] = Map.empty
+  )
 
 object Application {
   implicit val ordering: Ordering[Application] = Ordering.by(_.name)

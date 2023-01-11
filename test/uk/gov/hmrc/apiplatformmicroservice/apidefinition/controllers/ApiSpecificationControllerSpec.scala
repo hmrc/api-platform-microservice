@@ -16,33 +16,35 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
-import uk.gov.hmrc.http.HeaderCarrier
-import akka.stream.testkit.NoMaterializer
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.test.Helpers._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+
+import akka.stream.testkit.NoMaterializer
+
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
-  
+
   trait Setup
       extends ApiSpecificationFetcherModule {
-  
+
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
+    implicit val mat           = NoMaterializer
 
     val controller = new ApiSpecificationController(
       stubControllerComponents(),
       ApiSpecificationFetcherMock.aMock
     )
 
-    val request = FakeRequest("GET", "/")
-    val serviceName = "hello"
-    val version = ApiVersion("1.0")
+    val request               = FakeRequest("GET", "/")
+    val serviceName           = "hello"
+    val version               = ApiVersion("1.0")
     val fakeResponse: JsValue = Json.parse("""{ "x" :1 }""")
   }
 
@@ -58,7 +60,6 @@ class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
 
     "returns not found when no such api version" in new Setup {
       ApiSpecificationFetcherMock.Fetch.willReturnNotFound
-
 
       val result = controller.fetchApiSpecification(serviceName, version)(request)
 

@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
+import scala.concurrent.ExecutionContext
+
 import akka.stream.Materializer
+
 import play.api.http.Status.NOT_FOUND
 import play.api.http.{HttpEntity, Status}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.{InternalServerException, NotFoundException}
-
-import scala.concurrent.ExecutionContext
 
 object StreamedResponseHelper {
   val PROXY_SAFE_CONTENT_TYPE = "Proxy-Safe-Content-Type"
@@ -75,9 +76,10 @@ trait StreamedResponseHelper extends ApplicationLogger {
 
   def streamedResponseAsResult(
       handleError: StreamedResponseHandlerPF
-    )(streamedResponse: WSResponse
+    )(
+      streamedResponse: WSResponse
     ): Result = {
-      logger.info(s"Streamed Response status ${streamedResponse.status}")
+    logger.info(s"Streamed Response status ${streamedResponse.status}")
     val fn = handleOkStreamedResponse orElse handleError
 
     if (fn.isDefinedAt(streamedResponse)) {

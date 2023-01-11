@@ -16,39 +16,40 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import scala.concurrent.ExecutionContext
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
+
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldDefinition, _}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldDefinition
-import scala.concurrent.Future
 
 @Singleton
-class SubscriptionFieldsFetcher @Inject()(
-  subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
-  )(implicit ec: ExecutionContext) {
+class SubscriptionFieldsFetcher @Inject() (
+    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetchFieldValuesWithDefaults(deployedTo: Environment, clientId: ClientId, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     def filterBySubs[V](data: ApiFieldMap[V]): ApiFieldMap[V] = {
-      ThreeDMap.filter( (c: ApiContext, v: ApiVersion, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c,v)) )(data)
+      ThreeDMap.filter((c: ApiContext, v: ApiVersion, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c, v)))(data)
     }
 
     def fillFields(defns: ApiFieldMap[FieldDefinition])(fields: ApiFieldMap[FieldValue]): ApiFieldMap[FieldValue] = {
-      ThreeDMap.map( (c: ApiContext, v: ApiVersion, fn: FieldName, fv: FieldDefinition) => ThreeDMap.get( (c,v,fn) )(fields).getOrElse(FieldValue("")))(defns)
+      ThreeDMap.map((c: ApiContext, v: ApiVersion, fn: FieldName, fv: FieldDefinition) => ThreeDMap.get((c, v, fn))(fields).getOrElse(FieldValue("")))(defns)
     }
 
     val connector = subscriptionFieldsConnector(deployedTo)
-    
+
     for {
       definitions <- connector.bulkFetchFieldDefinitions
-      subsDefs = filterBySubs(definitions)
-      fields <- connector.bulkFetchFieldValues(clientId)
-      subsFields = filterBySubs(fields)
+      subsDefs     = filterBySubs(definitions)
+      fields      <- connector.bulkFetchFieldValues(clientId)
+      subsFields   = filterBySubs(fields)
       filledFields = fillFields(subsDefs)(subsFields)
     } yield filledFields
   }

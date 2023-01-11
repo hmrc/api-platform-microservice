@@ -17,28 +17,29 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import javax.inject.{Inject, Named, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyApplicationConnector
 
 @Singleton
 class SubscriptionsForCollaboratorFetcher @Inject() (
     @Named("subordinate") subordinateTpaConnector: ThirdPartyApplicationConnector,
     @Named("principal") principalTpaConnector: ThirdPartyApplicationConnector
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     val subordinateSubscriptions = subordinateTpaConnector.fetchSubscriptions(userId).map(_.toSet) recover recoverWithDefault(Set.empty[ApiIdentifier])
-    val principalSubscriptions = principalTpaConnector.fetchSubscriptions(userId).map(_.toSet)
+    val principalSubscriptions   = principalTpaConnector.fetchSubscriptions(userId).map(_.toSet)
 
     for {
       subordinate <- subordinateSubscriptions
-      principal <- principalSubscriptions
+      principal   <- principalSubscriptions
     } yield subordinate ++ principal
   }
 }

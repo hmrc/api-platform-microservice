@@ -16,33 +16,35 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import org.joda.time.DateTime
+
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 
 case class BoxId(value: String) extends AnyVal
 
 case class Box(
-  boxId: BoxId,
-  boxName: String,
-  boxCreator : BoxCreator,
-  applicationId : Option[ApplicationId],
-  subscriber: Option[BoxSubscriber],
-  environment: Environment
-)
+    boxId: BoxId,
+    boxName: String,
+    boxCreator: BoxCreator,
+    applicationId: Option[ApplicationId],
+    subscriber: Option[BoxSubscriber],
+    environment: Environment
+  )
 
 case class BoxCreator(clientId: ClientId)
+
 case class BoxSubscriber(
-  callBackUrl: String,
-  subscribedDateTime: DateTime,
-  subscriptionType: SubscriptionType
-)
+    callBackUrl: String,
+    subscribedDateTime: DateTime,
+    subscriptionType: SubscriptionType
+  )
 
 sealed trait SubscriptionType extends EnumEntry
-object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType]  {
-   val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
+
+object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType] {
+  val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
 
   case object API_PUSH_SUBSCRIBER extends SubscriptionType
   case object API_PULL_SUBSCRIBER extends SubscriptionType

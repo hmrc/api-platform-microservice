@@ -17,15 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
 
 trait CollaboratorsBuilder {
+
   def buildCollaborators(collaborators: Seq[(String, Role)]): Set[Collaborator] = {
-    collaborators.map(
-      n => Collaborator(n._1, n._2, None)
-    ).toSet
+    collaborators.map(n => Collaborator(n._1, n._2, None)).toSet
   }
+
   def buildCollaborator(email: String, role: Role, userId: Option[UserId] = None): Collaborator = {
     Collaborator(email, role, userId)
   }

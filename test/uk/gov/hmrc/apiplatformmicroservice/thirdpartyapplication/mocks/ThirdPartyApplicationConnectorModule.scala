@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
+import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
-
-import scala.concurrent.Future.{failed, successful}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
-import org.mockito.captor.ArgCaptor
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequestV2
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV2}
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -84,6 +83,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object SubscribeToApi {
+
       def willReturnSuccess = {
         when(aMock.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(SubscriptionUpdateSuccessResult))
       }
@@ -105,6 +105,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object UpdateApplication {
+
       def willReturnSuccess(application: Application) = {
         when(aMock.updateApplication(*[ApplicationId], *)(*)).thenReturn(successful(application))
 
@@ -113,6 +114,7 @@ trait ThirdPartyApplicationConnectorModule {
     }
 
     object CreateApplicationV2 {
+
       def willReturnSuccess(applcationId: ApplicationId) = {
         when(aMock.createApplicationV2(*)(*)).thenReturn(successful(applcationId))
       }
@@ -141,7 +143,7 @@ trait ThirdPartyApplicationConnectorModule {
 
     object GetLinkedSubordinateApplicationId {
       def thenReturn(subordinateAppId: ApplicationId) = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(Some(subordinateAppId)))
-      
+
       def thenReturnNothing = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(None))
     }
     override val aMock: PrincipalThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
@@ -149,7 +151,7 @@ trait ThirdPartyApplicationConnectorModule {
 
   object EnvironmentAwareThirdPartyApplicationConnectorMock {
     private val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock
-    private val principalConnector = PrincipalThirdPartyApplicationConnectorMock
+    private val principalConnector   = PrincipalThirdPartyApplicationConnectorMock
 
     lazy val instance = {
       new EnvironmentAwareThirdPartyApplicationConnector(subordinateConnector.aMock, principalConnector.aMock)

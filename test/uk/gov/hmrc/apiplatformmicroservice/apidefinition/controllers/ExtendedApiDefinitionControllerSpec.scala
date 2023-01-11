@@ -16,22 +16,24 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import akka.stream.testkit.NoMaterializer
+
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import akka.stream.testkit.NoMaterializer
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -41,15 +43,15 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       with ApiDocumentationResourceFetcherModule
       with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
+    implicit val mat           = NoMaterializer
 
-    val request = FakeRequest("GET", "/")
-    val apiName = "hello-api"
-    val version = "1.0"
-    val anApiDefinition = apiDefinition(apiName)
+    val request                 = FakeRequest("GET", "/")
+    val apiName                 = "hello-api"
+    val version                 = "1.0"
+    val anApiDefinition         = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
 
-    val controller = new ExtendedApiDefinitionController(
+    val controller     = new ExtendedApiDefinitionController(
       Helpers.stubControllerComponents(),
       ApiDefinitionsForCollaboratorFetcherMock.aMock,
       ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,

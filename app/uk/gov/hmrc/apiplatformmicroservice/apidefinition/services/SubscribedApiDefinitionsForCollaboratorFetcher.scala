@@ -17,26 +17,27 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 @Singleton
 class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext)
-    extends Recoveries {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
-      subscriptions <- subscriptionsForCollaboratorFetcher.fetch(userId)
+      subscriptions  <- subscriptionsForCollaboratorFetcher.fetch(userId)
     } yield filterApis(apiDefinitions, subscriptions)
   }
 

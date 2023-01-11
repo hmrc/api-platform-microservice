@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
 
 trait CreateApplicationRequest {
   def name: String
@@ -40,20 +39,20 @@ trait CreateApplicationRequest {
     require(in.collaborators.size == collaborators.map(_.emailAddress.toLowerCase).size, "duplicate email in collaborator")
     in.access match {
       case a: Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
-      case _ =>
+      case _           =>
     }
   }
 }
 
 case class CreateApplicationRequestV1(
-  name: String,
-  access: Access = Standard(List.empty, None, None, Set.empty),
-  description: Option[String] = None,
-  environment: Environment,
-  collaborators: Set[Collaborator],
-  subscriptions: Option[Set[ApiIdentifier]]
-) extends CreateApplicationRequest {
-  
+    name: String,
+    access: Access = Standard(List.empty, None, None, Set.empty),
+    description: Option[String] = None,
+    environment: Environment,
+    collaborators: Set[Collaborator],
+    subscriptions: Option[Set[ApiIdentifier]]
+  ) extends CreateApplicationRequest {
+
   validate(this)
 
   def normaliseCollaborators: CreateApplicationRequestV1 = copy(collaborators = lowerCaseEmails(collaborators))
@@ -66,17 +65,18 @@ object CreateApplicationRequestV1 {
 
   implicit val format = Json.format[CreateApplicationRequestV1]
 }
+
 case class CreateApplicationRequestV2(
-  name: String,
-  access: Access = Standard(List.empty, None, None, Set.empty),
-  description: Option[String] = None,
-  environment: Environment,
-  collaborators: Set[Collaborator],
-  upliftRequest: UpliftRequest,
-  requestedBy: String,
-  sandboxApplicationId: ApplicationId
-) extends CreateApplicationRequest {
-                                      
+    name: String,
+    access: Access = Standard(List.empty, None, None, Set.empty),
+    description: Option[String] = None,
+    environment: Environment,
+    collaborators: Set[Collaborator],
+    upliftRequest: UpliftRequest,
+    requestedBy: String,
+    sandboxApplicationId: ApplicationId
+  ) extends CreateApplicationRequest {
+
   validate(this)
 
   lazy val anySubscriptions: Set[ApiIdentifier] = upliftRequest.subscriptions

@@ -17,23 +17,22 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.play.http.ws.WSGet
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.PrincipalApiDefinitionConnector.Config
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.http.ws.WSGet
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PrincipalApiDefinitionConnector @Inject() (
-  val http: HttpClient with WSGet,
-  val config: Config
-)(
-  implicit val ec: ExecutionContext
-) extends ApiDefinitionConnector with ApplicationLogger {
+    val http: HttpClient with WSGet,
+    val config: Config
+  )(implicit val ec: ExecutionContext
+  ) extends ApiDefinitionConnector with ApplicationLogger {
   val serviceBaseUrl: String = config.baseUrl
 
   override def fetchApiDocumentationResource(

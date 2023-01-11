@@ -17,23 +17,23 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 @Singleton
 class ApiDefinitionsForApplicationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext)
-    extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
+  )(implicit ec: ExecutionContext
+  ) extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
   def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    if(restricted) {
+    if (restricted) {
       fetchRestricted(application, subscriptions)
-    }
-    else {
+    } else {
       fetchUnrestricted(application)
     }
   }

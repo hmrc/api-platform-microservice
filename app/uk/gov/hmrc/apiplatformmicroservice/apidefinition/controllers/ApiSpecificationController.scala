@@ -16,30 +16,32 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import akka.stream.Materializer
 import cats.data.OptionT
 import cats.implicits._
-import javax.inject.{Inject, Singleton}
+
 import play.api.mvc.ControllerComponents
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
-import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ApiSpecificationController @Inject()(
+class ApiSpecificationController @Inject() (
     cc: ControllerComponents,
     apiSpecificationFetcher: ApiSpecificationFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends BackendController(cc)
+    override val mat: Materializer
+  ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
   def fetchApiSpecification(serviceName: String, version: ApiVersion) = Action.async { implicit request =>
-
     OptionT(apiSpecificationFetcher.fetch(serviceName, version))
-    .map(x => Ok(x))
-    .getOrElse(NotFound)
-  }}
+      .map(x => Ok(x))
+      .getOrElse(NotFound)
+  }
+}

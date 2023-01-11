@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ExtendedApiDefinitionForCollaboratorFetcherModule
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.stream.testkit.NoMaterializer
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
+
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ExtendedApiDefinitionExampleData
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
@@ -33,46 +33,46 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
     val environmentAwareApiDefinitionService = new EnvironmentAwareApiDefinitionService(SubordinateApiDefinitionServiceMock.aMock, PrincipalApiDefinitionServiceMock.aMock)
 
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
-    val serviceName = apiName
+    implicit val mat           = NoMaterializer
+    val serviceName            = apiName
 
     val fetcher = new ApiSpecificationFetcher(environmentAwareApiDefinitionService, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }
 
- "api specification fetcher" should {
-   val someJsValue: JsValue = Json.parse("""{ "x": 1 }""")
-   val expectedJsValue: JsValue = Json.parse(Json.stringify(someJsValue))
-    
-  "fetch data when in subordinate" in new Setup {
-    ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlySubordinate)
-    SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
-    PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
+  "api specification fetcher" should {
+    val someJsValue: JsValue     = Json.parse("""{ "x": 1 }""")
+    val expectedJsValue: JsValue = Json.parse(Json.stringify(someJsValue))
 
-    val result = await(fetcher.fetch(serviceName, versionOne))
+    "fetch data when in subordinate" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlySubordinate)
+      SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
+      PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
 
-    println(expectedJsValue)
-    result shouldBe Some(expectedJsValue)
+      val result = await(fetcher.fetch(serviceName, versionOne))
+
+      println(expectedJsValue)
+      result shouldBe Some(expectedJsValue)
+    }
+
+    "fetch data when in both" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
+      PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
+
+      val result = await(fetcher.fetch(serviceName, versionOne))
+
+      println(expectedJsValue)
+      result shouldBe Some(expectedJsValue)
+    }
+
+    "fetch data when in principal" in new Setup {
+      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
+      SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
+      PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
+
+      val result = await(fetcher.fetch(serviceName, versionOne))
+
+      result shouldBe Some(expectedJsValue)
+    }
   }
-    
-  "fetch data when in both" in new Setup {
-    ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
-    SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
-    PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
-
-    val result = await(fetcher.fetch(serviceName, versionOne))
-
-    println(expectedJsValue)
-    result shouldBe Some(expectedJsValue)
-  }
-
-  "fetch data when in principal" in new Setup {
-    ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
-    SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
-    PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
-
-    val result = await(fetcher.fetch(serviceName, versionOne))
-
-    result shouldBe Some(expectedJsValue)
-  }
- } 
 }

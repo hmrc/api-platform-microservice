@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services
 
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 trait FieldsJsonFormatters extends BasicApiDefinitionJsonFormatters with NonEmptyListFormatters {
   import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.DevhubAccessRequirement._

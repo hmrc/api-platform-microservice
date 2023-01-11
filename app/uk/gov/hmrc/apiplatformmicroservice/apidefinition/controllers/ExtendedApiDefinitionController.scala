@@ -16,31 +16,33 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import akka.stream.Materializer
 import cats.data.OptionT
-import javax.inject.{Inject, Singleton}
+
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiVersion, ResourceId}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiVersion, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
-
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 
 @Singleton()
-class ExtendedApiDefinitionController @Inject()(
+class ExtendedApiDefinitionController @Inject() (
     cc: ControllerComponents,
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
     subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends BackendController(cc)
+    override val mat: Materializer
+  ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
   def fetchApiDefinitionsForCollaborator(developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>

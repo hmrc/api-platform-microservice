@@ -17,17 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiIdentifier, _}
+import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
 @Singleton
 class ApiDefinitionsForCollaboratorFetcher @Inject() (
@@ -35,20 +33,19 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher
-    
-  )(implicit ec: ExecutionContext)
-    extends Recoveries with FilterApiDocumentation {
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries with FilterApiDocumentation {
 
   def fetch(developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val principalDefinitionsFuture = principalDefinitionService.fetchAllApiDefinitions
+    val principalDefinitionsFuture   = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 
     for {
-      principalDefinitions <- principalDefinitionsFuture
-      subordinateDefinitions <- subordinateDefinitionsFuture
-      combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
+      principalDefinitions       <- principalDefinitionsFuture
+      subordinateDefinitions     <- subordinateDefinitionsFuture
+      combinedDefinitions         = combineDefinitions(principalDefinitions, subordinateDefinitions)
       collaboratorApplicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      collaboratorSubscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
+      collaboratorSubscriptions  <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
     } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
   }
 

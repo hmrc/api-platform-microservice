@@ -16,26 +16,26 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import scala.concurrent.Future
+
 import org.scalatest.prop.TableDrivenPropertyChecks._
+
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiVersion, ResourceId}
-import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionTestDataHelper, ApiVersion, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val serviceName = "test-service"
-  private val versionOne = ApiVersion("1.0")
-  private val resource = "/mock/resourcename"
+  private val versionOne  = ApiVersion("1.0")
+  private val resource    = "/mock/resourcename"
 
-  
   private val api1 = apiDefinition("Bob")
   private val api2 = apiDefinition("Charlie").withClosedAccess
   private val api3 = apiDefinition("Dannie").asPrivate
@@ -153,7 +153,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val expected = Some(mock[ApiDefinition])
+          val expected   = Some(mock[ApiDefinition])
           val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
@@ -185,7 +185,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val mockFuture = Future.successful(List(api1,api2))
+          val mockFuture = Future.successful(List(api1, api2))
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
@@ -216,7 +216,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val mockFuture = Future.successful(List(api1,api2))
+          val mockFuture = Future.successful(List(api1, api2))
 
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
@@ -231,8 +231,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val mockFuture = Future.successful(List(api1,api3))
-          
+          val mockFuture = Future.successful(List(api1, api3))
+
           when(mockConnector.fetchAllApiDefinitions(any))
             .thenReturn(mockFuture)
 
@@ -262,7 +262,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val result = Some(mock[WSResponse])
+          val result     = Some(mock[WSResponse])
           val mockFuture = Future.successful(result)
 
           when(
@@ -297,7 +297,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val expected = mock[List[ApiCategoryDetails]]
+          val expected   = mock[List[ApiCategoryDetails]]
           val mockFuture = Future.successful(expected)
 
           when(mockConnector.fetchApiCategoryDetails()(any))

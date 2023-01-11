@@ -29,7 +29,7 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
 
     "filtering public api" should {
       "allow all but retired" in {
-        testFilter(allPublicApis:_*) should contain only (
+        testFilter(allPublicApis: _*) should contain only (
           publicApi.asAlpha,
           publicApi.asBeta,
           publicApi.asStable,
@@ -44,7 +44,7 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
 
     "filtering private apis where the app is not in the allow list" should {
       "allow all except retired" in {
-        testFilter(allPrivateApis:_*) should contain only (
+        testFilter(allPrivateApis: _*) should contain only (
           privateApi.asAlpha,
           privateApi.asBeta,
           privateApi.asStable,
@@ -59,7 +59,7 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
 
     "filtering private trial apis where the app is not in the allow list" should {
       "allow all except retired" in {
-        testFilter(allPrivateTrialApis:_*) should contain only (
+        testFilter(allPrivateTrialApis: _*) should contain only (
           privateTrialApi.asAlpha,
           privateTrialApi.asBeta,
           privateTrialApi.asStable,
@@ -72,7 +72,6 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
       }
     }
 
-    "filtering private apis where the app is in the allow list" should {
-    }
+    "filtering private apis where the app is in the allow list" should {}
   }
 }

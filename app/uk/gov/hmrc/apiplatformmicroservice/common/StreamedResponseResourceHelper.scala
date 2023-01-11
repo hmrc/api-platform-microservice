@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
+import scala.concurrent.Future
+
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.http.NotFoundException
 
-import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 
 trait StreamedResponseResourceHelper extends StreamedResponseHelper {
 

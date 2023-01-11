@@ -16,24 +16,26 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import akka.stream.Materializer
 import cats.data.OptionT
 import cats.implicits._
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+
 import play.api.libs.json.JsValue
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 
 @Singleton
 class ApiSpecificationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends StreamedResponseResourceHelper 
+    override val mat: Materializer
+  ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
   def fetch(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
@@ -43,7 +45,7 @@ class ApiSpecificationFetcher @Inject() (
         response   <- fetchApiSpecification(apiVersion.sandboxAvailability.isDefined, serviceName, version)
       } yield response
     )
-    .value
+      .value
   }
 
   private def fetchApiVersion(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
@@ -61,7 +63,7 @@ class ApiSpecificationFetcher @Inject() (
 
   private def fetchSubordinateOrPrincipal(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     fetchSubordinateApiSpecification(serviceName, version)
-    .orElse(fetchPrincipalApiSpecification(serviceName, version))
+      .orElse(fetchPrincipalApiSpecification(serviceName, version))
   }
 
   private def fetchSubordinateApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {

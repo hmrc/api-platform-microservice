@@ -16,19 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
+import scala.concurrent.Future
+
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationUpdateService
 
-import scala.concurrent.Future
-
 trait ApplicationUpdateServiceModule extends MockitoSugar with ArgumentMatchersSugar {
+
   object ApplicationUpdateServiceMock {
     val aMock = mock[ApplicationUpdateService]
 
     object UpdateApplication {
+
       def willReturnApplication(app: Application) = {
-        when(aMock.updateApplication(*, *)(*, * )).thenReturn(Future.successful(app))
+        when(aMock.updateApplication(*, *)(*, *)).thenReturn(Future.successful(app))
       }
 
       def willThrowException(e: Exception) = {

@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import akka.stream.Materializer
 import cats.data.OptionT
 import cats.implicits._
-import javax.inject.{Inject, Singleton}
+
 import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 
 @Singleton
 class ApiDocumentationResourceFetcher @Inject() (
@@ -33,12 +35,12 @@ class ApiDocumentationResourceFetcher @Inject() (
     subordinateDefinitionService: SubordinateApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
   )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer)
-    extends StreamedResponseResourceHelper 
+    override val mat: Materializer
+  ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
   trait WhereToLook
-  case object Both extends WhereToLook
+  case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook
 
   def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
@@ -52,12 +54,12 @@ class ApiDocumentationResourceFetcher @Inject() (
   }
 
   private def findWhereToLook(apiDefinition: ExtendedApiDefinition, resourceId: ResourceId): Option[WhereToLook] = {
-    lazy val version = resourceId.version
+    lazy val version                                 = resourceId.version
     lazy val findVersion: Option[ExtendedApiVersion] = apiDefinition.versions.find(_.version == version)
 
     val whereToLookForVersion: (ExtendedApiVersion) => WhereToLook = (eav) => {
       logger.info(s"Availability of $resourceId - Sandbox: ${eav.sandboxAvailability.isDefined} Production: ${eav.productionAvailability.isDefined}")
-      if(eav.sandboxAvailability.isDefined) Both else ProductionOnly
+      if (eav.sandboxAvailability.isDefined) Both else ProductionOnly
     }
 
     version match {
@@ -74,7 +76,7 @@ class ApiDocumentationResourceFetcher @Inject() (
 
   private def logAndHandleErrorsAsNone(connectorName: String)(resourceId: ResourceId)(x: WSResponse): OptionT[Future, WSResponse] = {
     logger.info(s"$connectorName response code: ${x.status} for ${resourceId}")
-    
+
     if (x.status >= 200 && x.status <= 299) {
       OptionT.some(x)
     } else {
@@ -83,7 +85,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   }
 
   private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, WSResponse] = {
-  
+
     val subordinateData: OptionT[Future, WSResponse] =
       OptionT(subordinateDefinitionService.fetchApiDocumentationResource(resourceId))
         .flatMap(logAndHandleErrorsAsNone("Subordinate")(resourceId))
@@ -96,7 +98,6 @@ class ApiDocumentationResourceFetcher @Inject() (
       .orElse(principalData)
   }
 
-  
   private def fetchPrincipalResourceOnly(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, WSResponse] = {
     OptionT(principalDefinitionService.fetchApiDocumentationResource(resourceId))
       .flatMap(logAndHandleErrorsAsNone("Principal")(resourceId))

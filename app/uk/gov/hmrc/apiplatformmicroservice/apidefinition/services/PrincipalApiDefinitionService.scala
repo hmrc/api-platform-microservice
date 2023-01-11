@@ -17,14 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.PrincipalApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics}
 
 @Singleton
 class PrincipalApiDefinitionService @Inject() (
     val connector: PrincipalApiDefinitionConnector,
-    val apiMetrics: ApiMetrics)
-    extends ApiDefinitionService {
+    val apiMetrics: ApiMetrics
+  ) extends ApiDefinitionService {
 
   val api: API = API("api-definition-principal")
 

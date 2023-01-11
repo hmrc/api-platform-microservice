@@ -16,41 +16,41 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks.PushPullNotificationsConnectorModule
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.mocks.PushPullNotificationsConnectorModule
 
 class BoxFetcherSpec extends AsyncHmrcSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar with BoxBuilder{
+  trait Setup extends PushPullNotificationsConnectorModule with MockitoSugar with ArgumentMatchersSugar with BoxBuilder {
     val fetcher = new BoxFetcher(EnvironmentAwarePushPullNotificationsConnectorMock.instance)
   }
 
   "BoxFetcher" when {
     "fetchAllBoxes" should {
       "return None if none from principal and subordinate" in new Setup {
-          EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List.empty)
-          EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List.empty)
+        EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List.empty)
+        EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List.empty)
 
-          await(fetcher.fetchAllBoxes()) shouldBe List.empty
+        await(fetcher.fetchAllBoxes()) shouldBe List.empty
       }
 
       "return principal and subordinate boxes" in new Setup {
-        
+
         private val subordinateBoxResponse = buildBoxResponse("1")
-        private val principalBoxResponse = buildBoxResponse("2")
+        private val principalBoxResponse   = buildBoxResponse("2")
 
         private val subordinateBox = buildBoxFromBoxResponse(subordinateBoxResponse, Environment.SANDBOX)
-        private val principalBox = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
+        private val principalBox   = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
 
         EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List(subordinateBoxResponse))
         EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List(principalBoxResponse))

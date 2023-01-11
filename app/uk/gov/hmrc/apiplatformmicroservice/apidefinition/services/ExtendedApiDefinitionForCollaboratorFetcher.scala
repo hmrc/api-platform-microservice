@@ -17,16 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationIdsForCollaboratorFetcher
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
@@ -34,14 +33,15 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext) {
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetch(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     for {
-      principalDefinition <- principalDefinitionService.fetchDefinition(serviceName)
+      principalDefinition   <- principalDefinitionService.fetchDefinition(serviceName)
       subordinateDefinition <- subordinateDefinitionService.fetchDefinition(serviceName)
-      applicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      subscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch)
+      applicationIds        <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
+      subscriptions         <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch)
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, developerId)
   }
 
@@ -121,7 +121,11 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       case (None, Some(subordinateVersion))                   =>
         toExtendedApiVersion(subordinateVersion, None, availability(context, subordinateVersion, applicationIds, subscriptions, userId))
       case (Some(principalVersion), Some(subordinateVersion)) =>
-        toExtendedApiVersion(subordinateVersion, availability(context, principalVersion, applicationIds, subscriptions, userId), availability(context, subordinateVersion, applicationIds, subscriptions, userId))
+        toExtendedApiVersion(
+          subordinateVersion,
+          availability(context, principalVersion, applicationIds, subscriptions, userId),
+          availability(context, subordinateVersion, applicationIds, subscriptions, userId)
+        )
       case (None, None)                                       =>
         throw new IllegalStateException("It's impossible to get here from the call site")
     }
@@ -141,7 +145,13 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     )
   }
 
-  private def availability(context: ApiContext, version: ApiVersionDefinition, applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier], userId: Option[UserId]): Option[ApiAvailability] = {
+  private def availability(
+      context: ApiContext,
+      version: ApiVersionDefinition,
+      applicationIds: Set[ApplicationId],
+      subscriptions: Set[ApiIdentifier],
+      userId: Option[UserId]
+    ): Option[ApiAvailability] = {
     version.access match {
       case PrivateApiAccess(allowlist, isTrial) =>
         val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))

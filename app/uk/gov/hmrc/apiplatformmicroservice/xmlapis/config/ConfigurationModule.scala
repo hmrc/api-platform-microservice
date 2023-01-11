@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.config
 
+import javax.inject.{Inject, Singleton}
+
 import com.google.inject.{AbstractModule, Provider}
-import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
+
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 
 class ConfigurationModule extends AbstractModule {
 
@@ -31,10 +33,10 @@ class ConfigurationModule extends AbstractModule {
 }
 
 @Singleton
-class XmlApisConnectorConfigProvider @Inject()(sc: ServicesConfig) extends Provider[XmlApisConnector.Config] {
+class XmlApisConnectorConfigProvider @Inject() (sc: ServicesConfig) extends Provider[XmlApisConnector.Config] {
+
   override def get(): XmlApisConnector.Config = {
     lazy val baseUrl = sc.baseUrl("api-platform-xml-services")
     XmlApisConnector.Config(baseUrl)
   }
 }
-

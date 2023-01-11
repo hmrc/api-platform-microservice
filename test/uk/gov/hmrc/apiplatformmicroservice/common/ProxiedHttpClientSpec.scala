@@ -19,29 +19,29 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import play.api.Configuration
+import com.typesafe.config.Config
+
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http._
+import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.http.Authorization
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import play.api.ConfigLoader
-import com.typesafe.config.Config
+
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ProxiedHttpClientSpec extends AsyncHmrcSpec {
 
   private val actorSystem = ActorSystem("test-actor-system")
 
   trait Setup {
-    val apiKey: String = UUID.randomUUID().toString
-    val bearerToken: String = UUID.randomUUID().toString
-    val url = "http://example.com"
+    val apiKey: String            = UUID.randomUUID().toString
+    val bearerToken: String       = UUID.randomUUID().toString
+    val url                       = "http://example.com"
     val mockConfig: Configuration = mock[Configuration]
     when(mockConfig.underlying).thenReturn(mock[Config])
 
     val mockHttpAuditing: HttpAuditing = mock[HttpAuditing]
-    val mockWsClient: WSClient = mock[WSClient]
-    val mockWSRequest: WSRequest = mock[WSRequest]
+    val mockWsClient: WSClient         = mock[WSClient]
+    val mockWSRequest: WSRequest       = mock[WSRequest]
     when(mockWsClient.url(url)).thenReturn(mockWSRequest)
 
     val underTest = new ProxiedHttpClient(mockConfig, mockHttpAuditing, mockWsClient, actorSystem)

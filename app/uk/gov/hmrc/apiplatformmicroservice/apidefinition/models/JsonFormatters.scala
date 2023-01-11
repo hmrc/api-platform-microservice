@@ -17,22 +17,24 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import cats.data.{NonEmptyList => NEL}
+
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 
 trait BasicApiDefinitionJsonFormatters {
-  implicit val formatApiContext: Format[ApiContext] = Json.valueFormat[ApiContext]
-  implicit val formatApiVersion: Format[ApiVersion] = Json.valueFormat[ApiVersion]
-  implicit val formatApiCategory: Format[ApiCategory] = Json.valueFormat[ApiCategory]
+  implicit val formatApiContext: Format[ApiContext]                 = Json.valueFormat[ApiContext]
+  implicit val formatApiVersion: Format[ApiVersion]                 = Json.valueFormat[ApiVersion]
+  implicit val formatApiCategory: Format[ApiCategory]               = Json.valueFormat[ApiCategory]
   implicit val formatApiCategoryDetails: Format[ApiCategoryDetails] = Json.format[ApiCategoryDetails]
-  implicit val formatApiIdentifier: Format[ApiIdentifier] = Json.format[ApiIdentifier]
+  implicit val formatApiIdentifier: Format[ApiIdentifier]           = Json.format[ApiIdentifier]
 
-  implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
+  implicit val keyReadsApiContext: KeyReads[ApiContext]   = key => JsSuccess(ApiContext(key))
   implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
 
-  implicit val keyReadsApiVersion: KeyReads[ApiVersion] = key => JsSuccess(ApiVersion(key))
+  implicit val keyReadsApiVersion: KeyReads[ApiVersion]   = key => JsSuccess(ApiVersion(key))
   implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
 }
 
@@ -55,14 +57,15 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
 trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters {
   import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 
-  implicit val apiAccessReads: Reads[ApiAccess] = (
-    (JsPath \ "type").read[ApiAccessType] and
-      ((JsPath \ "allowlistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
-      ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
-  ) map {
-    case (PUBLIC, _, _)                                => PublicApiAccess()
-    case (PRIVATE, allowlistedApplicationIds, isTrial) => PrivateApiAccess(allowlistedApplicationIds, isTrial)
-  }
+  implicit val apiAccessReads: Reads[ApiAccess] =
+    (
+      (JsPath \ "type").read[ApiAccessType] and
+        ((JsPath \ "allowlistedApplicationIds").read[List[ApplicationId]] or Reads.pure(List.empty[ApplicationId])) and
+        ((JsPath \ "isTrial").read[Boolean] or Reads.pure(false)) tupled
+    ) map {
+      case (PUBLIC, _, _)                                => PublicApiAccess()
+      case (PRIVATE, allowlistedApplicationIds, isTrial) => PrivateApiAccess(allowlistedApplicationIds, isTrial)
+    }
 
   implicit object apiAccessWrites extends Writes[ApiAccess] {
 
@@ -103,8 +106,8 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
 
   implicit val apiDefinitionWrites: Writes[ApiDefinition] = Json.writes[ApiDefinition]
 
-  implicit val formatApiAvailability = Json.format[ApiAvailability]
-  implicit val formatExtendedApiVersion = Json.format[ExtendedApiVersion]
+  implicit val formatApiAvailability       = Json.format[ApiAvailability]
+  implicit val formatExtendedApiVersion    = Json.format[ExtendedApiVersion]
   implicit val formatExtendedApiDefinition = Json.format[ExtendedApiDefinition]
 }
 

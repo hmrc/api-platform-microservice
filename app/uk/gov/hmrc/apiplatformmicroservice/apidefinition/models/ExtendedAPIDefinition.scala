@@ -26,17 +26,20 @@ case class ExtendedApiDefinition(
     requiresTrust: Boolean,
     isTestSupport: Boolean,
     versions: List[ExtendedApiVersion],
-    categories: List[ApiCategory] = List.empty)
+    categories: List[ApiCategory] = List.empty
+  )
 
 case class ExtendedApiVersion(
     version: ApiVersion,
     status: ApiStatus,
     endpoints: NEL[Endpoint],
     productionAvailability: Option[ApiAvailability],
-    sandboxAvailability: Option[ApiAvailability])
+    sandboxAvailability: Option[ApiAvailability]
+  )
 
 case class ApiAvailability(
     endpointsEnabled: Boolean,
     access: ApiAccess,
     loggedIn: Boolean,
-    authorised: Boolean)
+    authorised: Boolean
+  )

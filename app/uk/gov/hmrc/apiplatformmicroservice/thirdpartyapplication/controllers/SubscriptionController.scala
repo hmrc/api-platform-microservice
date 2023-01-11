@@ -17,52 +17,50 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import play.api.libs.json._
 import play.api.mvc._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
 
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDenied
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionDuplicate
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.JsErrorResponse
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ErrorCode
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Actor, ApplicationUpdateFormatters, SubscribeToApi}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ActionBuilders, ErrorCode, JsErrorResponse}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, SubscribeToApi}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionService, UpliftApplicationService}
 
 @Singleton
-class SubscriptionController @Inject()(
-  subscriptionService: SubscriptionService,
-  val applicationService: ApplicationByIdFetcher,
-  val authConfig: AuthConnector.Config,
-  val authConnector: AuthConnector,
-  cc: ControllerComponents,
-  val upliftApplicationService: UpliftApplicationService
-)(implicit val ec: ExecutionContext)
-extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters {
+class SubscriptionController @Inject() (
+    subscriptionService: SubscriptionService,
+    val applicationService: ApplicationByIdFetcher,
+    val authConfig: AuthConnector.Config,
+    val authConnector: AuthConnector,
+    cc: ControllerComponents,
+    val upliftApplicationService: UpliftApplicationService
+  )(implicit val ec: ExecutionContext
+  ) extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters {
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>
         subscriptionService
-        .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
-        .map {
-          case CreateSubscriptionSuccess => NoContent
-          case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application ${applicationId.value}"))
-          case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
-        }
+          .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
+          .map {
+            case CreateSubscriptionSuccess   => NoContent
+            case CreateSubscriptionDenied    => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application ${applicationId.value}"))
+            case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(
+                ErrorCode.SUBSCRIPTION_ALREADY_EXISTS,
+                s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"
+              ))
+          }
       }
     }
-    
+
   def subscribeToApiAppUpdate(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[SubscribeToApi] { subscribeToApi =>
@@ -70,18 +68,21 @@ extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatte
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, subscribeToApi, restricted.getOrElse(true))
           .map {
-            case CreateSubscriptionSuccess => NoContent
-            case CreateSubscriptionDenied => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application ${applicationId.value}"))
-            case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(ErrorCode.SUBSCRIPTION_ALREADY_EXISTS, s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"))
+            case CreateSubscriptionSuccess   => NoContent
+            case CreateSubscriptionDenied    => NotFound(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, s"API $api is not available for application ${applicationId.value}"))
+            case CreateSubscriptionDuplicate => Conflict(JsErrorResponse(
+                ErrorCode.SUBSCRIPTION_ALREADY_EXISTS,
+                s"Application: '${request.application.name}' is already Subscribed to API: ${api.context.value}: ${api.version.value}"
+              ))
           }
       }
     }
-  
-  def fetchUpliftableSubscriptions(applicationId: ApplicationId): Action[AnyContent] = 
+
+  def fetchUpliftableSubscriptions(applicationId: ApplicationId): Action[AnyContent] =
     ApplicationWithSubscriptionDataAction(applicationId).async { implicit appData: ApplicationWithSubscriptionDataRequest[AnyContent] =>
       upliftApplicationService.fetchUpliftableApisForApplication(appData.subscriptions)
-      .map { set =>
-        if(set.isEmpty) NotFound else Ok(Json.toJson(set))
-      }
+        .map { set =>
+          if (set.isEmpty) NotFound else Ok(Json.toJson(set))
+        }
     }
 }

@@ -16,32 +16,34 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import akka.stream.testkit.NoMaterializer
+
 import play.api.libs.json.Json
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiCategoryDetailsFetcherModule, XmlApisConnectorMockingHelper}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-import akka.stream.testkit.NoMaterializer
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiCategoriesControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiCategoryDetailsFetcherModule with XmlApisConnectorMockingHelper {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = NoMaterializer
+    implicit val mat           = NoMaterializer
 
     val controller = new ApiCategoriesController(Helpers.stubControllerComponents(), ApiCategoryDetailsForCollaboratorFetcherMock.aMock, XmlApisConnectorMock.aMock)
 
-    val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
-    val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
+    val category1    = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+    val category2    = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
     val xmlCategory1 = ApiCategoryDetails("VAT", "VAT")
-    val xmlCategory2  = ApiCategoryDetails("NEW_CATEGORY", "NEW_CATEGORY")
-    val xmlApi1 = XmlApi("name", "serviceName", "context", "description", Some(List(ApiCategory("VAT"), ApiCategory("NEW_CATEGORY"))))
+    val xmlCategory2 = ApiCategoryDetails("NEW_CATEGORY", "NEW_CATEGORY")
+    val xmlApi1      = XmlApi("name", "serviceName", "context", "description", Some(List(ApiCategory("VAT"), ApiCategory("NEW_CATEGORY"))))
   }
 
   "fetchAllApiCategories" should {
@@ -52,10 +54,10 @@ class ApiCategoriesControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
 
       val result = controller.fetchAllAPICategories()(FakeRequest())
 
-      status(result) must be (OK)
+      status(result) must be(OK)
 
       val parsedCategories: List[ApiCategoryDetails] = Json.fromJson[List[ApiCategoryDetails]](contentAsJson(result)).get
-      parsedCategories.size must be (4)
+      parsedCategories.size must be(4)
       parsedCategories must contain only (category1, category2, xmlCategory1, xmlCategory2)
     }
   }

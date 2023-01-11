@@ -17,19 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessType, ApiCategory}
 
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiAccessType, ApiCategory}
 
 sealed trait ApiType extends EnumEntry
 
 object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
   val values = findValues
   case object REST_API extends ApiType
-  case object XML_API extends ApiType
+  case object XML_API  extends ApiType
 }
 
-case class CombinedApi(displayName: String,
-                       serviceName: String,
-                        categories: List[ApiCategory],
-                        apiType: ApiType,
-                        accessType: ApiAccessType)
+case class CombinedApi(displayName: String, serviceName: String, categories: List[ApiCategory], apiType: ApiType, accessType: ApiAccessType)

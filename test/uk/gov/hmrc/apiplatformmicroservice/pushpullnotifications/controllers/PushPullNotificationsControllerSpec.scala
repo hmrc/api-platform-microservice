@@ -16,31 +16,31 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.libs.json.Json
-import play.api.test.FakeRequest
-import play.api.test.Helpers
-import play.api.test.Helpers._
-import play.api.test.Helpers.status
+import play.api.test.Helpers.{status, _}
+import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.PushPullNotificationsController
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
+class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
 
-class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters{
-
-  trait Setup extends BoxBuilder { 
+  trait Setup extends BoxBuilder {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = app.materializer
+    implicit val mat           = app.materializer
 
     val mockBoxFetcher = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
-  
+
     val controller = new PushPullNotificationsController(
       mockBoxFetcher,
       Helpers.stubControllerComponents()
@@ -50,8 +50,8 @@ class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneApp
   "GET /boxes" should {
     "return a list of boxes" in new Setup {
       val boxes = List(buildBox("1"))
-      
-      when(mockBoxFetcher.fetchAllBoxes()( * )).thenReturn(successful(boxes))
+
+      when(mockBoxFetcher.fetchAllBoxes()(*)).thenReturn(successful(boxes))
 
       val result = controller.getAll()(FakeRequest("GET", "/"))
 

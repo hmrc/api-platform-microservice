@@ -16,32 +16,39 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.DateTimeUtils
+
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData, ClientId}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
 
   implicit val hc = HeaderCarrier()
 
-  val id: ApplicationId = ApplicationId.random
-  val clientId: ClientId = ClientId("123")
+  val id: ApplicationId             = ApplicationId.random
+  val clientId: ClientId            = ClientId("123")
   val grantLength: java.time.Period = java.time.Period.ofDays(547)
-  val application: Application = Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), grantLength, None, Environment.SANDBOX, Some("description"))
-  val BANG = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar with ArgumentMatchersSugar {
-    val fetcher = new ApplicationByIdFetcher(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, EnvironmentAwareSubscriptionFieldsConnectorMock.instance, SubscriptionFieldsFetcherMock.aMock)
+  val application: Application =
+    Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), grantLength, None, Environment.SANDBOX, Some("description"))
+  val BANG                     = new RuntimeException("BANG")
+
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar
+      with ArgumentMatchersSugar {
+
+    val fetcher = new ApplicationByIdFetcher(
+      EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
+      EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
+      SubscriptionFieldsFetcherMock.aMock
+    )
   }
 
   "ApplicationByIdFetcher" when {

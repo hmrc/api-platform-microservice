@@ -16,20 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
 
 trait SubscriptionFieldsFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
-  
+
   object SubscriptionFieldsFetcherMock {
     val aMock = mock[SubscriptionFieldsFetcher]
 
     object FetchFieldValuesWithDefaults {
+
       def willReturnFieldValues(subs: ApiFieldMap[FieldValue]) = {
         when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(*)).thenReturn(successful(subs))
       }

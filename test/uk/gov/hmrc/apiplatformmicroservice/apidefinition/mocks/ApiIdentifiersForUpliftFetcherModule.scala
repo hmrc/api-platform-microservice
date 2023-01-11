@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
-
 import scala.concurrent.Future
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
 
 trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
@@ -28,6 +29,7 @@ trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMat
     val aMock = mock[ApiIdentifiersForUpliftFetcher]
 
     object FetchUpliftableApis {
+
       def willReturn(ids: ApiIdentifier*) = {
         when(aMock.fetch(*)).thenReturn(Future.successful(ids.toSet))
       }

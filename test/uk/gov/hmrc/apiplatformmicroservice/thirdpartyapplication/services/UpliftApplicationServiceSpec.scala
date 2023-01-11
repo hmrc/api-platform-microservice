@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequestV2
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPartyApplicationConnectorModule, _}
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 
@@ -42,18 +40,23 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       with SubscriptionFieldsFetcherModule
       with SubscriptionServiceModule {
 
-    val upliftService = new UpliftApplicationService(ApiIdentifiersForUpliftFetcherMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock, ApplicationByIdFetcherMock.aMock, SubscriptionServiceMock.aMock)
+    val upliftService = new UpliftApplicationService(
+      ApiIdentifiersForUpliftFetcherMock.aMock,
+      PrincipalThirdPartyApplicationConnectorMock.aMock,
+      ApplicationByIdFetcherMock.aMock,
+      SubscriptionServiceMock.aMock
+    )
   }
-  
+
   "UpliftApplicationService" should {
     val applicationId = ApplicationId.random
-    val sandboxApp = buildApplication(appId = applicationId)
-    val newAppId = ApplicationId.random
-    val context1 = "context1".asIdentifier
-    val context2 = "context2".asIdentifier()
-    val context3 = "context3".asIdentifier()
-    val contextCDSv1 = "customs/declarations".asIdentifier("1.0".asVersion)
-    val contextCDSv2 = "customs/declarations".asIdentifier("2.0".asVersion)
+    val sandboxApp    = buildApplication(appId = applicationId)
+    val newAppId      = ApplicationId.random
+    val context1      = "context1".asIdentifier
+    val context2      = "context2".asIdentifier()
+    val context3      = "context3".asIdentifier()
+    val contextCDSv1  = "customs/declarations".asIdentifier("1.0".asVersion)
+    val contextCDSv2  = "customs/declarations".asIdentifier("2.0".asVersion)
 
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
@@ -68,7 +71,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
       createAppRequest match {
         case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(context1)
-        case _ => fail("Not the expected request")
+        case _                              => fail("Not the expected request")
       }
 
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.verifyCalled(Set(context1))
@@ -87,7 +90,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
       createAppRequest match {
         case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
-        case _ => fail("Not the expected request")
+        case _                              => fail("Not the expected request")
       }
 
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.verifyCalled(Set(contextCDSv1))
@@ -102,20 +105,19 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
     "successfully handle when app is not a sandbox app" in new Setup {
       val applicationInProd = sandboxApp.copy(deployedTo = Environment.PRODUCTION)
-      val result = await(upliftService.upliftApplicationV2(applicationInProd, Set(context1, context2), makeUpliftRequest(context3)))
+      val result            = await(upliftService.upliftApplicationV2(applicationInProd, Set(context1, context2), makeUpliftRequest(context3)))
 
       result shouldBe ('left)
 
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
     }
-    
+
     "ensure requested subscriptions are non empty" in new Setup {
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2), makeUpliftRequest()))
       result shouldBe 'Left
 
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
     }
-
 
     "returns a set of upliftable apis for an application" when {
       "upliftable apis are available" in new Setup {

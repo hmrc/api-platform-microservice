@@ -33,6 +33,7 @@ package uk.gov.hmrc.apiplatformmicroservice.metrics
  */
 
 import javax.inject.Singleton
+
 import play.api.inject.Binding
 import play.api.{Configuration, Environment}
 

@@ -16,32 +16,33 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
-import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 
 @Singleton
 class AllApisFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
-    subordinateDefinitionService: SubordinateApiDefinitionService)(implicit ec: ExecutionContext)
-    extends Recoveries {
-  
+    subordinateDefinitionService: SubordinateApiDefinitionService
+  )(implicit ec: ExecutionContext
+  ) extends Recoveries {
 
   def fetch()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val principalDefinitionsFuture = principalDefinitionService.fetchAllApiDefinitions
+    val principalDefinitionsFuture   = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 
     for {
-      principalDefinitions <- principalDefinitionsFuture
+      principalDefinitions   <- principalDefinitionsFuture
       subordinateDefinitions <- subordinateDefinitionsFuture
-      combinedDefinitions = combineDefinitions(principalDefinitions, subordinateDefinitions)
-    
+      combinedDefinitions     = combineDefinitions(principalDefinitions, subordinateDefinitions)
+
     } yield (combinedDefinitions)
   }
-    
+
   private def combineDefinitions(principalDefinitions: List[ApiDefinition], subordinateDefinitions: List[ApiDefinition]): List[ApiDefinition] = {
     (subordinateDefinitions ++ principalDefinitions).distinct
   }

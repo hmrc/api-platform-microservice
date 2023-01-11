@@ -17,14 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.http.ContentTypes._
 import play.api.http.HeaderNames._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
-
-import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HttpClient, _}
+
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 
@@ -32,16 +32,19 @@ private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 
   case class Config(
       applicationBaseUrl: String,
-      jsonEncryptionKey: String)
+      jsonEncryptionKey: String
+    )
 }
 
 @Singleton
 private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
-           val config: ThirdPartyDeveloperConnector.Config,
-           http: HttpClient,
-           encryptedJson: EncryptedJson) (implicit val ec: ExecutionContext) {
-  
-  lazy val serviceBaseUrl: String = config.applicationBaseUrl
+    val config: ThirdPartyDeveloperConnector.Config,
+    http: HttpClient,
+    encryptedJson: EncryptedJson
+  )(implicit val ec: ExecutionContext
+  ) {
+
+  lazy val serviceBaseUrl: String    = config.applicationBaseUrl
   lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
   def fetchByEmails(emails: Set[String])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
@@ -49,6 +52,6 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   }
 
   def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
-      http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
+    http.POST[GetOrCreateUserIdRequest, GetOrCreateUserIdResponse](s"$serviceBaseUrl/developers/user-id", getOrCreateUserIdRequest, Seq(CONTENT_TYPE -> JSON))
   }
 }

@@ -16,45 +16,47 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import java.util.UUID
+
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
-  
+
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
   case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
-  
+
   type FieldErrors = Map[FieldName, String]
 
   case class SubscriptionFields(
       apiContext: ApiContext,
       apiVersion: ApiVersion,
-      fields: Map[FieldName, FieldValue])
+      fields: Map[FieldName, FieldValue]
+    )
 
   case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
-    clientId: ClientId,
-    apiContext: ApiContext,
-    apiVersion: ApiVersion,
-    fields: Map[FieldName, FieldValue]
-  )
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fields: Map[FieldName, FieldValue]
+    )
 
   case class ApplicationApiFieldValues(
-    clientId: ClientId,
-    apiContext: ApiContext,
-    apiVersion: ApiVersion,
-    fieldsId: UUID,
-    fields: Map[FieldName, FieldValue]
-  )
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fieldsId: UUID,
+      fields: Map[FieldName, FieldValue]
+    )
 
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
@@ -65,7 +67,7 @@ object SubscriptionFieldsConnectorDomain {
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-        override def empty: MapType = Map.empty
+        override def empty: MapType                           = Map.empty
       }
 
     Monoid.combineAll(
@@ -82,20 +84,20 @@ object SubscriptionFieldsConnectorDomain {
     implicit def monoidVersions: Monoid[MapType] =
       new Monoid[MapType] {
         override def combine(x: MapType, y: MapType): MapType = x ++ y
-        override def empty: MapType = Map.empty
+        override def empty: MapType                           = Map.empty
       }
 
     Monoid.combineAll(
       subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
     )
   }
-  
-  object JsonFormatters 
+
+  object JsonFormatters
       extends ApplicationJsonFormatters
       with ApiDefinitionJsonFormatters
       with FieldsJsonFormatters
       with NonEmptyListFormatters {
-    
+
     import play.api.libs.json._
     import play.api.libs.functional.syntax._
 

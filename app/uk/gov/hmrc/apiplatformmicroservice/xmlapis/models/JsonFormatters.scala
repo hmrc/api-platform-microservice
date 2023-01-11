@@ -17,9 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.models
 
 import play.api.libs.json.{Format, Json}
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
 
 trait BasicXmlApisJsonFormatters {
   implicit val formatApiCategory: Format[ApiCategory] = Json.valueFormat[ApiCategory]
-  implicit val formatXmlApi: Format[XmlApi] = Json.format[XmlApi]
+  implicit val formatXmlApi: Format[XmlApi]           = Json.format[XmlApi]
 }

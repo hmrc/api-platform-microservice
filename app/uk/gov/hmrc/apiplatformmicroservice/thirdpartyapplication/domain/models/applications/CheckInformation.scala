@@ -30,4 +30,5 @@ case class CheckInformation(
     providedPrivacyPolicyURL: Boolean = false,
     providedTermsAndConditionsURL: Boolean = false,
     teamConfirmed: Boolean = false,
-    termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty)
+    termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
+  )

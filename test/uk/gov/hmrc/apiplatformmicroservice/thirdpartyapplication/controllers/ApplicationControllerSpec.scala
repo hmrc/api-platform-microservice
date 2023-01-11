@@ -16,34 +16,37 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.Future.successful
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples with SubordinateApplicationFetcherModule with ApplicationJsonFormatters{
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
+      with SubordinateApplicationFetcherModule with ApplicationJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat = app.materializer
+    implicit val mat           = app.materializer
 
     val applicationId = ApplicationId.random
 
-    val mockAuthConfig = mock[AuthConnector.Config]
+    val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
     val mockUpliftService = mock[UpliftApplicationService]
 
@@ -60,12 +63,12 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
   "addCollaborator" should {
     "return Created when successfully adding a Collaborator" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application  = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
-      val payload = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
-      val response = AddCollaboratorSuccessResult(true)
+      val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
+      val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
+      val response     = AddCollaboratorSuccessResult(true)
 
       ApplicationCollaboratorServiceMock.AddCollaborator.willReturnAddCollaboratorResponse(response)
 
@@ -75,12 +78,12 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
     }
 
     "return Conflict when Collaborator already exists" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application  = buildApplication(appId = applicationId)
       val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
-      val payload = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
-      val response = CollaboratorAlreadyExistsFailureResult
+      val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
+      val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
+      val response     = CollaboratorAlreadyExistsFailureResult
 
       ApplicationCollaboratorServiceMock.AddCollaborator.willReturnAddCollaboratorResponse(response)
 
@@ -92,12 +95,12 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
   "upliftApplicationV2" should {
     implicit val writes = Json.writes[ApplicationController.RequestUpliftV2]
-    val newAppId = ApplicationId.random
-    val apiId1 = "context1".asIdentifier
+    val newAppId        = ApplicationId.random
+    val apiId1          = "context1".asIdentifier
 
     "return Created when successfully uplifting an Application" in new Setup {
       val application = buildApplication(appId = applicationId)
-      
+
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
@@ -106,18 +109,18 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       val result = controller.upliftApplication(applicationId)(request)
 
       status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe(Json.toJson(newAppId))
+      contentAsJson(result) shouldBe (Json.toJson(newAppId))
     }
   }
-  
+
   "upliftApplicationV1" should {
     implicit val writes = Json.writes[ApplicationController.RequestUpliftV1]
-    val newAppId = ApplicationId.random
-    val apiId1 = "context1".asIdentifier
+    val newAppId        = ApplicationId.random
+    val apiId1          = "context1".asIdentifier
 
     "return Created when successfully uplifting an Application" in new Setup {
       val application = buildApplication(appId = applicationId)
-      
+
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
@@ -126,28 +129,28 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       val result = controller.upliftApplication(applicationId)(request)
 
       status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe(Json.toJson(newAppId))
+      contentAsJson(result) shouldBe (Json.toJson(newAppId))
     }
   }
 
   "fetchLinkedSubordinateApplication" should {
-    val principalAppId = ApplicationId.random
+    val principalAppId   = ApplicationId.random
     val subordinateAppId = ApplicationId.random
-    
+
     "return 200 if subordinate application is found" in new Setup {
       val subordinateApplication = buildApplication(subordinateAppId)
       SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnApplication(subordinateApplication)
 
       val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))
-      
+
       status(result) shouldBe OK
-      contentAsJson(result) shouldBe(Json.toJson(subordinateApplication))
+      contentAsJson(result) shouldBe (Json.toJson(subordinateApplication))
     }
     "return 404 if subordinate application is not found" in new Setup {
       SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnNothing
 
       val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))
-      
+
       status(result) shouldBe NOT_FOUND
     }
   }

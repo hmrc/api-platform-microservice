@@ -16,20 +16,23 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
 
-import com.google.inject.Provider
 import javax.inject.{Inject, Singleton}
+
+import com.google.inject.Provider
+
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ThirdPartyDeveloperConnector
-import uk.gov.hmrc.play.bootstrap.config.{ServicesConfig}
 
 @Singleton
-class ThirdPartyDeveloperConnectorConfigurationProvider @Inject()(val configuration: Configuration)
-  extends ServicesConfig(configuration)
+class ThirdPartyDeveloperConnectorConfigurationProvider @Inject() (val configuration: Configuration)
+    extends ServicesConfig(configuration)
     with Provider[ThirdPartyDeveloperConnector.Config] {
 
   override def get() = {
     val applicationBaseUrl = baseUrl("third-party-developer")
-    val jsonEncryptionKey = getString("json.encryption.key")
+    val jsonEncryptionKey  = getString("json.encryption.key")
 
     ThirdPartyDeveloperConnector.Config(applicationBaseUrl, jsonEncryptionKey)
   }

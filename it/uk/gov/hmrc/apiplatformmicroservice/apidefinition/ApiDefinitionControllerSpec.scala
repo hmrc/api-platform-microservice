@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
 import java.{util => ju}
@@ -22,7 +38,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
     "stub get request for fetch restricted subscribable apis" in {
       val applicationId = ApplicationId.random
-      val clientId = ClientId(ju.UUID.randomUUID.toString)
+      val clientId      = ClientId(ju.UUID.randomUUID.toString)
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
@@ -37,7 +53,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+      implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
 
       response.status shouldBe OK
       val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
@@ -49,7 +65,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
 
-      val context = result(ApiContext("hello"))
+      val context     = result(ApiContext("hello"))
       val versionKeys = context.versions.keys.toList
 
       versionKeys should contain(ApiVersion("3.0"))
@@ -75,7 +91,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+      implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
 
       response.status shouldBe OK
       val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
@@ -87,7 +103,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
       withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
 
-      val context = result(ApiContext("hello"))
+      val context     = result(ApiContext("hello"))
       val versionKeys = context.versions.keys.toList
 
       versionKeys should contain(ApiVersion("3.0"))
@@ -110,7 +126,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+      implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
 
       response.status shouldBe OK
       val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
@@ -139,7 +155,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiData] = Json.reads[ApiData]
+      implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
 
       val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
         case JsSuccess(v, _) => v

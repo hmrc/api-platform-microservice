@@ -17,24 +17,26 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus._
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 @Singleton
 class ApiIdentifiersForUpliftFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext) {
+  )(implicit ec: ExecutionContext
+  ) {
 
   private val EXAMPLE = ApiCategory("EXAMPLE")
 
   def fetch(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     for {
-      defs <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
-      filteredDefs = defs.filterNot(d => d.isTestSupport || d.categories.contains(EXAMPLE))
-      ids = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == RETIRED || v.status == ALPHA).map(v => ApiIdentifier(d.context, v.version)))
+      defs                <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
+      filteredDefs         = defs.filterNot(d => d.isTestSupport || d.categories.contains(EXAMPLE))
+      ids                  = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == RETIRED || v.status == ALPHA).map(v => ApiIdentifier(d.context, v.version)))
       withAnyAdditionalIds = CdsVersionHandler.populateSpecialCases(ids)
     } yield withAnyAdditionalIds
   }

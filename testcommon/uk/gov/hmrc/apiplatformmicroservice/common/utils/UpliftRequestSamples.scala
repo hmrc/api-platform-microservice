@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 
 trait UpliftRequestSamples {
-  val sellResellOrDistribute = SellResellOrDistribute("Yes")
+  val sellResellOrDistribute      = SellResellOrDistribute("Yes")
   val doNotSellResellOrDistribute = SellResellOrDistribute("No")
-  val requestedBy = "bob@example.com"
+  val requestedBy                 = "bob@example.com"
 
   def makeUpliftRequest(subscriptions: Set[ApiIdentifier]): UpliftRequest = UpliftRequest(sellResellOrDistribute, subscriptions, requestedBy)
-  def makeUpliftRequest(subscriptions: ApiIdentifier*): UpliftRequest = makeUpliftRequest(subscriptions.toSet)
+  def makeUpliftRequest(subscriptions: ApiIdentifier*): UpliftRequest     = makeUpliftRequest(subscriptions.toSet)
 }

@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import enumeratum.{Enum, EnumEntry}
-import enumeratum.PlayJsonEnum
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait OverrideType extends EnumEntry
 
 object OverrideType extends Enum[OverrideType] with PlayJsonEnum[OverrideType] {
   val values = findValues
 
-  final case object PERSIST_LOGIN_AFTER_GRANT extends OverrideType
+  final case object PERSIST_LOGIN_AFTER_GRANT      extends OverrideType
   final case object GRANT_WITHOUT_TAXPAYER_CONSENT extends OverrideType
-  final case object SUPPRESS_IV_FOR_AGENTS extends OverrideType
-  final case object SUPPRESS_IV_FOR_ORGANISATIONS extends OverrideType
-  final case object SUPPRESS_IV_FOR_INDIVIDUALS extends OverrideType
+  final case object SUPPRESS_IV_FOR_AGENTS         extends OverrideType
+  final case object SUPPRESS_IV_FOR_ORGANISATIONS  extends OverrideType
+  final case object SUPPRESS_IV_FOR_INDIVIDUALS    extends OverrideType
 }

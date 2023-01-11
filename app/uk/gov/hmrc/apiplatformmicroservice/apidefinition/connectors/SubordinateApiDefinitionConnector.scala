@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import akka.pattern.FutureTimeoutSupport
 import akka.stream.Materializer
-import javax.inject.{Inject, Singleton}
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.http.ws.WSGet
-import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.play.http.ws.WSGet
+
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, ProxiedHttpClient}
 
 @Singleton
 class SubordinateApiDefinitionConnector @Inject() (
@@ -37,8 +37,8 @@ class SubordinateApiDefinitionConnector @Inject() (
     val proxiedHttpClient: ProxiedHttpClient,
     val futureTimeout: FutureTimeoutSupport
   )(implicit val ec: ExecutionContext,
-    val mat: Materializer)
-    extends ApiDefinitionConnector with ApplicationLogger {
+    val mat: Materializer
+  ) extends ApiDefinitionConnector with ApplicationLogger {
   val serviceBaseUrl: String = config.serviceBaseUrl
 
   import config._
@@ -73,5 +73,6 @@ object SubordinateApiDefinitionConnector {
       serviceBaseUrl: String,
       useProxy: Boolean,
       bearerToken: String,
-      apiKey: String)
+      apiKey: String
+    )
 }

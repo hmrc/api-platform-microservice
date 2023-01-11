@@ -22,9 +22,9 @@ trait ServicesConfigBridgeExtension {
   val sc: ServicesConfig
 
   def serviceUrl(key: String)(serviceName: String): String = {
-    if (useProxy(serviceName))
+    if (useProxy(serviceName)) {
       s"${sc.baseUrl(serviceName)}/${sc.getConfString(s"$serviceName.context", key)}"
-    else sc.baseUrl(serviceName)
+    } else sc.baseUrl(serviceName)
   }
 
   def useProxy(serviceName: String): Boolean =

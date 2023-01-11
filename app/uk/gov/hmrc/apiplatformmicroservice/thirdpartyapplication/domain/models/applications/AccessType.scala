@@ -16,20 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import enumeratum.{Enum, EnumEntry}
-import enumeratum.PlayJsonEnum
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait AccessType extends EnumEntry {
-  def isStandard = this == AccessType.STANDARD
+  def isStandard    = this == AccessType.STANDARD
   def isNotStandard = !isStandard
   def isPriviledged = this == AccessType.PRIVILEGED
-  def isROPC = this == AccessType.ROPC
+  def isROPC        = this == AccessType.ROPC
 }
 
 object AccessType extends Enum[AccessType] with PlayJsonEnum[AccessType] {
   val values = findValues
 
-  final case object STANDARD extends AccessType
+  final case object STANDARD   extends AccessType
   final case object PRIVILEGED extends AccessType
-  final case object ROPC extends AccessType
+  final case object ROPC       extends AccessType
 }

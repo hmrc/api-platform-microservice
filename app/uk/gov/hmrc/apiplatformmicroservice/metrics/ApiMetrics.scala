@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
+import javax.inject.{Inject, Provider, Singleton}
+
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.{DisabledMetrics, Metrics, MetricsImpl}
-import javax.inject.{Inject, Provider, Singleton}
 
 trait ApiMetrics {
   def recordFailure(api: API): Unit
@@ -70,5 +71,5 @@ object NoopTimer extends Timer {
 class NoopApiMetrics extends ApiMetrics {
   override def recordFailure(api: API) = ()
   override def recordSuccess(api: API) = ()
-  override def startTimer(api: API) = NoopTimer
+  override def startTimer(api: API)    = NoopTimer
 }

@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -32,14 +33,16 @@ class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTest
       new ApiCategoryDetailsFetcher(
         new EnvironmentAwareApiDefinitionService(
           SubordinateApiDefinitionServiceMock.aMock,
-          PrincipalApiDefinitionServiceMock.aMock))
+          PrincipalApiDefinitionServiceMock.aMock
+        )
+      )
   }
 
   "ApiCategoryDetailsFetcher" should {
     val subordinateEnvironmentOnlyCategory = ApiCategoryDetails("SUBORDINATE_CATEGORY", "API Category in Subordinate Environment")
-    val principalEnvironmentOnlyCategory = ApiCategoryDetails("PRINCIPAL_CATEGORY", "API Category in Principal Environment")
-    val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
-    val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
+    val principalEnvironmentOnlyCategory   = ApiCategoryDetails("PRINCIPAL_CATEGORY", "API Category in Principal Environment")
+    val category1                          = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
+    val category2                          = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
 
     "retrieve all API Categories from PRODUCTION and SANDBOX environments and combine them" in new Setup {
       SubordinateApiDefinitionServiceMock.FetchApiCategoryDetails.willReturn(subordinateEnvironmentOnlyCategory, category1, category2)
@@ -47,7 +50,7 @@ class ApiCategoryDetailsFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTest
 
       val result = await(fetcherUnderTest.fetch())
 
-      result.size must be (4)
+      result.size must be(4)
       result must contain only (subordinateEnvironmentOnlyCategory, principalEnvironmentOnlyCategory, category1, category2)
     }
   }

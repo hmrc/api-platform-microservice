@@ -23,7 +23,7 @@ object Submission {
 
   object Id {
     implicit val format = play.api.libs.json.Json.valueFormat[Id]
-    
+
     def random: Id = Id(UUID.randomUUID().toString())
   }
 }

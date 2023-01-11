@@ -17,21 +17,23 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 @Singleton
 class OpenAccessApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext) extends OpenAccessRules {
+  )(implicit ec: ExecutionContext
+  ) extends OpenAccessRules {
 
   private def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
     val filteredVersions = definition.versions.filterNot(_.status == RETIRED)
-    if(filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
+    if (filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
   }
 
   def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
@@ -39,8 +41,8 @@ class OpenAccessApisFetcher @Inject() (
     import cats.implicits._
 
     Nested(apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions)
-    .map(filterOutRetiredVersions)
-    .collect({ case Some(x) => x})
-    .value
+      .map(filterOutRetiredVersions)
+      .collect({ case Some(x) => x })
+      .value
   }
 }

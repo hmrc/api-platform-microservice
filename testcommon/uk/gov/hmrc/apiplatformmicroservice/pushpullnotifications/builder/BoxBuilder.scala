@@ -16,51 +16,32 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder
 
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.Box
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxCreator
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.SubscriptionType
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxSubscriber
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-
 import org.joda.time.DateTime
 
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+
 trait BoxBuilder {
-  
+
   def buildBox(boxId: String): Box = {
-    Box(BoxId(boxId),
-        s"boxName-$boxId",
-        buildBoxCreator(),
-        Some(ApplicationId(java.util.UUID.randomUUID())),
-        Some(buildSubscriber()),
-        Environment.PRODUCTION)
+    Box(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), Some(ApplicationId(java.util.UUID.randomUUID())), Some(buildSubscriber()), Environment.PRODUCTION)
   }
 
-  def buildBoxResponse(boxId: String, applicationId : Option[ApplicationId] = Some(ApplicationId.random)) : BoxResponse = {
-    BoxResponse(BoxId(boxId),
-                s"boxName-$boxId",
-                buildBoxCreator(),
-                applicationId,
-                Some(buildSubscriber()))
+  def buildBoxResponse(boxId: String, applicationId: Option[ApplicationId] = Some(ApplicationId.random)): BoxResponse = {
+    BoxResponse(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), applicationId, Some(buildSubscriber()))
   }
 
   def buildSubscriber(): BoxSubscriber = {
     BoxSubscriber("callbackUrl", new DateTime(), SubscriptionType.API_PUSH_SUBSCRIBER)
   }
 
-  def buildBoxCreator() : BoxCreator = {
-    BoxCreator(ClientId(java.util.UUID.randomUUID().toString())),
+  def buildBoxCreator(): BoxCreator = {
+    BoxCreator(ClientId(java.util.UUID.randomUUID().toString()))
   }
 
-  def buildBoxFromBoxResponse(boxResponse: BoxResponse, environment: Environment) : Box = {
-    Box(boxResponse.boxId,
-        boxResponse.boxName,
-        boxResponse.boxCreator,
-        boxResponse.applicationId,
-        boxResponse.subscriber,
-        environment)
+  def buildBoxFromBoxResponse(boxResponse: BoxResponse, environment: Environment): Box = {
+    Box(boxResponse.boxId, boxResponse.boxName, boxResponse.boxCreator, boxResponse.applicationId, boxResponse.subscriber, environment)
   }
 }
