@@ -29,17 +29,33 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
   object ExtendedApiDefinitionForCollaboratorFetcherMock {
     val aMock = mock[ExtendedApiDefinitionForCollaboratorFetcher]
 
-    def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
-      when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
-    }
+    object Fetch {
 
-    def willReturnNoExtendedApiDefinition() = {
-      when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(None))
-    }
+      def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
+        when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
+      }
 
-    def willThrowException(e: Exception) = {
-      when(aMock.fetch(*, *)(*)).thenReturn(Future.failed(e))
+      def willReturnNoExtendedApiDefinition() = {
+        when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(None))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetch(*, *)(*)).thenReturn(Future.failed(e))
+      }
     }
-  }
+    object FetchCached {
+
+      def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
+        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
+      }
+
+      def willReturnNoExtendedApiDefinition() = {
+        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.successful(None))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.failed(e))
+      }
+    }  }
 
 }

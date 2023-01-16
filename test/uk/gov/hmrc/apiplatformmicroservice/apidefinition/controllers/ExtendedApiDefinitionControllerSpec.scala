@@ -144,7 +144,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     val userId = Some(UserId.random)
 
     "return the extended API definition when email provided" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 
       val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 
@@ -153,7 +153,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return the extended API definition when no email provided" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinition)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 
       val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, None)(request)
 
@@ -162,7 +162,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return 404 when there is no matching API definition" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnNoExtendedApiDefinition()
 
       val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 
@@ -170,7 +170,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return error when the service throws and exception" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willThrowException(new RuntimeException("Something went wrong oops..."))
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willThrowException(new RuntimeException("Something went wrong oops..."))
 
       val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
 

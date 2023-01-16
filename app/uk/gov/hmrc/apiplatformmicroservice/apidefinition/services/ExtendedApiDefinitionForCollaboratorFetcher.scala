@@ -26,15 +26,19 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
+import play.api.cache.AsyncCacheApi
+import scala.concurrent.duration._
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
-    subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext
-  ) {
+    subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher,
+    cache: AsyncCacheApi
+  )(implicit ec: ExecutionContext) {
+
+  val cacheExpiry: FiniteDuration = 5 seconds
 
   def fetch(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     for {
@@ -43,6 +47,14 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       applicationIds        <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
       subscriptions         <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaboratorFetcher.fetch)
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, developerId)
+  }
+
+  def fetchCached(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
+    val key = s"${serviceName}---${developerId.map(_.asText).getOrElse("NONE")}"
+
+    cache.getOrElseUpdate(key, cacheExpiry) {
+      fetch(serviceName, developerId)
+    }
   }
 
   private def createExtendedApiDefinition(
