@@ -80,7 +80,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
   "ApiDocumentationResourceFetcher" should {
 
     "return a resource from Subordinate when api and version exists" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 
       val result = await(underTest.fetch(resourceId))
@@ -91,7 +91,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "not attempt to fetch from subordinate when api version exists but is only present in principal environment" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 
       val result = await(underTest.fetch(resourceId))
@@ -102,7 +102,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return nothing when api does not exist" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnNoExtendedApiDefinition()
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnNoExtendedApiDefinition()
 
       val result = await(underTest.fetch(resourceId))
 
@@ -112,7 +112,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return nothing when api exists but version does not exist" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
 
       val result = await(underTest.fetch(noSuchVersion))
 
@@ -122,7 +122,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return the resource from principal when the subordinate fails" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
 
@@ -134,7 +134,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return nothing when both environments return nothing" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
 
@@ -146,7 +146,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "will fail when extended api definition fetch fails" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willThrowException(new RuntimeException("unexpected error"))
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willThrowException(new RuntimeException("unexpected error"))
 
       private val ex = intercept[RuntimeException] {
         await(underTest.fetch(resourceId))
@@ -156,7 +156,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "fail when both locations fail" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockErrorWSResponse)
 
@@ -164,7 +164,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "fail with not found when principal returns nothing and it's not available in sandbox" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.FetchCached.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
       PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
       SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnWsResponse(mockWSResponse)
 

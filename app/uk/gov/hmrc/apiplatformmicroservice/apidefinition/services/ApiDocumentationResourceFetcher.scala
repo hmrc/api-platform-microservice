@@ -46,7 +46,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
     (
       for {
-        apiDefinition <- OptionT(extendedApiDefinitionFetcher.fetch(resourceId.serviceName, None))
+        apiDefinition <- OptionT(extendedApiDefinitionFetcher.fetchCached(resourceId.serviceName, None))
         whereToLook   <- OptionT.fromOption[Future](findWhereToLook(apiDefinition, resourceId))
         response      <- fetchResource(whereToLook, resourceId)
       } yield response

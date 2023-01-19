@@ -1,7 +1,7 @@
 
 # api-platform-microservice
 
-This is a placeholder README.md for a new repository
+This is an internal microservice of the API Platform and is not designed for use by other services.
 
 ### License
 

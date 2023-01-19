@@ -1,10 +1,12 @@
 import play.core.PlayVersion
+import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
   lazy val bootstrapVersion = "7.12.0"
   
   lazy val dependencies = Seq(
+    caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % bootstrapVersion,
     "com.beachape"            %% "enumeratum-play-json"       % "1.6.0",
     "org.typelevel"           %% "cats-core"                  % "2.0.0",

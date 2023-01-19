@@ -44,7 +44,7 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
     val expectedJsValue: JsValue = Json.parse(Json.stringify(someJsValue))
 
     "fetch data when in subordinate" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlySubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlySubordinate)
       SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
       PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
 
@@ -55,7 +55,7 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
     }
 
     "fetch data when in both" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithPrincipalAndSubordinate)
       SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
       PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
 
@@ -66,7 +66,7 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
     }
 
     "fetch data when in principal" in new Setup {
-      ExtendedApiDefinitionForCollaboratorFetcherMock.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
+      ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinitionWithOnlyPrincipal)
       SubordinateApiDefinitionServiceMock.FetchApiSpecification.willReturnNone
       PrincipalApiDefinitionServiceMock.FetchApiSpecification.willReturn(someJsValue)
 

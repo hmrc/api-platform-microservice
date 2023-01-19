@@ -26,11 +26,27 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
+import play.api.cache.AsyncCacheApi
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import akka.Done
+import scala.reflect.ClassTag
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val versionOne = ApiVersion("1.0")
   private val versionTwo = ApiVersion("2.0")
+
+  val doNothingCache = new AsyncCacheApi {
+    def set(key: String, value: Any, expiration: Duration = Duration.Inf): Future[Done] = Future.successful(Done)
+    def remove(key: String): Future[Done] = Future.successful(Done)
+
+    def getOrElseUpdate[A: ClassTag](key: String, expiration: Duration = Duration.Inf)(orElse: => Future[A]): Future[A] = orElse
+
+    def get[T: ClassTag](key: String): Future[Option[T]] = Future.successful(None)
+
+    def removeAll(): Future[Done] = Future.successful(Done)
+  }
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier     = HeaderCarrier()
@@ -51,7 +67,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.aMock,
       SubordinateApiDefinitionServiceMock.aMock,
       ApplicationIdsForCollaboratorFetcherMock.aMock,
-      SubscriptionsForCollaboratorFetcherMock.aMock
+      SubscriptionsForCollaboratorFetcherMock.aMock,
+      doNothingCache
     )
 
     val publicApiAvailability  = ApiAvailability(false, PublicApiAccess(), false, true)
