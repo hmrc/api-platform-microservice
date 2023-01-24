@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldName, _
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsConnectorModule
 
 class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionFieldsConnectorModule {

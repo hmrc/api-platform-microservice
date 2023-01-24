@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import cats.data.{NonEmptyList => NEL}
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ApiDefinitionTestDataHelper {

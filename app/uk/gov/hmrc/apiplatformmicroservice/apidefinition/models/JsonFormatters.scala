@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{P
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 trait BasicApiDefinitionJsonFormatters {
   implicit val formatApiContext: Format[ApiContext]                 = Json.valueFormat[ApiContext]
   implicit val formatApiVersion: Format[ApiVersion]                 = Json.valueFormat[ApiVersion]

@@ -20,7 +20,7 @@ import scala.concurrent.Future
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier

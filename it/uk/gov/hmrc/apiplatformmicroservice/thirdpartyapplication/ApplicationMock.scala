@@ -19,12 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
 import java.util.UUID
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -57,7 +58,8 @@ trait ApplicationMock {
                        |  "collaborators": [
                        |      {
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
-                       |          "role": "ADMINISTRATOR"
+                       |          "role": "ADMINISTRATOR",
+                       |          "userId": "${userId.value}"
                        |      }
                        |  ],
                        |  "createdOn": 1504526587272,
@@ -101,7 +103,8 @@ trait ApplicationMock {
                        |  "collaborators": [
                        |      {
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
-                       |          "role": "ADMINISTRATOR"
+                       |          "role": "ADMINISTRATOR",
+                       |          "userId": "${UserId.random.value}"
                        |      }
                        |  ],
                        |  "createdOn": 1504526587272,

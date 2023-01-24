@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldDefinition, _}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton

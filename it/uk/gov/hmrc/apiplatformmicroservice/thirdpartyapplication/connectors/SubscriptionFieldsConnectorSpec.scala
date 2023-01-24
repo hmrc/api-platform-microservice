@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugar, WireMockSugarExtensions}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite

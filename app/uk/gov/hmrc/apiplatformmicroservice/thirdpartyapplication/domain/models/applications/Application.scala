@@ -25,14 +25,12 @@ import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
-case class ClientId(value: String) extends AnyVal
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-object ClientId {
-  def empty: ClientId  = ClientId("")
-  def random: ClientId = ClientId(UUID.randomUUID().toString)
-}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.developers.domain
 
-case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
+case class Collaborator(emailAddress: String, role: Role, userId: domain.models.UserId)
 
 case class Application(
     id: ApplicationId,

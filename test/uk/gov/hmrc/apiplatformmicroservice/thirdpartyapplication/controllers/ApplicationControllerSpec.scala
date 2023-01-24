@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role

@@ -20,9 +20,12 @@ import java.time.Period
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 trait ApplicationBuilder extends CollaboratorsBuilder {
 
   def buildApplication(
@@ -83,12 +86,12 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
 
     def withAdmin(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, None))
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, UserId.random))
     }
 
     def withDeveloper(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, None))
+      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, UserId.random))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

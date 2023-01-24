@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 

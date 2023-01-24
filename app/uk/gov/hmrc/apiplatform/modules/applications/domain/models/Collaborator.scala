@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
+package uk.gov.hmrc.apiplatform.modules.applications.domain.models
 
-import java.{util => ju}
-import scala.util.Try
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
-case class UserId(value: ju.UUID) extends AnyVal {
-  def asText: String = value.toString
+sealed trait Collaborator {
+  def id: UserId
+  def email: LaxEmailAddress
 }
 
-object UserId {
-  import play.api.libs.json.Json
-  implicit val userIdFormat = Json.valueFormat[UserId]
+object Collaborators {
+  sealed trait Role
 
-  def parse(text: String): Option[UserId] =
-    Try(ju.UUID.fromString(text)).toOption.map(u => UserId(u))
+  object Roles {
+    case object ADMINISTRATOR extends Role
+    case object DEVELOPER     extends Role
+  }
 
-    def random: UserId = UserId(ju.UUID.randomUUID())
+  case class Administrator(id: UserId, email: LaxEmailAddress) extends Collaborator
+  case class Developer(id: UserId, email: LaxEmailAddress)     extends Collaborator
 }

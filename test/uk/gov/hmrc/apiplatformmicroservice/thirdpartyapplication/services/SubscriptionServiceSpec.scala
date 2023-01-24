@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{CollaboratorActor, GatekeeperUserActor, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsFetcherModule, ThirdPartyApplicationConnectorModule}

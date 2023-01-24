@@ -25,7 +25,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
@@ -43,7 +43,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
     val newCollaboratorEmail                    = "newCollaborator@testuser.com"
     val newCollaboratorUserId                   = UserId.random
-    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
+    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, newCollaboratorUserId)
     val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
@@ -63,19 +63,19 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     )
 
     val existingAdminCollaborators = Set(
-      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)
+      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, UserId.random),
+      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, UserId.random),
+      Collaborator(requesterEmail, Role.ADMINISTRATOR, UserId.random)
     )
 
-    val existingCollaborators: Set[Collaborator] = existingAdminCollaborators ++ Set(Collaborator("collaborator1@example.com", Role.DEVELOPER, None))
+    val existingCollaborators: Set[Collaborator] = existingAdminCollaborators ++ Set(Collaborator("collaborator1@example.com", Role.DEVELOPER, UserId.random))
     val productionApplication                    = buildApplication().deployedToProduction.withCollaborators(existingCollaborators)
 
   }
 
   "addCollaborator" should {
     val actor        = CollaboratorActor("someEMail")
-    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, UserId.random)
     val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated AddCollaborator when called" in new Setup {
 
@@ -106,7 +106,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
   "removeCollaborator" should {
     val actor        = CollaboratorActor("someEMail")
-    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, UserId.random)
     val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated RemoveCollaborator when called" in new Setup {
 
@@ -137,7 +137,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
   "non request Type command" should {
     val actor        = CollaboratorActor("someEMail")
-    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborator("collaboratorEmail", DEVELOPER, UserId.random)
 
     "call third party application  with same command as passed in" in new Setup {
       val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), LocalDateTime.now())

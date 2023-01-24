@@ -21,12 +21,13 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV2}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 

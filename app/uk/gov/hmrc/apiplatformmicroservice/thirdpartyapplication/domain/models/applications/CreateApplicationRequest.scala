@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier

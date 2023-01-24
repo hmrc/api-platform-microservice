@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 @Singleton

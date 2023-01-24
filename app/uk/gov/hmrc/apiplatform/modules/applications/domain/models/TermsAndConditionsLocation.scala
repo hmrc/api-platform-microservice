@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
-
-import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
+package uk.gov.hmrc.apiplatform.modules.applications.domain.models
 
 sealed trait TermsAndConditionsLocation
 
-object TermsAndConditionsLocation {
+object TermsAndConditionsLocations {
   case object NoneProvided      extends TermsAndConditionsLocation
   case object InDesktopSoftware extends TermsAndConditionsLocation
   case class Url(value: String) extends TermsAndConditionsLocation
-
-  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
-  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat               = Json.format[Url]
-
-  implicit val format = Union.from[TermsAndConditionsLocation]("termsAndConditionsType")
-    .and[NoneProvided.type]("noneProvided")
-    .and[InDesktopSoftware.type]("inDesktop")
-    .and[Url]("url")
-    .format
 }

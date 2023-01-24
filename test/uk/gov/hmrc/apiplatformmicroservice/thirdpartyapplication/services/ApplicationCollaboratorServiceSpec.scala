@@ -26,7 +26,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{
@@ -39,6 +39,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
@@ -53,7 +54,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     val newCollaboratorEmail                    = "newCollaborator@testuser.com"
     val newCollaboratorUserId                   = UserId.random
-    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
+    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, newCollaboratorUserId)
     val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
@@ -73,10 +74,10 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
     )
 
     val productionApplication = buildApplication().deployedToProduction.withCollaborators(Set(
-      Collaborator("collaborator1@example.com", Role.DEVELOPER, None),
-      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)
+      Collaborator("collaborator1@example.com", Role.DEVELOPER, UserId.random),
+      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, UserId.random),
+      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, UserId.random),
+      Collaborator(requesterEmail, Role.ADMINISTRATOR, UserId.random)
     ))
 
     val addCollaboratorToTpaRequestWithRequesterEmail    = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
@@ -153,7 +154,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, getOrCreateUserIdResponse.userId)
       val request                         = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
@@ -166,7 +167,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     "decorate AddCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, getOrCreateUserIdResponse.userId)
       val request                         = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))

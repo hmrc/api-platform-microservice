@@ -34,9 +34,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -95,8 +95,8 @@ class ThirdPartyApplicationConnectorISpec
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
-      Collaborator("admin@example.com", ADMINISTRATOR, Some(UserId.random)),
-      Collaborator("dev@example.com", DEVELOPER, Some(UserId.random))
+      Collaborator("admin@example.com", ADMINISTRATOR, UserId.random),
+      Collaborator("dev@example.com", DEVELOPER, UserId.random)
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(

@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttp
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
   import SubscriptionFieldsConnectorDomain._
