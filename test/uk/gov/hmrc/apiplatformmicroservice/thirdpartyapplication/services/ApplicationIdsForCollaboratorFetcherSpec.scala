@@ -32,7 +32,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier    = HeaderCarrier()
-    val email                     = UserId.random
+    val userId                     = UserId.random
     val subordinateApplicationIds = (1 to 3).map(_ => ApplicationId.random)
     val principalApplicationIds   = (1 to 2).map(_ => ApplicationId.random)
     val underTest                 = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
@@ -43,7 +43,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(subordinateApplicationIds: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(userId))
 
       result should contain only (subordinateApplicationIds ++ principalApplicationIds: _*)
     }
@@ -52,7 +52,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(subordinateApplicationIds: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(userId))
 
       result should contain only (subordinateApplicationIds: _*)
     }
@@ -61,7 +61,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(userId))
 
       result should contain only (principalApplicationIds: _*)
     }
@@ -70,7 +70,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(Seq.empty: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(userId))
 
       result shouldBe empty
     }
@@ -80,7 +80,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       SubordinateThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willReturnApplicationIds(principalApplicationIds: _*)
 
-      val result = await(underTest.fetch(email))
+      val result = await(underTest.fetch(userId))
 
       result should contain only (principalApplicationIds: _*)
     }
@@ -91,7 +91,7 @@ class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       PrincipalThirdPartyApplicationConnectorMock.FetchApplicationsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
-        await(underTest.fetch(email))
+        await(underTest.fetch(userId))
       }
 
       ex.getMessage shouldBe expectedExceptionMessage

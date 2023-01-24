@@ -84,6 +84,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     val actor        = CollaboratorActor("someEMail")
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
     val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now())
+    
     "call third party application with decorated AddCollaborator when called" in new Setup {
 
       ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnAddCollaborator(AddCollaborator(
@@ -115,6 +116,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     val actor        = CollaboratorActor("someEMail")
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
     val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now())
+
     "call third party application with decorated RemoveCollaborator when called" in new Setup {
 
       ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnRemoveCollaborator(RemoveCollaborator(
