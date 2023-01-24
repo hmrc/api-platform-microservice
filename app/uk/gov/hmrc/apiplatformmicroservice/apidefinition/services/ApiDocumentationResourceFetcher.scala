@@ -26,9 +26,9 @@ import cats.implicits._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 @Singleton
 class ApiDocumentationResourceFetcher @Inject() (

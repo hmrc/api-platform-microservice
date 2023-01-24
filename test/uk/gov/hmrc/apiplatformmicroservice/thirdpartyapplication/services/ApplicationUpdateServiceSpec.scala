@@ -24,20 +24,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CollaboratorActor
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.RemoveCollaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AddCollaboratorRequest
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AddCollaborator
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.RemoveCollaboratorRequest
 
 class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
@@ -75,7 +69,8 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
       Collaborator(requesterEmail, Collaborators.Roles.ADMINISTRATOR, UserId.random)
     )
 
-    val existingCollaborators: Set[Collaborator] = existingAdminCollaborators ++ Set(Collaborator(LaxEmailAddress("collaborator1@example.com"), Collaborators.Roles.DEVELOPER, UserId.random))
+    val existingCollaborators: Set[Collaborator] =
+      existingAdminCollaborators ++ Set(Collaborator(LaxEmailAddress("collaborator1@example.com"), Collaborators.Roles.DEVELOPER, UserId.random))
     val productionApplication                    = buildApplication().deployedToProduction.withCollaborators(existingCollaborators)
 
   }
@@ -84,7 +79,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     val actor        = CollaboratorActor("someEMail")
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
     val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now())
-    
+
     "call third party application with decorated AddCollaborator when called" in new Setup {
 
       ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnAddCollaborator(AddCollaborator(

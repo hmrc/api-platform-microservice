@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
+
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters with CollaboratorJsonFormatters {
   import play.api.libs.json._
   import play.api.libs.json.JodaReads._

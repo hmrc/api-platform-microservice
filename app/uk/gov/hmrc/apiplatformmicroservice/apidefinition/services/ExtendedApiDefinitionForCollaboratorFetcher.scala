@@ -18,18 +18,18 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
-import play.api.cache.AsyncCacheApi
-import scala.concurrent.duration._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
@@ -38,7 +38,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher,
     cache: AsyncCacheApi
-  )(implicit ec: ExecutionContext) {
+  )(implicit ec: ExecutionContext
+  ) {
 
   val cacheExpiry: FiniteDuration = 5 seconds
 

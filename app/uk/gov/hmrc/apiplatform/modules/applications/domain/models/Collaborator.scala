@@ -24,13 +24,14 @@ sealed trait Collaborator {
   def emailAddress: LaxEmailAddress
 
   def isAdministrator: Boolean
-  def isDeveloper: Boolean = ! isAdministrator
+  def isDeveloper: Boolean = !isAdministrator
 }
 
 object Collaborator {
+
   def apply(emailAddress: LaxEmailAddress, role: Collaborators.Role, userId: UserId): Collaborator = role match {
-      case Collaborators.Roles.ADMINISTRATOR => Collaborators.Administrator(userId, emailAddress)
-      case Collaborators.Roles.DEVELOPER => Collaborators.Developer(userId, emailAddress)
+    case Collaborators.Roles.ADMINISTRATOR => Collaborators.Administrator(userId, emailAddress)
+    case Collaborators.Roles.DEVELOPER     => Collaborators.Developer(userId, emailAddress)
   }
 }
 
@@ -45,6 +46,7 @@ object Collaborators {
   case class Administrator(userId: UserId, emailAddress: LaxEmailAddress) extends Collaborator {
     val isAdministrator = true
   }
+
   case class Developer(userId: UserId, emailAddress: LaxEmailAddress)     extends Collaborator {
     val isAdministrator = false
   }

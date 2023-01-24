@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.dom
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 case class UnregisteredUserResponse(email: LaxEmailAddress, creationTime: DateTime, userId: UserId)
 

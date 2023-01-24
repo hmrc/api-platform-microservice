@@ -22,12 +22,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
@@ -56,7 +56,13 @@ class ApplicationCollaboratorService @Inject() (
     } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
-  def generateCreateRequest(app: Application, email: LaxEmailAddress, role: Collaborators.Role, requestingEmail: Option[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaRequest] = {
+  def generateCreateRequest(
+      app: Application,
+      email: LaxEmailAddress,
+      role: Collaborators.Role,
+      requestingEmail: Option[LaxEmailAddress]
+    )(implicit hc: HeaderCarrier
+    ): Future[AddCollaboratorToTpaRequest] = {
 
     for {
       otherAdmins  <- thirdPartyDeveloperConnector.fetchByEmails(getOtherAdmins(app, requestingEmail))
@@ -70,7 +76,13 @@ class ApplicationCollaboratorService @Inject() (
   }
 
   @deprecated("remove after clients are no longer using the old endpoint")
-  def addCollaborator(app: Application, email: LaxEmailAddress, role: Collaborators.Role, requestingEmail: Option[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
+  def addCollaborator(
+      app: Application,
+      email: LaxEmailAddress,
+      role: Collaborators.Role,
+      requestingEmail: Option[LaxEmailAddress]
+    )(implicit hc: HeaderCarrier
+    ): Future[AddCollaboratorResult] = {
     for {
       request  <- generateCreateRequest(app: Application, email: LaxEmailAddress, role: Collaborators.Role, requestingEmail: Option[LaxEmailAddress])
       response <- thirdPartyApplicationConnector(app.deployedTo).addCollaborator(app.id, request)

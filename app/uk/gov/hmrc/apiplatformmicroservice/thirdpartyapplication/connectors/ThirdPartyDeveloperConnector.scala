@@ -24,8 +24,8 @@ import play.api.http.HeaderNames._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 

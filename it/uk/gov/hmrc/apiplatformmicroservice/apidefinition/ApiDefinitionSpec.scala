@@ -33,6 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJso
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+
 class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
   "WireMock" should {

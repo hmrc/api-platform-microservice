@@ -19,9 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 import cats.data.{NonEmptyList => NEL}
 import enumeratum._
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class ApiDefinition(
     serviceName: String,

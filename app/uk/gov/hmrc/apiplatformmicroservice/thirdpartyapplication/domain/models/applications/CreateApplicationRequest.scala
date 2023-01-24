@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 trait CreateApplicationRequest {
   def name: String
@@ -35,7 +33,7 @@ trait CreateApplicationRequest {
   protected def lowerCaseEmails(in: Set[Collaborator]): Set[Collaborator] = {
     in.map(_ match {
       case Collaborators.Administrator(id, email) => Collaborators.Administrator(id, email.toLowerCase)
-      case Collaborators.Developer(id, email) => Collaborators.Developer(id, email.toLowerCase)
+      case Collaborators.Developer(id, email)     => Collaborators.Developer(id, email.toLowerCase)
     })
   }
 

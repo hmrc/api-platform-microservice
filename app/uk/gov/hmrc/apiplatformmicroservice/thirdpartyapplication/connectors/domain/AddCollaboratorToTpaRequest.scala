@@ -24,6 +24,6 @@ case class AddCollaboratorToTpaRequest(adminEmail: LaxEmailAddress, collaborator
 object AddCollaboratorToTpaRequest {
   import play.api.libs.json._
   import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters._
-  
+
   implicit val addCollaboratorToTpaRequestFormat = Json.format[AddCollaboratorToTpaRequest]
 }

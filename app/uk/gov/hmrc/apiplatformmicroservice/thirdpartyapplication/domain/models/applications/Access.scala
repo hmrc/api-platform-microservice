@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 
 case class ImportantSubmissionData(
@@ -31,7 +32,7 @@ case class ImportantSubmissionData(
 object ImportantSubmissionData {
   import uk.gov.hmrc.apiplatform.modules.applications.domain.services.PrivacyPolicyLocationJsonFormatters._
   import uk.gov.hmrc.apiplatform.modules.applications.domain.services.TermsAndConditionsLocationJsonFormatters._
-  
+
   implicit val format = Json.format[ImportantSubmissionData]
 }
 

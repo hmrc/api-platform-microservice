@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper}
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
 class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
   import CdsVersionHandler.specialCaseContexts

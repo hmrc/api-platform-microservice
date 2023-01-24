@@ -25,10 +25,10 @@ import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
@@ -71,9 +71,9 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
          |      }""".stripMargin
 
     "return Ok when update service is successful" in new Setup {
-      val application  = buildApplication(appId = applicationId)
+      val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 
@@ -83,9 +83,9 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     }
 
     "return Not Found when no application is found" in new Setup {
-      val application  = buildApplication(appId = applicationId)
+      val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
-      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 
