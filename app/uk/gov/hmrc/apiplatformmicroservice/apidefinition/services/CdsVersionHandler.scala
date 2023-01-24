@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 /** CDS have a number of API versions that exist, and can be subscribed to, in the sandbox environment.
   *
   * When uplifting a sandbox application to production, we need to map API versions for these contexts to v1.0.

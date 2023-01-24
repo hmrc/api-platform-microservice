@@ -22,10 +22,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiIdentifier, _}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
 @Singleton
 class ApiDefinitionsForCollaboratorFetcher @Inject() (

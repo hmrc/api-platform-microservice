@@ -44,6 +44,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec

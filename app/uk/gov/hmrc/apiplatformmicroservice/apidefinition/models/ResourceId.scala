@@ -16,4 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-case class ResourceId(serviceName: String, version: ApiVersion, resource: String)
+import uk.gov.hmrc.apiplatform.modules.apis.domain
+
+case class ResourceId(serviceName: String, version: domain.models.ApiVersion, resource: String)

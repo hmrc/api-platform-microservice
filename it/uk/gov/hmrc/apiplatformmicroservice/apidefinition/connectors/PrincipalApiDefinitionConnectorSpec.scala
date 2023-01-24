@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PROD
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec

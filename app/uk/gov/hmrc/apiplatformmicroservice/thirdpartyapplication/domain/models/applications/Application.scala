@@ -22,8 +22,8 @@ import java.util.UUID
 import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
 case class ClientId(value: String) extends AnyVal
 

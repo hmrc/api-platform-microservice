@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiIdentifier}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
 class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevHubSubscriptions {
 

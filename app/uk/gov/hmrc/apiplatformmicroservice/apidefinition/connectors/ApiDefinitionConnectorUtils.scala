@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiVersion, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 trait ApiDefinitionConnectorUtils {
   def serviceBaseUrl: String

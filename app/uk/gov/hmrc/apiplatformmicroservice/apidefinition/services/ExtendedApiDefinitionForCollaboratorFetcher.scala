@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 import play.api.cache.AsyncCacheApi
 import scala.concurrent.duration._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (

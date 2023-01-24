@@ -25,9 +25,9 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMock
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
