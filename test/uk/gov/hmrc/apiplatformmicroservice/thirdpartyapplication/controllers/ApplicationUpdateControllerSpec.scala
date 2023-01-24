@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, C
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
@@ -73,7 +72,6 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
 
     "return Ok when update service is successful" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
@@ -86,7 +84,6 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
 
     "return Not Found when no application is found" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
       val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 

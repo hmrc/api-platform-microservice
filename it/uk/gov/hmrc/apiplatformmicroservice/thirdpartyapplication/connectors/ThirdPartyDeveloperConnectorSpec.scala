@@ -27,6 +27,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 class ThirdPartyDeveloperConnectorSpec
     extends AsyncHmrcSpec
@@ -38,8 +39,8 @@ class ThirdPartyDeveloperConnectorSpec
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val email1  = "fakeemail1"
-    val email2  = "fakeemail2"
+    val email1  = LaxEmailAddress("fakeemail1")
+    val email2  = LaxEmailAddress("fakeemail2")
     val userId1 = UserId.random
     val userId2 = UserId.random
 

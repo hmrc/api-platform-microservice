@@ -26,6 +26,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 trait ApplicationBuilder extends CollaboratorsBuilder {
 
   def buildApplication(
@@ -49,7 +52,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, Role.ADMINISTRATOR))),
+      collaborators = buildCollaborators(Seq((appOwnerEmail, Collaborators.Roles.ADMINISTRATOR))),
       access = Standard(
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
@@ -74,7 +77,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress.value == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.copy(id = id)
@@ -86,12 +89,12 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
 
     def withAdmin(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, UserId.random))
+      app1.copy(collaborators = app1.collaborators + Collaborator(LaxEmailAddress(email), Collaborators.Roles.ADMINISTRATOR, UserId.random))
     }
 
     def withDeveloper(email: String) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, UserId.random))
+      app1.copy(collaborators = app1.collaborators + Collaborator(LaxEmailAddress(email), Collaborators.Roles.DEVELOPER, UserId.random))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-case class AddCollaboratorToTpaRequest(adminEmail: String, collaborator: Collaborator, isRegistered: Boolean, adminsToEmail: Set[String])
+case class AddCollaboratorToTpaRequest(adminEmail: LaxEmailAddress, collaborator: Collaborator, isRegistered: Boolean, adminsToEmail: Set[LaxEmailAddress])
 
 object AddCollaboratorToTpaRequest {
   import play.api.libs.json._
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters.formatCollaborator
+  import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters._
+  
   implicit val addCollaboratorToTpaRequestFormat = Json.format[AddCollaboratorToTpaRequest]
 }

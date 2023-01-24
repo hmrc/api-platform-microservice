@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import java.time.Period
-import java.util.UUID
 
 import org.joda.time.DateTime
 
@@ -26,11 +25,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
-import uk.gov.hmrc.apiplatform.modules.developers.domain
-
-case class Collaborator(emailAddress: String, role: Role, userId: domain.models.UserId)
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 case class Application(
     id: ApplicationId,

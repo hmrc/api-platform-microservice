@@ -22,6 +22,10 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 sealed trait Actor
 
@@ -50,17 +54,16 @@ sealed trait ApplicationUpdate {
 }
 trait UpdateRequest extends ApplicationUpdate
 
-case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime)        extends UpdateRequest
-case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[String], timestamp: LocalDateTime)          extends ApplicationUpdate
-case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime)     extends UpdateRequest
-case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[String], timestamp: LocalDateTime)       extends ApplicationUpdate
+case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborators.Role, timestamp: LocalDateTime)        extends UpdateRequest
+case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)          extends ApplicationUpdate
+case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborators.Role, timestamp: LocalDateTime)     extends UpdateRequest
+case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)       extends ApplicationUpdate
 case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                     extends ApplicationUpdate
 case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                 extends ApplicationUpdate
 case class UpdateRedirectUris(actor: Actor, oldRedirectUris: List[String], newRedirectUris: List[String], timestamp: LocalDateTime) extends ApplicationUpdate
 
-trait ApplicationUpdateFormatters {
+trait ApplicationUpdateFormatters extends CollaboratorJsonFormatters {
 
-  implicit val collaboratorFormat                    = Json.format[Collaborator]
   implicit val addCollaboratorFormatter              = Json.format[AddCollaborator]
   implicit val addCollaboratorUpdateRequestFormatter = Json.format[AddCollaboratorRequest]
   implicit val removeCollaboratorFormatter           = Json.format[RemoveCollaborator]

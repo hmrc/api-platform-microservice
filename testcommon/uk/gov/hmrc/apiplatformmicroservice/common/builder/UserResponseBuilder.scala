@@ -19,11 +19,12 @@ package uk.gov.hmrc.apiplatformmicroservice.common.builder
 import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UserResponse
 
 trait UserResponseBuilder {
 
-  def buildUserResponse(userId: UserId, email: String, verified: Boolean = true): UserResponse = {
+  def buildUserResponse(userId: UserId, email: LaxEmailAddress, verified: Boolean = true): UserResponse = {
     UserResponse(userId, email, firstName = "firstName", lastName = "lastName", registrationTime = DateTime.now, lastModified = DateTime.now, verified = verified)
   }
 

@@ -17,15 +17,17 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait CollaboratorsBuilder {
 
-  def buildCollaborators(collaborators: Seq[(String, Role)]): Set[Collaborator] = {
-    collaborators.map(n => Collaborator(n._1, n._2, UserId.random)).toSet
+  def buildCollaborators(collaborators: Seq[(String, Collaborators.Role)]): Set[Collaborator] = {
+    collaborators.map(n => Collaborator(LaxEmailAddress(n._1), n._2, UserId.random)).toSet
   }
 
-  def buildCollaborator(email: String, role: Role, userId: UserId = UserId.random): Collaborator = {
-    Collaborator(email, role, userId)
+  def buildCollaborator(email: String, role: Collaborators.Role, userId: UserId = UserId.random): Collaborator = {
+    Collaborator(LaxEmailAddress(email), role, userId)
   }
 }

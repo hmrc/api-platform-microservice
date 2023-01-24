@@ -40,11 +40,13 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -95,8 +97,8 @@ class ThirdPartyApplicationConnectorISpec
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
-      Collaborator("admin@example.com", ADMINISTRATOR, UserId.random),
-      Collaborator("dev@example.com", DEVELOPER, UserId.random)
+      Collaborator(LaxEmailAddress("admin@example.com"), Collaborators.Roles.ADMINISTRATOR, UserId.random),
+      Collaborator(LaxEmailAddress("dev@example.com"), Collaborators.Roles.DEVELOPER, UserId.random)
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(
@@ -399,9 +401,9 @@ class ThirdPartyApplicationConnectorISpec
     val applicationId          = ApplicationId.random
     val requestorEmail         = "requestor@example.com"
     val newTeamMemberEmail     = "newTeamMember@example.com"
-    val adminsToEmail          = Set("bobby@example.com", "daisy@example.com")
-    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
-    val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
+    val adminsToEmail          = Set("bobby@example.com", "daisy@example.com").map(LaxEmailAddress(_))
+    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Collaborators.Roles.ADMINISTRATOR)
+    val addCollaboratorRequest = AddCollaboratorToTpaRequest(LaxEmailAddress(requestorEmail), newCollaborator, isRegistered = true, adminsToEmail)
     val url                    = s"/application/${applicationId.value}/collaborator"
   }
 

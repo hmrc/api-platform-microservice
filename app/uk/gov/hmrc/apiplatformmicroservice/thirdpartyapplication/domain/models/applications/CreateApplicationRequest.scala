@@ -21,6 +21,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 trait CreateApplicationRequest {
   def name: String
@@ -31,12 +33,15 @@ trait CreateApplicationRequest {
   def anySubscriptions: Set[ApiIdentifier]
 
   protected def lowerCaseEmails(in: Set[Collaborator]): Set[Collaborator] = {
-    in.map(c => c.copy(emailAddress = c.emailAddress.toLowerCase))
+    in.map(_ match {
+      case Collaborators.Administrator(id, email) => Collaborators.Administrator(id, email.toLowerCase)
+      case Collaborators.Developer(id, email) => Collaborators.Developer(id, email.toLowerCase)
+    })
   }
 
   def validate(in: CreateApplicationRequest): Unit = {
     require(in.name.nonEmpty, "name is required")
-    require(in.collaborators.exists(_.role == Role.ADMINISTRATOR), "at least one ADMINISTRATOR collaborator is required")
+    require(in.collaborators.exists(_.isAdministrator), "at least one ADMINISTRATOR collaborator is required")
     require(in.collaborators.size == collaborators.map(_.emailAddress.toLowerCase).size, "duplicate email in collaborator")
     in.access match {
       case a: Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
