@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import java.time.{Clock, Instant, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -39,8 +39,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
   UnregisteredUserResponse,
   UserResponse
 }
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
@@ -153,32 +154,32 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
   }
 
   "handleRequest" should {
-    val actor = CollaboratorActor("someEMail")
+    val actor = Actors.Collaborator(LaxEmailAddress("someEMail"))
 
     "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
       val collaborator                    = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, getOrCreateUserIdResponse.userId)
-      val request                         = RemoveCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now(fixedClock))
+      val request                         = RemoveCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, Instant.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
       when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(userResponse))
 
-      val response = await(service.handleRequestCommand(productionApplication, request))
-      response shouldBe RemoveCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), LocalDateTime.now(fixedClock))
+      val response = await(service.handleRemoveCollaboratorRequest(productionApplication, request))
+      response shouldBe RemoveCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), Instant.now(fixedClock))
     }
 
     "decorate AddCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
       val collaborator                    = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, getOrCreateUserIdResponse.userId)
-      val request                         = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now(fixedClock))
+      val request                         = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, Instant.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
 
       when(mockThirdPartyDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(userResponse))
 
-      val response = await(service.handleRequestCommand(productionApplication, request))
-      response shouldBe AddCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), LocalDateTime.now(fixedClock))
+      val response = await(service.handleAddCollaboratorRequest(productionApplication, request))
+      response shouldBe AddCollaborator(request.actor, collaborator, Set(verifiedAdminEmail), Instant.now(fixedClock))
     }
   }
 }

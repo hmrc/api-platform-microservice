@@ -28,6 +28,8 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest, AddCollaborator, RemoveCollaboratorRequest, RemoveCollaborator}
+import java.time.Instant
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
@@ -37,23 +39,23 @@ class ApplicationCollaboratorService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def handleRequestCommand(app: Application, cmd: AddCollaboratorRequest)(implicit hc: HeaderCarrier): Future[AddCollaborator] = {
+  def handleAddCollaboratorRequest(app: Application, cmd: AddCollaboratorRequest)(implicit hc: HeaderCarrier): Future[AddCollaborator] = {
 
     for {
       admins        <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
       collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
-    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
+    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, Instant.now(clock))
   }
 
-  def handleRequestCommand(app: Application, cmd: RemoveCollaboratorRequest)(implicit hc: HeaderCarrier): Future[RemoveCollaborator] = {
+  def handleRemoveCollaboratorRequest(app: Application, cmd: RemoveCollaboratorRequest)(implicit hc: HeaderCarrier): Future[RemoveCollaborator] = {
     for {
       admins        <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
       collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
-    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
+    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, Instant.now(clock))
   }
 
   def generateCreateRequest(

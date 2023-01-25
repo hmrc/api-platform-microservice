@@ -27,9 +27,12 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationUpdate, ApplicationUpdateFormatters}
+
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, ApplicationUpdateService}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 
 @Singleton
 class ApplicationUpdateController @Inject() (
@@ -39,15 +42,15 @@ class ApplicationUpdateController @Inject() (
     val applicationUpdateService: ApplicationUpdateService,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
-  ) extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationUpdateFormatters with ApplicationJsonFormatters {
+  ) extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationCommandJsonFormatters with ApplicationJsonFormatters {
 
   def update(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    def handleUpdate(app: Application, applicationUpdate: ApplicationUpdate): Future[Result] = {
+    def handleUpdate(app: Application, applicationUpdate: ApplicationCommand): Future[Result] = {
       applicationUpdateService.updateApplication(app, applicationUpdate)
         .map(app => Ok(Json.toJson(app)))
     }
 
-    withJsonBody[ApplicationUpdate] { applicationUpdate =>
+    withJsonBody[ApplicationCommand] { applicationUpdate =>
       for {
         mayBeApplication <- applicationService.fetchApplication(id)
         responseStatus   <- mayBeApplication.fold(Future.successful(NotFound("")))(app => handleUpdate(app, applicationUpdate))

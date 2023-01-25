@@ -24,8 +24,8 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AddCollaboratorResult
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AddCollaborator, AddCollaboratorRequest, RemoveCollaborator, RemoveCollaboratorRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 trait ApplicationCollaboratorServiceModule extends MockitoSugar with ArgumentMatchersSugar {
 
@@ -35,19 +35,19 @@ trait ApplicationCollaboratorServiceModule extends MockitoSugar with ArgumentMat
     object handleRequestCommand {
 
       def willReturnAddCollaborator(addCollaborator: AddCollaborator) = {
-        when(aMock.handleRequestCommand(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.successful(addCollaborator))
+        when(aMock.handleAddCollaboratorRequest(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.successful(addCollaborator))
       }
 
       def willReturnRemoveCollaborator(removeCollaborator: RemoveCollaborator) = {
-        when(aMock.handleRequestCommand(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.successful(removeCollaborator))
+        when(aMock.handleRemoveCollaboratorRequest(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.successful(removeCollaborator))
       }
 
       def willReturnErrorsAddCollaborator(): Unit = {
-        when(aMock.handleRequestCommand(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
+        when(aMock.handleAddCollaboratorRequest(*, any[AddCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
       }
 
       def willReturnErrorsRemoveCollaborator(): Unit = {
-        when(aMock.handleRequestCommand(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
+        when(aMock.handleRemoveCollaboratorRequest(*, any[RemoveCollaboratorRequest])(*)).thenReturn(Future.failed(UpstreamErrorResponse("some error", 404)))
       }
 
     }

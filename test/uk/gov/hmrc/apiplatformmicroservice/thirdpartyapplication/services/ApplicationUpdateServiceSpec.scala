@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.joda.time.DateTime
@@ -32,6 +31,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import java.time.Instant
 
 class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
@@ -76,9 +78,9 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "addCollaborator" should {
-    val actor        = CollaboratorActor("someEMail")
+    val actor        = Actors.Collaborator(LaxEmailAddress("someEMail"))
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
-    val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now())
+    val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, Instant.now())
 
     "call third party application with decorated AddCollaborator when called" in new Setup {
 
@@ -86,7 +88,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
         actor,
         collaborator,
         existingCollaborators.map(_.emailAddress),
-        LocalDateTime.now()
+        Instant.now()
       ))
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 
@@ -108,9 +110,9 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "removeCollaborator" should {
-    val actor        = CollaboratorActor("someEMail")
+    val actor        = Actors.Collaborator(LaxEmailAddress("someEMail"))
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
-    val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, LocalDateTime.now())
+    val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, Collaborators.Roles.DEVELOPER, Instant.now())
 
     "call third party application with decorated RemoveCollaborator when called" in new Setup {
 
@@ -118,7 +120,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
         actor,
         collaborator,
         existingCollaborators.map(_.emailAddress),
-        LocalDateTime.now()
+        Instant.now()
       ))
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 
@@ -140,11 +142,11 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "non request Type command" should {
-    val actor        = CollaboratorActor("someEMail")
+    val actor        = Actors.Collaborator(LaxEmailAddress("someEMail"))
     val collaborator = Collaborator(LaxEmailAddress("collaboratorEmail"), Collaborators.Roles.DEVELOPER, UserId.random)
 
     "call third party application  with same command as passed in" in new Setup {
-      val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), LocalDateTime.now())
+      val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), Instant.now())
 
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -33,13 +32,17 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTes
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, CollaboratorActor, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
+import java.time.Instant
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder with ApplicationUpdateFormatters {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder with ApplicationCommandJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = NoMaterializer
 
@@ -47,7 +50,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val context        = ApiContext("hello")
     val version        = ApiVersion("1.0")
     val apiIdentifier  = ApiIdentifier(context, version)
-    val subscribeToApi = SubscribeToApi(CollaboratorActor("dev@example.com"), apiIdentifier, LocalDateTime.now())
+    val subscribeToApi = SubscribeToApi(Actors.Collaborator(LaxEmailAddress("dev@example.com")), apiIdentifier, Instant.now())
 
     val apiId1 = "context1".asIdentifier()
     val apiId2 = "context2".asIdentifier()

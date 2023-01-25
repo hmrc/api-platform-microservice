@@ -22,23 +22,21 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
-  AddCollaboratorRequest,
-  Application,
-  ApplicationUpdate,
-  RemoveCollaboratorRequest,
-  UpdateRequest
-}
 
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest,  RemoveCollaboratorRequest}
 @Singleton
 class ApplicationUpdateService @Inject() (
     val collaboratorService: ApplicationCollaboratorService,
     val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
   ) {
 
-  def updateApplication(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
+  def updateApplication(app: Application, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
 
-    def callTpa(applicationUpdate: ApplicationUpdate): Future[Application] = {
+    def callTpa(applicationUpdate: ApplicationCommand): Future[Application] = {
       thirdPartyApplicationConnector(app.deployedTo).updateApplication(app.id, applicationUpdate)
     }
 
@@ -49,20 +47,14 @@ class ApplicationUpdateService @Inject() (
 
   }
 
-  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdate] = {
+  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[ApplicationCommand] = {
 
-    def handleRequest(updateRequest: UpdateRequest) = {
-      updateRequest match {
-        case x: AddCollaboratorRequest    => collaboratorService.handleRequestCommand(app, x)
-        case x: RemoveCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
-        case x                            => Future.successful(x)
-      }
-    }
 
     applicationUpdate match {
-      case request: UpdateRequest => handleRequest(request)
-      case x                      => Future.successful(x)
-    }
+        case x: AddCollaboratorRequest    => collaboratorService.handleAddCollaboratorRequest(app, x)
+        case x: RemoveCollaboratorRequest => collaboratorService.handleRemoveCollaboratorRequest(app, x)
+        case x                            => Future.successful(x)
+      }
   }
 
 }

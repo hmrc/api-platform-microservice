@@ -32,10 +32,11 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ActorJsonFormatters
 
 class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters with ActorJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = app.materializer
 
@@ -65,7 +66,7 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
          |        ,
          |        "collaboratorRole": "ADMINISTRATOR"
          |        ,
-         |        "timestamp": "2022-10-12T08:06:46.706"
+         |        "timestamp": "2022-10-12T08:06:46.706Z"
          |        ,
          |        "updateType": "addCollaboratorRequest"
          |      }""".stripMargin

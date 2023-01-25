@@ -30,6 +30,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, Environmen
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
@@ -46,7 +49,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsApiIdentifier       = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
     implicit val readsInnerVersion        = Json.reads[InnerVersion]
     implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
@@ -71,7 +73,7 @@ trait ThirdPartyApplicationConnector {
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application]
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application]
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
@@ -86,7 +88,7 @@ trait ThirdPartyApplicationConnector {
 }
 
 private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
-    with ApplicationUpdateFormatters with ApplicationLogger {
+    with ApplicationCommandJsonFormatters with ApplicationLogger {
 
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
   import AbstractThirdPartyApplicationConnector.JsonFormatters._
@@ -122,8 +124,8 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       }
   }
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application] = {
-    http.PATCH[ApplicationUpdate, Application](
+  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application] = {
+    http.PATCH[ApplicationCommand, Application](
       s"$serviceBaseUrl/application/${applicationId.value}",
       applicationUpdate
     )

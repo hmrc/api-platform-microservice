@@ -33,7 +33,6 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -42,11 +41,15 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 
-import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
+import java.time.Instant
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -54,8 +57,7 @@ class ThirdPartyApplicationConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder
-    with ApplicationUpdateFormatters {
+    with ApplicationBuilder {
 
   private val helloWorldContext = ApiContext("hello-world")
   private val versionOne        = ApiVersion("1.0")
@@ -193,8 +195,6 @@ class ThirdPartyApplicationConnectorISpec
       }.statusCode shouldBe NOT_FOUND
     }
   }
-
-  import ApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random
@@ -351,15 +351,12 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   "updateApplication" should {
-
-    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-
     val apiIdentifier = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random
     val url           = s"/application/${applicationId.value}"
 
-    val actor                     = CollaboratorActor("dev@example.com")
-    val timestamp                 = LocalDateTime.now()
+    val actor                     = Actors.Collaborator(LaxEmailAddress("dev@example.com"))
+    val timestamp                 = Instant.now()
     val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
     val application               = buildApplication(applicationId)

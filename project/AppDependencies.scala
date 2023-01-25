@@ -16,7 +16,7 @@ object AppDependencies {
     "org.julienrf"            %% "play-json-derived-codecs"   % "7.0.0",
     "uk.gov.hmrc"             %% "json-encryption"            % "5.1.0-play-28",
     "uk.gov.hmrc"             %% "time"                       % "3.25.0",
-    "uk.gov.hmrc"             %% "api-platform-application-events" % "0.10.2"
+    "uk.gov.hmrc"             %% "api-platform-application-events" % "0.10.4"
   )
 
   lazy val testDependencies = Seq(
