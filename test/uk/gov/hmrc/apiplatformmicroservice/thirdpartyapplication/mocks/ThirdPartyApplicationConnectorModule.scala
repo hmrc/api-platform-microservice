@@ -108,7 +108,7 @@ trait ThirdPartyApplicationConnectorModule {
     object UpdateApplication {
 
       def willReturnSuccess(application: Application) = {
-        when(aMock.updateApplication(*[ApplicationId], *)(*)).thenReturn(successful(application))
+        when(aMock.sendCommand(*[ApplicationId], *)(*)).thenReturn(successful(application))
 
       }
 

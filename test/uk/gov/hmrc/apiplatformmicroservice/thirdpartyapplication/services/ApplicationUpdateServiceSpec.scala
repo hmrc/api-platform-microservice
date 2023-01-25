@@ -35,14 +35,14 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import java.time.Instant
 
-class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
+class ApplicationCommandServiceSpec extends AsyncHmrcSpec {
 
   implicit val hc = HeaderCarrier()
 
   trait Setup extends ThirdPartyApplicationConnectorModule with ApplicationCollaboratorServiceModule with MockitoSugar
       with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
 
-    val service = new ApplicationUpdateService(ApplicationCollaboratorServiceMock.aMock, EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
+    val service = new ApplicationCommandService(ApplicationCollaboratorServiceMock.aMock, EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
 
     val newCollaboratorEmail                    = LaxEmailAddress("newCollaborator@testuser.com")
     val newCollaboratorUserId                   = UserId.random
@@ -92,7 +92,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
       ))
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 
-      val result: Application = await(service.updateApplication(productionApplication, request))
+      val result: Application = await(service.sendCommand(productionApplication, request))
 
       result shouldBe productionApplication
     }
@@ -102,7 +102,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
       ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnErrorsAddCollaborator()
 
       intercept[UpstreamErrorResponse] {
-        await(service.updateApplication(productionApplication, request))
+        await(service.sendCommand(productionApplication, request))
       }
 
     }
@@ -124,7 +124,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
       ))
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 
-      val result: Application = await(service.updateApplication(productionApplication, request))
+      val result: Application = await(service.sendCommand(productionApplication, request))
 
       result shouldBe productionApplication
     }
@@ -134,7 +134,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
       ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnErrorsRemoveCollaborator()
 
       intercept[UpstreamErrorResponse] {
-        await(service.updateApplication(productionApplication, request))
+        await(service.sendCommand(productionApplication, request))
       }
 
     }
@@ -150,7 +150,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 
-      val result: Application = await(service.updateApplication(productionApplication, request))
+      val result: Application = await(service.sendCommand(productionApplication, request))
 
       result shouldBe productionApplication
     }

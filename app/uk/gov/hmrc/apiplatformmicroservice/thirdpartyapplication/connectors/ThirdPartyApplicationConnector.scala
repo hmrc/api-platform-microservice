@@ -73,7 +73,7 @@ trait ThirdPartyApplicationConnector {
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application]
+  def sendCommand(applicationId: ApplicationId, command: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application]
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
@@ -124,10 +124,10 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       }
   }
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application] = {
+  def sendCommand(applicationId: ApplicationId, command: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Application] = {
     http.PATCH[ApplicationCommand, Application](
       s"$serviceBaseUrl/application/${applicationId.value}",
-      applicationUpdate
+      command
     )
       .recover {
         case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound

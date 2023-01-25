@@ -25,32 +25,30 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Envi
 
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest,  RemoveCollaboratorRequest}
 @Singleton
-class ApplicationUpdateService @Inject() (
+class ApplicationCommandService @Inject() (
     val collaboratorService: ApplicationCollaboratorService,
     val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
   ) {
 
-  def updateApplication(app: Application, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
+  def sendCommand(app: Application, command: ApplicationCommand)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Application] = {
 
-    def callTpa(applicationUpdate: ApplicationCommand): Future[Application] = {
-      thirdPartyApplicationConnector(app.deployedTo).updateApplication(app.id, applicationUpdate)
+    def callTpa(command: ApplicationCommand): Future[Application] = {
+      thirdPartyApplicationConnector(app.deployedTo).sendCommand(app.id, command)
     }
 
     for {
-      updateCommand <- handleRequestTypes(app, applicationUpdate)
+      updateCommand <- handleRequestTypes(app, command)
       result        <- callTpa(updateCommand)
     } yield result
 
   }
 
-  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationCommand)(implicit hc: HeaderCarrier): Future[ApplicationCommand] = {
+  private def handleRequestTypes(app: Application, command: ApplicationCommand)(implicit hc: HeaderCarrier): Future[ApplicationCommand] = {
 
 
-    applicationUpdate match {
+    command match {
         case x: AddCollaboratorRequest    => collaboratorService.handleAddCollaboratorRequest(app, x)
         case x: RemoveCollaboratorRequest => collaboratorService.handleRemoveCollaboratorRequest(app, x)
         case x                            => Future.successful(x)

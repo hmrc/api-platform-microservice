@@ -34,9 +34,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ActorJsonFormatters
 
-class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ApplicationCommandControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters with ActorJsonFormatters {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCommandServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters with ActorJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = app.materializer
 
@@ -49,7 +49,7 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
       mockAuthConfig,
       mockAuthConnector,
       ApplicationByIdFetcherMock.aMock,
-      ApplicationUpdateServiceMock.aMock,
+      ApplicationCommandServiceMock.aMock,
       Helpers.stubControllerComponents()
     )
   }
@@ -76,7 +76,7 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
-      ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
+      ApplicationCommandServiceMock.UpdateApplication.willReturnApplication(application)
 
       val result = controller.update(applicationId)(request.withBody(Json.parse(payload)))
 
@@ -88,7 +88,7 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
       val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
-      ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
+      ApplicationCommandServiceMock.UpdateApplication.willReturnApplication(application)
 
       val result = controller.update(applicationId)(request.withBody(Json.parse(payload)))
 

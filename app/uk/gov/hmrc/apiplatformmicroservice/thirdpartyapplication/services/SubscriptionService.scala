@@ -169,7 +169,7 @@ class SubscriptionService @Inject() (
   private def subscribeToApiAndCreateFieldValues(application: Application, subscribeToApi: SubscribeToApi)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
       _ <- createFieldValues(application, subscribeToApi.apiIdentifier)
-      _ <- thirdPartyApplicationConnector(application.deployedTo).updateApplication(application.id, subscribeToApi)
+      _ <- thirdPartyApplicationConnector(application.deployedTo).sendCommand(application.id, subscribeToApi)
     } yield CreateSubscriptionSuccess
   }
 }

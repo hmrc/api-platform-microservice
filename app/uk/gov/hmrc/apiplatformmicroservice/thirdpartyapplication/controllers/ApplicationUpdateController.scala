@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, ApplicationUpdateService}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, ApplicationCommandService}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
@@ -39,21 +39,21 @@ class ApplicationUpdateController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     val applicationService: ApplicationByIdFetcher,
-    val applicationUpdateService: ApplicationUpdateService,
+    val applicationCommandService: ApplicationCommandService,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc) with ActionBuilders with ApplicationLogger with ApplicationCommandJsonFormatters with ApplicationJsonFormatters {
 
   def update(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    def handleUpdate(app: Application, applicationUpdate: ApplicationCommand): Future[Result] = {
-      applicationUpdateService.updateApplication(app, applicationUpdate)
+    def handleUpdate(app: Application, command: ApplicationCommand): Future[Result] = {
+      applicationCommandService.sendCommand(app, command)
         .map(app => Ok(Json.toJson(app)))
     }
 
-    withJsonBody[ApplicationCommand] { applicationUpdate =>
+    withJsonBody[ApplicationCommand] { command =>
       for {
         mayBeApplication <- applicationService.fetchApplication(id)
-        responseStatus   <- mayBeApplication.fold(Future.successful(NotFound("")))(app => handleUpdate(app, applicationUpdate))
+        responseStatus   <- mayBeApplication.fold(Future.successful(NotFound("")))(app => handleUpdate(app, command))
       } yield responseStatus
     }
   }

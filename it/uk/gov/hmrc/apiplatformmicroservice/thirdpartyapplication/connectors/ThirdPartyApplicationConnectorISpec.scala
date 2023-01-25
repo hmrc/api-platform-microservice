@@ -350,7 +350,7 @@ class ThirdPartyApplicationConnectorISpec
     }
   }
 
-  "updateApplication" should {
+  "sendCommand" should {
     val apiIdentifier = ApiIdentifier(ContextA, VersionOne)
     val applicationId = ApplicationId.random
     val url           = s"/application/${applicationId.value}"
@@ -371,7 +371,7 @@ class ThirdPartyApplicationConnectorISpec
               .withJsonBody(application)
           )
       )
-      await(connector.updateApplication(applicationId, subscribeToApi)) shouldBe application
+      await(connector.sendCommand(applicationId, subscribeToApi)) shouldBe application
     }
   }
 
