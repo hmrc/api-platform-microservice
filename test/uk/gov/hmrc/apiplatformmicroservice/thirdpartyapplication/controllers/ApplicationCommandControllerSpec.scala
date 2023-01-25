@@ -45,7 +45,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with GuiceOneAppPer
     val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
 
-    val controller = new ApplicationUpdateController(
+    val controller = new ApplicationCommandController(
       mockAuthConfig,
       mockAuthConnector,
       ApplicationByIdFetcherMock.aMock,
@@ -66,7 +66,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with GuiceOneAppPer
          |        ,
          |        "collaboratorRole": "ADMINISTRATOR"
          |        ,
-         |        "timestamp": "2022-10-12T08:06:46.706Z"
+         |        "timestamp": "2022-10-12T08:06:46.7"
          |        ,
          |        "updateType": "addCollaboratorRequest"
          |      }""".stripMargin

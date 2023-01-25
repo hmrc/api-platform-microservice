@@ -35,7 +35,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 
 @Singleton
-class ApplicationUpdateController @Inject() (
+class ApplicationCommandController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     val applicationService: ApplicationByIdFetcher,
