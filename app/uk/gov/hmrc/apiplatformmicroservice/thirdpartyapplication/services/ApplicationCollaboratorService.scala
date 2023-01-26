@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import java.time.{Clock}
+import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaborator, AddCollaboratorRequest, RemoveCollaborator, RemoveCollaboratorRequest}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest, AddCollaborator, RemoveCollaboratorRequest, RemoveCollaborator}
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (

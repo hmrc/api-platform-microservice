@@ -25,13 +25,13 @@ import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
@@ -46,7 +46,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
 
   private[connectors] object JsonFormatters {
-  import play.api.libs.json.{Json, DefaultWrites, DefaultFormat}
+    import play.api.libs.json.Json
 
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
     implicit val readsInnerVersion        = Json.reads[InnerVersion]

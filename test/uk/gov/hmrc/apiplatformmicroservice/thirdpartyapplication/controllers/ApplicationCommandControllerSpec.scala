@@ -26,17 +26,18 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ActorJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ActorJsonFormatters
 
 class ApplicationCommandControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCommandServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters with ActorJsonFormatters {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationCommandServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters
+      with ActorJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = app.materializer
 

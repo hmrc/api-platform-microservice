@@ -25,15 +25,14 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ActionBuilders, ErrorCode, JsErrorResponse}
-
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionService, UpliftApplicationService}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 
 @Singleton
 class SubscriptionController @Inject() (

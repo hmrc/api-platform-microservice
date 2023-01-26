@@ -23,20 +23,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, EnvironmentAwareThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{
   CreateSubscriptionDenied,
   CreateSubscriptionDuplicate,
   CreateSubscriptionResult,
   CreateSubscriptionSuccess
 }
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
 
 @Singleton
 class SubscriptionService @Inject() (

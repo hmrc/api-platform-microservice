@@ -21,9 +21,9 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
 
 trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar {
 

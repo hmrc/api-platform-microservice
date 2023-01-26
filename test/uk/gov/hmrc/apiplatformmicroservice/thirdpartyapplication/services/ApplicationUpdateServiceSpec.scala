@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.joda.time.DateTime
@@ -24,16 +25,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import java.time.Instant
 
 class ApplicationCommandServiceSpec extends AsyncHmrcSpec {
 

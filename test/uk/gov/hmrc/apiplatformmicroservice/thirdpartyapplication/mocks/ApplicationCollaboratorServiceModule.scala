@@ -22,10 +22,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AddCollaboratorResult
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCollaboratorService
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 trait ApplicationCollaboratorServiceModule extends MockitoSugar with ArgumentMatchersSugar {
 

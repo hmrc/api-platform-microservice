@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -28,17 +29,15 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.ApplicationCommandJsonFormatters
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.SubscribeToApi
-import java.time.Instant
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

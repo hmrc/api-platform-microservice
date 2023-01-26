@@ -26,7 +26,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
@@ -40,8 +41,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
   UserResponse
 }
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 

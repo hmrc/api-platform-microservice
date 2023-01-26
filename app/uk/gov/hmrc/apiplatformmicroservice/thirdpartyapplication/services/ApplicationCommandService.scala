@@ -21,11 +21,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest, ApplicationCommand, RemoveCollaboratorRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest,  RemoveCollaboratorRequest}
+
 @Singleton
 class ApplicationCommandService @Inject() (
     val collaboratorService: ApplicationCollaboratorService,
@@ -47,12 +46,11 @@ class ApplicationCommandService @Inject() (
 
   private def handleRequestTypes(app: Application, command: ApplicationCommand)(implicit hc: HeaderCarrier): Future[ApplicationCommand] = {
 
-
     command match {
-        case x: AddCollaboratorRequest    => collaboratorService.handleAddCollaboratorRequest(app, x)
-        case x: RemoveCollaboratorRequest => collaboratorService.handleRemoveCollaboratorRequest(app, x)
-        case x                            => Future.successful(x)
-      }
+      case x: AddCollaboratorRequest    => collaboratorService.handleAddCollaboratorRequest(app, x)
+      case x: RemoveCollaboratorRequest => collaboratorService.handleRemoveCollaboratorRequest(app, x)
+      case x                            => Future.successful(x)
+    }
   }
 
 }
