@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import java.time.{Clock, LocalDateTime}
+import java.time.{Clock}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{AddCollaboratorRequest, AddCollaborator, RemoveCollaboratorRequest, RemoveCollaborator}
-import java.time.Instant
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
@@ -46,7 +45,7 @@ class ApplicationCollaboratorService @Inject() (
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
       collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
-    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, Instant.now(clock))
+    } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, cmd.timestamp)
   }
 
   def handleRemoveCollaboratorRequest(app: Application, cmd: RemoveCollaboratorRequest)(implicit hc: HeaderCarrier): Future[RemoveCollaborator] = {
@@ -55,7 +54,7 @@ class ApplicationCollaboratorService @Inject() (
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
       collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
-    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, Instant.now(clock))
+    } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, cmd.timestamp)
   }
 
   def generateCreateRequest(
