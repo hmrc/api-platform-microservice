@@ -32,11 +32,11 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -65,7 +65,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   "addCollaborator" should {
     "return Created when successfully adding a Collaborator" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Role.DEVELOPER)
+      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Collaborator.Roles.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
@@ -80,7 +80,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
     "return Conflict when Collaborator already exists" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Role.DEVELOPER)
+      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Collaborator.Roles.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""

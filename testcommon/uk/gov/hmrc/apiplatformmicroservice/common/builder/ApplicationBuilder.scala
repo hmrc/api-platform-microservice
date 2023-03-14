@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 trait ApplicationBuilder extends CollaboratorsBuilder {
 
   def buildApplication(
@@ -50,7 +51,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, Role.ADMINISTRATOR))),
+      collaborators = buildCollaborators(Seq((appOwnerEmail, Collaborator.Roles.ADMINISTRATOR))),
       access = Standard(
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
@@ -87,12 +88,12 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
 
     def withAdmin(email: LaxEmailAddress) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, None))
+      app1.copy(collaborators = app1.collaborators + buildCollaborator(email, Collaborator.Roles.ADMINISTRATOR))
     }
 
     def withDeveloper(email: LaxEmailAddress) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, None))
+      app1.copy(collaborators = app1.collaborators + buildCollaborator(email, Collaborator.Roles.DEVELOPER))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

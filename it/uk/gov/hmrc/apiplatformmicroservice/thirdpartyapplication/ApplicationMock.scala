@@ -57,6 +57,7 @@ trait ApplicationMock {
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
+                       |          "userId": "${UserId.random.value}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }
@@ -88,7 +89,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId("dummyProdId")) {
+  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random) {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))
       .willReturn(
         aResponse()
@@ -101,6 +102,7 @@ trait ApplicationMock {
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
+                       |          "userId": "${UserId.random.value}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }

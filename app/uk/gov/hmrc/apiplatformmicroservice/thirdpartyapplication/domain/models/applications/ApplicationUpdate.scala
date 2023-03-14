@@ -20,15 +20,17 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 sealed trait ApplicationUpdate {
   def timestamp: LocalDateTime
+
 }
 trait UpdateRequest extends ApplicationUpdate
 
-case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Role, timestamp: LocalDateTime)        extends UpdateRequest
+case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborator.Role, timestamp: LocalDateTime)        extends UpdateRequest
 case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)          extends ApplicationUpdate
-case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Role, timestamp: LocalDateTime)     extends UpdateRequest
+case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborator.Role, timestamp: LocalDateTime)     extends UpdateRequest
 case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)       extends ApplicationUpdate
 case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                     extends ApplicationUpdate
 case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                 extends ApplicationUpdate
@@ -38,7 +40,6 @@ trait ApplicationUpdateFormatters {
   import play.api.libs.json.Json
   import uk.gov.hmrc.play.json.Union
 
-  implicit val collaboratorFormat                    = Json.format[Collaborator]
   implicit val addCollaboratorFormatter              = Json.format[AddCollaborator]
   implicit val addCollaboratorUpdateRequestFormatter = Json.format[AddCollaboratorRequest]
   implicit val removeCollaboratorFormatter           = Json.format[RemoveCollaborator]

@@ -27,6 +27,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Role
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
@@ -42,7 +44,7 @@ class ApplicationCollaboratorService @Inject() (
       admins        <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
-      collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
+      collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
     } yield AddCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
@@ -51,7 +53,7 @@ class ApplicationCollaboratorService @Inject() (
       admins        <- thirdPartyDeveloperConnector.fetchByEmails(getApplicationAdmins(app))
       verifiedAdmins = admins.filter(_.verified).map(_.email).toSet
       userId        <- getUserId(cmd.collaboratorEmail)
-      collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, Some(userId))
+      collaborator   = Collaborator(cmd.collaboratorEmail, cmd.collaboratorRole, userId)
     } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
@@ -61,7 +63,7 @@ class ApplicationCollaboratorService @Inject() (
       otherAdmins  <- thirdPartyDeveloperConnector.fetchByEmails(getOtherAdmins(app, requestingEmail))
       adminsToEmail = otherAdmins.filter(_.verified).map(_.email)
       userId       <- getUserId(email)
-      collaborator  = Collaborator(email, role, Some(userId))
+      collaborator  = Collaborator(email, role, userId)
       // TODO: handle requestingEmail being None when called from GK
       // TODO: AddCollaboratorToTpaRequest.isRegistered flag is being hard coded here as it isn't used in TPA
       request       = AddCollaboratorToTpaRequest(requestingEmail.getOrElse(LaxEmailAddress("")), collaborator, isRegistered = true, adminsToEmail.toSet)

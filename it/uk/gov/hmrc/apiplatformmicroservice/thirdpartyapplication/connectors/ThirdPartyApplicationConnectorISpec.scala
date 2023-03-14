@@ -40,16 +40,19 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Role
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
+
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with ConfigBuilder
@@ -97,8 +100,8 @@ class ThirdPartyApplicationConnectorISpec
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
-      Collaborator("admin@example.com".toLaxEmail, ADMINISTRATOR, Some(UserId.random)),
-      Collaborator("dev@example.com".toLaxEmail, DEVELOPER, Some(UserId.random))
+      Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),
+      Collaborators.Developer(UserId.random, "dev@example.com".toLaxEmail)
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(
@@ -402,7 +405,7 @@ class ThirdPartyApplicationConnectorISpec
     val requestorEmail         = "requestor@example.com".toLaxEmail
     val newTeamMemberEmail     = "newTeamMember@example.com".toLaxEmail
     val adminsToEmail          = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
-    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
+    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Collaborator.Roles.ADMINISTRATOR)
     val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
     val url                    = s"/application/${applicationId.value}/collaborator"
   }

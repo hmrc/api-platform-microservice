@@ -28,13 +28,16 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, U
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role.DEVELOPER
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Roles
 
   implicit val hc = HeaderCarrier()
 
@@ -45,7 +48,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
     val newCollaboratorEmail                    = "newCollaborator@testuser.com".toLaxEmail
     val newCollaboratorUserId                   = UserId.random
-    val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
+    val newCollaborator                         = Collaborators.Developer(newCollaboratorUserId, newCollaboratorEmail)
     val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
@@ -65,19 +68,19 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
     )
 
     val existingAdminCollaborators = Set(
-      Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
-      Collaborator(requesterEmail, Role.ADMINISTRATOR, None)
+      Collaborators.Administrator(UserId.random, verifiedAdminEmail),
+      Collaborators.Administrator(UserId.random, unverifiedAdminEmail),
+      Collaborators.Administrator(UserId.random, requesterEmail)
     )
 
-    val existingCollaborators: Set[Collaborator] = existingAdminCollaborators ++ Set(Collaborator("collaborator1@example.com".toLaxEmail, Role.DEVELOPER, None))
+    val existingCollaborators: Set[Collaborator] = existingAdminCollaborators ++ Set(Collaborator("collaborator1@example.com".toLaxEmail, Roles.DEVELOPER, UserId.random))
     val productionApplication                    = buildApplication().deployedToProduction.withCollaborators(existingCollaborators)
 
   }
 
   "addCollaborator" should {
     val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
     val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated AddCollaborator when called" in new Setup {
 
@@ -108,7 +111,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
   "removeCollaborator" should {
     val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
     val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated RemoveCollaborator when called" in new Setup {
 
@@ -139,7 +142,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
   "non request Type command" should {
     val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
+    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
 
     "call third party application  with same command as passed in" in new Setup {
       val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), LocalDateTime.now())

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import java.{util => ju}
 import play.api.libs.json._
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
@@ -40,7 +39,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
 
     "stub get request for fetch api definitions" in {
       val applicationId = ApplicationId.random
-      val clientId      = ClientId(ju.UUID.randomUUID.toString)
+      val clientId      = ClientId.random
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
