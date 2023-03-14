@@ -32,6 +32,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import akka.Done
 import scala.reflect.ClassTag
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

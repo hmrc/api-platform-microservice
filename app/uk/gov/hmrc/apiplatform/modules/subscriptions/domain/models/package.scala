@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 package object models {
   type ApiFieldMap[V] = Map[ApiContext, Map[ApiVersion, Map[FieldName, V]]]

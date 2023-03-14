@@ -33,6 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
   CreateSubscriptionResult,
   CreateSubscriptionSuccess
 }
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionService @Inject() (

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 final case class SellResellOrDistribute(answer: String) extends AnyVal
 

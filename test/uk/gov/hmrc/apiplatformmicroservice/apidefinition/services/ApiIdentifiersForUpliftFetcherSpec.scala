@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{ALPHA, RETIRED, STABLE}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import  uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 

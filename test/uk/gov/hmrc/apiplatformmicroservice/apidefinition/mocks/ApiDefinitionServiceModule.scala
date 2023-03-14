@@ -24,8 +24,9 @@ import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.JsValue
 import play.api.libs.ws.WSResponse
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 

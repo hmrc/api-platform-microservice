@@ -22,10 +22,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiIdentifier}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
@@ -46,7 +47,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   }
 
   private def filterVersions(api: ApiDefinition, subscriptions: Set[ApiIdentifier]): Option[ApiDefinition] = {
-    val filteredVersions = api.versions.filter(v => subscriptions.contains(models.ApiIdentifier(api.context, v.version)))
+    val filteredVersions = api.versions.filter(v => subscriptions.contains(ApiIdentifier(api.context, v.version)))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))

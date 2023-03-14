@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait UpliftRequestSamples {
   val sellResellOrDistribute      = SellResellOrDistribute("Yes")

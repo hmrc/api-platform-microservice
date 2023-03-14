@@ -23,6 +23,7 @@ import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait BasicApiDefinitionJsonFormatters {
   implicit val formatApiContext: Format[ApiContext]                 = Json.valueFormat[ApiContext]

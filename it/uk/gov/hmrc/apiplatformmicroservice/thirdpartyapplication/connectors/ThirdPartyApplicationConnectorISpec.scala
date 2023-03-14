@@ -42,6 +42,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import java.time.LocalDateTime
 
