@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Collaborator, Role}
 
 trait CollaboratorsBuilder {

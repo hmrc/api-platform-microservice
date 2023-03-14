@@ -21,7 +21,8 @@ import scala.util.Try
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 package object binders {
@@ -113,7 +114,7 @@ package object binders {
       } yield textOrBindError match {
         case Right(idText) =>
           for {
-            id <- UserId.parse(idText).toRight(s"Cannot accept $idText as a user identifier")
+            id <- UserId.fromString(idText).toRight(s"Cannot accept $idText as a user identifier")
           } yield id
         case _             => Left("Unable to bind a user identifier")
       }
