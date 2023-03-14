@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
+package uk.gov.hmrc.apiplatform.modules.applications.domain.models
 
-import java.{util => ju}
 
-case class ApplicationId(value: ju.UUID) extends AnyVal
+import java.util.UUID
+
+import play.api.libs.json.Json
+
+/** This file should be in some Application based library
+  */
+
+final case class ApplicationId(value: UUID) extends AnyVal
 
 object ApplicationId {
-  def random: ApplicationId = ApplicationId(ju.UUID.randomUUID())
+  def random: ApplicationId = ApplicationId(java.util.UUID.randomUUID)
 
-  import play.api.libs.json.Json
-  implicit val format = Json.valueFormat[ApplicationId]
+  implicit val applicationIdJf = Json.valueFormat[ApplicationId]
 }
+

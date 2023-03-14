@@ -55,7 +55,8 @@ trait EndpointJsonFormatters extends NonEmptyListFormatters {
 }
 
 trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDefinitionJsonFormatters {
-  import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+
+ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
   implicit val apiAccessReads: Reads[ApiAccess] =
     (

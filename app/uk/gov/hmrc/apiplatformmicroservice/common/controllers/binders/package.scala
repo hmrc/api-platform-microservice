@@ -21,7 +21,8 @@ import scala.util.Try
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment, UserId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, UserId}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 package object binders {
 

@@ -23,7 +23,7 @@ import enumeratum._
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class ApiContext(value: String) extends AnyVal
 

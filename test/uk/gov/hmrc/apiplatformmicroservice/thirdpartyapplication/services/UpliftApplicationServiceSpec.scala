@@ -23,7 +23,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ApiIdentifier}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPartyApplicationConnectorModule, _}
