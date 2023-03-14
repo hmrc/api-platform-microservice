@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._

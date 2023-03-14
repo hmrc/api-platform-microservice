@@ -23,6 +23,7 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 trait ApplicationBuilder extends CollaboratorsBuilder {
 

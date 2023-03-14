@@ -23,16 +23,16 @@ import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
-case class ClientId(value: String) extends AnyVal
+// case class ClientId(value: String) extends AnyVal
 
-object ClientId {
-  def empty: ClientId  = ClientId("")
-  def random: ClientId = ClientId(UUID.randomUUID().toString)
-}
+// object ClientId {
+//   def empty: ClientId  = ClientId("")
+//   def random: ClientId = ClientId(UUID.randomUUID().toString)
+// }
 
 case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
 

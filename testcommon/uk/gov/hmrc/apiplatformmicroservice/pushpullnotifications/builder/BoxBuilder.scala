@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 trait BoxBuilder {
 

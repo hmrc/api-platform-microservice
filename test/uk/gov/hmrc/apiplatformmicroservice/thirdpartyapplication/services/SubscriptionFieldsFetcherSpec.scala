@@ -24,8 +24,9 @@ import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldName, _
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsConnectorModule
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+
 
 class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionFieldsConnectorModule {
   implicit val hc = HeaderCarrier()
