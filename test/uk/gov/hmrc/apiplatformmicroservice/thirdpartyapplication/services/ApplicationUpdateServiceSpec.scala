@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
 
@@ -75,7 +76,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "addCollaborator" should {
-    val actor        = CollaboratorActor("someEMail".toLaxEmail)
+    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
     val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
     val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated AddCollaborator when called" in new Setup {
@@ -106,7 +107,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "removeCollaborator" should {
-    val actor        = CollaboratorActor("someEMail".toLaxEmail)
+    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
     val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
     val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
     "call third party application with decorated RemoveCollaborator when called" in new Setup {
@@ -137,7 +138,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec {
   }
 
   "non request Type command" should {
-    val actor        = CollaboratorActor("someEMail".toLaxEmail)
+    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
     val collaborator = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(UserId.random))
 
     "call third party application  with same command as passed in" in new Setup {

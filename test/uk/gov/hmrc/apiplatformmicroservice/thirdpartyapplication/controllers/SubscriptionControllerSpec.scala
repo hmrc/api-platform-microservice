@@ -32,11 +32,12 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, CollaboratorActor, SubscribeToApi}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -48,7 +49,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val context        = ApiContext("hello")
     val version        = ApiVersion("1.0")
     val apiIdentifier  = ApiIdentifier(context, version)
-    val subscribeToApi = SubscribeToApi(CollaboratorActor("dev@example.com".toLaxEmail), apiIdentifier, LocalDateTime.now())
+    val subscribeToApi = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), apiIdentifier, LocalDateTime.now())
 
     val apiId1 = "context1".asIdentifier()
     val apiId2 = "context2".asIdentifier()

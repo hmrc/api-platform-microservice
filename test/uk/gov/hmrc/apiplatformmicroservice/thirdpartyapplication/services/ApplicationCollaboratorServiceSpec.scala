@@ -40,6 +40,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
@@ -150,7 +151,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
   }
 
   "handleRequest" should {
-    val actor = CollaboratorActor("someEMail".toLaxEmail)
+    val actor = Actors.AppCollaborator("someEMail".toLaxEmail)
 
     "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses

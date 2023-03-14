@@ -16,12 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import scala.util.Random
-
 import cats.data.{NonEmptyList => NEL}
 import enumeratum._
-
-import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._

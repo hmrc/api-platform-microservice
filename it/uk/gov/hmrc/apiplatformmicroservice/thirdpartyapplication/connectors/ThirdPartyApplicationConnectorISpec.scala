@@ -46,6 +46,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -357,7 +358,7 @@ class ThirdPartyApplicationConnectorISpec
     val applicationId = ApplicationId.random
     val url           = s"/application/${applicationId.value}"
 
-    val actor                     = CollaboratorActor("dev@example.com".toLaxEmail)
+    val actor                     = Actors.AppCollaborator("dev@example.com".toLaxEmail)
     val timestamp                 = LocalDateTime.now()
     val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
