@@ -14,13 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
+package uk.gov.hmrc.apiplatform.modules.common.domain.models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-case class UnregisteredUserCreationRequest(email: LaxEmailAddress)
+/** LaxEmailAddress is a wrapper to string but designed to carry the idea of an email address
+  *
+  * NO verification takes place !
+  */
+final case class LaxEmailAddress(text: String) extends AnyVal {
+  def normalise(): LaxEmailAddress = this.copy(text = text.toLowerCase())
 
-object UnregisteredUserCreationRequest {
-  implicit val format = Json.format[UnregisteredUserCreationRequest]
+  def equalsIgnoreCase(other: LaxEmailAddress): Boolean = this.text.equalsIgnoreCase(other.text)
+}
+
+object LaxEmailAddress {
+
+  implicit val formatter = Json.valueFormat[LaxEmailAddress]
+
+  implicit class StringSyntax(value: String) {
+    def toLaxEmail: LaxEmailAddress = LaxEmailAddress(value)
+  }
 }

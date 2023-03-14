@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import java.time.Period
-import java.util.UUID
 
 import org.joda.time.DateTime
 
@@ -26,15 +25,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-// case class ClientId(value: String) extends AnyVal
-
-// object ClientId {
-//   def empty: ClientId  = ClientId("")
-//   def random: ClientId = ClientId(UUID.randomUUID().toString)
-// }
-
-case class Collaborator(emailAddress: String, role: Role, userId: Option[UserId])
+case class Collaborator(emailAddress: LaxEmailAddress, role: Role, userId: Option[UserId])
 
 case class Application(
     id: ApplicationId,

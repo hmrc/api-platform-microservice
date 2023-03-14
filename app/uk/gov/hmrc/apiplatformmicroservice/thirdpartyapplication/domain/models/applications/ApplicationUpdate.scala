@@ -22,12 +22,13 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 sealed trait Actor
 
 case class GatekeeperUserActor(user: String) extends Actor
 
-case class CollaboratorActor(email: String) extends Actor
+case class CollaboratorActor(email: LaxEmailAddress) extends Actor
 
 case class ScheduledJobActor(jobId: String) extends Actor
 
@@ -50,10 +51,10 @@ sealed trait ApplicationUpdate {
 }
 trait UpdateRequest extends ApplicationUpdate
 
-case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime)        extends UpdateRequest
-case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[String], timestamp: LocalDateTime)          extends ApplicationUpdate
-case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: String, collaboratorRole: Role, timestamp: LocalDateTime)     extends UpdateRequest
-case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[String], timestamp: LocalDateTime)       extends ApplicationUpdate
+case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Role, timestamp: LocalDateTime)        extends UpdateRequest
+case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)          extends ApplicationUpdate
+case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Role, timestamp: LocalDateTime)     extends UpdateRequest
+case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)       extends ApplicationUpdate
 case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                     extends ApplicationUpdate
 case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                 extends ApplicationUpdate
 case class UpdateRedirectUris(actor: Actor, oldRedirectUris: List[String], newRedirectUris: List[String], timestamp: LocalDateTime) extends ApplicationUpdate

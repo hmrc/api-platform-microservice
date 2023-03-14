@@ -24,7 +24,6 @@ import org.joda.time.DateTime
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -40,7 +39,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
@@ -53,15 +52,15 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
     val fixedClock                       = Clock.fixed(Instant.now(), ZoneOffset.UTC)
     val service                          = new ApplicationCollaboratorService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance, mockThirdPartyDeveloperConnector, fixedClock)
 
-    val newCollaboratorEmail                    = "newCollaborator@testuser.com"
+    val newCollaboratorEmail                    = "newCollaborator@testuser.com".toLaxEmail
     val newCollaboratorUserId                   = UserId.random
     val newCollaborator                         = Collaborator(newCollaboratorEmail, Role.DEVELOPER, Some(newCollaboratorUserId))
     val newCollaboratorUserResponse             = buildUserResponse(email = newCollaboratorEmail, userId = newCollaboratorUserId)
     val newCollaboratorUnregisteredUserResponse = UnregisteredUserResponse(newCollaboratorEmail, DateTime.now, newCollaboratorUserId)
 
-    val requesterEmail            = "adminRequester@example.com"
-    val verifiedAdminEmail        = "verifiedAdmin@example.com"
-    val unverifiedAdminEmail      = "unverifiedAdmin@example.com"
+    val requesterEmail            = "adminRequester@example.com".toLaxEmail
+    val verifiedAdminEmail        = "verifiedAdmin@example.com".toLaxEmail
+    val unverifiedAdminEmail      = "unverifiedAdmin@example.com".toLaxEmail
     val adminEmailsMinusRequester = Set(verifiedAdminEmail, unverifiedAdminEmail)
     val adminEmails               = Set(verifiedAdminEmail, unverifiedAdminEmail, requesterEmail)
 
@@ -75,14 +74,14 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
     )
 
     val productionApplication = buildApplication().deployedToProduction.withCollaborators(Set(
-      Collaborator("collaborator1@example.com", Role.DEVELOPER, None),
+      Collaborator("collaborator1@example.com".toLaxEmail, Role.DEVELOPER, None),
       Collaborator(verifiedAdminEmail, Role.ADMINISTRATOR, None),
       Collaborator(unverifiedAdminEmail, Role.ADMINISTRATOR, None),
       Collaborator(requesterEmail, Role.ADMINISTRATOR, None)
     ))
 
     val addCollaboratorToTpaRequestWithRequesterEmail    = AddCollaboratorToTpaRequest(requesterEmail, newCollaborator, true, Set(verifiedAdminEmail))
-    val addCollaboratorToTpaRequestWithoutRequesterEmail = AddCollaboratorToTpaRequest("", newCollaborator, true, Set(verifiedAdminEmail, requesterEmail))
+    val addCollaboratorToTpaRequestWithoutRequesterEmail = AddCollaboratorToTpaRequest("".toLaxEmail, newCollaborator, true, Set(verifiedAdminEmail, requesterEmail))
 
     val addCollaboratorSuccessResult           = AddCollaboratorSuccessResult(userRegistered = true)
     val collaboratorAlreadyExistsFailureResult = CollaboratorAlreadyExistsFailureResult
@@ -151,11 +150,11 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
   }
 
   "handleRequest" should {
-    val actor = CollaboratorActor("someEMail")
+    val actor = CollaboratorActor("someEMail".toLaxEmail)
 
     "decorate RemoveCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val collaborator                    = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(getOrCreateUserIdResponse.userId))
       val request                         = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))
@@ -168,7 +167,7 @@ class ApplicationCollaboratorServiceSpec extends AsyncHmrcSpec {
 
     "decorate AddCollaborator Request when third party developer call is successful" in new Setup {
       val userResponse: Seq[UserResponse] = adminMinusRequesterUserResponses
-      val collaborator                    = Collaborator("collaboratorEmail", DEVELOPER, Option(getOrCreateUserIdResponse.userId))
+      val collaborator                    = Collaborator("collaboratorEmail".toLaxEmail, DEVELOPER, Option(getOrCreateUserIdResponse.userId))
       val request                         = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now(fixedClock))
 
       when(mockThirdPartyDeveloperConnector.getOrCreateUserId(*)(*)).thenReturn(successful(getOrCreateUserIdResponse))

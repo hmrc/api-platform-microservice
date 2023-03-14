@@ -43,6 +43,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import java.time.LocalDateTime
 
@@ -95,8 +96,8 @@ class ThirdPartyApplicationConnectorISpec
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
-      Collaborator("admin@example.com", ADMINISTRATOR, Some(UserId.random)),
-      Collaborator("dev@example.com", DEVELOPER, Some(UserId.random))
+      Collaborator("admin@example.com".toLaxEmail, ADMINISTRATOR, Some(UserId.random)),
+      Collaborator("dev@example.com".toLaxEmail, DEVELOPER, Some(UserId.random))
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(
@@ -356,7 +357,7 @@ class ThirdPartyApplicationConnectorISpec
     val applicationId = ApplicationId.random
     val url           = s"/application/${applicationId.value}"
 
-    val actor                     = CollaboratorActor("dev@example.com")
+    val actor                     = CollaboratorActor("dev@example.com".toLaxEmail)
     val timestamp                 = LocalDateTime.now()
     val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
@@ -397,9 +398,9 @@ class ThirdPartyApplicationConnectorISpec
 
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
     val applicationId          = ApplicationId.random
-    val requestorEmail         = "requestor@example.com"
-    val newTeamMemberEmail     = "newTeamMember@example.com"
-    val adminsToEmail          = Set("bobby@example.com", "daisy@example.com")
+    val requestorEmail         = "requestor@example.com".toLaxEmail
+    val newTeamMemberEmail     = "newTeamMember@example.com".toLaxEmail
+    val adminsToEmail          = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
     val newCollaborator        = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
     val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
     val url                    = s"/application/${applicationId.value}/collaborator"

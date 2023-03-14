@@ -36,6 +36,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
 
@@ -64,7 +65,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
   "addCollaborator" should {
     "return Created when successfully adding a Collaborator" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
+      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
@@ -79,7 +80,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
 
     "return Conflict when Collaborator already exists" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
+      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Role.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
       val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""

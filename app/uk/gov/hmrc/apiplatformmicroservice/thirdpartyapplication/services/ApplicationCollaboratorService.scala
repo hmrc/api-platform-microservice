@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, GetOrCreateUserIdRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorResult, EnvironmentAwareThirdPartyApplicationConnector, ThirdPartyDeveloperConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 @Singleton
 class ApplicationCollaboratorService @Inject() (
@@ -54,7 +55,7 @@ class ApplicationCollaboratorService @Inject() (
     } yield RemoveCollaborator(cmd.actor, collaborator, verifiedAdmins, LocalDateTime.now(clock))
   }
 
-  def generateCreateRequest(app: Application, email: String, role: Role, requestingEmail: Option[String])(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaRequest] = {
+  def generateCreateRequest(app: Application, email: LaxEmailAddress, role: Role, requestingEmail: Option[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[AddCollaboratorToTpaRequest] = {
 
     for {
       otherAdmins  <- thirdPartyDeveloperConnector.fetchByEmails(getOtherAdmins(app, requestingEmail))
@@ -63,30 +64,30 @@ class ApplicationCollaboratorService @Inject() (
       collaborator  = Collaborator(email, role, Some(userId))
       // TODO: handle requestingEmail being None when called from GK
       // TODO: AddCollaboratorToTpaRequest.isRegistered flag is being hard coded here as it isn't used in TPA
-      request       = AddCollaboratorToTpaRequest(requestingEmail.getOrElse(""), collaborator, isRegistered = true, adminsToEmail.toSet)
+      request       = AddCollaboratorToTpaRequest(requestingEmail.getOrElse(LaxEmailAddress("")), collaborator, isRegistered = true, adminsToEmail.toSet)
     } yield request
   }
 
   @deprecated("remove after clients are no longer using the old endpoint")
-  def addCollaborator(app: Application, email: String, role: Role, requestingEmail: Option[String])(implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
+  def addCollaborator(app: Application, email: LaxEmailAddress, role: Role, requestingEmail: Option[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
     for {
-      request  <- generateCreateRequest(app: Application, email: String, role: Role, requestingEmail: Option[String])
+      request  <- generateCreateRequest(app: Application, email: LaxEmailAddress, role: Role, requestingEmail: Option[LaxEmailAddress])
       response <- thirdPartyApplicationConnector(app.deployedTo).addCollaborator(app.id, request)
     } yield response
   }
 
-  private def getOtherAdmins(app: Application, requestingEmail: Option[String]): Set[String] = {
+  private def getOtherAdmins(app: Application, requestingEmail: Option[LaxEmailAddress]): Set[LaxEmailAddress] = {
     getApplicationAdmins(app).filterNot(requestingEmail.contains(_))
   }
 
-  private def getApplicationAdmins(app: Application): Set[String] = {
+  private def getApplicationAdmins(app: Application): Set[LaxEmailAddress] = {
     app.collaborators
       .filter(_.role.isAdministrator)
       .map(_.emailAddress)
   }
 
-  private def getUserId(collaboratorEmail: String)(implicit hc: HeaderCarrier): Future[UserId] =
+  private def getUserId(collaboratoremail: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[UserId] =
     thirdPartyDeveloperConnector
-      .getOrCreateUserId(GetOrCreateUserIdRequest(collaboratorEmail)).map(getOrCreateUserIdResponse => getOrCreateUserIdResponse.userId)
+      .getOrCreateUserId(GetOrCreateUserIdRequest(collaboratoremail)).map(getOrCreateUserIdResponse => getOrCreateUserIdResponse.userId)
 
 }
