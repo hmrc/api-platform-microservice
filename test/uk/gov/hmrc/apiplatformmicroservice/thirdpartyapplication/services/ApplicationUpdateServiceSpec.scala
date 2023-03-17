@@ -41,10 +41,10 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.R
 
   implicit val hc = HeaderCarrier()
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with ApplicationCollaboratorServiceModule with MockitoSugar
+  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar
       with ArgumentMatchersSugar with UserResponseBuilder with ApplicationBuilder {
 
-    val service = new ApplicationUpdateService(ApplicationCollaboratorServiceMock.aMock, EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
+    val service = new ApplicationUpdateService(EnvironmentAwareThirdPartyApplicationConnectorMock.instance)
 
     val newCollaboratorEmail                    = "newCollaborator@testuser.com".toLaxEmail
     val newCollaboratorUserId                   = UserId.random
@@ -78,74 +78,11 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.R
 
   }
 
-  "addCollaborator" should {
-    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
-    val request      = AddCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
-    "call third party application with decorated AddCollaborator when called" in new Setup {
-
-      ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnAddCollaborator(AddCollaborator(
-        actor,
-        collaborator,
-        existingCollaborators.map(_.emailAddress),
-        LocalDateTime.now()
-      ))
-      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
-
-      val result: Application = await(service.updateApplication(productionApplication, request))
-
-      result shouldBe productionApplication
-    }
-
-    "return UpstreamErrorResponse when call to third party developer fails" in new Setup {
-
-      ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnErrorsAddCollaborator()
-
-      intercept[UpstreamErrorResponse] {
-        await(service.updateApplication(productionApplication, request))
-      }
-
-    }
-
-  }
-
-  "removeCollaborator" should {
-    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
-    val request      = RemoveCollaboratorRequest(actor, collaborator.emailAddress, collaborator.role, LocalDateTime.now())
-    "call third party application with decorated RemoveCollaborator when called" in new Setup {
-
-      ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnRemoveCollaborator(RemoveCollaborator(
-        actor,
-        collaborator,
-        existingCollaborators.map(_.emailAddress),
-        LocalDateTime.now()
-      ))
-      EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
-
-      val result: Application = await(service.updateApplication(productionApplication, request))
-
-      result shouldBe productionApplication
-    }
-
-    "return UpstreamErrorResponse when call to third party developer fails" in new Setup {
-
-      ApplicationCollaboratorServiceMock.handleRequestCommand.willReturnErrorsRemoveCollaborator()
-
-      intercept[UpstreamErrorResponse] {
-        await(service.updateApplication(productionApplication, request))
-      }
-
-    }
-
-  }
-
   "non request Type command" should {
     val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
-    val collaborator = Collaborators.Developer(UserId.random, "collaboratorEmail".toLaxEmail)
 
     "call third party application  with same command as passed in" in new Setup {
-      val request = RemoveCollaborator(actor, collaborator, existingCollaborators.map(_.emailAddress), LocalDateTime.now())
+      val request = UpdateRedirectUris(actor, List.empty, List.empty, LocalDateTime.now())
 
       EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.UpdateApplication.willReturnSuccess(productionApplication)
 

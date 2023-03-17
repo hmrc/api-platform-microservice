@@ -19,8 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, LaxEmailAddress}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 
 sealed trait ApplicationUpdate {
   def timestamp: LocalDateTime
@@ -28,10 +27,6 @@ sealed trait ApplicationUpdate {
 }
 trait UpdateRequest extends ApplicationUpdate
 
-case class AddCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborator.Role, timestamp: LocalDateTime)        extends UpdateRequest
-case class AddCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)          extends ApplicationUpdate
-case class RemoveCollaboratorRequest(actor: Actor, collaboratorEmail: LaxEmailAddress, collaboratorRole: Collaborator.Role, timestamp: LocalDateTime)     extends UpdateRequest
-case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, adminsToEmail: Set[LaxEmailAddress], timestamp: LocalDateTime)       extends ApplicationUpdate
 case class SubscribeToApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                     extends ApplicationUpdate
 case class UnsubscribeFromApi(actor: Actor, apiIdentifier: ApiIdentifier, timestamp: LocalDateTime)                                 extends ApplicationUpdate
 case class UpdateRedirectUris(actor: Actor, oldRedirectUris: List[String], newRedirectUris: List[String], timestamp: LocalDateTime) extends ApplicationUpdate
@@ -40,22 +35,16 @@ trait ApplicationUpdateFormatters {
   import play.api.libs.json.Json
   import uk.gov.hmrc.play.json.Union
 
-  implicit val addCollaboratorFormatter              = Json.format[AddCollaborator]
-  implicit val addCollaboratorUpdateRequestFormatter = Json.format[AddCollaboratorRequest]
-  implicit val removeCollaboratorFormatter           = Json.format[RemoveCollaborator]
-  implicit val removeCollaboratorRequestFormatter    = Json.format[RemoveCollaboratorRequest]
   implicit val subscribeToApiFormatter               = Json.format[SubscribeToApi]
   implicit val unsubscribeFromApiFormatter           = Json.format[UnsubscribeFromApi]
   implicit val updateRedirectUrisFormatter           = Json.format[UpdateRedirectUris]
 
   implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
-    .and[AddCollaboratorRequest]("addCollaboratorRequest")
-    .and[AddCollaborator]("addCollaborator")
-    .and[RemoveCollaborator]("removeCollaborator")
-    .and[RemoveCollaboratorRequest]("removeCollaboratorRequest")
     .and[SubscribeToApi]("subscribeToApi")
     .and[UnsubscribeFromApi]("unsubscribeFromApi")
     .and[UpdateRedirectUris]("updateRedirectUris")
     .format
 
 }
+
+object ApplicationUpdateFormatters extends ApplicationUpdateFormatters

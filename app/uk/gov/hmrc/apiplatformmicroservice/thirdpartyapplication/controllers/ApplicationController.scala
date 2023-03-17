@@ -26,18 +26,16 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.{AddCollaboratorRequestOld, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{
   ApplicationByIdFetcher,
-  ApplicationCollaboratorService,
   SubordinateApplicationFetcher,
   UpliftApplicationService
 }
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftRequest
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 
 object ApplicationController {
   import play.api.libs.functional.syntax._
@@ -57,7 +55,6 @@ class ApplicationController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    val applicationCollaboratorService: ApplicationCollaboratorService,
     val upliftApplicationService: UpliftApplicationService,
     val subordinateApplicationFetcher: SubordinateApplicationFetcher,
     cc: ControllerComponents
@@ -69,18 +66,6 @@ class ApplicationController @Inject() (
       oApp <- applicationService.fetchApplicationWithSubscriptionData(id)
     } yield oApp.fold[Result](NotFound)(a => Ok(Json.toJson(a)))
   }
-
-  @deprecated("remove after clients are no longer using the old endpoint")
-  def addCollaborator(applicationId: ApplicationId): Action[JsValue] =
-    ApplicationAction(applicationId).async(parse.json) { implicit request: ApplicationRequest[JsValue] =>
-      withJsonBody[AddCollaboratorRequestOld] { collaboratorRequest =>
-        applicationCollaboratorService.addCollaborator(request.application, collaboratorRequest.email, collaboratorRequest.role, collaboratorRequest.requestingEmail)
-          .map {
-            case AddCollaboratorSuccessResult(_)        => Created
-            case CollaboratorAlreadyExistsFailureResult => Conflict(Json.toJson(Map("message" -> "Collaborator already exists on the Appication")))
-          }
-      }
-    }
 
   import ApplicationController._
 

@@ -18,8 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-
 import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
@@ -30,17 +28,14 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, C
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Role
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
 
-class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApplicationByIdFetcherModule with ApplicationUpdateServiceModule with ApplicationBuilder with CollaboratorsBuilder with ApplicationJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = app.materializer
 
     val applicationId = ApplicationId.random
 
@@ -59,23 +54,25 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
   "update" should {
     val payload =
       s"""{
-         |        "actor": {
-         |          "email": "someone@digital.hmrc.gov.uk",
-         |          "actorType": "COLLABORATOR"
-         |        }
-         |        ,
-         |        "collaboratorEmail": "thecollaborator@digital.hmrc.gov.uk"
-         |        ,
-         |        "collaboratorRole": "ADMINISTRATOR"
-         |        ,
-         |        "timestamp": "2022-10-12T08:06:46.706"
-         |        ,
-         |        "updateType": "addCollaboratorRequest"
-         |      }""".stripMargin
+          |  "actor": {
+          |    "email": "someone@digital.hmrc.gov.uk",
+          |    "actorType": "COLLABORATOR"
+          |  },
+          |  "apiIdentifier": {
+          |    "context": "abc",
+          |    "version": "1.0"
+          |  },
+          |  "timestamp": "2022-10-12T08:06:46.706",
+          |  "updateType": "subscribeToApi"
+          |}""".stripMargin
+
+    "read the json" in new Setup {
+      import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationUpdateFormatters._
+      Json.parse(payload).as[SubscribeToApi]
+    }
 
     "return Ok when update service is successful" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Collaborator.Roles.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
       val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
@@ -88,7 +85,6 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerS
 
     "return Not Found when no application is found" in new Setup {
       val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com".toLaxEmail, Collaborator.Roles.DEVELOPER)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
       val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
