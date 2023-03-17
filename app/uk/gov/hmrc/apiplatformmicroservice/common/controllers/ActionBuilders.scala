@@ -59,7 +59,7 @@ trait ActionBuilders {
       }
     }
 
-  def ApplicationAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationRequest, AnyContent] =
+  def applicationAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationRequest, AnyContent] =
     Action.andThen(applicationRefiner(applicationId))
 
   private def applicationWithSubscriptionDataRefiner(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionRefiner[Request, ApplicationWithSubscriptionDataRequest] =
@@ -83,14 +83,14 @@ trait ActionBuilders {
       }
     }
 
-  def ApplicationWithSubscriptionDataAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
+  def applicationWithSubscriptionDataAction(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
     Action andThen applicationWithSubscriptionDataRefiner(applicationId)
 
-  def RequiresAuthenticationForPrivilegedOrRopcApplications(
+  def requiresAuthenticationForPrivilegedOrRopcApplications(
       applicationId: ApplicationId
     )(implicit ec: ExecutionContext
     ): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
-    ApplicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(PRIVILEGED, ROPC), false)
+    applicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(PRIVILEGED, ROPC), false)
 
   private case class RepositoryBasedApplicationTypeFilter(
       applicationId: ApplicationId,

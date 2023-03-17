@@ -46,7 +46,7 @@ class SubscriptionController @Inject() (
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
-    RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
+    requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
@@ -62,7 +62,7 @@ class SubscriptionController @Inject() (
     }
 
   def subscribeToApiAppUpdate(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
-    RequiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
+    requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[SubscribeToApi] { subscribeToApi =>
         val api = subscribeToApi.apiIdentifier
         subscriptionService
@@ -79,7 +79,7 @@ class SubscriptionController @Inject() (
     }
 
   def fetchUpliftableSubscriptions(applicationId: ApplicationId): Action[AnyContent] =
-    ApplicationWithSubscriptionDataAction(applicationId).async { implicit appData: ApplicationWithSubscriptionDataRequest[AnyContent] =>
+    applicationWithSubscriptionDataAction(applicationId).async { implicit appData: ApplicationWithSubscriptionDataRequest[AnyContent] =>
       upliftApplicationService.fetchUpliftableApisForApplication(appData.subscriptions)
         .map { set =>
           if (set.isEmpty) NotFound else Ok(Json.toJson(set))

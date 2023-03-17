@@ -23,6 +23,6 @@ case class DispatchSuccessResult(applicationResponse: Application)
 
 object DispatchSuccessResult {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-  
+
   implicit val format = Json.format[DispatchSuccessResult]
 }

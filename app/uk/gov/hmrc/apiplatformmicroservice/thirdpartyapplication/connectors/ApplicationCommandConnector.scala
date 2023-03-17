@@ -59,12 +59,12 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
     def parseWithLogAndThrow[T](input: String)(implicit reads: Reads[T]): T = {
       Json.parse(input).validate[T] match {
         case JsSuccess(t, _) => t
-        case JsError(err) => 
+        case JsError(err) =>
           logger.error(s"Failed to parse >>$input<< due to errors $err")
           throw new InternalServerException("Failed parsing response to dispatch")
       }
     }
-    
+
     val url          = s"${baseApplicationUrl(applicationId)}/dispatch"
     val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
@@ -117,7 +117,7 @@ class PrincipalApplicationCommandConnector @Inject() (
 
 object PrincipalApplicationCommandConnector {
   case class Config(
-      baseUrl: String,
+      baseUrl: String
     )
 }
 
