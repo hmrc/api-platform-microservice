@@ -42,6 +42,8 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
   val serviceBaseUrl: String
   def http: HttpClient
 
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value}"
+
   def dispatch(
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
@@ -54,8 +56,6 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._
 
-    def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value.toString()}"
-
     def parseWithLogAndThrow[T](input: String)(implicit reads: Reads[T]): T = {
       Json.parse(input).validate[T] match {
         case JsSuccess(t, _) => t
@@ -64,7 +64,7 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
           throw new InternalServerException("Failed parsing response to dispatch")
       }
     }
-
+    
     val url          = s"${baseApplicationUrl(applicationId)}/dispatch"
     val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
@@ -75,7 +75,7 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
           case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[NonEmptyList[CommandFailure]]
           case BAD_REQUEST => parseWithLogAndThrow[NonEmptyList[CommandFailure]](response.body).asLeft[DispatchSuccessResult]
           case status      => logger.error(s"Dispatch failed with status code: $status")
-                              throw new InternalServerException("Failed calling dispatch")
+                              throw new InternalServerException(s"Failed calling dispatch $status")
         }
       )
   }

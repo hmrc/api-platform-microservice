@@ -25,7 +25,6 @@ import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -135,20 +134,6 @@ private[thirdpartyapplication] abstract class AbstractThirdPartyApplicationConne
       .map {
         case Left(errorResponse) => throw errorResponse
         case Right(_)            => SubscriptionUpdateSuccessResult
-      }
-  }
-
-  @deprecated("remove after clients are no longer using the old endpoint")
-  def addCollaborator(applicationId: ApplicationId, addCollaboratorRequest: AddCollaboratorToTpaRequest)(implicit hc: HeaderCarrier): Future[AddCollaboratorResult] = {
-    http.POST[AddCollaboratorToTpaRequest, Either[UpstreamErrorResponse, AddCollaboratorToTpaResponse]](
-      s"$serviceBaseUrl/application/${applicationId.value}/collaborator",
-      addCollaboratorRequest
-    )
-      .map {
-        case Right(response)                                 => AddCollaboratorSuccessResult(response.registeredUser)
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw new ApplicationNotFound
-        case Left(UpstreamErrorResponse(_, CONFLICT, _, _))  => CollaboratorAlreadyExistsFailureResult
-        case Left(errorResponse)                             => throw errorResponse
       }
   }
 
