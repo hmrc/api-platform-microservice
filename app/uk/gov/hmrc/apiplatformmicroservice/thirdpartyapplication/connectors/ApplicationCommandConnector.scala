@@ -108,7 +108,7 @@ object SubordinateApplicationCommandConnector {
 @Singleton
 class PrincipalApplicationCommandConnector @Inject() (
     config: PrincipalApplicationCommandConnector.Config,
-    val http: HttpClient,
+    val http: HttpClient
   )(implicit val ec: ExecutionContext
   ) extends AbstractApplicationCommandConnector {
 
