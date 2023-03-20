@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiVersion
+import  uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ApiSpecificationControllerSpec extends AsyncHmrcSpec {

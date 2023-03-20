@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.common.domain.models
+package uk.gov.hmrc.apiplatform.modules.apis.domain.models
 
-import java.{util => ju}
-import scala.util.Try
+import scala.util.Random
 
-case class UserId(value: ju.UUID) extends AnyVal {
-  def asText: String = value.toString
-}
+import play.api.libs.json.Json
 
-object UserId {
-  import play.api.libs.json.Json
-  implicit val userIdFormat = Json.valueFormat[UserId]
+final case class ApiContext(value: String) extends AnyVal
 
-  def parse(text: String): Option[UserId] =
-    Try(ju.UUID.fromString(text)).toOption.map(u => UserId(u))
+object ApiContext {
+  implicit val apiContextFormat = Json.valueFormat[ApiContext]
 
-    def random: UserId = UserId(ju.UUID.randomUUID())
+  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
+    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
+  }
+
+  def random = ApiContext(Random.alphanumeric.take(10).mkString)
 }

@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionTestDataHelper, ApiIdentifier}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelper with FilterApiDocumentation {
   "filterApisForDocumentation" when {

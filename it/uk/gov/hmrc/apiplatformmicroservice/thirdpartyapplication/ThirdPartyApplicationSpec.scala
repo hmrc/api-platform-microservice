@@ -22,9 +22,10 @@ import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.{SubscriptionFieldDefinitionsMock, SubscriptionFieldValuesMock}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 
 class ThirdPartyApplicationSpec extends WireMockSpec with ApplicationMock with SubscriptionFieldDefinitionsMock with SubscriptionFieldValuesMock {

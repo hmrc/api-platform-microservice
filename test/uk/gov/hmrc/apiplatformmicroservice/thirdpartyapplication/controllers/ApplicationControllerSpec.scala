@@ -19,8 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-
 import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
@@ -29,20 +27,17 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{AddCollaboratorSuccessResult, CollaboratorAlreadyExistsFailureResult}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
-class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper {
+class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationCollaboratorServiceModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
       with SubordinateApplicationFetcherModule with ApplicationJsonFormatters {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = app.materializer
 
     val applicationId = ApplicationId.random
 
@@ -54,43 +49,10 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite w
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
       mockAuthConnector,
-      ApplicationCollaboratorServiceMock.aMock,
       mockUpliftService,
       SubordinateApplicationFetcherMock.aMock,
       Helpers.stubControllerComponents()
     )
-  }
-
-  "addCollaborator" should {
-    "return Created when successfully adding a Collaborator" in new Setup {
-      val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
-      val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
-      val response     = AddCollaboratorSuccessResult(true)
-
-      ApplicationCollaboratorServiceMock.AddCollaborator.willReturnAddCollaboratorResponse(response)
-
-      val result = controller.addCollaborator(applicationId)(request.withBody(Json.parse(payload)))
-
-      status(result) shouldBe CREATED
-    }
-
-    "return Conflict when Collaborator already exists" in new Setup {
-      val application  = buildApplication(appId = applicationId)
-      val collaborator = buildCollaborator("bob@example.com", Role.DEVELOPER)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request      = FakeRequest("POST", s"/applications/${applicationId.value}/collaborators")
-      val payload      = s"""{"email":"${collaborator.emailAddress}", "role":"${collaborator.role.toString}"}"""
-      val response     = CollaboratorAlreadyExistsFailureResult
-
-      ApplicationCollaboratorServiceMock.AddCollaborator.willReturnAddCollaboratorResponse(response)
-
-      val result = controller.addCollaborator(applicationId)(request.withBody(Json.parse(payload)))
-
-      status(result) shouldBe CONFLICT
-    }
   }
 
   "upliftApplicationV2" should {

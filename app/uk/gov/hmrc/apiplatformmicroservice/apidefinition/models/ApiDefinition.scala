@@ -16,44 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import scala.util.Random
-
 import cats.data.{NonEmptyList => NEL}
 import enumeratum._
 
-import play.api.libs.json.Json
-
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
-
-case class ApiContext(value: String) extends AnyVal
-
-object ApiContext {
-  implicit val apiContextFormat = Json.valueFormat[ApiContext]
-
-  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
-    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
-  }
-  def random                                  = ApiContext(Random.alphanumeric.take(10).mkString)
-}
-
-case class ApiVersion(value: String) extends AnyVal
-
-object ApiVersion {
-  implicit val apiVersionFormat = Json.valueFormat[ApiVersion]
-
-  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
-    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
-  }
-  def random                                  = ApiVersion(Random.nextDouble().toString)
-}
-
-case class ApiIdentifier(context: ApiContext, version: ApiVersion)
-
-object ApiIdentifier {
-  implicit val apiIdentifierFormat = Json.format[ApiIdentifier]
-
-  def random = ApiIdentifier(ApiContext.random, ApiVersion.random)
-}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class ApiDefinition(
     serviceName: String,

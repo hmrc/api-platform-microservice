@@ -22,17 +22,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{
-  AddCollaboratorRequest,
-  Application,
-  ApplicationUpdate,
-  RemoveCollaboratorRequest,
-  UpdateRequest
-}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationUpdate
 
 @Singleton
 class ApplicationUpdateService @Inject() (
-    val collaboratorService: ApplicationCollaboratorService,
     val thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector
   ) {
 
@@ -43,26 +37,7 @@ class ApplicationUpdateService @Inject() (
     }
 
     for {
-      updateCommand <- handleRequestTypes(app, applicationUpdate)
-      result        <- callTpa(updateCommand)
+      result        <- callTpa(applicationUpdate)
     } yield result
-
   }
-
-  private def handleRequestTypes(app: Application, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[ApplicationUpdate] = {
-
-    def handleRequest(updateRequest: UpdateRequest) = {
-      updateRequest match {
-        case x: AddCollaboratorRequest    => collaboratorService.handleRequestCommand(app, x)
-        case x: RemoveCollaboratorRequest => collaboratorService.handleRequestCommand(app, x)
-        case x                            => Future.successful(x)
-      }
-    }
-
-    applicationUpdate match {
-      case request: UpdateRequest => handleRequest(request)
-      case x                      => Future.successful(x)
-    }
-  }
-
 }

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._
@@ -59,8 +60,6 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   }
 
   implicit val formatTermsOfUseAgreement = TOUAHelper.formatTOUA
-
-  implicit val formatCollaborator: Format[Collaborator] = Json.format[Collaborator]
 
   implicit val formatContactDetails: Format[ContactDetails] = Json.format[ContactDetails]
 

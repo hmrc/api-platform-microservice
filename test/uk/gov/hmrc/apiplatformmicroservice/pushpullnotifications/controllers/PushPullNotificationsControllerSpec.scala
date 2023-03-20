@@ -19,8 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-
 import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
@@ -32,13 +30,28 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuil
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.PushPullNotificationsController
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
+import org.scalatest.BeforeAndAfterAll
+import akka.actor.ActorSystem
+import akka.stream.Materializer
 
-class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
+class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
+
+  var as: ActorSystem = _
+  implicit var mat: Materializer = _
+
+  override protected def beforeAll(): Unit = {
+    as = ActorSystem("test")
+    mat = Materializer(as)
+  }
+
+  override protected def afterAll(): Unit = {
+    mat = null
+    await(as.terminate())
+    as = null
+  }
 
   trait Setup extends BoxBuilder {
     implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = app.materializer
-
     val mockBoxFetcher = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
 
     val controller = new PushPullNotificationsController(

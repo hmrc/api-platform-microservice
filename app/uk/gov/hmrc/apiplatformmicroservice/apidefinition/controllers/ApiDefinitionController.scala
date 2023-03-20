@@ -25,12 +25,14 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, ApiIdentifiersForUpliftFetcher, ApisFetcher, OpenAccessApisFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class ApiDefinitionController @Inject() (
@@ -62,11 +64,11 @@ class ApiDefinitionController @Inject() (
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if (restricted.getOrElse(true)) {
-      ApplicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
+      applicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
         fetchApiDefinitions(applicationBasedApiFetcher.fetchRestricted(request.application, request.subscriptions))
       }
     } else {
-      ApplicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
+      applicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
         fetchApiDefinitions(applicationBasedApiFetcher.fetchUnrestricted(request.application))
       }
     }

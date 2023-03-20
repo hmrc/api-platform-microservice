@@ -34,19 +34,23 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.{AddCollaboratorToTpaRequest, AddCollaboratorToTpaResponse}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Role._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
+
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with ConfigBuilder
@@ -94,8 +98,8 @@ class ThirdPartyApplicationConnectorISpec
     private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
-      Collaborator("admin@example.com", ADMINISTRATOR, Some(UserId.random)),
-      Collaborator("dev@example.com", DEVELOPER, Some(UserId.random))
+      Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),
+      Collaborators.Developer(UserId.random, "dev@example.com".toLaxEmail)
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(
@@ -355,7 +359,7 @@ class ThirdPartyApplicationConnectorISpec
     val applicationId = ApplicationId.random
     val url           = s"/application/${applicationId.value}"
 
-    val actor                     = CollaboratorActor("dev@example.com")
+    val actor                     = Actors.AppCollaborator("dev@example.com".toLaxEmail)
     val timestamp                 = LocalDateTime.now()
     val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
@@ -391,64 +395,6 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
       await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
-    }
-  }
-
-  trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
-    val applicationId          = ApplicationId.random
-    val requestorEmail         = "requestor@example.com"
-    val newTeamMemberEmail     = "newTeamMember@example.com"
-    val adminsToEmail          = Set("bobby@example.com", "daisy@example.com")
-    val newCollaborator        = buildCollaborator(newTeamMemberEmail, Role.ADMINISTRATOR)
-    val addCollaboratorRequest = AddCollaboratorToTpaRequest(requestorEmail, newCollaborator, isRegistered = true, adminsToEmail)
-    val url                    = s"/application/${applicationId.value}/collaborator"
-  }
-
-  "addCollaborator" should {
-    "return success" in new CollaboratorSetup {
-      val addCollaboratorResponse = AddCollaboratorToTpaResponse(true)
-
-      stubFor(PRODUCTION)(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(addCollaboratorRequest)
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(addCollaboratorResponse)
-          )
-      )
-      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-
-      result shouldEqual AddCollaboratorSuccessResult(addCollaboratorResponse.registeredUser)
-    }
-
-    "return teamMember already exists response" in new CollaboratorSetup {
-      stubFor(PRODUCTION)(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(addCollaboratorRequest)
-          .willReturn(
-            aResponse()
-              .withStatus(CONFLICT)
-          )
-      )
-      val result: AddCollaboratorResult = await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-
-      result shouldEqual CollaboratorAlreadyExistsFailureResult
-    }
-
-    "return application not found response" in new CollaboratorSetup {
-      stubFor(PRODUCTION)(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(addCollaboratorRequest)
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-          )
-      )
-
-      intercept[ApplicationNotFound] {
-        await(connector.addCollaborator(applicationId, addCollaboratorRequest))
-      }
     }
   }
 }

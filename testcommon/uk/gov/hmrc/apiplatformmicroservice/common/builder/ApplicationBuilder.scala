@@ -20,9 +20,14 @@ import java.time.Period
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 trait ApplicationBuilder extends CollaboratorsBuilder {
 
   def buildApplication(
@@ -32,7 +37,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       checkInformation: Option[CheckInformation] = None
     ): Application = {
     val clientId            = ClientId.random
-    val appOwnerEmail       = "a@b.com"
+    val appOwnerEmail       = "a@b.com".toLaxEmail
     val grantLength: Period = Period.ofDays(547)
 
     Application(
@@ -46,7 +51,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, Role.ADMINISTRATOR))),
+      collaborators = buildCollaborators(Seq((appOwnerEmail, Collaborator.Roles.ADMINISTRATOR))),
       access = Standard(
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
@@ -71,7 +76,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: LaxEmailAddress)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.copy(id = id)
@@ -81,14 +86,14 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def withName(name: String)               = app.copy(name = name)
     def withDescription(description: String) = app.copy(description = Some(description))
 
-    def withAdmin(email: String) = {
+    def withAdmin(email: LaxEmailAddress) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.ADMINISTRATOR, None))
+      app1.copy(collaborators = app1.collaborators + buildCollaborator(email, Collaborator.Roles.ADMINISTRATOR))
     }
 
-    def withDeveloper(email: String) = {
+    def withDeveloper(email: LaxEmailAddress) = {
       val app1 = app.withoutCollaborator(email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(email, Role.DEVELOPER, None))
+      app1.copy(collaborators = app1.collaborators + buildCollaborator(email, Collaborator.Roles.DEVELOPER))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

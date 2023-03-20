@@ -22,9 +22,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiContext, ApiDefinitionTestDataHelper, ApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
 
@@ -39,8 +39,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     val apiVersionOne         = ApiVersion("1.0")
     val apiVersionTwo         = ApiVersion("2.0")
 
-    val subordinateSubscriptions = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
-    val principalSubscriptions   = Seq(models.ApiIdentifier(apiContextHelloWorld, apiVersionOne), models.ApiIdentifier(apiContextHelloAgents, apiVersionOne))
+    val subordinateSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
+    val principalSubscriptions   = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloAgents, apiVersionOne))
     val underTest                = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
@@ -52,9 +52,9 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
       val result = await(underTest.fetch(developer))
 
       result shouldBe Set(
-        models.ApiIdentifier(apiContextHelloWorld, apiVersionOne),
-        models.ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
-        models.ApiIdentifier(apiContextHelloAgents, apiVersionOne)
+        ApiIdentifier(apiContextHelloWorld, apiVersionOne),
+        ApiIdentifier(apiContextHelloWorld, apiVersionTwo),
+        ApiIdentifier(apiContextHelloAgents, apiVersionOne)
       )
     }
 

@@ -20,14 +20,15 @@ import java.util.UUID
 
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionJsonFormatters, ApiVersion}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
-  import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiContext
+  import  uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
 
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 

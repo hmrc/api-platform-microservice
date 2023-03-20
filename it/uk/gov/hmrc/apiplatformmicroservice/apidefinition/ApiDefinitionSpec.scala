@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import java.{util => ju}
 import play.api.libs.json._
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
@@ -27,9 +26,11 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
@@ -38,7 +39,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
 
     "stub get request for fetch api definitions" in {
       val applicationId = ApplicationId.random
-      val clientId      = ClientId(ju.UUID.randomUUID.toString)
+      val clientId      = ClientId.random
 
       mockFetchApplication(Environment.PRODUCTION, applicationId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)

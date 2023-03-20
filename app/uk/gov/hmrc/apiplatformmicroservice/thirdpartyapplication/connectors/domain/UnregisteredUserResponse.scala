@@ -18,9 +18,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.dom
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-case class UnregisteredUserResponse(email: String, creationTime: DateTime, userId: UserId)
+case class UnregisteredUserResponse(email: LaxEmailAddress, creationTime: DateTime, userId: UserId)
 
 object UnregisteredUserResponse {
   import play.api.libs.json.JodaReads.DefaultJodaDateTimeReads

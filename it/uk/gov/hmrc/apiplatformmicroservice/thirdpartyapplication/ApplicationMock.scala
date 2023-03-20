@@ -19,12 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{ApplicationId, Environment}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 import java.util.UUID
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -56,6 +57,7 @@ trait ApplicationMock {
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
+                       |          "userId": "${UserId.random.value}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }
@@ -87,7 +89,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId("dummyProdId")) {
+  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random) {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))
       .willReturn(
         aResponse()
@@ -100,6 +102,7 @@ trait ApplicationMock {
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
+                       |          "userId": "${UserId.random.value}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }

@@ -24,9 +24,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ThirdPartyDeveloperConnectorSpec
     extends AsyncHmrcSpec
@@ -38,8 +39,8 @@ class ThirdPartyDeveloperConnectorSpec
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val email1  = "fakeemail1"
-    val email2  = "fakeemail2"
+    val email1  = "fakeemail1".toLaxEmail
+    val email2  = "fakeemail2".toLaxEmail
     val userId1 = UserId.random
     val userId2 = UserId.random
 

@@ -21,11 +21,12 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.AddCollaboratorToTpaRequest
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV2}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -86,21 +87,6 @@ trait ThirdPartyApplicationConnectorModule {
 
       def willReturnSuccess = {
         when(aMock.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(SubscriptionUpdateSuccessResult))
-      }
-    }
-
-    object AddCollaborator {
-
-      def willReturnSuccess = {
-        when(aMock.addCollaborator(*[ApplicationId], *)(*)).thenReturn(successful(AddCollaboratorSuccessResult(true)))
-      }
-
-      def willReturnFailure = {
-        when(aMock.addCollaborator(*[ApplicationId], *)(*)).thenReturn(successful(CollaboratorAlreadyExistsFailureResult))
-      }
-
-      def verifyCalled(wantedNumberOfInvocations: Int, appId: ApplicationId, addCollaboratorToTpaRequest: AddCollaboratorToTpaRequest) = {
-        verify(aMock, times(wantedNumberOfInvocations)).addCollaborator(eqTo(appId), eqTo(addCollaboratorToTpaRequest))(*)
       }
     }
 

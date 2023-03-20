@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
+package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
-case class AddCollaboratorToTpaResponse(registeredUser: Boolean)
+import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
-object AddCollaboratorToTpaResponse {
-  import play.api.libs.json._
-  implicit val addCollaboratorToTpaResponseFormat = Json.format[AddCollaboratorToTpaResponse]
+case class DispatchSuccessResult(applicationResponse: Application)
+
+object DispatchSuccessResult {
+  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+
+  implicit val format = Json.format[DispatchSuccessResult]
 }
