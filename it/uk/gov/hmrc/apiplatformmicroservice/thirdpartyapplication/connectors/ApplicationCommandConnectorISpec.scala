@@ -50,6 +50,8 @@ import cats.data.NonEmptyList
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import java.time.Clock
 
 class ApplicationCommandConnectorISpec
     extends AsyncHmrcSpec
@@ -57,7 +59,10 @@ class ApplicationCommandConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder {
+    with ApplicationBuilder 
+    with ClockNow {
+
+  val clock = Clock.systemUTC()
 
   trait Setup {
     implicit val applicationResponseWrites = Json.writes[ApplicationResponse]
@@ -120,7 +125,7 @@ class ApplicationCommandConnectorISpec
     val adminsToEmail          = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
 
     val newCollaborator        = Collaborators.Administrator(UserId.random, newTeamMemberEmail)
-    val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, LocalDateTime.now())
+    val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, now)
     val request = DispatchRequest(cmd, adminsToEmail)
   }
 

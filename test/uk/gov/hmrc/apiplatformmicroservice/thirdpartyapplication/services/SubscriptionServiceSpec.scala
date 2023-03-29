@@ -35,9 +35,13 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{Subscrip
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import java.time.Clock
 
-class SubscriptionServiceSpec extends AsyncHmrcSpec {
+class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
 
+  val clock = Clock.systemUTC()
+  
   trait Setup
       extends ApplicationBuilder
       with ApiDefinitionTestDataHelper
@@ -110,7 +114,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
   "createSubscriptionForApplication" should {
     "CreateSubscriptionDuplicate when application is already subscribed to the API " in new Setup {
       val duplicateApi             = apiIdentifierOne
-      val subscribeToApi           = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), duplicateApi, LocalDateTime.now())
+      val subscribeToApi           = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), duplicateApi, now)
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, subscribeToApi, false))
@@ -120,7 +124,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
 
     "CreateSubscriptionDenied when the application cannot subscribe to the API " in new Setup {
       val deniedApi                = ApiIdentifier(apiDefinitionOne.context, apiVersionTwo)
-      val subscribeToApi           = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), deniedApi, LocalDateTime.now())
+      val subscribeToApi           = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), deniedApi, now)
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
       val result = await(underTest.createSubscriptionForApplication(application, existingApiSubscriptions, subscribeToApi, false))
@@ -130,7 +134,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec {
 
     "CreateSubscriptionSuccess when successfully subscribing to API " in new Setup {
       val goodApi                  = apiIdentifierThree
-      val subscribeToApi           = SubscribeToApi(Actors.GatekeeperUser("Gate Keeper"), goodApi, LocalDateTime.now())
+      val subscribeToApi           = SubscribeToApi(Actors.GatekeeperUser("Gate Keeper"), goodApi, now)
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
       SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)

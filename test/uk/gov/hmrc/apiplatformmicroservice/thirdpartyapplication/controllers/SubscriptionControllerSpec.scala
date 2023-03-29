@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -38,9 +37,13 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Uplift
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import java.time.Clock
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 
-class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ClockNow {
 
+  val clock = Clock.systemUTC()
+  
   trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder with ApplicationUpdateFormatters {
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = NoMaterializer
@@ -49,7 +52,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val context        = ApiContext("hello")
     val version        = ApiVersion("1.0")
     val apiIdentifier  = ApiIdentifier(context, version)
-    val subscribeToApi = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), apiIdentifier, LocalDateTime.now())
+    val subscribeToApi = SubscribeToApi(Actors.AppCollaborator("dev@example.com".toLaxEmail), apiIdentifier, now)
 
     val apiId1 = "context1".asIdentifier()
     val apiId2 = "context2".asIdentifier()

@@ -47,10 +47,12 @@ import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import java.time.Clock
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
-
+    with ClockNow
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with ConfigBuilder
@@ -58,6 +60,7 @@ class ThirdPartyApplicationConnectorISpec
     with ApplicationBuilder
     with ApplicationUpdateFormatters {
 
+  val clock = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
   private val versionOne        = ApiVersion("1.0")
   private val versionTwo        = ApiVersion("2.0")
@@ -360,7 +363,7 @@ class ThirdPartyApplicationConnectorISpec
     val url           = s"/application/${applicationId.value}"
 
     val actor                     = Actors.AppCollaborator("dev@example.com".toLaxEmail)
-    val timestamp                 = LocalDateTime.now()
+    val timestamp                 = now
     val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
     val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
     val application               = buildApplication(applicationId)
