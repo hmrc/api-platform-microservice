@@ -34,14 +34,14 @@ import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import play.api.test.Helpers
 import cats.data.NonEmptyList
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock {
   
   trait Setup 
       extends ApplicationByIdFetcherModule
@@ -77,7 +77,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApplication.some)
       CommandConnectorMocks.Sandbox.IssueCommand.Dispatch.succeedsWith(sandboxApplication)
 
-      val cmd = AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, LocalDateTime.now())
+      val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${sandboxApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
       status(controller.dispatch(sandboxApplicationId)(request)) shouldBe OK
@@ -91,7 +91,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
       CommandConnectorMocks.Prod.IssueCommand.Dispatch.succeedsWith(productionApplication)
 
-      val cmd = AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, LocalDateTime.now())
+      val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
       status(controller.dispatch(productionApplicationId)(request)) shouldBe OK
@@ -105,13 +105,12 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
       CommandConnectorMocks.Prod.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
 
-      val cmd = AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, LocalDateTime.now())
+      val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
       val result = controller.dispatch(productionApplicationId)(request)
       status(result) shouldBe BAD_REQUEST
 
-      import CommandFailureJsonFormatters._
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       Json.fromJson[NonEmptyList[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyList.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
@@ -123,7 +122,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
 
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
 
-      val cmd = AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, LocalDateTime.now())
+      val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
       status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST

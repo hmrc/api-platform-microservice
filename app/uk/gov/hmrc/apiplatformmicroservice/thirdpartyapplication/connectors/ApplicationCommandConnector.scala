@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HttpClient, _}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
@@ -35,7 +35,6 @@ trait ApplicationCommandConnector {
 
 private[thirdpartyapplication] abstract class AbstractApplicationCommandConnector
     extends ApplicationCommandConnector
-    with ApplicationCommandFormatters
     with ApplicationLogger {
 
   implicit def ec: ExecutionContext
@@ -50,7 +49,6 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
     )(implicit hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
 
-    import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailureJsonFormatters._
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
     import play.api.libs.json._
     import uk.gov.hmrc.http.HttpReads.Implicits._

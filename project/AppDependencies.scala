@@ -7,15 +7,15 @@ object AppDependencies {
   
   lazy val dependencies = Seq(
     caffeine,
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % bootstrapVersion,
-    "com.beachape"            %% "enumeratum-play-json"       % "1.6.0",
-    "org.typelevel"           %% "cats-core"                  % "2.0.0",
-    "com.typesafe.play"       %% "play-json"                  % "2.9.2",
-    "com.typesafe.play"       %% "play-json-joda"             % "2.9.2",
-    "uk.gov.hmrc"             %% "play-json-union-formatter"  % "1.17.0-play-28",
-    "org.julienrf"            %% "play-json-derived-codecs"   % "7.0.0",
-    "uk.gov.hmrc"             %% "json-encryption"            % "5.1.0-play-28",
-    "uk.gov.hmrc"             %% "time"                       % "3.25.0"
+    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"         % bootstrapVersion,
+    "com.beachape"            %% "enumeratum-play-json"              % "1.6.0",
+    "org.typelevel"           %% "cats-core"                         % "2.0.0",
+    "com.typesafe.play"       %% "play-json"                         % "2.9.2",
+    "com.typesafe.play"       %% "play-json-joda"                    % "2.9.2",
+    "org.julienrf"            %% "play-json-derived-codecs"          % "7.0.0",
+    "uk.gov.hmrc"             %% "json-encryption"                   % "5.1.0-play-28",
+    "uk.gov.hmrc"             %% "time"                              % "3.25.0",
+    "uk.gov.hmrc"             %% "api-platform-application-commands" % "0.7.0"
   )
 
   lazy val testDependencies = Seq(
