@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
