@@ -32,7 +32,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Envi
 import cats.implicits.catsStdInstancesForFuture
 import cats.data.NonEmptyList
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailureJsonFormatters._
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
 
@@ -47,7 +46,6 @@ class ApplicationCommandController @Inject() (
   ) extends BackendController(cc)
     with ActionBuilders
     with ApplicationLogger
-    with ApplicationCommandFormatters
     with NonEmptyListFormatters {
 
   val E = EitherTHelper.make[NonEmptyList[CommandFailure]]

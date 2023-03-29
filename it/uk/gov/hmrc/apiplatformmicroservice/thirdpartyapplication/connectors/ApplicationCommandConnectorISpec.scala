@@ -40,7 +40,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.AddCollaborator
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import java.time.Period
@@ -50,6 +49,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.Comma
 import cats.data.NonEmptyList
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
 import uk.gov.hmrc.http.InternalServerException
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 
 class ApplicationCommandConnectorISpec
     extends AsyncHmrcSpec
@@ -120,7 +120,7 @@ class ApplicationCommandConnectorISpec
     val adminsToEmail          = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
 
     val newCollaborator        = Collaborators.Administrator(UserId.random, newTeamMemberEmail)
-    val cmd = AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, LocalDateTime.now())
+    val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, LocalDateTime.now())
     val request = DispatchRequest(cmd, adminsToEmail)
   }
 
@@ -145,7 +145,6 @@ class ApplicationCommandConnectorISpec
 
     "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
-      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailureJsonFormatters._
       val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
       
       stubFor(Environment.PRODUCTION)(
