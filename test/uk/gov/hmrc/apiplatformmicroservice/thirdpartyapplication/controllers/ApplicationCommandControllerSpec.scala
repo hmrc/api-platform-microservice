@@ -28,8 +28,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.CommandConnectorMockModule
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareApplicationCommandConnector
 import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -38,25 +36,24 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import play.api.test.Helpers
-import cats.data.NonEmptyList
+import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationCommandDispatcherMockModule
 
 class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock {
   
   trait Setup 
       extends ApplicationByIdFetcherModule
       with ApplicationBuilder
-      with CommandConnectorMockModule
+      with ApplicationCommandDispatcherMockModule
       with CollaboratorTracker
       with UpliftRequestSamples
       with ApplicationJsonFormatters {
 
     implicit val headerCarrier = HeaderCarrier()
     
-    val sandboxApplicationId = ApplicationId.random
-    val sandboxApplication = buildApplication(appId = sandboxApplicationId)
-    val productionApplicationId = ApplicationId.random
-    val productionApplication = buildApplication(appId = productionApplicationId).copy(deployedTo = Environment.PRODUCTION)
+    val applicationId = ApplicationId.random
+    val application = buildApplication(appId = applicationId).copy(deployedTo = Environment.PRODUCTION)
 
     val adminEmail = "admin@example.com".toLaxEmail
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator
@@ -65,57 +62,40 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
     val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
     
-    val envAwareCmdConnector = new EnvironmentAwareApplicationCommandConnector(CommandConnectorMocks.Sandbox.aMock, CommandConnectorMocks.Prod.aMock)
-    val controller: ApplicationCommandController = new ApplicationCommandController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, envAwareCmdConnector, Helpers.stubControllerComponents())
+    val controller: ApplicationCommandController = new ApplicationCommandController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, ApplicationCommandDispatcherMock.aMock, Helpers.stubControllerComponents())
   }
 
   "ApplicationCommandController" should {
     import cats.syntax.option._
 
-    "dispatch a command when the app exists in sandbox" in new Setup{
+    "dispatch a command when the app exists" in new Setup{
 
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApplication.some)
-      CommandConnectorMocks.Sandbox.IssueCommand.Dispatch.succeedsWith(sandboxApplication)
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application.some)
+      ApplicationCommandDispatcherMock.IssueCommand.Dispatch.succeedsWith(application)
 
       val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
-      val request = FakeRequest("PATCH", s"/applications/${sandboxApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
+      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
-      status(controller.dispatch(sandboxApplicationId)(request)) shouldBe OK
+      status(controller.dispatch(applicationId)(request)) shouldBe OK
 
-      CommandConnectorMocks.Prod.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      ApplicationCommandDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
     
-    "dispatch a command when the app exists in production" in new Setup{
-
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
-      CommandConnectorMocks.Prod.IssueCommand.Dispatch.succeedsWith(productionApplication)
-
-      val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
-      val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
-      
-      status(controller.dispatch(productionApplicationId)(request)) shouldBe OK
-
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
-    }
-
     "dispatch a command and handle command failure" in new Setup{
 
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
-      CommandConnectorMocks.Prod.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application.some)
+      ApplicationCommandDispatcherMock.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
 
       val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
-      val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
+      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
-      val result = controller.dispatch(productionApplicationId)(request)
+      val result = controller.dispatch(applicationId)(request)
       status(result) shouldBe BAD_REQUEST
 
-      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
-      Json.fromJson[NonEmptyList[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyList.one(CommandFailures.ActorIsNotACollaboratorOnApp)
+      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
+      Json.fromJson[NonEmptyChain[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyChain.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      ApplicationCommandDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
 
     "dont dispatch command when the app does not exist" in new Setup{
@@ -123,12 +103,11 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
 
       val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
-      val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
+      val request = FakeRequest("PATCH", s"/applications/${applicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
-      status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST
+      status(controller.dispatch(applicationId)(request)) shouldBe BAD_REQUEST
 
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyNoCommandsIssued()
+      ApplicationCommandDispatcherMock.IssueCommand.verifyNoCommandsIssued()
     }    
   }
 }

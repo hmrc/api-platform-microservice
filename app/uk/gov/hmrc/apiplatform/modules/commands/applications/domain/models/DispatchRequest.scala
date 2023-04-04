@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+
 case class DispatchRequest(command: ApplicationCommand, verifiedCollaboratorsToNotify: Set[LaxEmailAddress])
 
 object DispatchRequest {

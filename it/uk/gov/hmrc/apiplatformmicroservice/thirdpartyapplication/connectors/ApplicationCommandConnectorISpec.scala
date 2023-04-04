@@ -38,17 +38,13 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import java.time.Period
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
-import cats.data.NonEmptyList
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import cats.data.NonEmptyChain
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import java.time.Clock
 
@@ -148,8 +144,8 @@ class ApplicationCommandConnectorISpec
     }
 
     "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {
-      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
-      val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
+      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
+      val response = NonEmptyChain.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
       
       stubFor(Environment.PRODUCTION)(
         patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
@@ -163,7 +159,7 @@ class ApplicationCommandConnectorISpec
 
       val result = await(connector.dispatch(applicationId, request))
 
-      result.left.value shouldBe NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
+      result.left.value shouldBe NonEmptyChain.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
     }
 
     "return for generic error" in new CollaboratorSetup  with PrincipalSetup {

@@ -21,22 +21,19 @@ import scala.concurrent.Future.successful
 import cats.data.NonEmptyChain
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ApplicationCommandConnector
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalApplicationCommandConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateApplicationCommandConnector
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommandHandlerTypes
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCommandDispatcher
 
-trait CommandConnectorMockModule {
+trait ApplicationCommandDispatcherMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  trait CommandConnectorMock[T <: ApplicationCommandConnector] {
-    def aMock: T
+  trait AbstractApplicationCommandDispatcherMock {
+    def aMock: ApplicationCommandDispatcher
     val Types = ApplicationCommandHandlerTypes
 
     object IssueCommand {
@@ -44,40 +41,27 @@ trait CommandConnectorMockModule {
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
       
       def verifyNoCommandsIssued() = {
-        verify(aMock, never).dispatch(*[ApplicationId], *)(*)
+        verify(aMock, never).dispatch(*, *)(*)
       }
 
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
-        verify(aMock, atLeastOnce).dispatch(*[ApplicationId], eqTo(DispatchRequest(cmd, emails)))(*)
+        verify(aMock, atLeastOnce).dispatch(*, eqTo(DispatchRequest(cmd, emails)))(*)
       }
         
       object Dispatch {
-        
-        val mockResult = mock[DispatchSuccessResult]
-        
-        def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[Types.Failures]))
-        }
-        
+              
         def succeedsWith(application: Application) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
+          when(aMock.dispatch(*, *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
         }
 
         def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures:_*).asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*, *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures:_*).asLeft[DispatchSuccessResult]))
         }
       }
     }
   }
 
-  object CommandConnectorMocks {
-
-    object Prod extends CommandConnectorMock[PrincipalApplicationCommandConnector] {
-      val aMock = mock[PrincipalApplicationCommandConnector]
-    }
-
-    object Sandbox extends CommandConnectorMock[SubordinateApplicationCommandConnector] {
-      val aMock = mock[SubordinateApplicationCommandConnector]
-    }
+  object ApplicationCommandDispatcherMock extends AbstractApplicationCommandDispatcherMock {
+    val aMock: ApplicationCommandDispatcher = mock[ApplicationCommandDispatcher]
   }
 }

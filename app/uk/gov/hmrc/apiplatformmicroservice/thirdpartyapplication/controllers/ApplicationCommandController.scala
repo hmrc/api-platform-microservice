@@ -28,34 +28,32 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareApplicationCommandConnector
 import cats.implicits.catsStdInstancesForFuture
-import cats.data.NonEmptyList
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters
+import cats.data.NonEmptyChain
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCommandDispatcher
 
 @Singleton
 class ApplicationCommandController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    val connector: EnvironmentAwareApplicationCommandConnector,
+    dispatcher: ApplicationCommandDispatcher,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc)
     with ActionBuilders
-    with ApplicationLogger
-    with NonEmptyListFormatters {
+    with ApplicationLogger {
 
-  val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
+  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
   def dispatch(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DispatchRequest] { dispatchRequest =>
       (for {
-        application      <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyList.one(CommandFailures.ApplicationNotFound))
-        environment       = application.deployedTo
-        responseStatus   <- E.fromEitherF(connector(environment).dispatch(id, dispatchRequest))
+        application      <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))
+        responseStatus   <- E.fromEitherF(dispatcher.dispatch(application, dispatchRequest))
       } yield responseStatus)
       .fold(
         failures => BadRequest(Json.toJson(failures)),

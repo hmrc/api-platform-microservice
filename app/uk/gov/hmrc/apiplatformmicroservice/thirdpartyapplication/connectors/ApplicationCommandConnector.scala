@@ -17,12 +17,11 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.http.{HttpClient, _}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import cats.data.NonEmptyList
 
 trait ApplicationCommandConnector {
   def dispatch(
@@ -30,7 +29,7 @@ trait ApplicationCommandConnector {
       dispatchRequest: DispatchRequest
   )(
     implicit hc: HeaderCarrier
-  ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]]
+  ): ApplicationCommandHandlerTypes.Result
 }
 
 private[thirdpartyapplication] abstract class AbstractApplicationCommandConnector
@@ -47,9 +46,9 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
     )(implicit hc: HeaderCarrier
-    ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
+    ): ApplicationCommandHandlerTypes.Result = {
 
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
     import play.api.libs.json._
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._
@@ -70,8 +69,8 @@ private[thirdpartyapplication] abstract class AbstractApplicationCommandConnecto
     http.PATCH[DispatchRequest, HttpResponse](url, dispatchRequest, extraHeaders)
       .map(response =>
         response.status match {
-          case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[NonEmptyList[CommandFailure]]
-          case BAD_REQUEST => parseWithLogAndThrow[NonEmptyList[CommandFailure]](response.body).asLeft[DispatchSuccessResult]
+          case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[ApplicationCommandHandlerTypes.Failures]
+          case BAD_REQUEST => parseWithLogAndThrow[ApplicationCommandHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
           case status      => logger.error(s"Dispatch failed with status code: $status")
                               throw new InternalServerException(s"Failed calling dispatch $status")
         }

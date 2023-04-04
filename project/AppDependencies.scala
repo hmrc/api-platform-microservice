@@ -9,7 +9,7 @@ object AppDependencies {
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"         % bootstrapVersion,
     "com.beachape"            %% "enumeratum-play-json"              % "1.6.0",
-    "org.typelevel"           %% "cats-core"                         % "2.0.0",
+    "org.typelevel"           %% "cats-core"                         % "2.6.1",
     "com.typesafe.play"       %% "play-json"                         % "2.9.2",
     "com.typesafe.play"       %% "play-json-joda"                    % "2.9.2",
     "org.julienrf"            %% "play-json-derived-codecs"          % "7.0.0",
