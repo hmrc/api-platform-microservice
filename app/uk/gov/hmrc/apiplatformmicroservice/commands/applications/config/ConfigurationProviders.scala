@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.config
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import com.google.inject.AbstractModule
 
-case class DispatchSuccessResult(applicationResponse: Application)
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 
-object DispatchSuccessResult {
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
+class ConfigurationModule extends AbstractModule {
 
-  implicit val format = Json.format[DispatchSuccessResult]
+  override def configure(): Unit = {
+    bind(classOf[PrincipalApplicationCommandConnector.Config]).toProvider(classOf[PrincipalApplicationCommandConnectorConfigProvider])
+    bind(classOf[SubordinateApplicationCommandConnector.Config]).toProvider(classOf[SubordinateApplicationCommandConnectorConfigProvider])
+  }
 }

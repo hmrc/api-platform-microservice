@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.controllers
 
 import javax.inject.{Inject, Singleton}
 
@@ -33,14 +33,16 @@ import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCommandDispatcher
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareApplicationCommandConnector
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.ApplicationCommandPreprocessor
 
 @Singleton
 class ApplicationCommandController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    dispatcher: ApplicationCommandDispatcher,
+    preprocessor: ApplicationCommandPreprocessor,
+    cmdConnector: EnvironmentAwareApplicationCommandConnector,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc)
@@ -50,10 +52,11 @@ class ApplicationCommandController @Inject() (
   val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
   def dispatch(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    withJsonBody[DispatchRequest] { dispatchRequest =>
+    withJsonBody[DispatchRequest] { inboundDispatchRequest =>
       (for {
-        application      <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))
-        responseStatus   <- E.fromEitherF(dispatcher.dispatch(application, dispatchRequest))
+        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))
+        outboundDispatchRequest <- preprocessor.process(application, inboundDispatchRequest)
+        responseStatus          <- E.fromEitherF(cmdConnector(application.deployedTo).dispatch(application.id, outboundDispatchRequest))
       } yield responseStatus)
       .fold(
         failures => BadRequest(Json.toJson(failures)),

@@ -2,7 +2,7 @@
 
 GET        /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchAppplicationById(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 PATCH      /:id                                               uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationUpdateController.update(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
-PATCH      /:id/dispatch                                      uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationCommandController.dispatch(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+PATCH      /:id/dispatch                                      uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.commands.applications.controllers.ApplicationCommandController.dispatch(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
 POST       /:id/subscriptions                                 uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApi(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId, restricted: Option[Boolean])
 POST       /:id/subscriptionsAppUpdate                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionController.subscribeToApiAppUpdate(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId, restricted: Option[Boolean])

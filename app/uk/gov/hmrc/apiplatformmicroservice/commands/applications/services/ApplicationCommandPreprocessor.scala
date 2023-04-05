@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -26,18 +26,25 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import cats.data.NonEmptyChain
+
+/*
+ * Do any preprocessing and/or validating of the request
+*/
 
 @Singleton
-class ApplicationCommandDispatcher @Inject() (
-  passThruDispatcher: PassThruDispatcher
+class ApplicationCommandPreprocessor @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends ApplicationLogger {
     
-    val E = EitherTHelper.make[ApplicationCommandHandlerTypes.Failures]
+  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
-  def dispatch(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): ApplicationCommandHandlerTypes.Result = {
+  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): ApplicationCommandPreprocessorTypes.ResultT = {
+    import ApplicationCommands._
+
     dispatchRequest.command match {
-      case _ => passThruDispatcher.dispatch(app, dispatchRequest)
+      // case cmd: AddCollaborator    => addCollaboratorCommandHandler.process(app, cmd)
+      case _ => E.pure(dispatchRequest)
     }
   }
 
@@ -45,7 +52,7 @@ class ApplicationCommandDispatcher @Inject() (
 
 
 
-    //   case cmd: AddCollaborator    => addCollaboratorCommandHandler.process(app, cmd)
+    //   
     //   case cmd: RemoveCollaborator => removeCollaboratorCommandHandler.process(app, cmd)
 
     //   case cmd: AddClientSecret                                       => addClientSecretCommandHandler.process(app, cmd)

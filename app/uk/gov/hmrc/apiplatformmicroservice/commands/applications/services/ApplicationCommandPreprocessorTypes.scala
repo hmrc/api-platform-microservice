@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
-object ApplicationCommandHandlerTypes extends CommandHandlerTypes[DispatchSuccessResult]
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, DispatchRequest}
+
+object ApplicationCommandPreprocessorTypes extends CommandHandlerTypes[DispatchRequest]

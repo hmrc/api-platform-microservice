@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -22,6 +22,7 @@ import uk.gov.hmrc.http.{HttpClient, _}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 
 trait ApplicationCommandConnector {
   def dispatch(
@@ -32,7 +33,7 @@ trait ApplicationCommandConnector {
   ): ApplicationCommandHandlerTypes.Result
 }
 
-private[thirdpartyapplication] abstract class AbstractApplicationCommandConnector
+private[commands] abstract class AbstractApplicationCommandConnector
     extends ApplicationCommandConnector
     with ApplicationLogger {
 
