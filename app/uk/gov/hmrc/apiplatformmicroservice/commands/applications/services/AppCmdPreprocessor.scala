@@ -23,19 +23,30 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import cats.data.NonEmptyChain
+import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 /*
  * Do any preprocessing and/or validating of the request
 */
 
+trait AbstractAppCmdPreprocessor[C] {
+  implicit def ec: ExecutionContext
+
+  def process(app: Application, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT
+
+  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+}
+
+
 @Singleton
 class AppCmdPreprocessor @Inject() (
+  subscribeToApiPreprocessor: SubscribeToApiPreprocessor
   )(implicit val ec: ExecutionContext
-  ) extends ApplicationLogger {
+    ) extends ApplicationLogger {
     
   val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
@@ -43,16 +54,18 @@ class AppCmdPreprocessor @Inject() (
     import ApplicationCommands._
 
     dispatchRequest.command match {
-      // case cmd: AddCollaborator    => addCollaboratorCommandHandler.process(app, cmd)
-      case _ => E.pure(dispatchRequest)
+      case cmd: SubscribeToApi => subscribeToApiPreprocessor.process(app, cmd, dispatchRequest.verifiedCollaboratorsToNotify)
+
+      case _                   => E.pure(dispatchRequest)
     }
   }
-
-
-
-
-
-    //   
+  
+  
+  
+  
+  
+  //   
+  // case cmd: AddCollaborator    => addCollaboratorCommandHandler.process(app, cmd)
     //   case cmd: RemoveCollaborator => removeCollaboratorCommandHandler.process(app, cmd)
 
     //   case cmd: AddClientSecret                                       => addClientSecretCommandHandler.process(app, cmd)
@@ -70,7 +83,6 @@ class AppCmdPreprocessor @Inject() (
     //   case cmd: DeleteApplicationByGatekeeper                         => deleteApplicationByGatekeeperCommandHandler.process(app, cmd)
     //   case cmd: DeleteUnusedApplication                               => deleteUnusedAppCmdHandler.process(app, cmd)
     //   case cmd: DeleteProductionCredentialsApplication                => deleteProductionCredentialsAppCmdHandler.process(app, cmd)
-    //   case cmd: SubscribeToApi                                        => subscribeToApiCommandHandler.process(app, cmd)
     //   case cmd: UnsubscribeFromApi                                    => unsubscribeFromApiCommandHandler.process(app, cmd)
     //   case cmd: UpdateRedirectUris                                    => updateRedirectUrisCommandHandler.process(app, cmd)
   // scalastyle:on cyclomatic.complexity

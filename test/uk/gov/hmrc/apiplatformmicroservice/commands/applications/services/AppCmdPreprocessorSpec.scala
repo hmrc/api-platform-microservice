@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
-import cats.data.{EitherT, NonEmptyChain}
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-import scala.concurrent.Future
-
-trait CommandHandlerTypes[S] {
-
-  type Success = S
-
-  type Failures = NonEmptyChain[CommandFailure]
-  type Result = Future[Either[Failures,Success]]
-  type ResultT = EitherT[Future, Failures, Success]
+class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
+  
 }

@@ -32,9 +32,9 @@ import cats.implicits.catsStdInstancesForFuture
 import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
+import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 
 @Singleton
 class AppCmdController @Inject() (

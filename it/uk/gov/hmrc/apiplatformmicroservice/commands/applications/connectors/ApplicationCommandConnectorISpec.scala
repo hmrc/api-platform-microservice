@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -23,14 +23,12 @@ import play.api.http.Status._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
-import AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -47,6 +45,7 @@ import cats.data.NonEmptyChain
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import java.time.Clock
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
 
 class AppCmdConnectorISpec
     extends AsyncHmrcSpec
@@ -60,7 +59,6 @@ class AppCmdConnectorISpec
   val clock = Clock.systemUTC()
 
   trait Setup {
-    implicit val applicationResponseWrites = Json.writes[ApplicationResponse]
 
     implicit val hc                     = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks
 
 import scala.concurrent.Future.successful
 
@@ -22,15 +22,11 @@ import cats.data.NonEmptyChain
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AppCmdConnector
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalAppCmdConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateAppCmdConnector
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.AppCmdHandlerTypes
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 
 trait CommandConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -41,7 +37,6 @@ trait CommandConnectorMockModule {
 
     object IssueCommand {
       import cats.syntax.either._
-      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
       
       def verifyNoCommandsIssued() = {
         verify(aMock, never).dispatch(*[ApplicationId], *)(*)
