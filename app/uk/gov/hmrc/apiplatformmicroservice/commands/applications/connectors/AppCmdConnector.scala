@@ -24,17 +24,17 @@ import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, Environmen
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 
-trait ApplicationCommandConnector {
+trait AppCmdConnector {
   def dispatch(
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
   )(
     implicit hc: HeaderCarrier
-  ): ApplicationCommandHandlerTypes.Result
+  ): AppCmdHandlerTypes.Result
 }
 
-private[commands] abstract class AbstractApplicationCommandConnector
-    extends ApplicationCommandConnector
+private[commands] abstract class AbstractAppCmdConnector
+    extends AppCmdConnector
     with ApplicationLogger {
 
   implicit def ec: ExecutionContext
@@ -47,7 +47,7 @@ private[commands] abstract class AbstractApplicationCommandConnector
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
     )(implicit hc: HeaderCarrier
-    ): ApplicationCommandHandlerTypes.Result = {
+    ): AppCmdHandlerTypes.Result = {
 
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
     import play.api.libs.json._
@@ -70,8 +70,8 @@ private[commands] abstract class AbstractApplicationCommandConnector
     http.PATCH[DispatchRequest, HttpResponse](url, dispatchRequest, extraHeaders)
       .map(response =>
         response.status match {
-          case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[ApplicationCommandHandlerTypes.Failures]
-          case BAD_REQUEST => parseWithLogAndThrow[ApplicationCommandHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
+          case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[AppCmdHandlerTypes.Failures]
+          case BAD_REQUEST => parseWithLogAndThrow[AppCmdHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
           case status      => logger.error(s"Dispatch failed with status code: $status")
                               throw new InternalServerException(s"Failed calling dispatch $status")
         }
@@ -80,12 +80,12 @@ private[commands] abstract class AbstractApplicationCommandConnector
 }
 
 @Singleton
-class SubordinateApplicationCommandConnector @Inject() (
-    config: SubordinateApplicationCommandConnector.Config,
+class SubordinateAppCmdConnector @Inject() (
+    config: SubordinateAppCmdConnector.Config,
     httpClient: HttpClient,
     val proxiedHttpClient: ProxiedHttpClient
   )(implicit override val ec: ExecutionContext
-  ) extends AbstractApplicationCommandConnector {
+  ) extends AbstractAppCmdConnector {
 
     import config._
     val serviceBaseUrl: String = config.baseUrl
@@ -93,7 +93,7 @@ class SubordinateApplicationCommandConnector @Inject() (
   lazy val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
-object SubordinateApplicationCommandConnector {
+object SubordinateAppCmdConnector {
   case class Config(
       baseUrl: String,
       useProxy: Boolean,
@@ -104,24 +104,24 @@ object SubordinateApplicationCommandConnector {
 
 
 @Singleton
-class PrincipalApplicationCommandConnector @Inject() (
-    config: PrincipalApplicationCommandConnector.Config,
+class PrincipalAppCmdConnector @Inject() (
+    config: PrincipalAppCmdConnector.Config,
     val http: HttpClient
   )(implicit val ec: ExecutionContext
-  ) extends AbstractApplicationCommandConnector {
+  ) extends AbstractAppCmdConnector {
 
   val serviceBaseUrl: String = config.baseUrl
 }
 
-object PrincipalApplicationCommandConnector {
+object PrincipalAppCmdConnector {
   case class Config(
       baseUrl: String
     )
 }
 
 @Singleton
-class EnvironmentAwareApplicationCommandConnector @Inject() (
-    val subordinate: SubordinateApplicationCommandConnector,
-    val principal: PrincipalApplicationCommandConnector
-  ) extends EnvironmentAware[ApplicationCommandConnector]
+class EnvironmentAwareAppCmdConnector @Inject() (
+    val subordinate: SubordinateAppCmdConnector,
+    val principal: PrincipalAppCmdConnector
+  ) extends EnvironmentAware[AppCmdConnector]
 

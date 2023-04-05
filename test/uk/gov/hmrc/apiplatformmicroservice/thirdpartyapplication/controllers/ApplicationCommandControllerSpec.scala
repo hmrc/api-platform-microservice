@@ -38,14 +38,14 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import play.api.test.Helpers
 import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationCommandDispatcherMockModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.AppCmdDispatcherMockModule
 
-class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock {
+class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock {
   
   trait Setup 
       extends ApplicationByIdFetcherModule
       with ApplicationBuilder
-      with ApplicationCommandDispatcherMockModule
+      with AppCmdDispatcherMockModule
       with CollaboratorTracker
       with UpliftRequestSamples
       with ApplicationJsonFormatters {
@@ -62,29 +62,29 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
     val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
     
-    val controller: ApplicationCommandController = new ApplicationCommandController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, ApplicationCommandDispatcherMock.aMock, Helpers.stubControllerComponents())
+    val controller: AppCmdController = new AppCmdController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, AppCmdDispatcherMock.aMock, Helpers.stubControllerComponents())
   }
 
-  "ApplicationCommandController" should {
+  "AppCmdController" should {
     import cats.syntax.option._
 
     "dispatch a command when the app exists" in new Setup{
 
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application.some)
-      ApplicationCommandDispatcherMock.IssueCommand.Dispatch.succeedsWith(application)
+      AppCmdDispatcherMock.IssueCommand.Dispatch.succeedsWith(application)
 
       val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${applicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
       
       status(controller.dispatch(applicationId)(request)) shouldBe OK
 
-      ApplicationCommandDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      AppCmdDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
     
     "dispatch a command and handle command failure" in new Setup{
 
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(application.some)
-      ApplicationCommandDispatcherMock.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
+      AppCmdDispatcherMock.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
 
       val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${applicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd,verifiedEmails)))
@@ -95,7 +95,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
       Json.fromJson[NonEmptyChain[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyChain.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
-      ApplicationCommandDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      AppCmdDispatcherMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
 
     "dont dispatch command when the app does not exist" in new Setup{
@@ -107,7 +107,7 @@ class ApplicationCommandControllerSpec extends AsyncHmrcSpec with ApiDefinitionT
       
       status(controller.dispatch(applicationId)(request)) shouldBe BAD_REQUEST
 
-      ApplicationCommandDispatcherMock.IssueCommand.verifyNoCommandsIssued()
+      AppCmdDispatcherMock.IssueCommand.verifyNoCommandsIssued()
     }    
   }
 }

@@ -22,22 +22,22 @@ import cats.data.NonEmptyChain
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ApplicationCommandConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AppCmdConnector
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalApplicationCommandConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateApplicationCommandConnector
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommandHandlerTypes
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalAppCmdConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateAppCmdConnector
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.AppCmdHandlerTypes
 
 trait CommandConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  trait CommandConnectorMock[T <: ApplicationCommandConnector] {
+  trait CommandConnectorMock[T <: AppCmdConnector] {
     def aMock: T
-    val Types = ApplicationCommandHandlerTypes
+    val Types = AppCmdHandlerTypes
 
     object IssueCommand {
       import cats.syntax.either._
@@ -72,12 +72,12 @@ trait CommandConnectorMockModule {
 
   object CommandConnectorMocks {
 
-    object Prod extends CommandConnectorMock[PrincipalApplicationCommandConnector] {
-      val aMock = mock[PrincipalApplicationCommandConnector]
+    object Prod extends CommandConnectorMock[PrincipalAppCmdConnector] {
+      val aMock = mock[PrincipalAppCmdConnector]
     }
 
-    object Sandbox extends CommandConnectorMock[SubordinateApplicationCommandConnector] {
-      val aMock = mock[SubordinateApplicationCommandConnector]
+    object Sandbox extends CommandConnectorMock[SubordinateAppCmdConnector] {
+      val aMock = mock[SubordinateAppCmdConnector]
     }
   }
 }

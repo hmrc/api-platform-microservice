@@ -48,7 +48,7 @@ import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import java.time.Clock
 
-class ApplicationCommandConnectorISpec
+class AppCmdConnectorISpec
     extends AsyncHmrcSpec
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
@@ -91,11 +91,11 @@ class ApplicationCommandConnectorISpec
   trait PrincipalSetup extends Setup {
     self: Setup =>
 
-    val config = PrincipalApplicationCommandConnector.Config(
+    val config = PrincipalAppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
       
-    val connector: ApplicationCommandConnector = new PrincipalApplicationCommandConnector(config, httpClient)
+    val connector: AppCmdConnector = new PrincipalAppCmdConnector(config, httpClient)
     val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
     println("URL "+url)
   }
@@ -103,13 +103,13 @@ class ApplicationCommandConnectorISpec
   trait SubordinateSetup {
     self: Setup =>
 
-    val config    = SubordinateApplicationCommandConnector.Config(
+    val config    = SubordinateAppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockSubordinatePort",
       useProxy = false,
       bearerToken = bearer,
       apiKey = apiKeyTest
     )
-    val connector = new SubordinateApplicationCommandConnector(config, httpClient, mockProxiedHttpClient)
+    val connector = new SubordinateAppCmdConnector(config, httpClient, mockProxiedHttpClient)
     val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
     println("URL "+url)
     }

@@ -23,26 +23,26 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
 
 @Singleton
-class PrincipalApplicationCommandConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[PrincipalApplicationCommandConnector.Config]
+class PrincipalAppCmdConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
+    extends Provider[PrincipalAppCmdConnector.Config]
     with ConfigProviderHelper {
 
-  override def get(): PrincipalApplicationCommandConnector.Config = {
+  override def get(): PrincipalAppCmdConnector.Config = {
     val serviceName = "third-party-application-principal"
-    PrincipalApplicationCommandConnector.Config(
+    PrincipalAppCmdConnector.Config(
       serviceUrl("third-party-application")(serviceName)
     )
   }
 }
 
 @Singleton
-class SubordinateApplicationCommandConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[SubordinateApplicationCommandConnector.Config]
+class SubordinateAppCmdConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
+    extends Provider[SubordinateAppCmdConnector.Config]
     with ConfigProviderHelper {
 
-  override def get(): SubordinateApplicationCommandConnector.Config = {
+  override def get(): SubordinateAppCmdConnector.Config = {
     val serviceName = "third-party-application-subordinate"
-    SubordinateApplicationCommandConnector.Config(
+    SubordinateAppCmdConnector.Config(
       serviceUrl("third-party-application")(serviceName),
       useProxy(serviceName),
       bearerToken(serviceName),

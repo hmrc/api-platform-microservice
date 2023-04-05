@@ -18,4 +18,4 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, DispatchRequest}
 
-object ApplicationCommandPreprocessorTypes extends CommandHandlerTypes[DispatchRequest]
+object AppCmdPreprocessorTypes extends CommandHandlerTypes[DispatchRequest]

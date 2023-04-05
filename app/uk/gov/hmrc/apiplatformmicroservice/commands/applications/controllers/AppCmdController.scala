@@ -33,16 +33,16 @@ import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EitherTHelper
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareApplicationCommandConnector
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.ApplicationCommandPreprocessor
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
 
 @Singleton
-class ApplicationCommandController @Inject() (
+class AppCmdController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
-    preprocessor: ApplicationCommandPreprocessor,
-    cmdConnector: EnvironmentAwareApplicationCommandConnector,
+    preprocessor: AppCmdPreprocessor,
+    cmdConnector: EnvironmentAwareAppCmdConnector,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc)

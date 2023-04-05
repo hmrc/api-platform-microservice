@@ -33,13 +33,13 @@ import cats.data.NonEmptyChain
 */
 
 @Singleton
-class ApplicationCommandPreprocessor @Inject() (
+class AppCmdPreprocessor @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends ApplicationLogger {
     
   val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
-  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): ApplicationCommandPreprocessorTypes.ResultT = {
+  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
     import ApplicationCommands._
 
     dispatchRequest.command match {
@@ -68,8 +68,8 @@ class ApplicationCommandPreprocessor @Inject() (
     //   case cmd: DeclineApplicationApprovalRequest                     => declineApplicationApprovalRequestCommandHandler.process(app, cmd)
     //   case cmd: DeleteApplicationByCollaborator                       => deleteApplicationByCollaboratorCommandHandler.process(app, cmd)
     //   case cmd: DeleteApplicationByGatekeeper                         => deleteApplicationByGatekeeperCommandHandler.process(app, cmd)
-    //   case cmd: DeleteUnusedApplication                               => deleteUnusedApplicationCommandHandler.process(app, cmd)
-    //   case cmd: DeleteProductionCredentialsApplication                => deleteProductionCredentialsApplicationCommandHandler.process(app, cmd)
+    //   case cmd: DeleteUnusedApplication                               => deleteUnusedAppCmdHandler.process(app, cmd)
+    //   case cmd: DeleteProductionCredentialsApplication                => deleteProductionCredentialsAppCmdHandler.process(app, cmd)
     //   case cmd: SubscribeToApi                                        => subscribeToApiCommandHandler.process(app, cmd)
     //   case cmd: UnsubscribeFromApi                                    => unsubscribeFromApiCommandHandler.process(app, cmd)
     //   case cmd: UpdateRedirectUris                                    => updateRedirectUrisCommandHandler.process(app, cmd)

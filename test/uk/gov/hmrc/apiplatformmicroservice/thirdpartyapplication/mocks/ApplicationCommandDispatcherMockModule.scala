@@ -26,15 +26,15 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.Appli
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommandHandlerTypes
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationCommandDispatcher
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.AppCmdHandlerTypes
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.AppCmdDispatcher
 
-trait ApplicationCommandDispatcherMockModule {
+trait AppCmdDispatcherMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  trait AbstractApplicationCommandDispatcherMock {
-    def aMock: ApplicationCommandDispatcher
-    val Types = ApplicationCommandHandlerTypes
+  trait AbstractAppCmdDispatcherMock {
+    def aMock: AppCmdDispatcher
+    val Types = AppCmdHandlerTypes
 
     object IssueCommand {
       import cats.syntax.either._
@@ -61,7 +61,7 @@ trait ApplicationCommandDispatcherMockModule {
     }
   }
 
-  object ApplicationCommandDispatcherMock extends AbstractApplicationCommandDispatcherMock {
-    val aMock: ApplicationCommandDispatcher = mock[ApplicationCommandDispatcher]
+  object AppCmdDispatcherMock extends AbstractAppCmdDispatcherMock {
+    val aMock: AppCmdDispatcher = mock[AppCmdDispatcher]
   }
 }

@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.CollaboratorTracker
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.CommandConnectorMockModule
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareApplicationCommandConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareAppCmdConnector
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
@@ -59,7 +59,7 @@ class PassThruDispatcherSpec extends AsyncHmrcSpec {
     val adminEmail = "admin@example.com".toLaxEmail
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator
     val verifiedEmails = Set.empty[LaxEmailAddress]
-    val envAwareCmdConnector = new EnvironmentAwareApplicationCommandConnector(CommandConnectorMocks.Sandbox.aMock, CommandConnectorMocks.Prod.aMock)
+    val envAwareCmdConnector = new EnvironmentAwareAppCmdConnector(CommandConnectorMocks.Sandbox.aMock, CommandConnectorMocks.Prod.aMock)
 
     val passThruDispatcher: PassThruDispatcher = new PassThruDispatcher(envAwareCmdConnector)
   }
