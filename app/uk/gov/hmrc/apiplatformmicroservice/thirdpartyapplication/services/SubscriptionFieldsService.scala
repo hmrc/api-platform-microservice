@@ -26,10 +26,12 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, Th
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain
 
 @Singleton
-class SubscriptionFieldsFetcher @Inject() (
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
+class SubscriptionFieldsService @Inject() (
+    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
+    
   )(implicit ec: ExecutionContext
   ) {
 
@@ -53,4 +55,14 @@ class SubscriptionFieldsFetcher @Inject() (
       filledFields = fillFields(subsDefs)(subsFields)
     } yield filledFields
   }
+
+
+  def createFieldValues(clientId: ClientId, deployedTo: Environment, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Either[SubscriptionFieldsConnectorDomain.FieldErrors,Unit]] = {
+    for {
+      fieldValues      <- fetchFieldValuesWithDefaults(deployedTo, clientId, Set(apiIdentifier))
+      fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
+      fvResults         <- subscriptionFieldsConnector(deployedTo).saveFieldValues(clientId, apiIdentifier, fieldValuesForApi)
+    } yield fvResults
+   }
+
 }

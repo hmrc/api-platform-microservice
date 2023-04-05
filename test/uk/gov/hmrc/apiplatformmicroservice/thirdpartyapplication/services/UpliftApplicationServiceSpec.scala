@@ -39,7 +39,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       with ApplicationByIdFetcherModule
       with ThirdPartyApplicationConnectorModule
       with SubscriptionFieldsConnectorModule
-      with SubscriptionFieldsFetcherModule
+      with SubscriptionFieldsServiceModule
       with SubscriptionServiceModule {
 
     val upliftService = new UpliftApplicationService(

@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 class ApplicationByIdFetcher @Inject() (
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
+    subscriptionFieldsService: SubscriptionFieldsService
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
@@ -54,7 +54,7 @@ class ApplicationByIdFetcher @Inject() (
       for {
         app          <- OptionT(foapp)
         subs         <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
-        filledFields <- OptionT.liftF(subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
+        filledFields <- OptionT.liftF(subscriptionFieldsService.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
       } yield ApplicationWithSubscriptionData(app, subs, filledFields)
     ).value
   }

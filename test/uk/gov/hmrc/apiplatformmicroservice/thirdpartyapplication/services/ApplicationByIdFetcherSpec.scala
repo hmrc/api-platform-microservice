@@ -43,13 +43,13 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
     Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), grantLength, None, Environment.SANDBOX, Some("description"))
   val BANG                     = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with MockitoSugar
       with ArgumentMatchersSugar {
 
     val fetcher = new ApplicationByIdFetcher(
       EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
       EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
-      SubscriptionFieldsFetcherMock.aMock
+      SubscriptionFieldsServiceMock.aMock
     )
   }
 
@@ -114,7 +114,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
-        SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
+        SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
         val expect = ApplicationWithSubscriptionData(
           application,

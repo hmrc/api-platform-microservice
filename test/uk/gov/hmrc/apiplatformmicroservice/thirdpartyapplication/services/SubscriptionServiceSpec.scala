@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsFetcherModule, ThirdPartyApplicationConnectorModule}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsServiceModule, ThirdPartyApplicationConnectorModule}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
@@ -45,7 +45,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
       extends ApplicationBuilder
       with ApiDefinitionTestDataHelper
       with ThirdPartyApplicationConnectorModule
-      with SubscriptionFieldsFetcherModule
+      with SubscriptionFieldsServiceModule
       with SubscriptionFieldsConnectorModule
       with MockitoSugar
       with ArgumentMatchersSugar {
@@ -56,7 +56,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
       mockApiDefinitionsForApplicationFetcher,
       EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
       EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
-      SubscriptionFieldsFetcherMock.aMock
+      SubscriptionFieldsServiceMock.aMock
     )
 
     implicit val hc = HeaderCarrier()
@@ -100,7 +100,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
       val goodApi                  = apiIdentifierThree
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
-      SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
+      SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
       EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.SaveFieldValues.willReturn(goodApi)
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.SubscribeToApi.willReturnSuccess
 
@@ -136,7 +136,7 @@ class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
       val subscribeToApi           = SubscribeToApi(Actors.GatekeeperUser("Gate Keeper"), goodApi, now)
       val existingApiSubscriptions = Set(apiIdentifierOne, apiIdentifierTwo)
 
-      SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
+      SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(Map.empty)
       EnvironmentAwareSubscriptionFieldsConnectorMock.Subordinate.SaveFieldValues.willReturn(goodApi)
       EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.UpdateApplication.willReturnSuccess(application)
 

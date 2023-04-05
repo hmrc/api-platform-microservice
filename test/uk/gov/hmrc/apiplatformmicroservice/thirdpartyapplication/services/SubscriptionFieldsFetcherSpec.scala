@@ -115,7 +115,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
     SubordinateSubscriptionFieldsConnectorMock.BulkFetchFieldValues.willReturnFields(values)
     SubordinateSubscriptionFieldsConnectorMock.BulkFetchFieldDefinitions.willReturnDefinitions(defns)
 
-    val fetcher = new SubscriptionFieldsFetcher(EnvironmentAwareSubscriptionFieldsConnectorMock.instance)
+    val fetcher = new SubscriptionFieldsService(EnvironmentAwareSubscriptionFieldsConnectorMock.instance)
   }
 
   def keys3[X, Y, Z, V](in: ThreeDMap.Type[X, Y, Z, V]): Set[(X, Y, Z)] = {
@@ -150,7 +150,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       .toSet
   }
 
-  "SubscriptionFieldsFetcher" should {
+  "SubscriptionFieldsService" should {
     "fetch values where field values match field definitions" in new Setup(defns, values) {
       val subs: Set[ApiIdentifier] = Set(
         ApiIdentifier(context1, version1),

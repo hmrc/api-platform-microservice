@@ -40,7 +40,7 @@ class SubscriptionService @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
+    subscriptionFieldsService: SubscriptionFieldsService
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
 
@@ -149,7 +149,7 @@ class SubscriptionService @Inject() (
 
   private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
-      fieldValues      <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
+      fieldValues      <- subscriptionFieldsService.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
       fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
       fvResuls         <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
     } yield CreateSubscriptionSuccess

@@ -24,22 +24,23 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.ApiFieldMap
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
-import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 @Singleton
 class SubscribeToApiPreprocessor @Inject()(
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
     applicationService: ApplicationByIdFetcher,
-    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
+    subscriptionFieldsService: SubscriptionFieldsService
 )(implicit val ec: ExecutionContext)
 extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
 
@@ -65,24 +66,37 @@ extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with Base
   private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Either[NonEmptyChain[CommandFailure],Unit]] = {
     import cats.syntax.either._
 
-    for {
-      fieldValues      <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
-      fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
-      fvResults         <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
-    } yield fvResults.fold(_ => CommandFailures.GenericFailure("Creation of field values failed").leftNec[Unit], _ => ().rightNec[CommandFailure])
+    subscriptionFieldsService.createFieldValues(application.clientId, application.deployedTo, apiIdentifier: ApiIdentifier)
+      .map(_.fold(_ => CommandFailures.GenericFailure("Creation of field values failed").leftNec[Unit], _ => ().rightNec[CommandFailure]))
   }
+
+  
 
   def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
+    val requiredGKUser = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
+    val permissionsPassed = {
+      (requiredGKUser, cmd.actor) match {
+        case (true, Actors.GatekeeperUser(_)) => true
+        case (true, _) => false
+        case (_, _) => true
+      }
+    }
+
+    def not(in: Boolean) = ! in
+
     for {
+      _                     <- E.cond(permissionsPassed, (), NonEmptyChain.one(CommandFailures.SubscriptionNotAvailable))
       existingSubscriptions <- E.liftF(applicationService.fetchApplicationWithSubscriptionData(application.id).map(_.get.subscriptions)) // .get is safe as we already have the app
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
-      _                      = cond(isAlreadySubscribed, CommandFailures.DuplicateSubscription)
+      _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyChain.one(CommandFailures.DuplicateSubscription))
       possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, cmd.restricted))
+      _ = println("POSSI "+possibleSubscriptions)
       allowedSubscriptions   = if (cmd.restricted) removePrivateVersions(possibleSubscriptions) else possibleSubscriptions
-      notAllowed             = false == canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
-      _                      = cond(notAllowed, CommandFailures.SubscriptionNotAvailable)
+      _ = println("ALLOW "+allowedSubscriptions)
+      isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
+      _                     <- E.cond(isAllowed, (), NonEmptyChain.one(CommandFailures.SubscriptionNotAvailable))
       _                     <- E.fromEitherF(createFieldValues(application, newSubscriptionApiIdentifier))
     } yield DispatchRequest(cmd, data)
   }
