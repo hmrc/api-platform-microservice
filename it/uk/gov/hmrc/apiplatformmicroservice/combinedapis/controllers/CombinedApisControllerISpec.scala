@@ -268,7 +268,6 @@ class CombinedApisControllerISpec
 
       result.status shouldBe OK
       val body    = result.body
-      println(body)
       body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":[{"value":"VAT"},{"value":"OTHER"}],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[List[CombinedApi]]
       apiList.count(_.apiType == XML_API) shouldBe 0

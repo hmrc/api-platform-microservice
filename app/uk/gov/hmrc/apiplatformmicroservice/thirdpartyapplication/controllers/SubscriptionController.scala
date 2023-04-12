@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionService, UpliftApplicationService}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
 class SubscriptionController @Inject() (
@@ -42,12 +43,13 @@ class SubscriptionController @Inject() (
     cc: ControllerComponents,
     val upliftApplicationService: UpliftApplicationService
   )(implicit val ec: ExecutionContext
-  ) extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters {
+  ) extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters with ApplicationLogger {
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>
+        logger.info("OLD STUFF")
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
           .map {
@@ -64,6 +66,7 @@ class SubscriptionController @Inject() (
   def subscribeToApiAppUpdate(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[SubscribeToApi] { subscribeToApi =>
+        logger.info("OLD JG STUFF")
         val api = subscribeToApi.apiIdentifier
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, subscribeToApi, restricted.getOrElse(true))

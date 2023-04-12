@@ -70,8 +70,6 @@ extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with Base
       .map(_.fold(_ => CommandFailures.GenericFailure("Creation of field values failed").leftNec[Unit], _ => ().rightNec[CommandFailure]))
   }
 
-  
-
   def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
@@ -92,9 +90,7 @@ extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with Base
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyChain.one(CommandFailures.DuplicateSubscription))
       possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, cmd.restricted))
-      _ = println("POSSI "+possibleSubscriptions)
       allowedSubscriptions   = if (cmd.restricted) removePrivateVersions(possibleSubscriptions) else possibleSubscriptions
-      _ = println("ALLOW "+allowedSubscriptions)
       isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(isAllowed, (), NonEmptyChain.one(CommandFailures.SubscriptionNotAvailable))
       _                     <- E.fromEitherF(createFieldValues(application, newSubscriptionApiIdentifier))

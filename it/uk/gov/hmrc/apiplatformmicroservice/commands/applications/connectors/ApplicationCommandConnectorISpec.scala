@@ -95,7 +95,6 @@ class AppCmdConnectorISpec
       
     val connector: AppCmdConnector = new PrincipalAppCmdConnector(config, httpClient)
     val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
-    println("URL "+url)
   }
 
   trait SubordinateSetup {
@@ -109,7 +108,6 @@ class AppCmdConnectorISpec
     )
     val connector = new SubordinateAppCmdConnector(config, httpClient, mockProxiedHttpClient)
     val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
-    println("URL "+url)
     }
 
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {

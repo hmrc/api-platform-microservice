@@ -54,7 +54,7 @@ class AppCmdController @Inject() (
   def dispatch(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DispatchRequest] { inboundDispatchRequest =>
       (for {
-        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))
+        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))   // TODO - do we need this or should each preprocess fetch what it needs
         outboundDispatchRequest <- preprocessor.process(application, inboundDispatchRequest)
         responseStatus          <- E.fromEitherF(cmdConnector(application.deployedTo).dispatch(application.id, outboundDispatchRequest))
       } yield responseStatus)
