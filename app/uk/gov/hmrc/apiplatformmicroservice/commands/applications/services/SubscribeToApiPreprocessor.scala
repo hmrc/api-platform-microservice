@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitions
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.ApiFieldMap
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 import cats.data.NonEmptyChain
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
