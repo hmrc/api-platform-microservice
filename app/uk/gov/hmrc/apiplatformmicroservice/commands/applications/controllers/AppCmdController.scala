@@ -17,24 +17,25 @@
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
+import cats.data.NonEmptyChain
+import cats.implicits.catsStdInstancesForFuture
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
+import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import cats.implicits.catsStdInstancesForFuture
-import cats.data.NonEmptyChain
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
-import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 @Singleton
 class AppCmdController @Inject() (
@@ -54,14 +55,14 @@ class AppCmdController @Inject() (
   def dispatch(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DispatchRequest] { inboundDispatchRequest =>
       (for {
-        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound))   // TODO - do we need this or should each preprocess fetch what it needs
+        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound)) // TODO - do we need this or should each preprocess fetch what it needs
         outboundDispatchRequest <- preprocessor.process(application, inboundDispatchRequest)
         responseStatus          <- E.fromEitherF(cmdConnector(application.deployedTo).dispatch(application.id, outboundDispatchRequest))
       } yield responseStatus)
-      .fold(
-        failures => BadRequest(Json.toJson(failures)),
-        success => Ok(Json.toJson(success))
-      )
+        .fold(
+          failures => BadRequest(Json.toJson(failures)),
+          success => Ok(Json.toJson(success))
+        )
     }
   }
 }

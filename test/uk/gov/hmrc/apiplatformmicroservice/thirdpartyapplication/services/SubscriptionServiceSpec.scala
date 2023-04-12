@@ -16,31 +16,31 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import java.time.Clock
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsServiceModule, ThirdPartyApplicationConnectorModule}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
-import java.time.Clock
 
 class SubscriptionServiceSpec extends AsyncHmrcSpec with ClockNow {
 
   val clock = Clock.systemUTC()
-  
+
   trait Setup
       extends ApplicationBuilder
       with ApiDefinitionTestDataHelper

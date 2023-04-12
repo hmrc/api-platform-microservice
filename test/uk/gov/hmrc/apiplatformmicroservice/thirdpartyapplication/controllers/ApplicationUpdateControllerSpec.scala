@@ -23,14 +23,14 @@ import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.SubscribeToApi
 
 class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -54,17 +54,17 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with ApiDefinitionTe
   "update" should {
     val payload =
       s"""{
-          |  "actor": {
-          |    "email": "someone@digital.hmrc.gov.uk",
-          |    "actorType": "COLLABORATOR"
-          |  },
-          |  "apiIdentifier": {
-          |    "context": "abc",
-          |    "version": "1.0"
-          |  },
-          |  "timestamp": "2022-10-12T08:06:46.706",
-          |  "updateType": "subscribeToApi"
-          |}""".stripMargin
+         |  "actor": {
+         |    "email": "someone@digital.hmrc.gov.uk",
+         |    "actorType": "COLLABORATOR"
+         |  },
+         |  "apiIdentifier": {
+         |    "context": "abc",
+         |    "version": "1.0"
+         |  },
+         |  "timestamp": "2022-10-12T08:06:46.706",
+         |  "updateType": "subscribeToApi"
+         |}""".stripMargin
 
     "read the json" in new Setup {
       import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationUpdateFormatters._
@@ -72,9 +72,9 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with ApiDefinitionTe
     }
 
     "return Ok when update service is successful" in new Setup {
-      val application  = buildApplication(appId = applicationId)
+      val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(application))
-      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 
@@ -84,9 +84,9 @@ class ApplicationUpdateControllerSpec extends AsyncHmrcSpec with ApiDefinitionTe
     }
 
     "return Not Found when no application is found" in new Setup {
-      val application  = buildApplication(appId = applicationId)
+      val application = buildApplication(appId = applicationId)
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
-      val request      = FakeRequest("PATCH", s"/applications/${applicationId.value}")
+      val request     = FakeRequest("PATCH", s"/applications/${applicationId.value}")
 
       ApplicationUpdateServiceMock.UpdateApplication.willReturnApplication(application)
 

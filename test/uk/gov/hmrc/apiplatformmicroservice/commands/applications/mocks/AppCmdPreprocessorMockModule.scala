@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.data.NonEmptyChain
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessorTypes
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.{AppCmdPreprocessor, AppCmdPreprocessorTypes}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait AppCmdPreprocessorMockModule {
@@ -34,9 +33,10 @@ trait AppCmdPreprocessorMockModule {
   trait AbstractAppCmdPreprocessorMock {
     def aMock: AppCmdPreprocessor
     val Types = AppCmdPreprocessorTypes
-    val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+    val E     = EitherTHelper.make[NonEmptyChain[CommandFailure]]
 
     object Process {
+
       def verifyNotCalled() = {
         verify(aMock, never).process(*, *)(*)
       }
@@ -44,17 +44,17 @@ trait AppCmdPreprocessorMockModule {
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
         verify(aMock, atLeastOnce).process(*, eqTo(DispatchRequest(cmd, emails)))(*)
       }
-        
+
       def succeedsWith(request: DispatchRequest) = {
         when(aMock.process(*, *)(*)).thenReturn(E.pure(request))
       }
 
       def passThru() = {
-        when(aMock.process(*, *)(*)).thenAnswer( (_: Application, inbound: DispatchRequest) => E.pure(inbound))
+        when(aMock.process(*, *)(*)).thenAnswer((_: Application, inbound: DispatchRequest) => E.pure(inbound))
       }
 
       def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-        when(aMock.process(*, *)(*)).thenReturn(E.leftT(NonEmptyChain.of(failure, failures:_*)))
+        when(aMock.process(*, *)(*)).thenReturn(E.leftT(NonEmptyChain.of(failure, failures: _*)))
       }
     }
   }

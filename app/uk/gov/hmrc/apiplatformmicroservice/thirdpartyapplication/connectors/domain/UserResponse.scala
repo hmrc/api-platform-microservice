@@ -20,8 +20,8 @@ import org.joda.time.DateTime
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: String, lastName: String, registrationTime: DateTime, lastModified: DateTime, verified: Boolean)
 

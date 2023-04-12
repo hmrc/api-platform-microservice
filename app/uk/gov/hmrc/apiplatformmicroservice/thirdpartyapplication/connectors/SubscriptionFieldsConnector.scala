@@ -28,12 +28,11 @@ import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
-
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
@@ -46,7 +45,7 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
 }
 
-private[thirdpartyapplication] abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
   val environment: Environment
   val serviceBaseUrl: String

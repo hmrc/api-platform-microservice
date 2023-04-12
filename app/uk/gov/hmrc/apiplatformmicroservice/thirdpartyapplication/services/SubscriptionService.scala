@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
   CreateSubscriptionResult,
   CreateSubscriptionSuccess
 }
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionService @Inject() (

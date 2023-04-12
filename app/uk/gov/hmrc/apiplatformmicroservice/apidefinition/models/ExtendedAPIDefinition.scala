@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import cats.data.{NonEmptyList => NEL}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class ExtendedApiDefinition(

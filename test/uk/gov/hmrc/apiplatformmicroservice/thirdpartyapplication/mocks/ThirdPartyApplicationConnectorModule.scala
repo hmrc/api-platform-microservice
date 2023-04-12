@@ -22,11 +22,10 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV2}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV2}
 
 trait ThirdPartyApplicationConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

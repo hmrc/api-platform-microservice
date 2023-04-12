@@ -50,7 +50,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
   class Setup(proxyEnabled: Boolean = true) extends ApiDefinitionHttpMockingHelper with ApiDefinitionConnectorUtils {
 
-    private implicit val materializer: Materializer = NoMaterializer
+    implicit private val materializer: Materializer = NoMaterializer
 
     val serviceBaseUrl   = "/mockUrl"
     val apiDefinitionUrl = "/mockUrl"

@@ -24,9 +24,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait CommandConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -37,7 +37,7 @@ trait CommandConnectorMockModule {
 
     object IssueCommand {
       import cats.syntax.either._
-      
+
       def verifyNoCommandsIssued() = {
         verify(aMock, never).dispatch(*[ApplicationId], *)(*)
       }
@@ -45,21 +45,21 @@ trait CommandConnectorMockModule {
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
         verify(aMock, atLeastOnce).dispatch(*[ApplicationId], eqTo(DispatchRequest(cmd, emails)))(*)
       }
-        
+
       object Dispatch {
-        
+
         val mockResult = mock[DispatchSuccessResult]
-        
+
         def succeeds() = {
           when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[Types.Failures]))
         }
-        
+
         def succeedsWith(application: Application) = {
           when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
         }
 
         def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures:_*).asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures: _*).asLeft[DispatchSuccessResult]))
         }
       }
     }

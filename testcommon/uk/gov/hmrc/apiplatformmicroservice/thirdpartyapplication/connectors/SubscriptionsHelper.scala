@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 object SubscriptionsHelper {
 

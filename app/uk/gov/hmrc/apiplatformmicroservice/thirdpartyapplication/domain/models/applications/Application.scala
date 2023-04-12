@@ -20,11 +20,10 @@ import java.time.Period
 
 import org.joda.time.DateTime
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId, Collaborator}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-
 
 case class Application(
     id: ApplicationId,

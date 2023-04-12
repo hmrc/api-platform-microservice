@@ -16,32 +16,31 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.NonEmptyChain
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
-import cats.data.NonEmptyChain
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AccessType, Application}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
 
 @Singleton
-class SubscribeToApiPreprocessor @Inject()(
+class SubscribeToApiPreprocessor @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
     applicationService: ApplicationByIdFetcher,
     subscriptionFieldsService: SubscriptionFieldsService
-)(implicit val ec: ExecutionContext)
-extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
+  )(implicit val ec: ExecutionContext
+  ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
 
   private def isPublic(in: ApiVersionDefinition) = in.access match {
     case PublicApiAccess() => true
@@ -50,19 +49,19 @@ extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with Base
 
   private def removePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
     in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
- 
+
   private def canSubscribe(allowedSubscriptions: Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
     val allVersions: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.version)))
 
     allVersions.contains(newSubscriptionApiIdentifier)
   }
- 
+
   private def isSubscribed(existingSubscriptions: Set[ApiIdentifier], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
-      existingSubscriptions.contains(newSubscriptionApiIdentifier)
-  } 
+    existingSubscriptions.contains(newSubscriptionApiIdentifier)
+  }
 
   // Should be done post subscribe probably but it never has been
-  private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Either[NonEmptyChain[CommandFailure],Unit]] = {
+  private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Either[NonEmptyChain[CommandFailure], Unit]] = {
     import cats.syntax.either._
 
     subscriptionFieldsService.createFieldValues(application.clientId, application.deployedTo, apiIdentifier: ApiIdentifier)
@@ -72,16 +71,16 @@ extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with Base
   def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
-    val requiredGKUser = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
+    val requiredGKUser    = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
     val permissionsPassed = {
       (requiredGKUser, cmd.actor) match {
         case (true, Actors.GatekeeperUser(_)) => true
-        case (true, _) => false
-        case (_, _) => true
+        case (true, _)                        => false
+        case (_, _)                           => true
       }
     }
 
-    def not(in: Boolean) = ! in
+    def not(in: Boolean) = !in
 
     for {
       _                     <- E.cond(permissionsPassed, (), NonEmptyChain.one(CommandFailures.SubscriptionNotAvailable))

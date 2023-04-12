@@ -17,9 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.config
 
 import com.google.inject.{Inject, Provider, Singleton}
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
 
 @Singleton

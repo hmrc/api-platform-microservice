@@ -18,6 +18,4 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
-  
-}
+class AppCmdPreprocessorSpec extends AsyncHmrcSpec {}

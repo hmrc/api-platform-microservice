@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
-
 import scala.collection.mutable
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}

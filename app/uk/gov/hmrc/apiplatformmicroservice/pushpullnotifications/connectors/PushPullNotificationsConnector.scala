@@ -55,7 +55,7 @@ trait PushPullNotificationsConnector {
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]]
 }
 
-private[pushpullnotifications] abstract class AbstractPushPullNotificationsConnector(implicit val ec: ExecutionContext) extends PushPullNotificationsConnector {
+abstract private[pushpullnotifications] class AbstractPushPullNotificationsConnector(implicit val ec: ExecutionContext) extends PushPullNotificationsConnector {
   import AbstractPushPullNotificationsConnector.JsonFormatters._
 
   protected val httpClient: HttpClient

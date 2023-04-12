@@ -53,7 +53,7 @@ class AppCmdConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder 
+    with ApplicationBuilder
     with ClockNow {
 
   val clock = Clock.systemUTC()
@@ -66,8 +66,8 @@ class AppCmdConnectorISpec
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer                          = "TestBearerToken"
 
-    val applicationId          = ApplicationId.random
-    val clientId = ClientId.random
+    val applicationId = ApplicationId.random
+    val clientId      = ClientId.random
 
     def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): Application = {
       Application(
@@ -92,9 +92,9 @@ class AppCmdConnectorISpec
     val config = PrincipalAppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
-      
+
     val connector: AppCmdConnector = new PrincipalAppCmdConnector(config, httpClient)
-    val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
+    val url                        = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
   }
 
   trait SubordinateSetup {
@@ -107,17 +107,17 @@ class AppCmdConnectorISpec
       apiKey = apiKeyTest
     )
     val connector = new SubordinateAppCmdConnector(config, httpClient, mockProxiedHttpClient)
-    val url = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
-    }
+    val url       = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
+  }
 
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
-    val requestorEmail         = "requestor@example.com".toLaxEmail
-    val newTeamMemberEmail     = "newTeamMember@example.com".toLaxEmail
-    val adminsToEmail          = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
+    val requestorEmail     = "requestor@example.com".toLaxEmail
+    val newTeamMemberEmail = "newTeamMember@example.com".toLaxEmail
+    val adminsToEmail      = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
 
-    val newCollaborator        = Collaborators.Administrator(UserId.random, newTeamMemberEmail)
-    val cmd = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, now)
-    val request = DispatchRequest(cmd, adminsToEmail)
+    val newCollaborator = Collaborators.Administrator(UserId.random, newTeamMemberEmail)
+    val cmd             = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, now)
+    val request         = DispatchRequest(cmd, adminsToEmail)
   }
 
   "addCollaborator" should {
@@ -135,14 +135,14 @@ class AppCmdConnectorISpec
       )
 
       val result = await(connector.dispatch(applicationId, request))
-      
+
       result.right.value shouldBe DispatchSuccessResult(response)
     }
 
     "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
       val response = NonEmptyChain.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
-      
+
       stubFor(Environment.PRODUCTION)(
         patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
           .withJsonRequestBody(request)
@@ -158,8 +158,8 @@ class AppCmdConnectorISpec
       result.left.value shouldBe NonEmptyChain.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
     }
 
-    "return for generic error" in new CollaboratorSetup  with PrincipalSetup {
-      
+    "return for generic error" in new CollaboratorSetup with PrincipalSetup {
+
       stubFor(Environment.PRODUCTION)(
         patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
           .withJsonRequestBody(request)
@@ -171,7 +171,7 @@ class AppCmdConnectorISpec
 
       intercept[InternalServerException] {
         await(connector.dispatch(applicationId, request))
-      }.message shouldBe(s"Failed calling dispatch 418")
+      }.message shouldBe (s"Failed calling dispatch 418")
     }
   }
 }

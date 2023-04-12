@@ -18,22 +18,24 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+
 import uk.gov.hmrc.http.{HttpClient, _}
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 
 trait AppCmdConnector {
+
   def dispatch(
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
-  )(
-    implicit hc: HeaderCarrier
-  ): AppCmdHandlerTypes.Result
+    )(implicit hc: HeaderCarrier
+    ): AppCmdHandlerTypes.Result
 }
 
-private[commands] abstract class AbstractAppCmdConnector
+abstract private[commands] class AbstractAppCmdConnector
     extends AppCmdConnector
     with ApplicationLogger {
 
@@ -57,7 +59,7 @@ private[commands] abstract class AbstractAppCmdConnector
     def parseWithLogAndThrow[T](input: String)(implicit reads: Reads[T]): T = {
       Json.parse(input).validate[T] match {
         case JsSuccess(t, _) => t
-        case JsError(err) =>
+        case JsError(err)    =>
           logger.error(s"Failed to parse >>$input<< due to errors $err")
           throw new InternalServerException("Failed parsing response to dispatch")
       }
@@ -72,8 +74,9 @@ private[commands] abstract class AbstractAppCmdConnector
         response.status match {
           case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[AppCmdHandlerTypes.Failures]
           case BAD_REQUEST => parseWithLogAndThrow[AppCmdHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
-          case status      => logger.error(s"Dispatch failed with status code: $status")
-                              throw new InternalServerException(s"Failed calling dispatch $status")
+          case status      =>
+            logger.error(s"Dispatch failed with status code: $status")
+            throw new InternalServerException(s"Failed calling dispatch $status")
         }
       )
   }
@@ -87,13 +90,14 @@ class SubordinateAppCmdConnector @Inject() (
   )(implicit override val ec: ExecutionContext
   ) extends AbstractAppCmdConnector {
 
-    import config._
-    val serviceBaseUrl: String = config.baseUrl
+  import config._
+  val serviceBaseUrl: String = config.baseUrl
 
   lazy val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 object SubordinateAppCmdConnector {
+
   case class Config(
       baseUrl: String,
       useProxy: Boolean,
@@ -101,7 +105,6 @@ object SubordinateAppCmdConnector {
       apiKey: String
     )
 }
-
 
 @Singleton
 class PrincipalAppCmdConnector @Inject() (
@@ -114,6 +117,7 @@ class PrincipalAppCmdConnector @Inject() (
 }
 
 object PrincipalAppCmdConnector {
+
   case class Config(
       baseUrl: String
     )
@@ -124,4 +128,3 @@ class EnvironmentAwareAppCmdConnector @Inject() (
     val subordinate: SubordinateAppCmdConnector,
     val principal: PrincipalAppCmdConnector
   ) extends EnvironmentAware[AppCmdConnector]
-

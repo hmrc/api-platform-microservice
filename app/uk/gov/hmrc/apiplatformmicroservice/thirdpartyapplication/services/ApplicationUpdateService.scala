@@ -22,8 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.ApplicationUpdate
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationUpdate}
 
 @Singleton
 class ApplicationUpdateService @Inject() (
@@ -37,7 +36,7 @@ class ApplicationUpdateService @Inject() (
     }
 
     for {
-      result        <- callTpa(applicationUpdate)
+      result <- callTpa(applicationUpdate)
     } yield result
   }
 }

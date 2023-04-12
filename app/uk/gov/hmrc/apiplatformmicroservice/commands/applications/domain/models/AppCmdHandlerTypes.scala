@@ -16,6 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandHandlerTypes
 
 object AppCmdHandlerTypes extends CommandHandlerTypes[DispatchSuccessResult]
