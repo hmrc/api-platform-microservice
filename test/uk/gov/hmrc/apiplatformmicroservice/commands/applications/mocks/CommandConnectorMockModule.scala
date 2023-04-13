@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
+package uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks
 
 import scala.concurrent.Future.successful
 
-import cats.data.NonEmptyList
+import cats.data.NonEmptyChain
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.ApplicationCommandConnector
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalApplicationCommandConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateApplicationCommandConnector
 
 trait CommandConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  trait CommandConnectorMock[T <: ApplicationCommandConnector] {
+  trait CommandConnectorMock[T <: AppCmdConnector] {
     def aMock: T
+    val Types = AppCmdHandlerTypes
 
     object IssueCommand {
       import cats.syntax.either._
-      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-      
+
       def verifyNoCommandsIssued() = {
         verify(aMock, never).dispatch(*[ApplicationId], *)(*)
       }
@@ -48,21 +45,21 @@ trait CommandConnectorMockModule {
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
         verify(aMock, atLeastOnce).dispatch(*[ApplicationId], eqTo(DispatchRequest(cmd, emails)))(*)
       }
-        
+
       object Dispatch {
-        
+
         val mockResult = mock[DispatchSuccessResult]
-        
+
         def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
+          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[Types.Failures]))
         }
-        
+
         def succeedsWith(application: Application) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[NonEmptyList[CommandFailure]]))
+          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
         }
 
         def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyList(failure, failures.toList).asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures: _*).asLeft[DispatchSuccessResult]))
         }
       }
     }
@@ -70,12 +67,12 @@ trait CommandConnectorMockModule {
 
   object CommandConnectorMocks {
 
-    object Prod extends CommandConnectorMock[PrincipalApplicationCommandConnector] {
-      val aMock = mock[PrincipalApplicationCommandConnector]
+    object Prod extends CommandConnectorMock[PrincipalAppCmdConnector] {
+      val aMock = mock[PrincipalAppCmdConnector]
     }
 
-    object Sandbox extends CommandConnectorMock[SubordinateApplicationCommandConnector] {
-      val aMock = mock[SubordinateApplicationCommandConnector]
+    object Sandbox extends CommandConnectorMock[SubordinateAppCmdConnector] {
+      val aMock = mock[SubordinateAppCmdConnector]
     }
   }
 }

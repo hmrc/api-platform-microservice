@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 
 trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
   import play.api.libs.json._
@@ -29,17 +29,17 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 
   implicit val formatClientId = Json.valueFormat[ClientId]
 
-  private implicit val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
+  implicit private val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
 
-  private implicit val readsPersistLogin: Reads[PersistLogin.type] = Reads { _ => JsSuccess(PersistLogin) }
+  implicit private val readsPersistLogin: Reads[PersistLogin.type] = Reads { _ => JsSuccess(PersistLogin) }
 
-  private implicit val writesPersistLogin: OWrites[PersistLogin.type] = new OWrites[PersistLogin.type] {
+  implicit private val writesPersistLogin: OWrites[PersistLogin.type] = new OWrites[PersistLogin.type] {
     def writes(pl: PersistLogin.type) = Json.obj()
   }
 
-  private implicit val formatSuppressIvForAgents        = Json.format[SuppressIvForAgents]
-  private implicit val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals   = Json.format[SuppressIvForIndividuals]
+  implicit private val formatSuppressIvForAgents        = Json.format[SuppressIvForAgents]
+  implicit private val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
+  implicit private val formatSuppressIvForIndividuals   = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverrideType: Format[OverrideFlag] = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)

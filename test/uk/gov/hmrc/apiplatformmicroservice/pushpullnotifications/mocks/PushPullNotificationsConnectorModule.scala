@@ -21,7 +21,12 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{EnvironmentAwarePushPullNotificationsConnector, PrincipalPushPullNotificationsConnector, PushPullNotificationsConnector, SubordinatePushPullNotificationsConnector}
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{
+  EnvironmentAwarePushPullNotificationsConnector,
+  PrincipalPushPullNotificationsConnector,
+  PushPullNotificationsConnector,
+  SubordinatePushPullNotificationsConnector
+}
 
 trait PushPullNotificationsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

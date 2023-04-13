@@ -20,21 +20,30 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsFetcher
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
 
-trait SubscriptionFieldsFetcherModule {
+trait SubscriptionFieldsServiceModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  object SubscriptionFieldsFetcherMock {
-    val aMock = mock[SubscriptionFieldsFetcher]
+  object SubscriptionFieldsServiceMock {
+    val aMock = mock[SubscriptionFieldsService]
 
     object FetchFieldValuesWithDefaults {
 
       def willReturnFieldValues(subs: ApiFieldMap[FieldValue]) = {
         when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(*)).thenReturn(successful(subs))
       }
+    }
+
+    object CreateFieldValues {
+
+      def succeeds() =
+        when(aMock.createFieldValues(*[ClientId], *, *)(*)).thenReturn(successful(Right(())))
+
+      def fails() =
+        when(aMock.createFieldValues(*[ClientId], *, *)(*)).thenReturn(successful(Left(Map.empty)))
     }
   }
 }

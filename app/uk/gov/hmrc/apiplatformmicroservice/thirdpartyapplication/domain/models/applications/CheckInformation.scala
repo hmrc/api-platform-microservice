@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
 import org.joda.time.DateTime
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 case class ContactDetails(fullname: String, email: LaxEmailAddress, telephoneNumber: String)

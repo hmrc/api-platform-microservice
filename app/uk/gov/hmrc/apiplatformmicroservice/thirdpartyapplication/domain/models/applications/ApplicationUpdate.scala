@@ -35,9 +35,9 @@ trait ApplicationUpdateFormatters {
   import play.api.libs.json.Json
   import uk.gov.hmrc.play.json.Union
 
-  implicit val subscribeToApiFormatter               = Json.format[SubscribeToApi]
-  implicit val unsubscribeFromApiFormatter           = Json.format[UnsubscribeFromApi]
-  implicit val updateRedirectUrisFormatter           = Json.format[UpdateRedirectUris]
+  implicit val subscribeToApiFormatter     = Json.format[SubscribeToApi]
+  implicit val unsubscribeFromApiFormatter = Json.format[UnsubscribeFromApi]
+  implicit val updateRedirectUrisFormatter = Json.format[UpdateRedirectUris]
 
   implicit val applicationUpdateFormatter = Union.from[ApplicationUpdate]("updateType")
     .and[SubscribeToApi]("subscribeToApi")

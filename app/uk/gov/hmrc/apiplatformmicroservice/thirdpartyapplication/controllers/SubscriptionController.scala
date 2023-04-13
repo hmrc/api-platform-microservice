@@ -23,15 +23,16 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.ApplicationWithSubscriptionDataRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ActionBuilders, ErrorCode, JsErrorResponse}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{ApplicationUpdateFormatters, SubscribeToApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionDuplicate, CreateSubscriptionSuccess}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionService, UpliftApplicationService}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionController @Inject() (
@@ -42,12 +43,13 @@ class SubscriptionController @Inject() (
     cc: ControllerComponents,
     val upliftApplicationService: UpliftApplicationService
   )(implicit val ec: ExecutionContext
-  ) extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters {
+  ) extends BackendController(cc) with ActionBuilders with ApplicationUpdateFormatters with ApplicationLogger {
 
   @deprecated("remove after clients are no longer using the old endpoint")
   def subscribeToApi(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[ApiIdentifier] { api =>
+        logger.info("OLD STUFF")
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, api, restricted.getOrElse(true))
           .map {
@@ -64,6 +66,7 @@ class SubscriptionController @Inject() (
   def subscribeToApiAppUpdate(applicationId: ApplicationId, restricted: Option[Boolean]): Action[JsValue] =
     requiresAuthenticationForPrivilegedOrRopcApplications(applicationId).async(parse.json) { implicit request: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[SubscribeToApi] { subscribeToApi =>
+        logger.info("OLD JG STUFF")
         val api = subscribeToApi.apiIdentifier
         subscriptionService
           .createSubscriptionForApplication(request.application, request.subscriptions, subscribeToApi, restricted.getOrElse(true))

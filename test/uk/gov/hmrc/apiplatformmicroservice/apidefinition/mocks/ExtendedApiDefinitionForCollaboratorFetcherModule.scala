@@ -43,6 +43,7 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
         when(aMock.fetch(*, *)(*)).thenReturn(Future.failed(e))
       }
     }
+
     object FetchCached {
 
       def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
@@ -56,6 +57,7 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
       def willThrowException(e: Exception) = {
         when(aMock.fetchCached(*, *)(*)).thenReturn(Future.failed(e))
       }
-    }  }
+    }
+  }
 
 }

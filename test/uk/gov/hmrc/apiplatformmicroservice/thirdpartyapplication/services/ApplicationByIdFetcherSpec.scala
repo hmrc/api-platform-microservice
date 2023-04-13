@@ -23,13 +23,12 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.DateTimeUtils
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
 
@@ -43,13 +42,13 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
     Application(id, clientId, "gatewayId", "name", DateTimeUtils.now, Some(DateTimeUtils.now), grantLength, None, Environment.SANDBOX, Some("description"))
   val BANG                     = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsFetcherModule with MockitoSugar
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with MockitoSugar
       with ArgumentMatchersSugar {
 
     val fetcher = new ApplicationByIdFetcher(
       EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
       EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
-      SubscriptionFieldsFetcherMock.aMock
+      SubscriptionFieldsServiceMock.aMock
     )
   }
 
@@ -114,7 +113,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
-        SubscriptionFieldsFetcherMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
+        SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
         val expect = ApplicationWithSubscriptionData(
           application,

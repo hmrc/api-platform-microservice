@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
@@ -33,14 +34,13 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Subscr
   CreateSubscriptionResult,
   CreateSubscriptionSuccess
 }
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionService @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsFetcher: SubscriptionFieldsFetcher
+    subscriptionFieldsService: SubscriptionFieldsService
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
 
@@ -149,7 +149,7 @@ class SubscriptionService @Inject() (
 
   private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
-      fieldValues      <- subscriptionFieldsFetcher.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
+      fieldValues      <- subscriptionFieldsService.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
       fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
       fvResuls         <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
     } yield CreateSubscriptionSuccess

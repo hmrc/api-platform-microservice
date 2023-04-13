@@ -59,7 +59,7 @@ class ThirdPartyApplicationConnectorISpec
     with ApplicationBuilder
     with ApplicationUpdateFormatters {
 
-  val clock = Clock.systemUTC()
+  val clock                     = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
   private val versionOne        = ApiVersion("1.0")
   private val versionTwo        = ApiVersion("2.0")

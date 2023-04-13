@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
+import java.time.Clock
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.joda.time.DateTime
@@ -23,18 +24,16 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, UserResponseBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UnregisteredUserResponse
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
-import java.time.Clock
 
 class ApplicationUpdateServiceSpec extends AsyncHmrcSpec with ClockNow {
 
@@ -82,7 +81,7 @@ class ApplicationUpdateServiceSpec extends AsyncHmrcSpec with ClockNow {
   }
 
   "non request Type command" should {
-    val actor        = Actors.AppCollaborator("someEMail".toLaxEmail)
+    val actor = Actors.AppCollaborator("someEMail".toLaxEmail)
 
     "call third party application  with same command as passed in" in new Setup {
       val request = UpdateRedirectUris(actor, List.empty, List.empty, now)

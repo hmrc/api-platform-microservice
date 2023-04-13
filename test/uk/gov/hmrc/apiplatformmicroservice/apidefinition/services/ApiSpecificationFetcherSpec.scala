@@ -50,7 +50,6 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
 
       val result = await(fetcher.fetch(serviceName, versionOne))
 
-      println(expectedJsValue)
       result shouldBe Some(expectedJsValue)
     }
 
@@ -61,7 +60,6 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
 
       val result = await(fetcher.fetch(serviceName, versionOne))
 
-      println(expectedJsValue)
       result shouldBe Some(expectedJsValue)
     }
 

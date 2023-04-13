@@ -20,14 +20,12 @@ import java.time.Period
 
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 trait ApplicationBuilder extends CollaboratorsBuilder {
 
   def buildApplication(
@@ -76,7 +74,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: LaxEmailAddress)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.copy(id = id)

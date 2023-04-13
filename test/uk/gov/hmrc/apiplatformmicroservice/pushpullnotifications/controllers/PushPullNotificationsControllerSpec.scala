@@ -19,6 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
+import akka.actor.ActorSystem
+import akka.stream.Materializer
+import org.scalatest.BeforeAndAfterAll
+
 import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
@@ -30,13 +34,10 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuil
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.PushPullNotificationsController
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
-import org.scalatest.BeforeAndAfterAll
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 
 class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
 
-  var as: ActorSystem = _
+  var as: ActorSystem            = _
   implicit var mat: Materializer = _
 
   override protected def beforeAll(): Unit = {
@@ -52,7 +53,7 @@ class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAf
 
   trait Setup extends BoxBuilder {
     implicit val headerCarrier = HeaderCarrier()
-    val mockBoxFetcher = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
+    val mockBoxFetcher         = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
 
     val controller = new PushPullNotificationsController(
       mockBoxFetcher,

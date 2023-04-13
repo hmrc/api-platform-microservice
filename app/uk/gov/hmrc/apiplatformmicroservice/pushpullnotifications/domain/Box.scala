@@ -19,8 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 case class BoxId(value: String) extends AnyVal
 
