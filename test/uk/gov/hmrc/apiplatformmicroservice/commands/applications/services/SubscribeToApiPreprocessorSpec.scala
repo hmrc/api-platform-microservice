@@ -111,17 +111,25 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       await(preprocessor.process(application, cmdWithPrivate, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
 
-    "fail if create field values fails" in new Setup {}
+    "fail if create field values fails" in new Setup {
+      val application = anApplication
 
-    "pass with private api when not restricted" in new Setup {
+      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
+      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
+      SubscriptionFieldsServiceMock.CreateFieldValues.fails()
+
+      await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.GenericFailure("Creation of field values failed"))
+    }
+
+    "pass with private api when from gatekeeper" in new Setup {
       val application    = anApplication
-      val cmdWithPrivate = cmd.copy(apiIdentifier = apiIdentifierPrivate, restricted = false)
+      val cmdWithPrivate = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierPrivate, restricted = false)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
-      await(preprocessor.process(application, cmdWithPrivate, data).value).right.value shouldBe DispatchRequest(cmdWithPrivate, data)
+      await(preprocessor.process(application, cmdWithPrivate, data).value).right.value shouldBe DispatchRequest(cmdWithPrivate, data)      
     }
 
     "pass on the request if everything is okay" in new Setup {

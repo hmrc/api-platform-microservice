@@ -47,7 +47,7 @@ class SubscribeToApiPreprocessor @Inject() (
     case _                 => false
   }
 
-  private def removePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
+  private def excludePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
     in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
 
   private def canSubscribe(allowedSubscriptions: Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
@@ -79,6 +79,10 @@ class SubscribeToApiPreprocessor @Inject() (
         case (_, _)                           => true
       }
     }
+    val canManagePrivateVersions = cmd.actor match {
+      case Actors.GatekeeperUser(_) => true
+      case _ => false
+    }
 
     def not(in: Boolean) = !in
 
@@ -88,7 +92,7 @@ class SubscribeToApiPreprocessor @Inject() (
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyList.one(CommandFailures.DuplicateSubscription))
       possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, cmd.restricted))
-      allowedSubscriptions   = if (cmd.restricted) removePrivateVersions(possibleSubscriptions) else possibleSubscriptions
+      allowedSubscriptions   = if (canManagePrivateVersions) possibleSubscriptions else excludePrivateVersions(possibleSubscriptions)
       isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(isAllowed, (), NonEmptyList.one(CommandFailures.SubscriptionNotAvailable))
       _                     <- E.fromEitherF(createFieldValues(application, newSubscriptionApiIdentifier))
