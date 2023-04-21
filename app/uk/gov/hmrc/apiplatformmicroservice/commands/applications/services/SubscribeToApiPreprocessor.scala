@@ -68,7 +68,7 @@ class SubscribeToApiPreprocessor @Inject() (
       .map(_.fold(_ => CommandFailures.GenericFailure("Creation of field values failed").leftNel[Unit], _ => ().rightNel[CommandFailure]))
   }
 
-  def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
+  def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
     val requiredGKUser    = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
@@ -91,7 +91,7 @@ class SubscribeToApiPreprocessor @Inject() (
       existingSubscriptions <- E.liftF(applicationService.fetchApplicationWithSubscriptionData(application.id).map(_.get.subscriptions)) // .get is safe as we already have the app
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyList.one(CommandFailures.DuplicateSubscription))
-      possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, cmd.restricted))
+      possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application, existingSubscriptions, ! canManagePrivateVersions))
       allowedSubscriptions   = if (canManagePrivateVersions) possibleSubscriptions else excludePrivateVersions(possibleSubscriptions)
       isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(isAllowed, (), NonEmptyList.one(CommandFailures.SubscriptionNotAvailable))

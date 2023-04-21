@@ -78,7 +78,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   }
   "SubscribeToApiPreprocessor" should {
     val data = Set("x".toLaxEmail)
-    val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, true, now)
+    val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, now)
 
     "fail if ropc app and not a GK actor" in new Setup {
       val application = anApplication.copy(access = ROPC())
@@ -103,7 +103,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
 
     "fail if denied due to private and restricted" in new Setup {
       val application    = anApplication
-      val cmdWithPrivate = cmd.copy(apiIdentifier = apiIdentifierPrivate, restricted = true)
+      val cmdWithPrivate = cmd.copy(apiIdentifier = apiIdentifierPrivate)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
@@ -123,7 +123,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
 
     "pass with private api when from gatekeeper" in new Setup {
       val application    = anApplication
-      val cmdWithPrivate = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierPrivate, restricted = false)
+      val cmdWithPrivate = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierPrivate)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))

@@ -32,7 +32,7 @@ trait AppCmdConnector {
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
     )(implicit hc: HeaderCarrier
-    ): AppCmdHandlerTypes.Result
+    ): AppCmdHandlerTypes.AppCmdResult
 }
 
 abstract private[commands] class AbstractAppCmdConnector
@@ -49,7 +49,7 @@ abstract private[commands] class AbstractAppCmdConnector
       applicationId: ApplicationId,
       dispatchRequest: DispatchRequest
     )(implicit hc: HeaderCarrier
-    ): AppCmdHandlerTypes.Result = {
+    ): AppCmdHandlerTypes.AppCmdResult = {
 
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
     import play.api.libs.json._
