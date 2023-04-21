@@ -51,7 +51,7 @@ abstract private[commands] class AbstractAppCmdConnector
     )(implicit hc: HeaderCarrier
     ): AppCmdHandlerTypes.Result = {
 
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
     import play.api.libs.json._
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._

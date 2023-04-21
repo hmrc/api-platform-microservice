@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -140,8 +140,8 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       val result = controller.dispatch(productionApplicationId)(request)
       status(result) shouldBe BAD_REQUEST
 
-      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
-      Json.fromJson[NonEmptyChain[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyChain.one(CommandFailures.ActorIsNotACollaboratorOnApp)
+      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+      Json.fromJson[NonEmptyList[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyList.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
       CommandConnectorMocks.Prod.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
       CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
