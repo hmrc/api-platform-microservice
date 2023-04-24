@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
@@ -33,7 +33,7 @@ trait AppCmdPreprocessorMockModule {
   trait AbstractAppCmdPreprocessorMock {
     def aMock: AppCmdPreprocessor
     val Types = AppCmdPreprocessorTypes
-    val E     = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+    val E     = EitherTHelper.make[NonEmptyList[CommandFailure]]
 
     object Process {
 
@@ -54,7 +54,7 @@ trait AppCmdPreprocessorMockModule {
       }
 
       def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-        when(aMock.process(*, *)(*)).thenReturn(E.leftT(NonEmptyChain.of(failure, failures: _*)))
+        when(aMock.process(*, *)(*)).thenReturn(E.leftT(NonEmptyList.of(failure, failures: _*)))
       }
     }
   }

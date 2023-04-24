@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks
 
 import scala.concurrent.Future.successful
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
@@ -59,7 +59,7 @@ trait CommandConnectorMockModule {
         }
 
         def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyChain.of(failure, failures: _*).asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyList.of(failure, failures: _*).asLeft[DispatchSuccessResult]))
         }
       }
     }

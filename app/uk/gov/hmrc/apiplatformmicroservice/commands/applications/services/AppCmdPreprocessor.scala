@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -36,9 +36,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 trait AbstractAppCmdPreprocessor[C] {
   implicit def ec: ExecutionContext
 
-  def process(app: Application, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT
+  def process(app: Application, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT
 
-  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+  val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
 }
 
 @Singleton
@@ -47,9 +47,9 @@ class AppCmdPreprocessor @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends ApplicationLogger {
 
-  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+  val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
 
-  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.ResultT = {
+  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT = {
     import ApplicationCommands._
 
     dispatchRequest.command match {

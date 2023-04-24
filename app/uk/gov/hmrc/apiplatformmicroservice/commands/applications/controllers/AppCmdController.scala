@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
 import cats.implicits.catsStdInstancesForFuture
 
 import play.api.libs.json.{JsValue, Json}
@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyChainFormatters._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
@@ -50,12 +50,12 @@ class AppCmdController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  val E = EitherTHelper.make[NonEmptyChain[CommandFailure]]
+  val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
 
   def dispatch(id: ApplicationId): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DispatchRequest] { inboundDispatchRequest =>
       (for {
-        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyChain.one(CommandFailures.ApplicationNotFound)) // TODO - do we need this or should each preprocess fetch what it needs
+        application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyList.one(CommandFailures.ApplicationNotFound)) // TODO - do we need this or should each preprocess fetch what it needs
         outboundDispatchRequest <- preprocessor.process(application, inboundDispatchRequest)
         responseStatus          <- E.fromEitherF(cmdConnector(application.deployedTo).dispatch(application.id, outboundDispatchRequest))
       } yield responseStatus)
