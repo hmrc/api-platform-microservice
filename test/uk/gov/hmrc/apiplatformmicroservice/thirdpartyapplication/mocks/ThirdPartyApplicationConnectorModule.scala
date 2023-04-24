@@ -82,22 +82,6 @@ trait ThirdPartyApplicationConnectorModule {
       }
     }
 
-    object SubscribeToApi {
-
-      def willReturnSuccess = {
-        when(aMock.subscribeToApi(*[ApplicationId], *)(*)).thenReturn(successful(SubscriptionUpdateSuccessResult))
-      }
-    }
-
-    object UpdateApplication {
-
-      def willReturnSuccess(application: Application) = {
-        when(aMock.updateApplication(*[ApplicationId], *)(*)).thenReturn(successful(application))
-
-      }
-
-    }
-
     object CreateApplicationV2 {
 
       def willReturnSuccess(applcationId: ApplicationId) = {

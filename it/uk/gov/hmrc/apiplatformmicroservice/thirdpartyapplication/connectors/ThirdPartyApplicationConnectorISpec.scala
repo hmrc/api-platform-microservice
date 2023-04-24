@@ -43,7 +43,6 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Subs
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
@@ -56,8 +55,7 @@ class ThirdPartyApplicationConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder
-    with ApplicationUpdateFormatters {
+    with ApplicationBuilder {
 
   val clock                     = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
@@ -350,53 +348,6 @@ class ThirdPartyApplicationConnectorISpec
         ApiIdentifier(ContextA, VersionOne),
         ApiIdentifier(ContextB, VersionTwo)
       )
-    }
-  }
-
-  "updateApplication" should {
-
-    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
-
-    val apiIdentifier = ApiIdentifier(ContextA, VersionOne)
-    val applicationId = ApplicationId.random
-    val url           = s"/application/${applicationId.value}"
-
-    val actor                     = Actors.AppCollaborator("dev@example.com".toLaxEmail)
-    val timestamp                 = now
-    val subscribeToApi            = SubscribeToApi(actor, apiIdentifier, timestamp)
-    val subscribeToApiRequestBody = Json.toJsObject(subscribeToApi) ++ Json.obj("updateType" -> "subscribeToApi")
-    val application               = buildApplication(applicationId)
-
-    "return success when everything works" in new Setup {
-      stubFor(PRODUCTION)(
-        patch(urlEqualTo(url))
-          .withJsonRequestBody(subscribeToApiRequestBody)
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(application)
-          )
-      )
-      await(connector.updateApplication(applicationId, subscribeToApi)) shouldBe application
-    }
-  }
-
-  "subscribeToApi" should {
-
-    val apiId         = ApiIdentifier(ContextA, VersionOne)
-    val applicationId = ApplicationId.random
-    val url           = s"/application/${applicationId.value}/subscription"
-
-    "return the success when everything works" in new Setup {
-      stubFor(PRODUCTION)(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(apiId)
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-          )
-      )
-      await(connector.subscribeToApi(applicationId, apiId)) shouldBe SubscriptionUpdateSuccessResult
     }
   }
 }
