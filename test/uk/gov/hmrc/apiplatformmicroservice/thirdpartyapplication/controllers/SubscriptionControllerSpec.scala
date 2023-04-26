@@ -45,10 +45,10 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = NoMaterializer
 
-    val applicationId  = ApplicationId.random
-    val context        = ApiContext("hello")
-    val version        = ApiVersion("1.0")
-    val apiIdentifier  = ApiIdentifier(context, version)
+    val applicationId = ApplicationId.random
+    val context       = ApiContext("hello")
+    val version       = ApiVersion("1.0")
+    val apiIdentifier = ApiIdentifier(context, version)
 
     val apiId1 = "context1".asIdentifier()
     val apiId2 = "context2".asIdentifier()
@@ -67,7 +67,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     )
   }
 
-   "fetchUpliftableSubscriptions" should {
+  "fetchUpliftableSubscriptions" should {
 
     "return OK with a list of upliftable subscriptions" when {
       "there are upliftable apis available for the application id" in new Setup {

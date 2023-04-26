@@ -129,7 +129,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
-      await(preprocessor.process(application, cmdWithPrivate, data).value).right.value shouldBe DispatchRequest(cmdWithPrivate, data)      
+      await(preprocessor.process(application, cmdWithPrivate, data).value).right.value shouldBe DispatchRequest(cmdWithPrivate, data)
     }
 
     "pass on the request if everything is okay" in new Setup {
