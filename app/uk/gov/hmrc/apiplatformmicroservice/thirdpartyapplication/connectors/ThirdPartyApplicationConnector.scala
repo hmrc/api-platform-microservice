@@ -70,11 +70,6 @@ trait ThirdPartyApplicationConnector {
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application]
-
-  @deprecated("remove after clients are no longer using the old endpoint")
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult]
-
   def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
@@ -82,7 +77,7 @@ trait ThirdPartyApplicationConnector {
 }
 
 abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
-    with ApplicationUpdateFormatters with ApplicationLogger {
+    with ApplicationLogger {
 
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
   import AbstractThirdPartyApplicationConnector.JsonFormatters._
@@ -115,25 +110,6 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
     http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
       .recover {
         case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
-      }
-  }
-
-  def updateApplication(applicationId: ApplicationId, applicationUpdate: ApplicationUpdate)(implicit hc: HeaderCarrier): Future[Application] = {
-    http.PATCH[ApplicationUpdate, Application](
-      s"$serviceBaseUrl/application/${applicationId.value}",
-      applicationUpdate
-    )
-      .recover {
-        case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
-      }
-  }
-
-  @deprecated("remove after clients are no longer using the old endpoint")
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[SubscriptionUpdateResult] = {
-    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/application/${applicationId.value}/subscription", apiIdentifier)
-      .map {
-        case Left(errorResponse) => throw errorResponse
-        case Right(_)            => SubscriptionUpdateSuccessResult
       }
   }
 
@@ -185,11 +161,6 @@ class EnvironmentAwareThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") val subordinate: ThirdPartyApplicationConnector,
     @Named("principal") val principal: ThirdPartyApplicationConnector
   ) extends EnvironmentAware[ThirdPartyApplicationConnector]
-
-@deprecated("remove after clients are no longer using the old endpoint")
-sealed trait SubscriptionUpdateResult
-case object SubscriptionUpdateSuccessResult extends SubscriptionUpdateResult
-case object SubscriptionUpdateFailureResult extends SubscriptionUpdateResult
 
 sealed trait AddCollaboratorResult
 case class AddCollaboratorSuccessResult(userRegistered: Boolean) extends AddCollaboratorResult
