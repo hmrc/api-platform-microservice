@@ -33,6 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
+import scala.language.postfixOps
 
 @Singleton
 class ApiDefinitionController @Inject() (

@@ -18,8 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors
 
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HttpClient, _}
 

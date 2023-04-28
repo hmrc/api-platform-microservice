@@ -6,28 +6,22 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-microservice"
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+scalaVersion := "2.13.8"
 
-inThisBuild(
-  List(
-    scalaVersion := "2.12.15",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
-  )
-)
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val root = Project(appName, file("."))
   .settings(
     name := appName,
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.15",
     majorVersion := 0,
     PlayKeys.playDefaultPort := 6700,
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
     libraryDependencies ++= dependencies ++ testDependencies,
-    publishingSettings,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
       "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._"
@@ -40,7 +34,7 @@ lazy val root = Project(appName, file("."))
   .settings(
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it", 
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false
   )
   .settings(inConfig(Test)(BloopDefaults.configSettings))
@@ -51,6 +45,13 @@ lazy val root = Project(appName, file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
-  .settings(scalacOptions ++= Seq("-Ypartial-unification"))
+  .settings(
+    scalacOptions ++= Seq(
+      "-Wconf:cat=unused&src=views/.*\\.scala:s",
+      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
+  )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)

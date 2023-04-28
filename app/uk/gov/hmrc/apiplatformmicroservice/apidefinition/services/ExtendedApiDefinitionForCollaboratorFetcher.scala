@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
+import scala.language.postfixOps
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
