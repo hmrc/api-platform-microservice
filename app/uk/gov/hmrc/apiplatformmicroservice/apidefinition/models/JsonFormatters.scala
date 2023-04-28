@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
+import scala.language.postfixOps
+
 import cats.data.{NonEmptyList => NEL}
 
 import play.api.libs.functional.syntax._
@@ -24,7 +26,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
-import scala.language.postfixOps
 
 trait BasicApiDefinitionJsonFormatters {
   implicit val formatApiContext: Format[ApiContext]                 = Json.valueFormat[ApiContext]

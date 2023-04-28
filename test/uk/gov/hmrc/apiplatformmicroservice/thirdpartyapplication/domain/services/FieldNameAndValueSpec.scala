@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
-import play.api.libs.json.{JsSuccess, Json}
-
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 

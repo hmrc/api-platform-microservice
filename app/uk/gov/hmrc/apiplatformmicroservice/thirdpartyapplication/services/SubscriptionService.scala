@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -29,7 +30,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionResult, CreateSubscriptionSuccess}
-import scala.language.postfixOps
 
 @Singleton
 class SubscriptionService @Inject() (

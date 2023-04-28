@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
@@ -30,7 +31,6 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
-import scala.language.postfixOps
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
