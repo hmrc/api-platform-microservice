@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
+import scala.language.postfixOps
+
 import cats.data.{NonEmptyList => NEL}
 
 import play.api.libs.functional.syntax._

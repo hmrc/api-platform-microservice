@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
