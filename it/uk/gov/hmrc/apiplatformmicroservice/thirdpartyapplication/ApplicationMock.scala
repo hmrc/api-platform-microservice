@@ -82,6 +82,9 @@ trait ApplicationMock {
                        |      "required": false,
                        |      "allowlist": []
                        |  },
+                       |  "moreApplication": {
+                       |      "allowAutoDelete": true
+                       |  },
                        |  "trusted": false
                        |}]""".stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
@@ -126,6 +129,9 @@ trait ApplicationMock {
                        |  "ipAllowlist": {
                        |      "required": false,
                        |      "allowlist": []
+                       |  },
+                       |  "moreApplication": {
+                       |      "allowAutoDelete": true
                        |  },
                        |  "trusted": false
                        |}""".stripMargin)
