@@ -38,6 +38,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Applic
 class ApiDefinitionController @Inject() (
     val applicationService: ApplicationByIdFetcher,
     applicationBasedApiFetcher: ApiDefinitionsForApplicationFetcher,
+    apiDefinitionService: EnvironmentAwareApiDefinitionService,
     openAccessApisFetcher: OpenAccessApisFetcher,
     apisFetcher: ApisFetcher,
     val authConfig: AuthConnector.Config,
@@ -81,6 +82,12 @@ class ApiDefinitionController @Inject() (
     import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
 
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
+  }
+
+  def fetchAllNonOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      apis <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
+    } yield Ok(Json.toJson(apis))
   }
 }
 

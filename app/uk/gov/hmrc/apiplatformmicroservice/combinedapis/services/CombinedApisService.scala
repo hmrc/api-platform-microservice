@@ -53,6 +53,6 @@ class CombinedApisService @Inject() (
   def fetchCombinedApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
     def filterApis(apis: List[CombinedApi]): Option[CombinedApi] = apis.find(_.serviceName == serviceName)
 
-    fetchAllCombinedApis.map(filterApis)
+    fetchAllCombinedApis().map(filterApis)
   }
 }

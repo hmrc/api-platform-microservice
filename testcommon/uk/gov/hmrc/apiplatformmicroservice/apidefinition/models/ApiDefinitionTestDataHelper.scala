@@ -43,7 +43,7 @@ trait ApiDefinitionTestDataHelper {
       name: String,
       versions: ApiVersionDefinition*
     ) = {
-    ApiDefinition(name, name, name, ApiContext(name), false, false, versions.toList)
+    ApiDefinition(name, s"Urlof$name", name, name, ApiContext(name), false, false, versions.toList)
   }
 
   def apiAccess() = {

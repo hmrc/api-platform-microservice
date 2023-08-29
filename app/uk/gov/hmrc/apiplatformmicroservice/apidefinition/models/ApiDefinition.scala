@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class ApiDefinition(
     serviceName: String,
+    serviceBaseUrl: String,
     name: String,
     description: String,
     context: ApiContext,
@@ -39,7 +40,30 @@ case class ApiCategoryDetails(category: String, name: String) {
   def asApiCategory(): ApiCategory = ApiCategory(category)
 }
 
-case class ApiVersionDefinition(version: ApiVersion, status: ApiStatus, access: ApiAccess, endpoints: NEL[Endpoint], endpointsEnabled: Boolean = false)
+sealed trait ApiVersionSource {
+  def asText: String
+}
+
+case object RAML extends ApiVersionSource {
+  val asText = "RAML"
+}
+
+case object OAS  extends ApiVersionSource {
+  val asText = "OAS"
+}
+
+case object UNKNOWN extends ApiVersionSource {
+  val asText = "UNKNOWN"
+}
+
+case class ApiVersionDefinition(
+  version: ApiVersion,
+  status: ApiStatus,
+  access: ApiAccess,
+  endpoints: NEL[Endpoint],
+  endpointsEnabled: Boolean = false,
+  versionSource: ApiVersionSource = UNKNOWN
+)
 
 sealed trait ApiStatus extends EnumEntry
 

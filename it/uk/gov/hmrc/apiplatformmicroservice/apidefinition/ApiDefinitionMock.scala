@@ -118,12 +118,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def mockFetchApiDefinition(env: Environment) {
+  def mockFetchApiDefinition(env: Environment, anotherApiAuthType: String = "NONE"): Unit = {
     stubFor(env)(
       get(urlEqualTo("/api-definition?type=all"))
         .willReturn(
           aResponse()
-            .withBody("""[
+            .withBody(s"""[
                         |  {
                         |      "serviceName": "api-example-microservice",
                         |      "serviceBaseUrl": "http://localhost:9601",
@@ -247,7 +247,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                         |                      "uriPattern": "/world",
                         |                      "endpointName": "Say hello world",
                         |                      "method": "GET",
-                        |                      "authType": "NONE",
+                        |                      "authType": "$anotherApiAuthType",
                         |                      "throttlingTier": "UNLIMITED"
                         |                  }
                         |              ],
