@@ -61,7 +61,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
     val contextCDSv2  = "customs/declarations".asIdentifier("2.0".asVersion())
 
     val LEFT = Symbol("left")
-    
+
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)

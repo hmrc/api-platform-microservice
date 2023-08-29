@@ -48,7 +48,7 @@ case object RAML extends ApiVersionSource {
   val asText = "RAML"
 }
 
-case object OAS  extends ApiVersionSource {
+case object OAS extends ApiVersionSource {
   val asText = "OAS"
 }
 
@@ -57,13 +57,13 @@ case object UNKNOWN extends ApiVersionSource {
 }
 
 case class ApiVersionDefinition(
-  version: ApiVersion,
-  status: ApiStatus,
-  access: ApiAccess,
-  endpoints: NEL[Endpoint],
-  endpointsEnabled: Boolean = false,
-  versionSource: ApiVersionSource = UNKNOWN
-)
+    version: ApiVersion,
+    status: ApiStatus,
+    access: ApiAccess,
+    endpoints: NEL[Endpoint],
+    endpointsEnabled: Boolean = false,
+    versionSource: ApiVersionSource = UNKNOWN
+  )
 
 sealed trait ApiStatus extends EnumEntry
 

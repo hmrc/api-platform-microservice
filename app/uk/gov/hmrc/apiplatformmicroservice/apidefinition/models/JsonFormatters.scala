@@ -95,7 +95,6 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
       case (version, status, Some(access), endpoints, endpointsEnabled) => ApiVersionDefinition(version, status, access, endpoints, endpointsEnabled)
     }
 
-
   implicit val apiVersionSourceJF: Format[ApiVersionSource] = new Format[ApiVersionSource] {
 
     def reads(json: JsValue): JsResult[ApiVersionSource] = json match {
