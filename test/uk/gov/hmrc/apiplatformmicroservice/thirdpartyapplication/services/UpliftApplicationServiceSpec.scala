@@ -54,11 +54,13 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
     val applicationId = ApplicationId.random
     val sandboxApp    = buildApplication(appId = applicationId)
     val newAppId      = ApplicationId.random
-    val context1      = "context1".asIdentifier
+    val context1      = "context1".asIdentifier()
     val context2      = "context2".asIdentifier()
     val context3      = "context3".asIdentifier()
-    val contextCDSv1  = "customs/declarations".asIdentifier("1.0".asVersion)
-    val contextCDSv2  = "customs/declarations".asIdentifier("2.0".asVersion)
+    val contextCDSv1  = "customs/declarations".asIdentifier("1.0".asVersion())
+    val contextCDSv2  = "customs/declarations".asIdentifier("2.0".asVersion())
+
+    val LEFT = Symbol("left")
 
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
@@ -70,7 +72,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
       result shouldBe Right(newAppId)
 
-      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest()
       createAppRequest match {
         case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(context1)
         case _                              => fail("Not the expected request")
@@ -89,7 +91,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
 
       result shouldBe Right(newAppId)
 
-      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest
+      val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest()
       createAppRequest match {
         case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
         case _                              => fail("Not the expected request")
@@ -102,23 +104,23 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2), makeUpliftRequest(context3)))
 
-      result shouldBe ('left)
+      result shouldBe LEFT
     }
 
     "successfully handle when app is not a sandbox app" in new Setup {
       val applicationInProd = sandboxApp.copy(deployedTo = Environment.PRODUCTION)
       val result            = await(upliftService.upliftApplicationV2(applicationInProd, Set(context1, context2), makeUpliftRequest(context3)))
 
-      result shouldBe ('left)
+      result shouldBe LEFT
 
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled()
     }
 
     "ensure requested subscriptions are non empty" in new Setup {
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2), makeUpliftRequest()))
-      result shouldBe 'Left
+      result shouldBe LEFT
 
-      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled
+      PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.verifyNotCalled()
     }
 
     "returns a set of upliftable apis for an application" when {

@@ -33,7 +33,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   }
 
   def newDefinition(versions: List[ApiVersionDefinition]) = {
-    ApiDefinition("test1ServiceName", "test1Name", "test1Desc", ApiContext("som/context/here"), requiresTrust = false, isTestSupport = false, versions)
+    ApiDefinition("test1ServiceName", "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), requiresTrust = false, isTestSupport = false, versions)
   }
 
   val allPublicVersions: List[ApiVersionDefinition] =

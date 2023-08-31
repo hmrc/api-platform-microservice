@@ -95,10 +95,25 @@ trait ApiDefinitionJsonFormatters extends EndpointJsonFormatters with BasicApiDe
       case (version, status, Some(access), endpoints, endpointsEnabled) => ApiVersionDefinition(version, status, access, endpoints, endpointsEnabled)
     }
 
+  implicit val apiVersionSourceJF: Format[ApiVersionSource] = new Format[ApiVersionSource] {
+
+    def reads(json: JsValue): JsResult[ApiVersionSource] = json match {
+      case JsString(RAML.asText)    => JsSuccess(RAML)
+      case JsString(OAS.asText)     => JsSuccess(OAS)
+      case JsString(UNKNOWN.asText) => JsSuccess(UNKNOWN)
+      case e                        => JsError(s"Cannot parse source value from '$e'")
+    }
+
+    def writes(foo: ApiVersionSource): JsValue = {
+      JsString(foo.asText)
+    }
+  }
+
   implicit val apiVersionWrites: Writes[ApiVersionDefinition] = Json.writes[ApiVersionDefinition]
 
   implicit val apiDefinitionReads: Reads[ApiDefinition] = (
     (JsPath \ "serviceName").read[String] and
+      (JsPath \ "serviceBaseUrl").read[String] and
       (JsPath \ "name").read[String] and
       (JsPath \ "description").read[String] and
       (JsPath \ "context").read[ApiContext] and
