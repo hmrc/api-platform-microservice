@@ -18,20 +18,20 @@ package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import java.time.Period
 
-import org.joda.time.DateTime
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import java.time.Instant
 
-trait ApplicationBuilder extends CollaboratorsBuilder {
+trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
 
   def buildApplication(
       appId: ApplicationId = ApplicationId.random,
-      createdOn: DateTime = DateTime.now,
-      lastAccess: DateTime = DateTime.now,
+      createdOn: Instant = instant,
+      lastAccess: Instant = instant,
       checkInformation: Option[CheckInformation] = None
     ): Application = {
     val clientId            = ClientId.random
@@ -115,7 +115,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder {
 
     def allowIPs(ips: String*) = app.copy(ipAllowlist = app.ipAllowlist.copy(allowlist = app.ipAllowlist.allowlist ++ ips))
 
-    def withCreatedOn(createdOnDate: DateTime)   = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
+    def withCreatedOn(createdOnDate: Instant)   = app.copy(createdOn = createdOnDate)
+    def withLastAccess(lastAccessDate: Instant) = app.copy(lastAccess = Some(lastAccessDate))
   }
 }

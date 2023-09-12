@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import java.time.Instant
 
 case class ContactDetails(fullname: String, email: LaxEmailAddress, telephoneNumber: String)
 
-case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
+case class TermsOfUseAgreement(emailAddress: String, timeStamp: Instant, version: String)
 
 case class CheckInformation(
     confirmedName: Boolean = false,

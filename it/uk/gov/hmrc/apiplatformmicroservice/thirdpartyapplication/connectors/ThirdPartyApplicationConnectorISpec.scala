@@ -57,7 +57,7 @@ class ThirdPartyApplicationConnectorISpec
     with PrincipalAndSubordinateWireMockSetup
     with ApplicationBuilder {
 
-  val clock                     = Clock.systemUTC()
+  override val clock            = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
   private val versionOne        = ApiVersion("1.0")
   private val versionTwo        = ApiVersion("2.0")
@@ -177,7 +177,7 @@ class ThirdPartyApplicationConnectorISpec
       val result = await(connector.fetchApplications(userId))
 
       result.size shouldBe 2
-      result should contain allOf (applicationIdOne, applicationIdTwo)
+      result should contain.allOf(applicationIdOne, applicationIdTwo)
     }
 
     "propagate error when endpoint returns error" in new Setup {

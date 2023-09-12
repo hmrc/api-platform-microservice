@@ -36,16 +36,15 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import java.time.Period
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import cats.data.NonEmptyList
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
-import java.time.Clock
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import java.time.Instant
 
 class AppCmdConnectorISpec
     extends AsyncHmrcSpec
@@ -54,9 +53,7 @@ class AppCmdConnectorISpec
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
     with ApplicationBuilder
-    with ClockNow {
-
-  val clock = Clock.systemUTC()
+    with FixedClock {
 
   trait Setup {
 
@@ -69,13 +66,13 @@ class AppCmdConnectorISpec
     val applicationId = ApplicationId.random
     val clientId      = ClientId.random
 
-    def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): Application = {
+    def anApplicationResponse(createdOn: Instant = instant, lastAccess: Instant = instant): Application = {
       Application(
         applicationId,
         clientId,
         "gatewayId",
         "appName",
-        DateTime.now(),
+        instant,
         None,
         Period.ofDays(547),
         None,

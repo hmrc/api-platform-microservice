@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import java.time.Instant
 
 case class BoxId(value: String) extends AnyVal
 
@@ -37,7 +37,7 @@ case class BoxCreator(clientId: ClientId)
 
 case class BoxSubscriber(
     callBackUrl: String,
-    subscribedDateTime: DateTime,
+    subscribedDateTime: Instant,
     subscriptionType: SubscriptionType
   )
 
@@ -51,6 +51,6 @@ object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[Subscri
 }
 
 sealed trait Subscriber {
-  val subscribedDateTime: DateTime
+  val subscribedDateTime: Instant
   val subscriptionType: SubscriptionType
 }

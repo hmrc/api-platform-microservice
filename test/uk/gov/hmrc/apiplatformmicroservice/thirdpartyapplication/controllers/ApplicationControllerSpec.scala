@@ -58,7 +58,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
   "upliftApplicationV2" should {
     implicit val writes = Json.writes[ApplicationController.RequestUpliftV2]
     val newAppId        = ApplicationId.random
-    val apiId1          = "context1".asIdentifier
+    val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
       val application = buildApplication(appId = applicationId)
@@ -78,7 +78,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
   "upliftApplicationV1" should {
     implicit val writes = Json.writes[ApplicationController.RequestUpliftV1]
     val newAppId        = ApplicationId.random
-    val apiId1          = "context1".asIdentifier
+    val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
       val application = buildApplication(appId = applicationId)

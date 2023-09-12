@@ -22,11 +22,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 trait PushPullNotificationJsonFormatters extends ApplicationJsonFormatters {
   import play.api.libs.json._
 
-  val dateFormat                                                  = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-  implicit val JodaDateReads: Reads[org.joda.time.DateTime]       = JodaReads.jodaDateReads(dateFormat)
-  implicit val JodaDateWrites: Writes[org.joda.time.DateTime]     = JodaWrites.jodaDateWrites(dateFormat)
-  implicit val JodaDateTimeFormat: Format[org.joda.time.DateTime] = Format(JodaDateReads, JodaDateWrites)
-
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
+  
   implicit val formatBoxId: Format[BoxId]                 = Json.valueFormat[BoxId]
   implicit val formatBoxCreator: Format[BoxCreator]       = Json.format[BoxCreator]
   implicit val formatBoxSubscriber: Format[BoxSubscriber] = Json.format[BoxSubscriber]

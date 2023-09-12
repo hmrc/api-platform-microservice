@@ -16,17 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import org.joda.time.{DateTime, DateTimeZone}
-
 import play.api.libs.json._
-
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
+import java.time.Instant
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: DateTime, submissionId: Submission.Id, submissionInstance: Int)
+case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: Submission.Id, submissionInstance: Int)
 
 object TermsOfUseAcceptance {
-  import JodaWrites.JodaDateTimeWrites
-  implicit val utcReads = JodaReads.DefaultJodaDateTimeReads.map(dt => dt.withZone(DateTimeZone.UTC))
-
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   implicit val format = Json.format[TermsOfUseAcceptance]
 }

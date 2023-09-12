@@ -291,7 +291,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def mockFetchApiCategoryDetails(environment: Environment, categories: Seq[ApiCategoryDetails]) {
+  def mockFetchApiCategoryDetails(environment: Environment, categories: Seq[ApiCategoryDetails]): Unit = {
     val categoriesJsonString: String =
       categories
         .map(category => s"""{ "category" : "${category.category}", "name" : "${category.name}" }""")
