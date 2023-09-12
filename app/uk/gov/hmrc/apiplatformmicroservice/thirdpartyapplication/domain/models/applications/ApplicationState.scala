@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import org.joda.time.DateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 case class ApplicationState(
     name: State,
     requestedByEmailAddress: Option[String],
     requestedByName: Option[String],
     verificationCode: Option[String] = None,
-    updatedOn: DateTime = DateTime.now
+    updatedOn: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   )
 
 object ApplicationState {

@@ -72,7 +72,7 @@ class ThirdPartyDeveloperConnectorSpec
 
       val result = await(tpdConnector.fetchByEmails(Set(email1, email2)))
 
-      result.toList should contain allOf (fakeUser1, fakeUser2)
+      result.toList should contain.allOf(fakeUser1, fakeUser2)
     }
 
     "respond with BAD_REQUEST when no email addresses provided" in new Setup {

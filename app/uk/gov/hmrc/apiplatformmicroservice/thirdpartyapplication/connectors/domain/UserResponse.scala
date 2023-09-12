@@ -16,20 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
-import org.joda.time.DateTime
-
-import play.api.libs.json.{Format, Json}
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import play.api.libs.json.Json
+import java.time.Instant
 
-case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: String, lastName: String, registrationTime: DateTime, lastModified: DateTime, verified: Boolean)
+case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: String, lastName: String, registrationTime: Instant, lastModified: Instant, verified: Boolean)
 
 object UserResponse {
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
 
-  import play.api.libs.json.JodaReads.DefaultJodaDateTimeReads
-  import play.api.libs.json.JodaWrites.JodaDateTimeWrites
-
-  implicit val dateTimeFormat: Format[DateTime] = Format(DefaultJodaDateTimeReads, JodaDateTimeWrites)
   implicit val format                           = Json.format[UserResponse]
 }

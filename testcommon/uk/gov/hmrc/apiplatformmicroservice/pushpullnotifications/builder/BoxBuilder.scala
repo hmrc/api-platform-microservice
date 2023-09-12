@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder
 
-import org.joda.time.DateTime
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-trait BoxBuilder {
+trait BoxBuilder extends FixedClock {
 
   def buildBox(boxId: String): Box = {
     Box(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), Some(ApplicationId(java.util.UUID.randomUUID())), Some(buildSubscriber()), Environment.PRODUCTION)
@@ -34,7 +33,7 @@ trait BoxBuilder {
   }
 
   def buildSubscriber(): BoxSubscriber = {
-    BoxSubscriber("callbackUrl", new DateTime(), SubscriptionType.API_PUSH_SUBSCRIBER)
+    BoxSubscriber("callbackUrl", instant, SubscriptionType.API_PUSH_SUBSCRIBER)
   }
 
   def buildBoxCreator(): BoxCreator = {

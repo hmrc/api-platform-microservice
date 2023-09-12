@@ -18,11 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.service
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
+import play.api.libs.json._
 
-trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
-  import play.api.libs.json._
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
+trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters with EnvReads with EnvWrites {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
   import uk.gov.hmrc.play.json.Union
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequestOld
@@ -55,7 +53,8 @@ trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters {
 
   object TOUAHelper {
     // DO NOT POLLUTE WHOLE SCOPE WITH THIS WRITER
-    implicit val formatDateTime                 = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.lenientInstantReads
+    implicit val formatDateTime                 = Format(lenientInstantReads, InstantEpochMilliWrites)
     val formatTOUA: Format[TermsOfUseAgreement] = Json.format[TermsOfUseAgreement]
   }
 

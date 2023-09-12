@@ -38,7 +38,7 @@ trait CreateApplicationRequest {
   def validate(in: CreateApplicationRequest): Unit = {
     require(in.name.nonEmpty, "name is required")
     require(in.collaborators.exists(_.role == Roles.ADMINISTRATOR), "at least one ADMINISTRATOR collaborator is required")
-    require(in.collaborators.size == collaborators.map(_.emailAddress.normalise).size, "duplicate email in collaborator")
+    require(in.collaborators.size == collaborators.map(_.emailAddress.normalise()).size, "duplicate email in collaborator")
     in.access match {
       case a: Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
       case _           =>

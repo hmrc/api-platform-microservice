@@ -21,7 +21,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.time.DateTimeUtils
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
@@ -29,8 +28,9 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec {
+class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier = HeaderCarrier()
@@ -42,8 +42,8 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec {
       ClientId("123"),
       "gatewayId",
       "name",
-      DateTimeUtils.now,
-      Some(DateTimeUtils.now),
+      instant,
+      Some(instant),
       java.time.Period.ofDays(1),
       None,
       Environment.SANDBOX,

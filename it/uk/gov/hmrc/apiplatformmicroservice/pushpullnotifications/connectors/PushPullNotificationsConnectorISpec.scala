@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status._
-import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
@@ -49,7 +48,6 @@ class PushPullNotificationsConnectorISpec
   trait Setup extends BoxBuilder {
 
     import play.api.libs.json._
-    import play.api.libs.json.JodaWrites._
 
     implicit val clientIdWrites = Json.valueFormat[ClientId]
 

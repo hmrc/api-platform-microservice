@@ -31,10 +31,6 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 
   private[connectors] object JsonFormatters extends ApplicationJsonFormatters {
     import play.api.libs.json._
-    import play.api.libs.json.JodaReads._
-    import play.api.libs.json.JodaWrites._
-
-    implicit val formatDateTime = Format(DefaultJodaDateTimeReads, JodaDateTimeNumberWrites)
 
     implicit val readsBoxId         = Json.valueFormat[BoxId]
     implicit val readsBoxCreator    = Json.reads[BoxCreator]

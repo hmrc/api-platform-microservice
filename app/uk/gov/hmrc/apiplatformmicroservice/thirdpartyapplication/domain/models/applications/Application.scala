@@ -18,22 +18,21 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 
 import java.time.Period
 
-import org.joda.time.DateTime
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import java.time.Instant
 
 case class Application(
     id: ApplicationId,
     clientId: ClientId,
     gatewayId: String,
     name: String,
-    createdOn: DateTime,
-    lastAccess: Option[DateTime],
+    createdOn: Instant,
+    lastAccess: Option[Instant],
     grantLength: Period,
-    lastAccessTokenUsage: Option[DateTime] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
+    lastAccessTokenUsage: Option[Instant] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
     deployedTo: Environment,
     description: Option[String] = None,
     collaborators: Set[Collaborator] = Set.empty,
