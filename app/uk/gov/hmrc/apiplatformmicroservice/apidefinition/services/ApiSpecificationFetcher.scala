@@ -39,7 +39,7 @@ class ApiSpecificationFetcher @Inject() (
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
-  def fetch(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+  def fetch(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     (
       for {
         apiVersion <- fetchApiVersion(serviceName, version)
@@ -49,12 +49,12 @@ class ApiSpecificationFetcher @Inject() (
       .value
   }
 
-  private def fetchApiVersion(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
+  private def fetchApiVersion(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
     OptionT(extendedApiDefinitionFetcher.fetch(serviceName, None))
       .mapFilter(defn => defn.versions.find(_.version == version))
   }
 
-  private def fetchApiSpecification(isAvailableInSandbox: Boolean, serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
+  private def fetchApiSpecification(isAvailableInSandbox: Boolean, serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     if (isAvailableInSandbox) {
       fetchSubordinateOrPrincipal(serviceName, version)
     } else {
@@ -62,16 +62,16 @@ class ApiSpecificationFetcher @Inject() (
     }
   }
 
-  private def fetchSubordinateOrPrincipal(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
+  private def fetchSubordinateOrPrincipal(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     fetchSubordinateApiSpecification(serviceName, version)
       .orElse(fetchPrincipalApiSpecification(serviceName, version))
   }
 
-  private def fetchSubordinateApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
+  private def fetchSubordinateApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     OptionT(apiDefinitionService.subordinate.fetchApiSpecification(serviceName, version))
   }
 
-  private def fetchPrincipalApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
+  private def fetchPrincipalApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, JsValue] = {
     OptionT(apiDefinitionService.principal.fetchApiSpecification(serviceName, version))
   }
 }

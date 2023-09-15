@@ -36,13 +36,15 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
+                  |      "endpointsEnabled": true,
                   |      "endpoints" : [
                   |        {
                   |          "uriPattern" : "/hello",
                   |          "endpointName" : "Say Hello",
                   |          "method" : "GET",
                   |          "authType" : "NONE",
-                  |          "throttlingTier" : "UNLIMITED"
+                  |          "throttlingTier" : "UNLIMITED",
+                  |          "queryParameters": []
                   |        }
                   |      ],
                   |      "productionAvailability": {
@@ -88,23 +90,16 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |  "context" : "test",
                   |  "serviceBaseUrl" : "http://test",
                   |  "serviceName" : "test",
+                  |  "isTestSupport": false,
+                  |  "requiresTrust": false,
+                  |  "categories": [ "OTHER" ],
                   |  "versions" : [
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
-                  |      "endpoints" : [
-                  |        {
-                  |          "uriPattern" : "/hello",
-                  |          "endpointName" : "Say Hello",
-                  |          "method" : "GET",
-                  |          "authType" : "NONE",
-                  |          "throttlingTier" : "UNLIMITED"
-                  |        }
-                  |      ]
-                  |    },
-                  |    {
-                  |      "version" : "2.0",
-                  |      "status" : "STABLE",
+                  |      "access": { "type": "PUBLIC" },
+                  |      "endpointsEnabled": true,
+                  |      "versionSource": "UNKNOWN",
                   |      "endpoints" : [
                   |        {
                   |          "uriPattern" : "/hello",
@@ -112,7 +107,25 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |          "method" : "GET",
                   |          "authType" : "NONE",
                   |          "throttlingTier" : "UNLIMITED",
-                  |          "scope": "read:hello"
+                  |          "queryParameters": []
+                  |        }
+                  |      ]
+                  |    },
+                  |    {
+                  |      "version" : "2.0",
+                  |      "status" : "STABLE",
+                  |      "access": { "type": "PUBLIC" },
+                  |      "endpointsEnabled": true,
+                  |      "versionSource": "UNKNOWN",
+                  |      "endpoints" : [
+                  |        {
+                  |          "uriPattern" : "/hello",
+                  |          "endpointName" : "Say Hello",
+                  |          "method" : "GET",
+                  |          "authType" : "NONE",
+                  |          "throttlingTier" : "UNLIMITED",
+                  |          "scope": "read:hello",
+                  |          "queryParameters": []
                   |        }
                   |      ]
                   |    }

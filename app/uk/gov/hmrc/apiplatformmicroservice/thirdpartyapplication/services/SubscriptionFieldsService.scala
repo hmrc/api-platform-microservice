@@ -36,11 +36,11 @@ class SubscriptionFieldsService @Inject() (
   def fetchFieldValuesWithDefaults(deployedTo: Environment, clientId: ClientId, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     def filterBySubs[V](data: ApiFieldMap[V]): ApiFieldMap[V] = {
-      ThreeDMap.filter((c: ApiContext, v: ApiVersion, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c, v)))(data)
+      ThreeDMap.filter((c: ApiContext, v: ApiVersionNbr, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c, v)))(data)
     }
 
     def fillFields(defns: ApiFieldMap[FieldDefinition])(fields: ApiFieldMap[FieldValue]): ApiFieldMap[FieldValue] = {
-      ThreeDMap.map((c: ApiContext, v: ApiVersion, fn: FieldName, fv: FieldDefinition) => ThreeDMap.get((c, v, fn))(fields).getOrElse(FieldValue("")))(defns)
+      ThreeDMap.map((c: ApiContext, v: ApiVersionNbr, fn: FieldName, fv: FieldDefinition) => ThreeDMap.get((c, v, fn))(fields).getOrElse(FieldValue("")))(defns)
     }
 
     val connector = subscriptionFieldsConnector(deployedTo)

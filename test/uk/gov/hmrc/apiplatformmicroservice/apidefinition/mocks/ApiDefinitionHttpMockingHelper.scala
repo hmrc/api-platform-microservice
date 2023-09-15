@@ -24,7 +24,8 @@ import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorUtils
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
+
 
 trait ApiDefinitionHttpMockingHelper
     extends MockitoSugar
@@ -76,15 +77,5 @@ trait ApiDefinitionHttpMockingHelper
     when(
       mockThisClient.GET[Option[List[ApiDefinition]]](eqTo(url), eqTo(Seq("type" -> "all")), *)(*, *, *)
     ).thenReturn(Future.failed(exception))
-  }
-
-  def whenGetApiCategoryDetails()(categories: ApiCategoryDetails*): Unit = {
-    val url = categoriesUrl
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url), *, *)(*, *, *)).thenReturn(Future.successful(categories.toList))
-  }
-
-  def whenGetApiCategoryDetailsFails(exception: Throwable): Unit = {
-    val url = categoriesUrl
-    when(mockThisClient.GET[List[ApiCategoryDetails]](eqTo(url), *, *)(*, *, *)).thenReturn(Future.failed(exception))
   }
 }

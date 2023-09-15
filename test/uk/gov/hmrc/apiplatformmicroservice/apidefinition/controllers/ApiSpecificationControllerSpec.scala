@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
@@ -44,7 +44,7 @@ class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
 
     val request               = FakeRequest("GET", "/")
     val serviceName           = "hello"
-    val version               = ApiVersion("1.0")
+    val version               = ApiVersionNbr("1.0")
     val fakeResponse: JsValue = Json.parse("""{ "x" :1 }""")
   }
 

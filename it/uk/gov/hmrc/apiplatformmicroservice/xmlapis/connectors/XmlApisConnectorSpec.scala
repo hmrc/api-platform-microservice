@@ -54,7 +54,7 @@ class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
     "throw an exception correctly" in new Setup {
       whenGetAllXmlApisReturnsError(500)
       intercept[UpstreamErrorResponse] {
-        await(connector.fetchAllXmlApis)
+        await(connector.fetchAllXmlApis())
       }
     }
   }

@@ -32,16 +32,9 @@ case class ExtendedApiDefinition(
   )
 
 case class ExtendedApiVersion(
-    version: ApiVersion,
+    version: ApiVersionNbr,
     status: ApiStatus,
-    endpoints: NEL[Endpoint],
+    endpoints: List[Endpoint],
     productionAvailability: Option[ApiAvailability],
     sandboxAvailability: Option[ApiAvailability]
-  )
-
-case class ApiAvailability(
-    endpointsEnabled: Boolean,
-    access: ApiAccess,
-    loggedIn: Boolean,
-    authorised: Boolean
   )

@@ -39,7 +39,7 @@ class ApiSpecificationController @Inject() (
   ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersion) = Action.async { implicit request =>
+  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr) = Action.async { implicit request =>
     OptionT(apiSpecificationFetcher.fetch(serviceName, version))
       .map(x => Ok(x))
       .getOrElse(NotFound)

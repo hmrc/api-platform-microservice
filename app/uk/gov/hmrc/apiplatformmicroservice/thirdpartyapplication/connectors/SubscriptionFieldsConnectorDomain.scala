@@ -38,23 +38,23 @@ object SubscriptionFieldsConnectorDomain {
 
   case class SubscriptionFields(
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 
-  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
+  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
       clientId: ClientId,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 
   case class ApplicationApiFieldValues(
       clientId: ClientId,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fieldsId: UUID,
       fields: Map[FieldName, FieldValue]
     )
@@ -62,7 +62,7 @@ object SubscriptionFieldsConnectorDomain {
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
     import cats.implicits._
-    type MapType = Map[ApiVersion, Map[FieldName, FieldDefinition]]
+    type MapType = Map[ApiVersionNbr, Map[FieldName, FieldDefinition]]
 
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
@@ -79,7 +79,7 @@ object SubscriptionFieldsConnectorDomain {
   def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): ApiFieldMap[FieldValue] = {
     import cats._
     import cats.implicits._
-    type MapType = Map[ApiVersion, Map[FieldName, FieldValue]]
+    type MapType = Map[ApiVersionNbr, Map[FieldName, FieldValue]]
 
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
@@ -108,7 +108,7 @@ object SubscriptionFieldsConnectorDomain {
 
     implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
       (JsPath \ "apiContext").read[ApiContext] and
-        (JsPath \ "apiVersion").read[ApiVersion] and
+        (JsPath \ "apiVersion").read[ApiVersionNbr] and
         (JsPath \ "fields").read[Map[FieldName, FieldValue]]
     )(SubscriptionFields.apply _)
 

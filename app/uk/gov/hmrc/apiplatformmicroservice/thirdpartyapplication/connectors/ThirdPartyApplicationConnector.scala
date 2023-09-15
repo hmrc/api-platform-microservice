@@ -38,7 +38,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: ApplicationId)
 
   // N.B. This is a small subsection of the model that is normally returned
-  private[connectors] case class InnerVersion(version: ApiVersion)
+  private[connectors] case class InnerVersion(version: ApiVersionNbr)
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
   private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
 

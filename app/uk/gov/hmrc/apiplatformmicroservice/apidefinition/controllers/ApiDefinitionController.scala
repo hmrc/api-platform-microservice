@@ -79,8 +79,6 @@ class ApiDefinitionController @Inject() (
   }
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
-    import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
-
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
   }
 
@@ -109,18 +107,18 @@ object ApiDefinitionController {
       serviceName: String,
       name: String,
       isTestSupport: Boolean,
-      versions: Map[ApiVersion, VersionData],
+      versions: Map[ApiVersionNbr, VersionData],
       categories: List[ApiCategory]
     )
 
   object ApiData {
 
-    implicit val ordering: Ordering[(ApiVersion, VersionData)] = new Ordering[(ApiVersion, VersionData)] {
-      override def compare(x: (ApiVersion, VersionData), y: (ApiVersion, VersionData)): Int = y._1.value.compareTo(x._1.value)
+    implicit val ordering: Ordering[(ApiVersionNbr, VersionData)] = new Ordering[(ApiVersionNbr, VersionData)] {
+      override def compare(x: (ApiVersionNbr, VersionData), y: (ApiVersionNbr, VersionData)): Int = y._1.value.compareTo(x._1.value)
     }
 
     def fromDefinition(in: ApiDefinition): ApiData = {
-      val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted: _*)
+      val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted: _*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
     }
   }

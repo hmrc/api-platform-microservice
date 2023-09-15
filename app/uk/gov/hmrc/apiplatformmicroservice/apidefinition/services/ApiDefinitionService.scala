@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, OpenAccessRules, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, OpenAccessRules, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 
@@ -77,20 +77,6 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     } yield open
   }
 
-  def fetchAllApiCategoryDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiCategoryDetails]] = {
-    lazy val failFn = (e: Throwable) => s"fetchAllApiCategoryDetails failed $e"
-
-    if (enabled) {
-      record {
-        log(failFn) {
-          connector.fetchApiCategoryDetails()
-        }
-      }
-    } else {
-      Future.successful(List.empty)
-    }
-  }
-
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[WSResponse]] = {
     import resourceId._
     lazy val failFn = (e: Throwable) => s"fetchApiDocumentationResource($serviceName, ${version.value}, $resource) failed $e"
@@ -106,7 +92,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
 
     if (enabled) {

@@ -47,7 +47,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     val applicationId = ApplicationId.random
     val context       = ApiContext("hello")
-    val version       = ApiVersion("1.0")
+    val version       = ApiVersionNbr("1.0")
     val apiIdentifier = ApiIdentifier(context, version)
 
     val apiId1 = "context1".asIdentifier()

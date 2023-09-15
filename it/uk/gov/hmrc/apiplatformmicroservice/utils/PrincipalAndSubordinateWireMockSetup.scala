@@ -58,17 +58,17 @@ trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with Befor
       .in(Mode.Test)
       .build()
 
-  override def beforeAll() {
+  override def beforeAll(): Unit = {
     wireMockPrincipalServer.start()
     wireMockSubordinateServer.start()
   }
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     principalWireMock.resetMappings()
     subordinateWireMock.resetMappings()
   }
 
-  override def afterAll() {
+  override def afterAll(): Unit = {
     wireMockPrincipalServer.stop()
     wireMockSubordinateServer.stop()
   }

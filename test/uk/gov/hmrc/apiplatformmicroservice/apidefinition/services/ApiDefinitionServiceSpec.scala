@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionTestDataHelper, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionTestDataHelper, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
 
@@ -34,7 +34,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val serviceName = "test-service"
-  private val versionOne  = ApiVersion("1.0")
+  private val versionOne  = ApiVersionNbr("1.0")
   private val resource    = "/mock/resourcename"
 
   private val api1 = apiDefinition("Bob")
@@ -292,22 +292,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           }
 
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
-        }
-
-        "return the API Category details in a call to fetchAllApiCategoryDetails" in {
-          val obj = setupFn()
-          import obj._
-
-          val expected   = mock[List[ApiCategoryDetails]]
-          val mockFuture = Future.successful(expected)
-
-          when(mockConnector.fetchApiCategoryDetails()(any))
-            .thenReturn(mockFuture)
-
-          val actual = await(svc.fetchAllApiCategoryDetails)
-          actual shouldBe expected
-
-          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
       }
     }

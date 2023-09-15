@@ -36,8 +36,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     val apiContextHelloWorld  = ApiContext("hello-world")
     val apiContextHelloAgents = ApiContext("hello-agents")
-    val apiVersionOne         = ApiVersion("1.0")
-    val apiVersionTwo         = ApiVersion("2.0")
+    val apiVersionOne         = ApiVersionNbr("1.0")
+    val apiVersionTwo         = ApiVersionNbr("2.0")
 
     val subordinateSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
     val principalSubscriptions   = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloAgents, apiVersionOne))

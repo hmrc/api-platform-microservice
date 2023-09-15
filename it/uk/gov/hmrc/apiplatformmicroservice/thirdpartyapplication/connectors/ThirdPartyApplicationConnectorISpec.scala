@@ -59,8 +59,8 @@ class ThirdPartyApplicationConnectorISpec
 
   override val clock            = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne        = ApiVersion("1.0")
-  private val versionTwo        = ApiVersion("2.0")
+  private val versionOne        = ApiVersionNbr("1.0")
+  private val versionTwo        = ApiVersionNbr("2.0")
 
   private val applicationIdOne = ApplicationId.random
   private val applicationIdTwo = ApplicationId.random

@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 
 trait ApiDefinitionConnectorUtils {
   def serviceBaseUrl: String
@@ -34,7 +34,7 @@ trait ApiDefinitionConnectorUtils {
     s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/documentation/$resource"
   }
 
-  def specificationUrl(serviceName: String, version: ApiVersion): String = {
+  def specificationUrl(serviceName: String, version: ApiVersionNbr): String = {
     s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/specification"
   }
 }

@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitions
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AccessType, Application}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscribeToApiPreprocessor @Inject() (
@@ -43,7 +44,7 @@ class SubscribeToApiPreprocessor @Inject() (
   ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
 
   private def isPublic(in: ApiVersionDefinition) = in.access match {
-    case PublicApiAccess() => true
+    case ApiAccess.PUBLIC => true
     case _                 => false
   }
 

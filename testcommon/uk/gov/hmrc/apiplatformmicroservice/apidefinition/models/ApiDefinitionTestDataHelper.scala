@@ -20,24 +20,23 @@ import cats.data.{NonEmptyList => NEL}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 
 trait ApiDefinitionTestDataHelper {
 
-  def extendedApiDefinition(name: String, versions: List[ExtendedApiVersion] = List(extendedApiVersion(ApiVersion("1.0"), STABLE))) = {
+  def extendedApiDefinition(name: String, versions: List[ExtendedApiVersion] = List(extendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))) = {
     ExtendedApiDefinition(name, name, name, ApiContext(name), false, false, versions, List.empty)
   }
 
   def extendedApiVersion(
-      version: ApiVersion = ApiVersion("1.0"),
-      status: ApiStatus = STABLE,
+      version: ApiVersionNbr = ApiVersionNbr("1.0"),
+      status: ApiStatus = ApiStatus.STABLE,
       productionAvailability: Option[ApiAvailability] = None,
       sandboxAvailability: Option[ApiAvailability] = None
     ): ExtendedApiVersion = {
-    ExtendedApiVersion(version, status, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
+    ExtendedApiVersion(version, status, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
   }
 
-  def apiDefinition(name: String): ApiDefinition = apiDefinition(name, apiVersion(ApiVersion("1.0"), STABLE))
+  def apiDefinition(name: String): ApiDefinition = apiDefinition(name, apiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))
 
   def apiDefinition(
       name: String,
@@ -47,7 +46,7 @@ trait ApiDefinitionTestDataHelper {
   }
 
   def apiAccess() = {
-    PublicApiAccess()
+    ApiAccess.PUBLIC
   }
 
   implicit class ApiDefintionModifier(val inner: ApiDefinition) {
@@ -92,7 +91,7 @@ trait ApiDefinitionTestDataHelper {
 
   }
 
-  implicit class PrivateApiAccessModifier(val inner: PrivateApiAccess) {
+  implicit class ApiAccessPrivateModifier(val inner: ApiAccess.Private) {
 
     def asTrial: ApiAccess = {
       inner.copy(isTrial = true)
@@ -103,16 +102,16 @@ trait ApiDefinitionTestDataHelper {
     }
 
     def withAllowlistedAppIds(appIds: ApplicationId*): ApiAccess = {
-      inner.copy(allowlistedApplicationIds = appIds.toList)
+      inner.copy(whitelistedApplicationIds = appIds.toList.map(_.value.toString()))
     }
 
     def addAllowList(appIds: ApplicationId*): ApiAccess = {
-      inner.copy(allowlistedApplicationIds = inner.allowlistedApplicationIds ++ appIds)
+      inner.copy(whitelistedApplicationIds = inner.whitelistedApplicationIds ++ appIds.toList.map(_.value.toString()))
     }
   }
 
   def endpoint(endpointName: String = "Hello World", url: String = "/world"): Endpoint = {
-    Endpoint(endpointName, url, HttpMethod.GET, AuthType.NONE, List.empty)
+    Endpoint(endpointName, url, HttpMethod.GET, AuthType.NONE, ResourceThrottlingTier.UNLIMITED, None, List.empty)
   }
 
   implicit class EndpointModifier(val inner: Endpoint) {
@@ -124,8 +123,8 @@ trait ApiDefinitionTestDataHelper {
     def asApplicationRestricted: Endpoint = inner.copy(authType = AuthType.APPLICATION)
   }
 
-  def apiVersion(version: ApiVersion = ApiVersion("1.0"), status: ApiStatus = STABLE, access: ApiAccess = apiAccess()): ApiVersionDefinition = {
-    ApiVersionDefinition(version, status, access, NEL.of(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")))
+  def apiVersion(version: ApiVersionNbr = ApiVersionNbr("1.0"), status: ApiStatus = ApiStatus.STABLE, access: ApiAccess = apiAccess()): ApiVersionDefinition = {
+    ApiVersionDefinition(version, status, access, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")))
   }
 
   implicit class ApiVersionModifier(val inner: ApiVersionDefinition) {
@@ -146,44 +145,44 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(status = ApiStatus.RETIRED)
 
     def asPublic: ApiVersionDefinition =
-      inner.copy(access = PublicApiAccess())
+      inner.copy(access = ApiAccess.PUBLIC)
 
     def asPrivate: ApiVersionDefinition =
-      inner.copy(access = PrivateApiAccess())
+      inner.copy(access = ApiAccess.Private(Nil, false))
 
     def asTrial: ApiVersionDefinition = inner.access match {
-      case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.asTrial)
-      case _                           => inner.copy(access = PrivateApiAccess(isTrial = true))
+      case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.asTrial)
+      case _                           => inner.copy(access = ApiAccess.Private(Nil, isTrial = true))
     }
 
     def addAllowList(applicationId: ApplicationId) =
       inner.access match {
-        case p @ PrivateApiAccess(_, _) => inner.copy(access = p.addAllowList(applicationId))
+        case p @ ApiAccess.Private(_, _) => inner.copy(access = p.addAllowList(applicationId))
         case _                          => inner
       }
 
     def notTrial: ApiVersionDefinition = inner.access match {
-      case apiAccess: PrivateApiAccess => inner.copy(access = apiAccess.notTrial)
-      case _                           => inner.copy(access = PrivateApiAccess())
+      case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.notTrial)
+      case _                           => inner.copy(access = ApiAccess.Private(Nil, false))
     }
 
     def withAccess(altAccess: ApiAccess): ApiVersionDefinition =
       inner.copy(access = altAccess)
 
-    def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = NEL(inner.endpoints.head.asApplicationRestricted, inner.endpoints.tail))
+    def withClosedAccess: ApiVersionDefinition = inner.copy(endpoints = inner.endpoints.head.asApplicationRestricted :: inner.endpoints.tail)
   }
 
   implicit class ApiIdentifierSyntax(val context: String) {
-    def asIdentifier(version: ApiVersion): ApiIdentifier = ApiIdentifier(ApiContext(context), version)
-    def asIdentifier(): ApiIdentifier                    = asIdentifier(ApiVersion("1.0"))
-  }
+    def asIdentifier(version: ApiVersionNbr): ApiIdentifier = ApiIdentifier(ApiContext(context), version)
+    def asIdentifier(): ApiIdentifier                       = asIdentifier(ApiVersionNbr("1.0"))
+  } 
 
   implicit class ApiContextSyntax(val context: ApiContext) {
-    def asIdentifier(version: ApiVersion): ApiIdentifier = ApiIdentifier(context, version)
-    def asIdentifier(): ApiIdentifier                    = asIdentifier(ApiVersion("1.0"))
+    def asIdentifier(version: ApiVersionNbr): ApiIdentifier = ApiIdentifier(context, version)
+    def asIdentifier(): ApiIdentifier                       = asIdentifier(ApiVersionNbr("1.0"))
   }
 
   implicit class ApiVersionSyntax(val version: String) {
-    def asVersion(): ApiVersion = ApiVersion(version)
+    def asVersion(): ApiVersionNbr = ApiVersionNbr(version)
   }
 }

@@ -24,15 +24,14 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, PrivateApiAccess}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  private val versionOne = ApiVersion("1.0")
-  private val versionTwo = ApiVersion("2.0")
+  private val versionOne = ApiVersionNbr("1.0")
+  private val versionTwo = ApiVersionNbr("2.0")
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier     = HeaderCarrier()
@@ -40,18 +39,18 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val applicationId              = ApplicationId.random
     val helloApiDefinition         = apiDefinition("hello-api")
     val requiresTrustApi           = apiDefinition("requires-trust-api").doesRequireTrust
-    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))
+    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
 
-    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE))
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
     val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = apiAccess()))
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil,false)), apiVersion(versionTwo, access = apiAccess()))
 
     val apiWithOnlyPrivateVersions =
-      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = PrivateApiAccess()))
+      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil,false)), apiVersion(versionTwo, access = ApiAccess.Private(Nil,false)))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = PrivateApiAccess().asTrial))
-    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = PrivateApiAccess().withAllowlistedAppIds(applicationId)))
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(Nil,false).asTrial))
+    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = ApiAccess.Private(Nil,false).withAllowlistedAppIds(applicationId)))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(

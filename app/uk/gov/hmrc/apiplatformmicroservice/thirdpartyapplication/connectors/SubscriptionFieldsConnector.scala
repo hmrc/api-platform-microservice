@@ -64,7 +64,7 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
-      .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
+      .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {

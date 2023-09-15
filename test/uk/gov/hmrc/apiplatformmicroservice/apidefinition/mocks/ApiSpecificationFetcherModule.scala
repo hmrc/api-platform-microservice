@@ -23,7 +23,7 @@ import org.scalatestplus.play.PlaySpec
 
 import play.api.libs.json.JsValue
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
 
 trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
@@ -34,11 +34,11 @@ trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with Argu
     object Fetch {
 
       def willReturn(response: JsValue) {
-        when(aMock.fetch(*, *[ApiVersion])(*)).thenReturn(successful(Some(response)))
+        when(aMock.fetch(*, *[ApiVersionNbr])(*)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNotFound() {
-        when(aMock.fetch(*, *[ApiVersion])(*)).thenReturn(successful(None))
+        when(aMock.fetch(*, *[ApiVersionNbr])(*)).thenReturn(successful(None))
       }
     }
   }

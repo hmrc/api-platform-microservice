@@ -25,7 +25,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WSResponse
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
@@ -97,21 +97,14 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
       }
     }
 
-    object FetchApiCategoryDetails {
-
-      def willReturn(apiCategoryDetails: ApiCategoryDetails*) = {
-        when(aMock.fetchAllApiCategoryDetails(*, *)).thenReturn(successful(apiCategoryDetails.toList))
-      }
-    }
-
     object FetchApiSpecification {
 
       def willReturn(response: JsValue) = {
-        when(aMock.fetchApiSpecification(*, *[ApiVersion])(*, *)).thenReturn(successful(Some(response)))
+        when(aMock.fetchApiSpecification(*, *[ApiVersionNbr])(*, *)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNone = {
-        when(aMock.fetchApiSpecification(*, *[ApiVersion])(*, *)).thenReturn(successful(None))
+        when(aMock.fetchApiSpecification(*, *[ApiVersionNbr])(*, *)).thenReturn(successful(None))
       }
     }
   }

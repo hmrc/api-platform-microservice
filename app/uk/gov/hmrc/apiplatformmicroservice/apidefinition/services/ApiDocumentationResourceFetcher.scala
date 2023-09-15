@@ -64,7 +64,7 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
 
     version match {
-      case ApiVersion("common") => Both.some
+      case ApiVersionNbr("common") => Both.some
       case _                    => findVersion.map(whereToLookForVersion)
     }
   }

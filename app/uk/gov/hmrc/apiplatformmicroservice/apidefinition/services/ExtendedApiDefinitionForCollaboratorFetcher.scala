@@ -28,7 +28,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
@@ -118,7 +117,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     allVersions map { version =>
       combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, userId)
     } filter { version =>
-      version.status != RETIRED
+      version.status != ApiStatus.RETIRED
     }
   }
 
@@ -169,10 +168,10 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       userId: Option[UserId]
     ): Option[ApiAvailability] = {
     version.access match {
-      case PrivateApiAccess(allowlist, isTrial) =>
-        val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
-        Some(ApiAvailability(version.endpointsEnabled, PrivateApiAccess(allowlist, isTrial), userId.isDefined, authorised))
-      case _                                    => Some(ApiAvailability(version.endpointsEnabled, PublicApiAccess(), userId.isDefined, authorised = true))
+      case ApiAccess.Private(allowlist, isTrial) =>
+        val authorised = applicationIds.map(_.value.toString).intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
+        Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(allowlist, isTrial), userId.isDefined, authorised))
+      case _                                    => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
     }
   }
 }

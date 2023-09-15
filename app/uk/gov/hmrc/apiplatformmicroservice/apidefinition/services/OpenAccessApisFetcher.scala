@@ -21,9 +21,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.RETIRED
+
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 
 @Singleton
 class OpenAccessApisFetcher @Inject() (
@@ -32,7 +33,7 @@ class OpenAccessApisFetcher @Inject() (
   ) extends OpenAccessRules {
 
   private def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-    val filteredVersions = definition.versions.filterNot(_.status == RETIRED)
+    val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
     if (filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
   }
 

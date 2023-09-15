@@ -17,17 +17,16 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 
 trait ExtendedApiDefinitionExampleData {
   self: ApiDefinitionTestDataHelper =>
 
   val apiName    = "hello-api"
-  val versionOne = ApiVersion("1.0")
+  val versionOne = ApiVersionNbr("1.0")
 
   val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
     apiName,
-    List(extendedApiVersion(versionOne, STABLE, None, Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))))
+    List(extendedApiVersion(versionOne, ApiStatus.STABLE, None, Some(ApiAvailability(endpointsEnabled = true, ApiAccess.PUBLIC, loggedIn = true, authorised = true))))
   )
 
   val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
@@ -35,11 +34,11 @@ trait ExtendedApiDefinitionExampleData {
     List(
       extendedApiVersion(
         versionOne,
-        STABLE,
+        ApiStatus.STABLE,
         Some(
           ApiAvailability(
             endpointsEnabled = true,
-            PublicApiAccess(),
+            ApiAccess.PUBLIC,
             loggedIn = true,
             authorised = true
           )
@@ -53,9 +52,9 @@ trait ExtendedApiDefinitionExampleData {
     apiName,
     List(extendedApiVersion(
       versionOne,
-      STABLE,
-      Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true)),
-      Some(ApiAvailability(endpointsEnabled = true, PublicApiAccess(), loggedIn = true, authorised = true))
+      ApiStatus.STABLE,
+      Some(ApiAvailability(endpointsEnabled = true, ApiAccess.PUBLIC, loggedIn = true, authorised = true)),
+      Some(ApiAvailability(endpointsEnabled = true, ApiAccess.PUBLIC, loggedIn = true, authorised = true))
     ))
   )
 }

@@ -92,7 +92,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random) {
+  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random): Unit = {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))
       .willReturn(
         aResponse()
@@ -140,7 +140,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId) {
+  def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
       .willReturn(
         aResponse()
@@ -148,7 +148,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId) {
+  def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
       .willReturn(
         aResponse()
@@ -169,7 +169,7 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplicationSubscriptions(env: Environment, applicationId: ApplicationId) {
+  def mockFetchApplicationSubscriptions(env: Environment, applicationId: ApplicationId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/application/${applicationId.value}/subscription"))
       .willReturn(
         aResponse()

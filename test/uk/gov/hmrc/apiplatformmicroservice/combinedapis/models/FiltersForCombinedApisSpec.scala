@@ -29,7 +29,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   val endpoint1 = Endpoint("endpoint1", "/some/endpoint1", HttpMethod.POST, AuthType.USER)
 
   def versionDefinition(version: String, status: ApiStatus, apiAccess: ApiAccess) = {
-    ApiVersionDefinition(ApiVersion(version), status, apiAccess, NonEmptyList.fromListUnsafe(List(endpoint1)))
+    ApiVersionDefinition(ApiVersionNbr(version), status, apiAccess, List(endpoint1))
   }
 
   def newDefinition(versions: List[ApiVersionDefinition]) = {
@@ -37,12 +37,12 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   }
 
   val allPublicVersions: List[ApiVersionDefinition] =
-    List(versionDefinition("1.0", ApiStatus.STABLE, PublicApiAccess()), versionDefinition("2.0", ApiStatus.STABLE, PublicApiAccess()))
+    List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("2.0", ApiStatus.STABLE, ApiAccess.PUBLIC))
 
   val mixedAccessVersions = List(
-    versionDefinition("1.0", ApiStatus.STABLE, PublicApiAccess()),
-    versionDefinition("1.0", ApiStatus.STABLE, PrivateApiAccess()),
-    versionDefinition("1.0", ApiStatus.RETIRED, PrivateApiAccess())
+    versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC),
+    versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false)),
+    versionDefinition("1.0", ApiStatus.RETIRED, ApiAccess.Private(Nil, false))
   )
   val api1AllPublic       = newDefinition(allPublicVersions)
   val api1mixedAccess     = newDefinition(mixedAccessVersions)
@@ -64,15 +64,15 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
         val testData     = List(api1AllPublic, api1mixedAccess, api1AllPublic.copy(serviceName = "newName"))
         val filteredList = CombinedApiDataHelper.filterOutRetiredApis(testData)
         filteredList should contain only (api1AllPublic, api1AllPublic.copy(serviceName = "newName"),
-        api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, PublicApiAccess()), versionDefinition("1.0", ApiStatus.STABLE, PrivateApiAccess()))))
+        api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false)))))
       }
 
       "filter out api with only retired versions" in {
         val apiWithOnlyRetiredVersions = api1mixedAccess.copy(versions =
           List(
-            versionDefinition("1.0", ApiStatus.RETIRED, PublicApiAccess()),
-            versionDefinition("2.0", ApiStatus.RETIRED, PublicApiAccess()),
-            versionDefinition("3.0", ApiStatus.RETIRED, PrivateApiAccess())
+            versionDefinition("1.0", ApiStatus.RETIRED, ApiAccess.PUBLIC),
+            versionDefinition("2.0", ApiStatus.RETIRED, ApiAccess.PUBLIC),
+            versionDefinition("3.0", ApiStatus.RETIRED, ApiAccess.Private(Nil, false))
           )
         )
         val testData                   = List(api1AllPublic, api1AllPublic.copy(serviceName = "newName"), apiWithOnlyRetiredVersions)
@@ -82,25 +82,25 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
     }
 
     "allVersionsArePublicAccess" should {
-      val endpoint            = Endpoint("endpoint1", "uri/pattern", HttpMethod.GET, AuthType.USER, List.empty)
+      val endpoint            = Endpoint("endpoint1", "uri/pattern", HttpMethod.GET, AuthType.USER, ResourceThrottlingTier.UNLIMITED, None, List.empty)
       val allPublicApiVersion = ExtendedApiVersion(
-        ApiVersion("1.0"),
+        ApiVersionNbr("1.0"),
         ApiStatus.STABLE,
-        NonEmptyList.one(endpoint),
-        Some(ApiAvailability(true, PublicApiAccess(), true, true)),
-        Some(ApiAvailability(true, PublicApiAccess(), true, true))
+        List(endpoint),
+        Some(ApiAvailability(true, ApiAccess.PUBLIC, true, true)),
+        Some(ApiAvailability(true, ApiAccess.PUBLIC, true, true))
       )
 
       val mixedApiVersions = ExtendedApiVersion(
-        ApiVersion("1.0"),
+        ApiVersionNbr("1.0"),
         ApiStatus.STABLE,
-        NonEmptyList.one(endpoint),
-        Some(ApiAvailability(true, PrivateApiAccess(), true, true)),
-        Some(ApiAvailability(true, PublicApiAccess(), true, true))
+        List(endpoint),
+        Some(ApiAvailability(true, ApiAccess.Private(Nil, false), true, true)),
+        Some(ApiAvailability(true, ApiAccess.PUBLIC, true, true))
       )
 
       val mixedApiVersionsWithNone =
-        ExtendedApiVersion(ApiVersion("1.0"), ApiStatus.STABLE, NonEmptyList.one(endpoint), Some(ApiAvailability(true, PrivateApiAccess(), true, true)), None)
+        ExtendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, List(endpoint), Some(ApiAvailability(true, ApiAccess.Private(Nil, false), true, true)), None)
 
       "return true when all versions are public access" in {
 
@@ -112,7 +112,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             ApiContext("/some/context"),
             false,
             false,
-            List(allPublicApiVersion, allPublicApiVersion.copy(version = ApiVersion("2.0")))
+            List(allPublicApiVersion, allPublicApiVersion.copy(version = ApiVersionNbr("2.0")))
           )
 
         allVersionsArePublicAccess(extendedApiDefinition) shouldBe true
@@ -120,7 +120,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
 
       "return false when some versions are private access" in {
         val extendedApiDefinition =
-          ExtendedApiDefinition("serviceName", "name", "desc", ApiContext("/some/context"), false, false, List(mixedApiVersions, allPublicApiVersion.copy(version = ApiVersion("2.0"))))
+          ExtendedApiDefinition("serviceName", "name", "desc", ApiContext("/some/context"), false, false, List(mixedApiVersions, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))))
 
         allVersionsArePublicAccess(extendedApiDefinition) shouldBe false
       }
@@ -134,7 +134,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             ApiContext("/some/context"),
             false,
             false,
-            List(mixedApiVersionsWithNone, allPublicApiVersion.copy(version = ApiVersion("2.0")))
+            List(mixedApiVersionsWithNone, allPublicApiVersion.copy(version = ApiVersionNbr("2.0")))
           )
 
         allVersionsArePublicAccess(extendedApiDefinition) shouldBe false

@@ -55,3 +55,5 @@ lazy val root = Project(appName, file("."))
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
+
+Global / bloopAggregateSourceDependencies := true

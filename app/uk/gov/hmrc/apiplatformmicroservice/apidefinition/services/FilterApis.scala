@@ -46,7 +46,7 @@ trait FilterApis {
 
   protected val isPrivateTrial: ApiFilterFn = t =>
     t._2.access match {
-      case PrivateApiAccess(_, true) => true
+      case ApiAccess.Private(_, true) => true
       case _                         => false
     }
 
@@ -54,14 +54,14 @@ trait FilterApis {
 
   protected def isPublicAccess(access: ApiAccess) = {
     access match {
-      case PublicApiAccess() => true
+      case ApiAccess.PUBLIC => true
       case _                 => false
     }
   }
 
   protected def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
     t._2.access match {
-      case PrivateApiAccess(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
+      case ApiAccess.Private(allowList, _) => allowList.toSet.intersect(applicationIds.map(_.value.toString)).headOption.isDefined
       case _                              => false
     }
   }

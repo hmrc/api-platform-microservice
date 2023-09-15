@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+
 trait OpenAccessRules {
 
-  def isPublicAccess(a: ApiAccess): Boolean = a match {
-    case PublicApiAccess() => true
+  private def isPublicAccess(a: ApiAccess): Boolean = a match {
+    case ApiAccess.PUBLIC => true
     case _                 => false
   }
 

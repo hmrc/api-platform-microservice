@@ -21,8 +21,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -30,7 +31,7 @@ class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper 
     implicit val hc = HeaderCarrier()
     val inTest      = new AllApisFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock)
 
-    val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory("EXAMPLE")))
+    val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
     val exampleApiDefinition2 = exampleApiDefinition1.copy(serviceName = "hello-api-2")
   }
 

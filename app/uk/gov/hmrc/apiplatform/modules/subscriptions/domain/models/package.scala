@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.subscriptions.domain
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 package object models {
-  type ApiFieldMap[V] = Map[ApiContext, Map[ApiVersion, Map[FieldName, V]]]
+  type ApiFieldMap[V] = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, V]]]
 
   object ApiFieldMap {
     def empty[V]: ApiFieldMap[V] = Map.empty

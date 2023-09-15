@@ -4,7 +4,6 @@
 # to be removed once all usages have been re pointed to the new rest xml path
 ->       /combined-rest-xml-apis           combinedrestxmlapis.Routes
 ->       /api-definitions                  apidefinition.Routes
-->       /api-categories                   apicategories.Routes
 ->       /applications                     application.Routes
 ->       /subscription-fields              subscriptionfields.Routes
 ->       /push-pull-notifications          pushpullnotifications.Routes

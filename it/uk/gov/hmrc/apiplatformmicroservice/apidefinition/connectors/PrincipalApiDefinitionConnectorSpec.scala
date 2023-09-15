@@ -19,7 +19,6 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import java.util.UUID
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.HttpClient
@@ -33,7 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PROD
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec
@@ -50,7 +49,7 @@ class PrincipalApiDefinitionConnectorSpec
   val apiKeyTest = UUID.randomUUID().toString
 
   val serviceName = "someService"
-  val version     = ApiVersion("1.0")
+  val version     = ApiVersionNbr("1.0")
   val userEmail   = "3rdparty@example.com"
 
   val apiName1 = "Calendar"
@@ -74,7 +73,7 @@ class PrincipalApiDefinitionConnectorSpec
 
         val result = await(connector.fetchApiDefinition(serviceName))
 
-        result should be('defined)
+        result shouldBe Symbol("defined")
         result.head.name shouldEqual apiName1
       }
 
@@ -90,7 +89,7 @@ class PrincipalApiDefinitionConnectorSpec
         whenGetDefinitionFindsNothing(PRODUCTION)(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
-        result should not be 'defined
+        result should not be Symbol("defined")
       }
     }
 
@@ -119,28 +118,6 @@ class PrincipalApiDefinitionConnectorSpec
           await(connector.fetchAllApiDefinitions)
         }.statusCode shouldBe INTERNAL_SERVER_ERROR
       }
-    }
-
-    "when requesting API Category details" should {
-      val category1 = ApiCategoryDetails("API_CATEGORY_1", "API Category 1")
-      val category2 = ApiCategoryDetails("API_CATEGORY_2", "API Category 2")
-
-      "call the underlying http client" in new Setup {
-        whenGetAPICategoryDetails(PRODUCTION)(category1, category2)
-
-        val result = await(connector.fetchApiCategoryDetails())
-
-        result should contain only (category1, category2)
-      }
-
-      "throw an exception correctly" in new Setup {
-        whenGetAPICategoryDetailsFails(PRODUCTION)(500)
-
-        intercept[UpstreamErrorResponse] {
-          await(connector.fetchApiCategoryDetails())
-        }.statusCode shouldBe INTERNAL_SERVER_ERROR
-      }
-
     }
 
     "fetchApiSpecification" should {

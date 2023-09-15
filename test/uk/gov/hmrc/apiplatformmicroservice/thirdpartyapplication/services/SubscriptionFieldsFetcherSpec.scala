@@ -35,8 +35,8 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   private val context3 = ApiContext("C3")
   private val context4 = ApiContext("C4")
 
-  private val version1 = ApiVersion("V1")
-  private val version2 = ApiVersion("V2")
+  private val version1 = ApiVersionNbr("V1")
+  private val version2 = ApiVersionNbr("V2")
 
   private val fieldName1 = FieldName("F1")
   private val fieldName2 = FieldName("F2")
@@ -131,7 +131,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   def contexts[Y, Z, V](in: ThreeDMap.Type[ApiContext, Y, Z, V]): Set[ApiContext] =
     in.keys.toSet
 
-  def versions[Z, V](in: ThreeDMap.Type[ApiContext, ApiVersion, Z, V]): Set[(ApiContext, ApiVersion)] = {
+  def versions[Z, V](in: ThreeDMap.Type[ApiContext, ApiVersionNbr, Z, V]): Set[(ApiContext, ApiVersionNbr)] = {
     in.flatMap(tupleXY =>
       tupleXY._2.keys.map(y => (tupleXY._1, y))
     )

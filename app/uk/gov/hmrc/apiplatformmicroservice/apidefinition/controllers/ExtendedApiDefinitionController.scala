@@ -68,7 +68,7 @@ class ExtendedApiDefinitionController @Inject() (
   def fetchApiDocumentationResource(serviceName: String, version: String, resource: String): Action[AnyContent] = Action.async { implicit request =>
     import cats.implicits._
 
-    val resourceId = ResourceId(serviceName, ApiVersion(version), resource)
+    val resourceId = ResourceId(serviceName, ApiVersionNbr(version), resource)
     OptionT(apiDocumentationResourceFetcher.fetch(resourceId))
       .getOrElseF(failedDueToNotFoundException(resourceId))
       .map(handler(resourceId))

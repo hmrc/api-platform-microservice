@@ -17,11 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import cats.data.{NonEmptyList => NEL}
-import enumeratum._
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-
+ 
 case class ApiDefinition(
     serviceName: String,
     serviceBaseUrl: String,
@@ -34,90 +32,13 @@ case class ApiDefinition(
     categories: List[ApiCategory] = List.empty
   )
 
-case class ApiCategory(value: String) extends AnyVal
-
-case class ApiCategoryDetails(category: String, name: String) {
-  def asApiCategory(): ApiCategory = ApiCategory(category)
-}
-
-sealed trait ApiVersionSource {
-  def asText: String
-}
-
-case object RAML extends ApiVersionSource {
-  val asText = "RAML"
-}
-
-case object OAS extends ApiVersionSource {
-  val asText = "OAS"
-}
-
-case object UNKNOWN extends ApiVersionSource {
-  val asText = "UNKNOWN"
-}
-
 case class ApiVersionDefinition(
-    version: ApiVersion,
+    version: ApiVersionNbr,
     status: ApiStatus,
     access: ApiAccess,
-    endpoints: NEL[Endpoint],
+    endpoints: List[Endpoint],
     endpointsEnabled: Boolean = false,
-    versionSource: ApiVersionSource = UNKNOWN
+    versionSource: ApiVersionSource = ApiVersionSource.UNKNOWN
   )
 
-sealed trait ApiStatus extends EnumEntry
-
-object ApiStatus extends Enum[ApiStatus] with PlayJsonEnum[ApiStatus] {
-
-  val values = findValues
-  case object ALPHA      extends ApiStatus
-  case object BETA       extends ApiStatus
-  case object STABLE     extends ApiStatus
-  case object DEPRECATED extends ApiStatus
-  case object RETIRED    extends ApiStatus
-}
-
-sealed trait ApiAccessType extends EnumEntry
-
-object ApiAccessType extends Enum[ApiAccessType] with PlayJsonEnum[ApiAccessType] {
-
-  val values = findValues
-
-  case object PRIVATE extends ApiAccessType
-  case object PUBLIC  extends ApiAccessType
-}
-
-trait ApiAccess
-case class PublicApiAccess()                                                                                       extends ApiAccess
-case class PrivateApiAccess(allowlistedApplicationIds: List[ApplicationId] = List.empty, isTrial: Boolean = false) extends ApiAccess
-
-case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: List[Parameter] = List.empty)
-
-sealed trait HttpMethod extends EnumEntry
-
-object HttpMethod extends Enum[HttpMethod] with PlayJsonEnum[HttpMethod] {
-
-  val values = findValues
-
-  case object GET     extends HttpMethod
-  case object POST    extends HttpMethod
-  case object PUT     extends HttpMethod
-  case object PATCH   extends HttpMethod
-  case object DELETE  extends HttpMethod
-  case object OPTIONS extends HttpMethod
-  case object HEAD    extends HttpMethod
-}
-
-sealed trait AuthType extends EnumEntry
-
-object AuthType extends Enum[AuthType] with PlayJsonEnum[AuthType] {
-
-  val values = findValues
-
-  case object NONE        extends AuthType
-  case object APPLICATION extends AuthType
-  case object USER        extends AuthType
-
-}
-
-case class Parameter(name: String, required: Boolean = false)
+// case class Endpoint(endpointName: String, uriPattern: String, method: HttpMethod, authType: AuthType, queryParameters: List[QueryParameter] = List.empty)

@@ -23,8 +23,8 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
   * When uplifting a sandbox application to production, we need to map API versions for these contexts to v1.0.
   */
 object CdsVersionHandler {
-  private val apiVersionOne = ApiVersion("1.0")
-  private val apiVersionTwo = ApiVersion("2.0")
+  private val apiVersionOne = ApiVersionNbr("1.0")
+  private val apiVersionTwo = ApiVersionNbr("2.0")
 
   val specialCaseContexts: Set[ApiContext] = Set(
     "customs/declarations",
