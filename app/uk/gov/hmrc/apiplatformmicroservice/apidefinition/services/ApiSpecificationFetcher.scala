@@ -27,8 +27,9 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
+
 @Singleton
 class ApiSpecificationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService,

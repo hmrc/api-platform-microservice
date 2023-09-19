@@ -20,8 +20,7 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
 
 trait SubscriptionsForCollaboratorFetcherModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

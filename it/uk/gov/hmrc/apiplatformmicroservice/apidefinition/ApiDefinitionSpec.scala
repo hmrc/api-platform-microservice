@@ -49,7 +49,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
         .withQueryStringParameters("applicationId" -> applicationId.value.toString)
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
-        
+
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
 

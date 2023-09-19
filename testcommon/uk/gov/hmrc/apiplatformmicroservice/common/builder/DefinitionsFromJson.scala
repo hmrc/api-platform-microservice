@@ -17,11 +17,9 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIDefinition
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ExtendedAPIDefinition}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
-
-
 
 trait DefinitionsFromJson extends BasicApiDefinitionJsonFormatters {
 

@@ -20,12 +20,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -43,13 +43,13 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
     val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil,false)), apiVersion(versionTwo, access = apiAccess()))
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil, false)), apiVersion(versionTwo, access = apiAccess()))
 
     val apiWithOnlyPrivateVersions =
-      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil,false)), apiVersion(versionTwo, access = ApiAccess.Private(Nil,false)))
+      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil, false)), apiVersion(versionTwo, access = ApiAccess.Private(Nil, false)))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(Nil,false).asTrial))
-    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = ApiAccess.Private(Nil,false).withAllowlistedAppIds(applicationId)))
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(Nil, false).asTrial))
+    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = ApiAccess.Private(Nil, false).withAllowlistedAppIds(applicationId)))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(

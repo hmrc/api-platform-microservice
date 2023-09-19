@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.ACCEPT
 import play.api.http.Status._
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
@@ -77,7 +77,7 @@ class CombinedApisControllerISpec
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
 
       result.status shouldBe OK
-      val body    = result.body
+      val body = result.body
       body shouldBe """[{"displayName":"Hello Another","serviceName":"api-example-another","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"Hello World","serviceName":"api-example-microservice","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
 
       val apiList = Json.parse(body).as[List[CombinedApi]]

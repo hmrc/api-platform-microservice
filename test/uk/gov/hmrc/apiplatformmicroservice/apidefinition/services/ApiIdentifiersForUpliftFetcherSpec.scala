@@ -21,10 +21,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -35,7 +35,9 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
   trait Setup extends ApiDefinitionServiceModule {
     val upliftableApiDefinition          = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
     val exampleApiDefinition             = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
-    val apiWithARetiredVersion           = apiDefinition("api-with-retired-version", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE), apiVersion(versionThree, ApiStatus.ALPHA))
+
+    val apiWithARetiredVersion           =
+      apiDefinition("api-with-retired-version", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE), apiVersion(versionThree, ApiStatus.ALPHA))
     val customsDeclarationsApiDefinition = apiDefinition("customs/declarations", apiVersion(versionOne))
     val testSupportApiDefinition         = upliftableApiDefinition.isTestSupport()
 

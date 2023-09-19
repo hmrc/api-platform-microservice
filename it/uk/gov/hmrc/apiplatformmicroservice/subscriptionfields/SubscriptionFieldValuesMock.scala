@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMock
 trait SubscriptionFieldValuesMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def mockBulkFetchFieldValuesAndDefinitions(env: Environment, clientId: ClientId) {
+  def mockBulkFetchFieldValuesAndDefinitions(env: Environment, clientId: ClientId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/definition"))
       .willReturn(
         aResponse()

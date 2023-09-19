@@ -33,7 +33,6 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -194,8 +193,6 @@ class ThirdPartyApplicationConnectorISpec
       }.statusCode shouldBe NOT_FOUND
     }
   }
-
-  import BasicApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random

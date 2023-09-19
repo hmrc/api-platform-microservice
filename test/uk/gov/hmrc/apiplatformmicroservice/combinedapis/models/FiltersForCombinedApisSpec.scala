@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
-import cats.data.NonEmptyList
-
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCombinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -33,7 +31,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   }
 
   def newDefinition(versions: List[ApiVersion]) = {
-    ApiDefinition("test1ServiceName", "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), versions,  requiresTrust = false, isTestSupport = false, None,  List.empty)
+    ApiDefinition("test1ServiceName", "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), versions, requiresTrust = false, isTestSupport = false, None, List.empty)
   }
 
   val allPublicVersions: List[ApiVersion] =
@@ -63,8 +61,11 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
       "not filter out api with only one version retired" in {
         val testData     = List(api1AllPublic, api1mixedAccess, api1AllPublic.copy(serviceName = "newName"))
         val filteredList = CombinedApiDataHelper.filterOutRetiredApis(testData)
-        filteredList should contain.only(api1AllPublic, api1AllPublic.copy(serviceName = "newName"),
-        api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false)))))
+        filteredList should contain.only(
+          api1AllPublic,
+          api1AllPublic.copy(serviceName = "newName"),
+          api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false))))
+        )
       }
 
       "filter out api with only retired versions" in {
@@ -123,7 +124,18 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
 
       "return false when some versions are private access" in {
         val extendedApiDefinition =
-          ExtendedAPIDefinition("serviceName", "basurl", "name", "desc", ApiContext("/some/context"), false, false, List(mixedApiVersions, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))), List(ApiCategory.OTHER), None)
+          ExtendedAPIDefinition(
+            "serviceName",
+            "basurl",
+            "name",
+            "desc",
+            ApiContext("/some/context"),
+            false,
+            false,
+            List(mixedApiVersions, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))),
+            List(ApiCategory.OTHER),
+            None
+          )
 
         allVersionsArePublicAccess(extendedApiDefinition) shouldBe false
       }

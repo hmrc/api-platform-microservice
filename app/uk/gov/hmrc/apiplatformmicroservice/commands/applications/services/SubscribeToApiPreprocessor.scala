@@ -23,15 +23,14 @@ import cats.data.NonEmptyList
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApiIdentifier, LaxEmailAddress}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AccessType, Application}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiIdentifier
 
 @Singleton
 class SubscribeToApiPreprocessor @Inject() (
@@ -44,7 +43,7 @@ class SubscribeToApiPreprocessor @Inject() (
 
   private def isPublic(in: ApiVersion) = in.access match {
     case ApiAccess.PUBLIC => true
-    case _                 => false
+    case _                => false
   }
 
   private def excludePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =

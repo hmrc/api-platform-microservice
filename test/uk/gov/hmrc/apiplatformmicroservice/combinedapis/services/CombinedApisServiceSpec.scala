@@ -21,8 +21,8 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromXmlApi}
@@ -100,9 +100,10 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
 
       "return distinct combined list of apis when both services return results and all api fetcher has `duplicates`" in new SetUp {
         primeXmlConnectorFetchAll(xmlApis)
-        val sameApiFromDifferentEnv = apiDefinition("service1", apiVersion(ApiVersionNbr("1.0"), ApiStatus.RETIRED), apiVersion(ApiVersionNbr("2.0"), ApiStatus.STABLE)).copy(categories =
-          List(ApiCategory.OTHER, ApiCategory.INCOME_TAX_MTD)
-        )
+        val sameApiFromDifferentEnv =
+          apiDefinition("service1", apiVersion(ApiVersionNbr("1.0"), ApiStatus.RETIRED), apiVersion(ApiVersionNbr("2.0"), ApiStatus.STABLE)).copy(categories =
+            List(ApiCategory.OTHER, ApiCategory.INCOME_TAX_MTD)
+          )
         val apisToReturn            = listOfDefinitions ++ List(sameApiFromDifferentEnv)
         when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(apisToReturn))
 

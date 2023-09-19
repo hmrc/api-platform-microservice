@@ -24,8 +24,8 @@ trait BasicApiDefinitionJsonFormatters {
   implicit val keyReadsApiContext: KeyReads[ApiContext]   = key => JsSuccess(ApiContext(key))
   implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
 
-  implicit val keyReadsApiVersionNbr: KeyReads[ApiVersionNbr]   = key => JsSuccess(ApiVersionNbr(key))
-  implicit val keyWritesApiVersion: KeyWrites[ApiVersionNbr] = _.value
+  implicit val keyReadsApiVersionNbr: KeyReads[ApiVersionNbr] = key => JsSuccess(ApiVersionNbr(key))
+  implicit val keyWritesApiVersion: KeyWrites[ApiVersionNbr]  = _.value
 }
 
 object BasicApiDefinitionJsonFormatters extends BasicApiDefinitionJsonFormatters

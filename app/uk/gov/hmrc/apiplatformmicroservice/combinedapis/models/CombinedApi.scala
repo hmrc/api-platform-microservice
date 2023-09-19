@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 sealed trait ApiType extends EnumEntry

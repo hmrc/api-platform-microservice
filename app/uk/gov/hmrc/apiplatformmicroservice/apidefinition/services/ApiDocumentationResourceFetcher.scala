@@ -26,11 +26,10 @@ import cats.implicits._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedAPIDefinition, ExtendedAPIVersion}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIDefinition
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIVersion
 
 @Singleton
 class ApiDocumentationResourceFetcher @Inject() (
@@ -67,7 +66,7 @@ class ApiDocumentationResourceFetcher @Inject() (
 
     version match {
       case ApiVersionNbr("common") => Both.some
-      case _                    => findVersion.map(whereToLookForVersion)
+      case _                       => findVersion.map(whereToLookForVersion)
     }
   }
 

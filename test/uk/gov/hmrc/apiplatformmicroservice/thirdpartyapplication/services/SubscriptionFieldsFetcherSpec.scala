@@ -166,10 +166,10 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       )
 
       // Not subscribed to these contexts
-      contexts(result) should contain.noneOf (context3, context4)
+      contexts(result) should contain.noneOf(context3, context4)
 
       // Not subscribed to these versions
-      versions(result) should contain.noneOf (
+      versions(result) should contain.noneOf(
         (context1, version2),
         (context2, version2)
       )
@@ -201,7 +201,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       contexts(result) should not contain (context4)
 
       // Not subscribed to these versions
-      versions(result) should contain.noneOf (
+      versions(result) should contain.noneOf(
         (context1, version2),
         (context2, version2)
       )
@@ -218,7 +218,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       contexts(result) should contain(context4)
 
       // Not subscribed to these contexts
-      contexts(result) should contain.noneOf (context1, context2, context3)
+      contexts(result) should contain.noneOf(context1, context2, context3)
 
       // Note the blank field for absent field value
       flattenOut(result) should contain.allOf(

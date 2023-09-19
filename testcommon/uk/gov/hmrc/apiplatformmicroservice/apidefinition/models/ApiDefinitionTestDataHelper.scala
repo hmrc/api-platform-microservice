@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import cats.data.{NonEmptyList => NEL}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
@@ -42,7 +40,7 @@ trait ApiDefinitionTestDataHelper {
       name: String,
       versions: ApiVersion*
     ) = {
-    ApiDefinition(name, s"Urlof$name", name, name, ApiContext(name), versions.toList, false, false,  None, List.empty)
+    ApiDefinition(name, s"Urlof$name", name, name, ApiContext(name), versions.toList, false, false, None, List.empty)
   }
 
   def apiAccess() = {
@@ -152,18 +150,18 @@ trait ApiDefinitionTestDataHelper {
 
     def asTrial: ApiVersion = inner.access match {
       case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.asTrial)
-      case _                           => inner.copy(access = ApiAccess.Private(Nil, isTrial = true))
+      case _                            => inner.copy(access = ApiAccess.Private(Nil, isTrial = true))
     }
 
     def addAllowList(applicationId: ApplicationId) =
       inner.access match {
         case p @ ApiAccess.Private(_, _) => inner.copy(access = p.addAllowList(applicationId))
-        case _                          => inner
+        case _                           => inner
       }
 
     def notTrial: ApiVersion = inner.access match {
       case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.notTrial)
-      case _                           => inner.copy(access = ApiAccess.Private(Nil, false))
+      case _                            => inner.copy(access = ApiAccess.Private(Nil, false))
     }
 
     def withAccess(altAccess: ApiAccess): ApiVersion =
@@ -175,7 +173,7 @@ trait ApiDefinitionTestDataHelper {
   implicit class ApiIdentifierSyntax(val context: String) {
     def asIdentifier(version: ApiVersionNbr): ApiIdentifier = ApiIdentifier(ApiContext(context), version)
     def asIdentifier(): ApiIdentifier                       = asIdentifier(ApiVersionNbr("1.0"))
-  } 
+  }
 
   implicit class ApiContextSyntax(val context: ApiContext) {
     def asIdentifier(version: ApiVersionNbr): ApiIdentifier = ApiIdentifier(context, version)

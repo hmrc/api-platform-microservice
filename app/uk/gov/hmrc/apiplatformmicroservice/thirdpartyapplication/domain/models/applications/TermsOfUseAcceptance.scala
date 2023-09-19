@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import play.api.libs.json._
-import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
 import java.time.Instant
+
+import play.api.libs.json._
+
+import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
 
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: Submission.Id, submissionInstance: Int)
 

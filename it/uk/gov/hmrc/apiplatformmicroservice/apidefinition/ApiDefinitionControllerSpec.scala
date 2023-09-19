@@ -33,8 +33,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-
-
 class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
   "WireMock" should {
@@ -153,8 +151,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withQueryStringParameters("environment" -> "PRODUCTION")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
-
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       response.status shouldBe OK
       val result = Json.parse(response.body).validate[List[ApiDefinition]] match {

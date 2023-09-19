@@ -133,7 +133,7 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
   override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     super.fetchSubscriptionsById(applicationId)
       .recover {
-        case Upstream5xxResponse(_, _, _, _) => Set.empty // TODO - really mask this ?
+        case UpstreamErrorResponse.Upstream5xxResponse(_) => Set.empty // TODO - really mask this ?
       }
   }
 }

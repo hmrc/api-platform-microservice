@@ -26,7 +26,7 @@ import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ApiContext, ApiIdentifier, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApplicationId, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
 @Singleton
@@ -170,13 +170,13 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
     ): Option[ApiAvailability] = {
-      println("Enabled "+version.endpointsEnabled)
-      version.access match {
-        case ApiAccess.Private(allowlist, isTrial) =>
-          val authorised = applicationIds.map(_.toString).intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
-          println("Authorised "+authorised)
-          Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(allowlist, isTrial), userId.isDefined, authorised))
-      case _                                    => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
+    println("Enabled " + version.endpointsEnabled)
+    version.access match {
+      case ApiAccess.Private(allowlist, isTrial) =>
+        val authorised = applicationIds.map(_.toString).intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
+        println("Authorised " + authorised)
+        Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(allowlist, isTrial), userId.isDefined, authorised))
+      case _                                     => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
     }
   }
 }

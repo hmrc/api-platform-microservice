@@ -22,10 +22,10 @@ trait OpenAccessRules {
 
   private def isPublicAccess(a: ApiAccess): Boolean = a match {
     case ApiAccess.PUBLIC => true
-    case _                 => false
+    case _                => false
   }
 
-  def isOpenAccess(e: Endpoint): Boolean             = e.authType == AuthType.NONE
-  def isOpenAccess(v: ApiVersion): Boolean = v.endpoints.toList.forall(e => isOpenAccess(e))
-  def isOpenAccess(a: ApiDefinition): Boolean        = a.versions.forall(v => isOpenAccess(v) & isPublicAccess(v.access))
+  def isOpenAccess(e: Endpoint): Boolean      = e.authType == AuthType.NONE
+  def isOpenAccess(v: ApiVersion): Boolean    = v.endpoints.toList.forall(e => isOpenAccess(e))
+  def isOpenAccess(a: ApiDefinition): Boolean = a.versions.forall(v => isOpenAccess(v) & isPublicAccess(v.access))
 }

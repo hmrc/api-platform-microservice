@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
+import java.time.Instant
+
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import java.time.Instant
 
 case class BoxId(value: String) extends AnyVal
 
