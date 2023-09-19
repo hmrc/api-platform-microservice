@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -69,7 +70,7 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
 
     "fetch all upliftable APIs when mix of all types are present" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(upliftableApiDefinition, testSupportApiDefinition, apiWithARetiredVersion, exampleApiDefinition)
-      await(underTest.fetch) shouldBe Set("uplift".asIdentifier, "uplift".asIdentifier(versionTwo), "api-with-retired-version".asIdentifier(versionTwo))
+      await(underTest.fetch) shouldBe Set("uplift".asIdentifier(), "uplift".asIdentifier(versionTwo), "api-with-retired-version".asIdentifier(versionTwo))
     }
 
     "fetch all upliftable APIs including additional special cases for CDS" in new Setup() {

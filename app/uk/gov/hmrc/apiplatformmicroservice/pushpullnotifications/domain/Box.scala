@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import java.time.Instant
 

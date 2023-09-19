@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.UserResponse
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 

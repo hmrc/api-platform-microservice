@@ -24,14 +24,16 @@ import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+
+
 
 class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
@@ -52,7 +54,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -90,7 +92,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -125,7 +127,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -152,7 +154,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       response.status shouldBe OK
       val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
@@ -178,7 +180,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       response.status shouldBe OK
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]

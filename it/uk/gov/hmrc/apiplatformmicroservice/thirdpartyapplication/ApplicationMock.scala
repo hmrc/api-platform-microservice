@@ -20,17 +20,17 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 
 import java.util.UUID
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
 trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId) {
+  def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/application/${applicationId.value}"))
       .willReturn(
         aResponse()
@@ -38,13 +38,13 @@ trait ApplicationMock {
       ))
   }
 
-  def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId) {
+  def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId): Unit = {
     stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
       .willReturn(aResponse()
         .withStatus(NOT_FOUND)))
   }
 
-  def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId) {
+  def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId): Unit = {
     stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
       .willReturn(
         aResponse()

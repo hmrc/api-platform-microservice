@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
 
 class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevHubSubscriptions {
 
@@ -35,7 +35,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
 
     "filtering public api" should {
       "allow beta and stable" in {
-        testFilter(allPublicApis: _*) should contain only (publicApi.asBeta, publicApi.asStable)
+        testFilter(allPublicApis: _*) should contain.only(publicApi.asBeta, publicApi.asStable)
       }
 
       "reject retired" in {
@@ -51,7 +51,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
         testFilter(publicApi.asDeprecated) shouldBe empty
       }
       "allow deprecated when subscribed to" in {
-        testFilterSubs(apiId)(publicApi.asDeprecated) should contain only (publicApi.asDeprecated)
+        testFilterSubs(apiId)(publicApi.asDeprecated) should contain.only(publicApi.asDeprecated)
       }
     }
 
@@ -62,7 +62,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateApis: _*) should contain only (
+        testFilterSubs(apiId)(allPrivateApis: _*) should contain.only(
           privateApi.asBeta,
           privateApi.asStable,
           privateApi.asDeprecated
@@ -77,7 +77,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateTrialApis: _*) should contain only (
+        testFilterSubs(apiId)(allPrivateTrialApis: _*) should contain.only(
           privateApi.asTrial.asBeta,
           privateApi.asTrial.asStable,
           privateApi.asTrial.asDeprecated
@@ -87,11 +87,11 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
 
     "filtering private apis where the app is in the allow list" should {
       "allow when not subscribed for beta or stable" in {
-        testFilter(allPrivateAllowListApis: _*) should contain only (privateAllowListApi.asBeta, privateAllowListApi.asStable)
+        testFilter(allPrivateAllowListApis: _*) should contain.only(privateAllowListApi.asBeta, privateAllowListApi.asStable)
       }
 
       "allow when subscribed for all states" in {
-        testFilterSubs(apiId)(allPrivateAllowListApis: _*) should contain only (
+        testFilterSubs(apiId)(allPrivateAllowListApis: _*) should contain.only(
           privateAllowListApi.asBeta,
           privateAllowListApi.asStable,
           privateAllowListApi.asDeprecated

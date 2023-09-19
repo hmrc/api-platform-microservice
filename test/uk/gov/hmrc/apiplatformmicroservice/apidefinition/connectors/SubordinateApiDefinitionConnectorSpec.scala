@@ -90,7 +90,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
 
         val result = await(connector.fetchApiDefinition(serviceName))
 
-        result should be('defined)
+        result shouldBe Symbol("defined")
         result.head.name shouldEqual apiName1
       }
 
@@ -106,7 +106,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
         whenGetDefinitionFindsNothing(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
-        result should not be 'defined
+        result should not be Symbol("defined")
       }
     }
 

@@ -40,22 +40,22 @@ class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper 
     "fetch distinct combined apis when they're present in both environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition1, exampleApiDefinition2)
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition2)
-      await(inTest.fetch) should contain only (exampleApiDefinition2, exampleApiDefinition1)
+      await(inTest.fetch()) should contain.only(exampleApiDefinition2, exampleApiDefinition1)
     }
     "fetch distinct combined apis when apis only present in Principal environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition1, exampleApiDefinition2)
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
-      await(inTest.fetch) should contain only (exampleApiDefinition2, exampleApiDefinition1)
+      await(inTest.fetch()) should contain.only(exampleApiDefinition2, exampleApiDefinition1)
     }
     "fetch distinct combined apis when apis only present in Subordinate environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(exampleApiDefinition1, exampleApiDefinition2)
-      await(inTest.fetch) should contain only (exampleApiDefinition2, exampleApiDefinition1)
+      await(inTest.fetch()) should contain.only(exampleApiDefinition2, exampleApiDefinition1)
     }
     "return empty list when no apis only present in either environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
-      await(inTest.fetch) shouldBe Nil
+      await(inTest.fetch()) shouldBe Nil
     }
   }
 }

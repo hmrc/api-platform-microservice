@@ -32,8 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PROD
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugarExtensions

@@ -25,10 +25,10 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
@@ -49,7 +49,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     def ensureResult: Assertion = {
       val oresult: Option[WSResponse] = await(underTest.fetch(resourceId))
 
-      oresult mustBe 'defined
+      oresult mustBe Symbol("defined")
       oresult map (_.status) shouldEqual Some(OK)
       oresult mustBe Some(mockWSResponse)
     }
@@ -86,9 +86,9 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       val result = await(underTest.fetch(resourceId))
 
-      result shouldBe 'defined
+      result shouldBe Symbol("defined")
 
-      verifyOnlySubordinateEnvCalled
+      verifyOnlySubordinateEnvCalled()
     }
 
     "not attempt to fetch from subordinate when api version exists but is only present in principal environment" in new Setup {
@@ -97,9 +97,9 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       val result = await(underTest.fetch(resourceId))
 
-      result shouldBe 'defined
+      result shouldBe Symbol("defined")
 
-      verifyOnlyPrincipalEnvCalled
+      verifyOnlyPrincipalEnvCalled()
     }
 
     "return nothing when api does not exist" in new Setup {
@@ -109,7 +109,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       result shouldBe None
 
-      verifyNoEnvsCalled
+      verifyNoEnvsCalled()
     }
 
     "return nothing when api exists but version does not exist" in new Setup {
@@ -119,7 +119,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       result shouldBe None
 
-      verifyNoEnvsCalled
+      verifyNoEnvsCalled()
     }
 
     "return the resource from principal when the subordinate fails" in new Setup {
@@ -129,9 +129,9 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       val result = await(underTest.fetch(resourceId))
 
-      result shouldBe 'defined
+      result shouldBe Symbol("defined")
 
-      verifyBothEnvsCalled
+      verifyBothEnvsCalled()
     }
 
     "return nothing when both environments return nothing" in new Setup {
@@ -143,7 +143,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
 
       result shouldBe None
 
-      verifyBothEnvsCalled
+      verifyBothEnvsCalled()
     }
 
     "will fail when extended api definition fetch fails" in new Setup {

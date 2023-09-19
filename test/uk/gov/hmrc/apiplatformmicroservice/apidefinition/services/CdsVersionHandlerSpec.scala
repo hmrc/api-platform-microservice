@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
@@ -35,7 +35,7 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
 
         val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
 
-        updatedApis should contain only (uninterestingApi, v1, v2)
+        updatedApis should contain.only(uninterestingApi, v1, v2)
       }
 
       "add nothing if the inbound set contains version three references" in {
@@ -61,19 +61,19 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
         val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
 
         updatedApis.size shouldBe 3
-        updatedApis should contain only (uninterestingApi, v1, v2)
+        updatedApis should contain.only(uninterestingApi, v1, v2)
       }
 
       "add version two for all CDS contexts if they exist in the input" in {
         val entries     = specialCaseContexts.size
-        val inboundApis = specialCaseContexts.map(_.asIdentifier) + uninterestingApi
+        val inboundApis = specialCaseContexts.map(_.asIdentifier()) + uninterestingApi
 
         val updatedApis = CdsVersionHandler.populateSpecialCases(inboundApis)
 
         updatedApis.size shouldBe entries * 2 + 1
 
         updatedApis should contain(uninterestingApi)
-        updatedApis.intersect(specialCaseContexts.map(_.asIdentifier)).size shouldBe entries
+        updatedApis.intersect(specialCaseContexts.map(_.asIdentifier())).size shouldBe entries
         updatedApis.intersect(specialCaseContexts.map(_.asIdentifier(ApiVersionNbr("2.0")))).size shouldBe entries
       }
     }
@@ -84,7 +84,7 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
 
         val updatedApis = CdsVersionHandler.adjustSpecialCaseVersions(inboundApis)
 
-        updatedApis should contain only (uninterestingApi)
+        updatedApis should contain.only(uninterestingApi)
       }
 
       "change version 2 to version 1 for CDS contexts" in {
@@ -92,7 +92,7 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
 
         val updatedApis = CdsVersionHandler.adjustSpecialCaseVersions(inboundApis)
 
-        updatedApis should contain only (uninterestingApi, v1)
+        updatedApis should contain.only(uninterestingApi, v1)
       }
 
       "change all version 2 to version 1 for CDS contexts" in {
@@ -104,7 +104,7 @@ class CdsVersionHandlerSpec extends HmrcSpec with ApiDefinitionTestDataHelper {
         updatedApis.size shouldBe entries + 1
 
         updatedApis should contain(uninterestingApi)
-        updatedApis.intersect(specialCaseContexts.map(_.asIdentifier)).size shouldBe entries
+        updatedApis.intersect(specialCaseContexts.map(_.asIdentifier())).size shouldBe entries
         updatedApis.intersect(specialCaseContexts.map(_.asIdentifier(ApiVersionNbr("2.0")))).size shouldBe 0
       }
 

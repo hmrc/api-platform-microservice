@@ -17,13 +17,16 @@
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionJsonFormatters, ExtendedApiDefinition}
 
-trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
+
+trait DefinitionsFromJson extends BasicApiDefinitionJsonFormatters {
 
   // noinspection ScalaStyle
-  def extendedApiDefinition(name: String): ExtendedApiDefinition = {
+  def extendedApiDefinition(name: String): ExtendedAPIDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -80,7 +83,7 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |    }
                   |  ]
                   |}
-     """.stripMargin).as[ExtendedApiDefinition]
+     """.stripMargin).as[ExtendedAPIDefinition]
   }
 
   def apiDefinition(name: String): ApiDefinition = {

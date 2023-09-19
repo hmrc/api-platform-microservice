@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait BasicApiDefinitionJsonFormatters {
   implicit val keyReadsApiContext: KeyReads[ApiContext]   = key => JsSuccess(ApiContext(key))
@@ -28,14 +28,4 @@ trait BasicApiDefinitionJsonFormatters {
   implicit val keyWritesApiVersion: KeyWrites[ApiVersionNbr] = _.value
 }
 
-trait ApiDefinitionJsonFormatters extends BasicApiDefinitionJsonFormatters {
-
-  implicit val apiVersionDefinitionformat = Json.format[ApiVersionDefinition]
-  implicit val apiDefinitionformat = Json.format[ApiDefinition]
-
-  implicit val formatApiAvailability       = Json.format[ApiAvailability]
-  implicit val formatExtendedApiVersion    = Json.format[ExtendedApiVersion]
-  implicit val formatExtendedApiDefinition = Json.format[ExtendedApiDefinition]
-}
-
-object ApiDefinitionJsonFormatters extends ApiDefinitionJsonFormatters
+object BasicApiDefinitionJsonFormatters extends BasicApiDefinitionJsonFormatters

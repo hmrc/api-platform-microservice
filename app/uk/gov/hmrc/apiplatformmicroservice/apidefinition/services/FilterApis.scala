@@ -17,15 +17,14 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait FilterApis {
-  type ApiFilterFn = ((ApiContext, ApiVersionDefinition)) => Boolean
+  type ApiFilterFn = ((ApiContext, ApiVersion)) => Boolean
 
   def filterApis(filterFn: ApiFilterFn)(apis: List[ApiDefinition]): List[ApiDefinition] = {
 
-    def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: List[ApiVersionDefinition]): List[ApiVersionDefinition] = {
+    def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: List[ApiVersion]): List[ApiVersion] = {
       versions
         .map(v => ((apiContext, v)))
         .filter(filterFn)
@@ -114,7 +113,7 @@ trait FilterGateKeeperSubscriptions extends FilterApis {
 
 trait FiltersForCombinedApis extends FilterApis {
 
-  private def isOnlyPublicAccess(v: ExtendedApiVersion): Boolean = {
+  private def isOnlyPublicAccess(v: ExtendedAPIVersion): Boolean = {
     (v.productionAvailability, v.sandboxAvailability) match {
       case (Some(prod: ApiAvailability), Some(sand: ApiAvailability)) =>
         isPublicAccess(prod.access) && isPublicAccess(sand.access)
@@ -131,6 +130,6 @@ trait FiltersForCombinedApis extends FilterApis {
   }
 
   def allVersionsArePublicAccess(a: ApiDefinition): Boolean         = a.versions.forall(v => isPublicAccess((a.context, v)))
-  def allVersionsArePublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
+  def allVersionsArePublicAccess(a: ExtendedAPIDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
 
 }

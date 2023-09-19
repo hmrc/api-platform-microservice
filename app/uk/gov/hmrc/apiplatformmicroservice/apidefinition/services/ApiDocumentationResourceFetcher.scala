@@ -26,9 +26,11 @@ import cats.implicits._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIVersion
 
 @Singleton
 class ApiDocumentationResourceFetcher @Inject() (
@@ -40,7 +42,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
-  trait WhereToLook
+  sealed trait WhereToLook
   case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook
 
@@ -54,11 +56,11 @@ class ApiDocumentationResourceFetcher @Inject() (
     ).value
   }
 
-  private def findWhereToLook(apiDefinition: ExtendedApiDefinition, resourceId: ResourceId): Option[WhereToLook] = {
+  private def findWhereToLook(apiDefinition: ExtendedAPIDefinition, resourceId: ResourceId): Option[WhereToLook] = {
     lazy val version                                 = resourceId.version
-    lazy val findVersion: Option[ExtendedApiVersion] = apiDefinition.versions.find(_.version == version)
+    lazy val findVersion: Option[ExtendedAPIVersion] = apiDefinition.versions.find(_.version == version)
 
-    val whereToLookForVersion: (ExtendedApiVersion) => WhereToLook = (eav) => {
+    val whereToLookForVersion: (ExtendedAPIVersion) => WhereToLook = (eav) => {
       logger.info(s"Availability of $resourceId - Sandbox: ${eav.sandboxAvailability.isDefined} Production: ${eav.productionAvailability.isDefined}")
       if (eav.sandboxAvailability.isDefined) Both else ProductionOnly
     }

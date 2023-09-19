@@ -26,13 +26,12 @@ import akka.Done
 import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -89,9 +88,9 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
       result.versions.head.sandboxAvailability mustBe None
-      result.categories must not be empty
-      result.categories must contain(incomeTaxCategory)
-      result.categories must contain(vatTaxCategory)
+      result.categories should not be empty
+      result.categories should contain(incomeTaxCategory)
+      result.categories should contain(vatTaxCategory)
     }
 
     "return an extended api with only production availability when api only in principal" in new Setup {
@@ -120,7 +119,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
+      result.versions should have size 1
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
     }
@@ -140,7 +139,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
+      result.versions should have size 1
       result.versions.head.status mustBe ApiStatus.STABLE
     }
 
@@ -168,7 +167,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
+      result.versions should have size 1
       result.versions.head.status mustBe ApiStatus.STABLE
     }
 
@@ -185,10 +184,10 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPublicAndPrivateVersions)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.map(_.sandboxAvailability) must contain only (Some(privateApiAvailability), Some(publicApiAvailability))
-      result.versions.map(_.productionAvailability) must contain only None
+      result.value.versions.map(_.sandboxAvailability) should contain.only(Some(privateApiAvailability), Some(publicApiAvailability))
+      result.value.versions.map(_.productionAvailability) should contain only None
     }
 
     "return true when application ids are matching" in new Setup {

@@ -26,6 +26,6 @@ trait OpenAccessRules {
   }
 
   def isOpenAccess(e: Endpoint): Boolean             = e.authType == AuthType.NONE
-  def isOpenAccess(v: ApiVersionDefinition): Boolean = v.endpoints.toList.forall(e => isOpenAccess(e))
+  def isOpenAccess(v: ApiVersion): Boolean = v.endpoints.toList.forall(e => isOpenAccess(e))
   def isOpenAccess(a: ApiDefinition): Boolean        = a.versions.forall(v => isOpenAccess(v) & isPublicAccess(v.access))
 }

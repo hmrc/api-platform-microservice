@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
-  import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
   implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
 

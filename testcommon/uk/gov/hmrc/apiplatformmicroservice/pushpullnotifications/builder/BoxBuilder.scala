@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, ClientId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}

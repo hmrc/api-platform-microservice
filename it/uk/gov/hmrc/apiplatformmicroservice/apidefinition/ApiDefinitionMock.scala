@@ -22,11 +22,11 @@ import play.api.http.Status._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -183,9 +183,9 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
-                          |              "access": { "type": "PUBLIC"},
-                          |              "versionSource": "UNKNOWN",
-                          |              "endpoints": [
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
+                         |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",

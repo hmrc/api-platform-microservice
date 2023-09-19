@@ -27,9 +27,8 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 @Singleton
 class ApiSpecificationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService,
@@ -49,7 +48,7 @@ class ApiSpecificationFetcher @Inject() (
       .value
   }
 
-  private def fetchApiVersion(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
+  private def fetchApiVersion(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedAPIVersion] = {
     OptionT(extendedApiDefinitionFetcher.fetch(serviceName, None))
       .mapFilter(defn => defn.versions.find(_.version == version))
   }

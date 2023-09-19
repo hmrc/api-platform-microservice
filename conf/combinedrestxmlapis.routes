@@ -3,6 +3,6 @@
 # routes need fixing but will need changes to TPDFE
 
 GET        /                              uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchAllApis()
-GET        /developer                     uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId])
+GET        /developer                     uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.getCombinedApisForDeveloper(developerId: Option[uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId])
 GET        /:serviceName                  uk.gov.hmrc.apiplatformmicroservice.combinedapis.controllers.CombinedApisController.fetchApiByServiceName(serviceName: String)
 

@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.doma
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxCreator
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.BoxSubscriber
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.http.HeaderCarrier

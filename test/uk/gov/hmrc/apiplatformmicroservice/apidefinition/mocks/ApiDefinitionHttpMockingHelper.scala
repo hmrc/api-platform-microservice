@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorUtils
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 
 trait ApiDefinitionHttpMockingHelper
