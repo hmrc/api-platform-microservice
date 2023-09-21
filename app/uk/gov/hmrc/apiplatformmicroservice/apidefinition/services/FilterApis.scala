@@ -60,13 +60,13 @@ trait FilterApis {
 
   protected def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
     t._2.access match {
-      case ApiAccess.Private(allowList, _) => allowList.toSet.intersect(applicationIds.map(_.value.toString)).headOption.isDefined
+      case ApiAccess.Private(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
       case _                               => false
     }
   }
 
   protected def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    subscriptions.contains(ApiIdentifier(t._1, t._2.version))
+    subscriptions.contains(ApiIdentifier(t._1, t._2.versionNbr))
 
   protected def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
     !isSubscribed(subscriptions)(t)

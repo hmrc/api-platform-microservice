@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 @Singleton
@@ -117,7 +116,7 @@ object ApiDefinitionController {
     }
 
     def fromDefinition(in: ApiDefinition): ApiData = {
-      val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted: _*)
+      val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.versionNbr -> VersionData.fromDefinition(v)).sorted: _*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
     }
   }

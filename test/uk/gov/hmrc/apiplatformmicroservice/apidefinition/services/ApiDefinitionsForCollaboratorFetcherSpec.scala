@@ -100,7 +100,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       val result = await(underTest.fetch(userId))
 
       result.map(_.name) should contain only (apiWithRetiredVersions.name)
-      result.head.versions.map(_.version) should contain only (versionTwo)
+      result.head.versions.map(_.versionNbr) should contain only (versionTwo)
     }
 
     "filter out private versions for an api" in new Setup {

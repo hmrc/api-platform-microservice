@@ -116,9 +116,9 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
     ): List[ExtendedAPIVersion] = {
-    val allVersions = (principalVersions.map(_.version) ++ subordinateVersions.map(_.version)).distinct.sorted
-    allVersions map { version =>
-      combineVersion(context, principalVersions.find(_.version == version), subordinateVersions.find(_.version == version), applicationIds, subscriptions, userId)
+    val allVersions = (principalVersions.map(_.versionNbr) ++ subordinateVersions.map(_.versionNbr)).distinct.sorted
+    allVersions map { versionNbr =>
+      combineVersion(context, principalVersions.find(_.versionNbr == versionNbr), subordinateVersions.find(_.versionNbr == versionNbr), applicationIds, subscriptions, userId)
     } filter { version =>
       version.status != ApiStatus.RETIRED
     }
@@ -155,7 +155,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       sandboxAvailability: Option[ApiAvailability]
     ): ExtendedAPIVersion = {
     ExtendedAPIVersion(
-      version = apiVersion.version,
+      version = apiVersion.versionNbr,
       status = apiVersion.status,
       endpoints = apiVersion.endpoints,
       productionAvailability = productionAvailability,
@@ -173,7 +173,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     println("Enabled " + version.endpointsEnabled)
     version.access match {
       case ApiAccess.Private(allowlist, isTrial) =>
-        val authorised = applicationIds.map(_.toString).intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.version))
+        val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.versionNbr))
         println("Authorised " + authorised)
         Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(allowlist, isTrial), userId.isDefined, authorised))
       case _                                     => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))

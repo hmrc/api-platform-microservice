@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
@@ -27,7 +26,7 @@ package object binders {
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
         text <- textBinder.bind(key, value)
-        env  <- Environment.from(text).toRight("Not a valid environment")
+        env  <- Environment.apply(text).toRight("Not a valid environment")
       } yield env
     }
 

@@ -19,20 +19,20 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import java.util.UUID
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec
@@ -69,7 +69,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting an api definition" should {
 
       "call the underlying http client" in new Setup {
-        whenGetDefinition(PRODUCTION)(serviceName, apiDefinition(apiName1))
+        whenGetDefinition(Environment.PRODUCTION)(serviceName, apiDefinition(apiName1))
 
         val result = await(connector.fetchApiDefinition(serviceName))
 
@@ -78,7 +78,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "throw an exception correctly" in new Setup {
-        whenGetDefinitionFails(PRODUCTION)(serviceName, 500)
+        whenGetDefinitionFails(Environment.PRODUCTION)(serviceName, 500)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchApiDefinition(serviceName))
@@ -86,7 +86,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "return none when nothing found" in new Setup {
-        whenGetDefinitionFindsNothing(PRODUCTION)(serviceName)
+        whenGetDefinitionFindsNothing(Environment.PRODUCTION)(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
         result should not be Symbol("defined")
@@ -96,7 +96,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting all api definitions" should {
 
       "call the underlying http client with the type argument set to all" in new Setup {
-        whenGetAllDefinitions(PRODUCTION)(apiDefinition(apiName1), apiDefinition(apiName2))
+        whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition(apiName1), apiDefinition(apiName2))
 
         val result = await(connector.fetchAllApiDefinitions)
 
@@ -105,14 +105,14 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "do not throw exception when not found but instead return empty List" in new Setup {
-        whenGetAllDefinitionsFindsNothing(PRODUCTION)
+        whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
 
         val result = await(connector.fetchAllApiDefinitions)
         result shouldEqual List.empty
       }
 
       "throw an exception correctly" in new Setup {
-        whenGetAllDefinitionsFails(PRODUCTION)(500)
+        whenGetAllDefinitionsFails(Environment.PRODUCTION)(500)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchAllApiDefinitions)
@@ -123,7 +123,7 @@ class PrincipalApiDefinitionConnectorSpec
     "fetchApiSpecification" should {
       "call out and get json value" in new Setup {
         val jsValue: JsValue = Json.parse("""{ "x": 1 }""")
-        whenFetchApiSpecification(PRODUCTION)(serviceName, version, jsValue)
+        whenFetchApiSpecification(Environment.PRODUCTION)(serviceName, version, jsValue)
 
         val result = await(connector.fetchApiSpecification(serviceName, version))
 
@@ -131,7 +131,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
     }
     "call out and get no value" in new Setup {
-      whenFetchApiSpecificationFindsNothing(PRODUCTION)(serviceName, version)
+      whenFetchApiSpecificationFindsNothing(Environment.PRODUCTION)(serviceName, version)
 
       val result = await(connector.fetchApiSpecification(serviceName, version))
 

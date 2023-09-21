@@ -33,8 +33,8 @@ class ApiIdentifiersForUpliftFetcherSpec extends AsyncHmrcSpec with ApiDefinitio
   private val versionThree = ApiVersionNbr("3.0")
 
   trait Setup extends ApiDefinitionServiceModule {
-    val upliftableApiDefinition          = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
-    val exampleApiDefinition             = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
+    val upliftableApiDefinition = apiDefinition("uplift", apiVersion(versionOne), apiVersion(versionTwo))
+    val exampleApiDefinition    = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
 
     val apiWithARetiredVersion           =
       apiDefinition("api-with-retired-version", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE), apiVersion(versionThree, ApiStatus.ALPHA))

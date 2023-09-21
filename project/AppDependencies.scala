@@ -9,12 +9,10 @@ object AppDependencies {
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"         % bootstrapVersion,
     "com.beachape"            %% "enumeratum-play-json"              % "1.6.2",
-    "org.typelevel"           %% "cats-core"                         % "2.6.1",
-    "com.typesafe.play"       %% "play-json"                         % "2.9.2",
     "org.julienrf"            %% "play-json-derived-codecs"          % "7.0.0",
     "uk.gov.hmrc"             %% "json-encryption"                   % "5.1.0-play-28",
-    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.1.9",
-    "uk.gov.hmrc"             %% "api-platform-application-commands" % "0.22.1"
+    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.2.0",
+    "uk.gov.hmrc"             %% "api-platform-application-commands" % "0.22.3"
   )
 
   lazy val testDependencies = Seq(

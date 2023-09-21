@@ -45,7 +45,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   }
 
   private def filterVersions(api: ApiDefinition, subscriptions: Set[ApiIdentifier]): Option[ApiDefinition] = {
-    val filteredVersions = api.versions.filter(v => subscriptions.contains(ApiIdentifier(api.context, v.version)))
+    val filteredVersions = api.versions.filter(v => subscriptions.contains(ApiIdentifier(api.context, v.versionNbr)))
 
     if (filteredVersions.isEmpty) None
     else Some(api.copy(versions = filteredVersions))

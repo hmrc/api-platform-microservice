@@ -21,8 +21,8 @@ import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.PRODUCTION
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 
 class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFieldDefinitionsMock {

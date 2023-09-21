@@ -34,7 +34,7 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
     for {
       defs                <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
       filteredDefs         = defs.filterNot(d => d.isTestSupport || d.categories.contains(ApiCategory.EXAMPLE))
-      ids                  = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == ApiStatus.RETIRED || v.status == ApiStatus.ALPHA).map(v => ApiIdentifier(d.context, v.version)))
+      ids                  = filteredDefs.flatMap(d => d.versions.filterNot(v => v.status == ApiStatus.RETIRED || v.status == ApiStatus.ALPHA).map(v => ApiIdentifier(d.context, v.versionNbr)))
       withAnyAdditionalIds = CdsVersionHandler.populateSpecialCases(ids)
     } yield withAnyAdditionalIds
   }

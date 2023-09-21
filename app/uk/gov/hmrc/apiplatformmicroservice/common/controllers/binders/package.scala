@@ -21,8 +21,7 @@ import scala.util.Try
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
 
 package object binders {
 
@@ -67,7 +66,7 @@ package object binders {
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
         text <- textBinder.bind(key, value)
-        env  <- Environment.from(text).toRight("Not a valid environment")
+        env  <- Environment.apply(text).toRight("Not a valid environment")
       } yield env
     }
 
@@ -83,14 +82,14 @@ package object binders {
         text <- textBinder.bind(key, params)
       } yield {
         text match {
-          case Right(env) => Environment.from(env).toRight("Not a valid environment")
+          case Right(env) => Environment.apply(env).toRight("Not a valid environment")
           case _          => Left("Unable to bind an application ID")
         }
       }
     }
 
     override def unbind(key: String, environment: Environment): String = {
-      textBinder.unbind(key, environment.entryName)
+      textBinder.unbind(key, environment.toString())
     }
   }
 
