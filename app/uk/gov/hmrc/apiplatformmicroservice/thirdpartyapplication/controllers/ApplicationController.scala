@@ -67,7 +67,7 @@ class ApplicationController @Inject() (
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     applicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest =>
-        logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
+        logger.info(s"Uplift of application id ${sandboxId} called ${appData.application.name}")
 
         upliftRequest
           .fold(

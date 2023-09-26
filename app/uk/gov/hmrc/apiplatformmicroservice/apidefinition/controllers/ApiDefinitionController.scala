@@ -111,9 +111,7 @@ object ApiDefinitionController {
 
   object ApiData {
 
-    implicit val ordering: Ordering[(ApiVersionNbr, VersionData)] = new Ordering[(ApiVersionNbr, VersionData)] {
-      override def compare(x: (ApiVersionNbr, VersionData), y: (ApiVersionNbr, VersionData)): Int = y._1.value.compareTo(x._1.value)
-    }
+    implicit val ordering: Ordering[(ApiVersionNbr, VersionData)] = Ordering.by(_._1)
 
     def fromDefinition(in: ApiDefinition): ApiData = {
       val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.versionNbr -> VersionData.fromDefinition(v)).sorted: _*)

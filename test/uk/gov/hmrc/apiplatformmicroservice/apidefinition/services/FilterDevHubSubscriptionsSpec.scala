@@ -55,7 +55,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
       }
     }
 
-    "filtering private apis where the app is not in the allow list" should {
+    "filtering private apis" should {
 
       "reject any state" in {
         testFilter(allPrivateApis: _*) shouldBe empty
@@ -70,7 +70,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
       }
     }
 
-    "filtering private trial apis where the app is not in the allow list" should {
+    "filtering private trial apis" should {
 
       "reject any state when not subscribed" in {
         testFilter(allPrivateTrialApis: _*) shouldBe empty
@@ -81,20 +81,6 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
           privateApi.asTrial.asBeta,
           privateApi.asTrial.asStable,
           privateApi.asTrial.asDeprecated
-        )
-      }
-    }
-
-    "filtering private apis where the app is in the allow list" should {
-      "allow when not subscribed for beta or stable" in {
-        testFilter(allPrivateAllowListApis: _*) should contain.only(privateAllowListApi.asBeta, privateAllowListApi.asStable)
-      }
-
-      "allow when subscribed for all states" in {
-        testFilterSubs(apiId)(allPrivateAllowListApis: _*) should contain.only(
-          privateAllowListApi.asBeta,
-          privateAllowListApi.asStable,
-          privateAllowListApi.asDeprecated
         )
       }
     }

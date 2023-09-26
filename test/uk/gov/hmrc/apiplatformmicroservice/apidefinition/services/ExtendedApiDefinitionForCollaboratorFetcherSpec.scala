@@ -59,10 +59,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
-    val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil, false)), apiVersion(versionTwo, access = apiAccess()))
+    val apiWithPrivateVersion =
+      apiDefinition("api-with-only-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)))
 
-    val apiWithAllowlisting = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = ApiAccess.Private(Nil, false).withAllowlistedAppIds(applicationId)))
+    val apiWithPublicAndPrivateVersions =
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = apiAccess()))
 
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
       PrincipalApiDefinitionServiceMock.aMock,
@@ -73,7 +74,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     )
 
     val publicApiAvailability  = ApiAvailability(false, ApiAccess.PUBLIC, false, true)
-    val privateApiAvailability = ApiAvailability(false, ApiAccess.Private(List(), false), false, false)
+    val privateApiAvailability = ApiAvailability(false, ApiAccess.Private(false), false, false)
 
     val incomeTaxCategory = ApiCategory.INCOME_TAX_MTD
     val vatTaxCategory    = ApiCategory.VAT
@@ -190,33 +191,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       result.value.versions.map(_.productionAvailability) should contain only None
     }
 
-    "return true when application ids are matching" in new Setup {
+    "return true when applications ids are subscribed to the api" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
-
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
-
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
-    }
-
-    "return false when applications ids are not matching" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPrivateVersion)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
-
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
-
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
-    }
-
-    "return true when applications ids are not matching but it is subscribed to" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
-      val apiId = ApiIdentifier(apiWithAllowlisting.context, apiWithAllowlisting.versions.head.versionNbr)
+      val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.head.versionNbr)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))

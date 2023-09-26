@@ -39,8 +39,8 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
 
   val mixedAccessVersions = List(
     versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC),
-    versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false)),
-    versionDefinition("1.0", ApiStatus.RETIRED, ApiAccess.Private(Nil, false))
+    versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(false)),
+    versionDefinition("1.0", ApiStatus.RETIRED, ApiAccess.Private(false))
   )
   val api1AllPublic       = newDefinition(allPublicVersions)
   val api1mixedAccess     = newDefinition(mixedAccessVersions)
@@ -64,7 +64,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
         filteredList should contain.only(
           api1AllPublic,
           api1AllPublic.copy(serviceName = "newName"),
-          api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(Nil, false))))
+          api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(false))))
         )
       }
 
@@ -73,7 +73,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
           List(
             versionDefinition("1.0", ApiStatus.RETIRED, ApiAccess.PUBLIC),
             versionDefinition("2.0", ApiStatus.RETIRED, ApiAccess.PUBLIC),
-            versionDefinition("3.0", ApiStatus.RETIRED, ApiAccess.Private(Nil, false))
+            versionDefinition("3.0", ApiStatus.RETIRED, ApiAccess.Private(false))
           )
         )
         val testData                   = List(api1AllPublic, api1AllPublic.copy(serviceName = "newName"), apiWithOnlyRetiredVersions)
@@ -96,12 +96,12 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
         ApiVersionNbr("1.0"),
         ApiStatus.STABLE,
         List(endpoint),
-        Some(ApiAvailability(true, ApiAccess.Private(Nil, false), true, true)),
+        Some(ApiAvailability(true, ApiAccess.Private(false), true, true)),
         Some(ApiAvailability(true, ApiAccess.PUBLIC, true, true))
       )
 
       val mixedApiVersionsWithNone =
-        ExtendedAPIVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, List(endpoint), Some(ApiAvailability(true, ApiAccess.Private(Nil, false), true, true)), None)
+        ExtendedAPIVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, List(endpoint), Some(ApiAvailability(true, ApiAccess.Private(false), true, true)), None)
 
       "return true when all versions are public access" in {
 

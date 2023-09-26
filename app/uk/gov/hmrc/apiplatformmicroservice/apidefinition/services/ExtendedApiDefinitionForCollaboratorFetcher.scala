@@ -170,12 +170,10 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
     ): Option[ApiAvailability] = {
-    println("Enabled " + version.endpointsEnabled)
     version.access match {
-      case ApiAccess.Private(allowlist, isTrial) =>
-        val authorised = applicationIds.intersect(allowlist.toSet).nonEmpty || subscriptions.contains(ApiIdentifier(context, version.versionNbr))
-        println("Authorised " + authorised)
-        Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(allowlist, isTrial), userId.isDefined, authorised))
+      case ApiAccess.Private(isTrial) =>
+        val authorised = subscriptions.contains(ApiIdentifier(context, version.versionNbr))
+        Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(isTrial), userId.isDefined, authorised))
       case _                                     => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
     }
   }

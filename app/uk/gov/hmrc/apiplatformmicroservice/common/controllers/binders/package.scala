@@ -26,17 +26,11 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Envi
 package object binders {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as ApplicationId")
-      .map(ApplicationId(_))
+    ApplicationId.apply(text).toRight(s"Cannot accept $text as ApplicationId")
   }
 
   private def userIdFromString(text: String): Either[String, UserId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as UserId")
-      .map(UserId(_))
+    UserId.apply(text).toRight(s"Cannot accept $text as UserId")
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -46,7 +40,7 @@ package object binders {
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value.toString()
+      applicationId.toString()
     }
   }
 
@@ -57,7 +51,7 @@ package object binders {
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      textBinder.unbind(key, applicationId.value.toString())
+      textBinder.unbind(key, applicationId.toString())
     }
   }
 
@@ -100,7 +94,7 @@ package object binders {
     }
 
     override def unbind(key: String, userId: UserId): String = {
-      userId.value.toString
+      userId.toString
     }
   }
 
@@ -119,7 +113,7 @@ package object binders {
     }
 
     override def unbind(key: String, userId: UserId): String = {
-      textBinder.unbind(key, userId.value.toString)
+      textBinder.unbind(key, userId.toString)
     }
   }
 

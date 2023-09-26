@@ -98,14 +98,6 @@ trait ApiDefinitionTestDataHelper {
     def notTrial: ApiAccess = {
       inner.copy(isTrial = false)
     }
-
-    def withAllowlistedAppIds(appIds: ApplicationId*): ApiAccess = {
-      inner.copy(allowlistedApplicationIds = appIds.toList)
-    }
-
-    def addAllowList(appIds: ApplicationId*): ApiAccess = {
-      inner.copy(allowlistedApplicationIds = inner.allowlistedApplicationIds ++ appIds.toList)
-    }
   }
 
   def endpoint(endpointName: String = "Hello World", url: String = "/world"): Endpoint = {
@@ -146,22 +138,16 @@ trait ApiDefinitionTestDataHelper {
       inner.copy(access = ApiAccess.PUBLIC)
 
     def asPrivate: ApiVersion =
-      inner.copy(access = ApiAccess.Private(Nil, false))
+      inner.copy(access = ApiAccess.Private(false))
 
     def asTrial: ApiVersion = inner.access match {
       case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.asTrial)
-      case _                            => inner.copy(access = ApiAccess.Private(Nil, isTrial = true))
+      case _                            => inner.copy(access = ApiAccess.Private(true))
     }
-
-    def addAllowList(applicationId: ApplicationId) =
-      inner.access match {
-        case p @ ApiAccess.Private(_, _) => inner.copy(access = p.addAllowList(applicationId))
-        case _                           => inner
-      }
 
     def notTrial: ApiVersion = inner.access match {
       case apiAccess: ApiAccess.Private => inner.copy(access = apiAccess.notTrial)
-      case _                            => inner.copy(access = ApiAccess.Private(Nil, false))
+      case _                            => inner.copy(access = ApiAccess.Private(false))
     }
 
     def withAccess(altAccess: ApiAccess): ApiVersion =

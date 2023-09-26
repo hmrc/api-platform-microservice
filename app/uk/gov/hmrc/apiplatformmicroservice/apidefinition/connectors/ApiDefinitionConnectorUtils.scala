@@ -31,10 +31,10 @@ trait ApiDefinitionConnectorUtils {
 
   def documentationUrl(resourceId: ResourceId): String = {
     import resourceId._
-    s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/documentation/$resource"
+    s"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/documentation/$resource"
   }
 
-  def specificationUrl(serviceName: String, version: ApiVersionNbr): String = {
-    s"$serviceBaseUrl/api-definition/$serviceName/${version.value}/specification"
+  def specificationUrl(serviceName: String, versionNbr: ApiVersionNbr): String = {
+    s"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/specification"
   }
 }

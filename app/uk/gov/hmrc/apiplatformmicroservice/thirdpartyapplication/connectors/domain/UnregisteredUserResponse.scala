@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, Us
 case class UnregisteredUserResponse(email: LaxEmailAddress, creationTime: Instant, userId: UserId)
 
 object UnregisteredUserResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
   implicit val unregisteredUserResponseFormat = Json.format[UnregisteredUserResponse]
 }

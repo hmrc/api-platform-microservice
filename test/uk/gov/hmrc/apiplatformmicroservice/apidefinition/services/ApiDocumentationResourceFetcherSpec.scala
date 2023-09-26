@@ -39,7 +39,7 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     val resource               = "someResource"
 
     val resourceId    = ResourceId(serviceName, versionOne, resource)
-    val noSuchVersion = resourceId.copy(version = ApiVersionNbr("YouWontFindMe"))
+    val noSuchVersion = resourceId.copy(versionNbr = ApiVersionNbr("YouWontFindMe"))
 
     val mockWSResponse      = mock[WSResponse]
     when(mockWSResponse.status).thenReturn(OK)

@@ -43,13 +43,12 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
     val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil, false)), apiVersion(versionTwo, access = apiAccess()))
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = apiAccess()))
 
     val apiWithOnlyPrivateVersions =
-      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(Nil, false)), apiVersion(versionTwo, access = ApiAccess.Private(Nil, false)))
+      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = ApiAccess.Private(false)))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(Nil, false).asTrial))
-    val apiWithAllowlisting  = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = ApiAccess.Private(Nil, false).withAllowlistedAppIds(applicationId)))
+    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(false).asTrial))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(
@@ -136,15 +135,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       val result = await(underTest.fetch(userId))
 
       result should contain only (apiWithPrivateTrials)
-    }
-
-    "return api if it's private but the user has an allowlisted application" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithAllowlisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
-
-      val result = await(underTest.fetch(userId))
-
-      result should contain only (apiWithAllowlisting)
     }
   }
 }

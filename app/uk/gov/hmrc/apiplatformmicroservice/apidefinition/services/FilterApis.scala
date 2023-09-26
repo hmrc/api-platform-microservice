@@ -45,8 +45,8 @@ trait FilterApis {
 
   protected val isPrivateTrial: ApiFilterFn = t =>
     t._2.access match {
-      case ApiAccess.Private(_, true) => true
-      case _                          => false
+      case ApiAccess.Private(true) => true
+      case _                       => false
     }
 
   protected val isPublicAccess: ApiFilterFn = t => isPublicAccess(t._2.access)
@@ -55,13 +55,6 @@ trait FilterApis {
     access match {
       case ApiAccess.PUBLIC => true
       case _                => false
-    }
-  }
-
-  protected def isPrivateButAllowListed(applicationIds: Set[ApplicationId]): ApiFilterFn = t => {
-    t._2.access match {
-      case ApiAccess.Private(allowList, _) => allowList.toSet.intersect(applicationIds).headOption.isDefined
-      case _                               => false
     }
   }
 
@@ -79,7 +72,7 @@ trait FilterApiDocumentation extends FilterApis {
       Some(_)
         .filterNot(isRetired)
         .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
-        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t) || isPrivateTrial(t))
+        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateTrial(t))
         .isDefined
     )(apis)
   }
@@ -94,7 +87,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
         .filterNot(isRetired)
         .filterNot(isAlpha)
         .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
-        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateButAllowListed(applicationIds)(t))
+        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t))
         .isDefined
     )(apis)
   }

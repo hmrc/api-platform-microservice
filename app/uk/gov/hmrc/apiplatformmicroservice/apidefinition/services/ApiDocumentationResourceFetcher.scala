@@ -56,7 +56,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   }
 
   private def findWhereToLook(apiDefinition: ExtendedAPIDefinition, resourceId: ResourceId): Option[WhereToLook] = {
-    lazy val version                                 = resourceId.version
+    lazy val version                                 = resourceId.versionNbr
     lazy val findVersion: Option[ExtendedAPIVersion] = apiDefinition.versions.find(_.version == version)
 
     val whereToLookForVersion: (ExtendedAPIVersion) => WhereToLook = (eav) => {

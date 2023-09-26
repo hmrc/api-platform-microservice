@@ -92,19 +92,19 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
+    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId}")
   }
 
   def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.value}/applications").map(_.map(_.id))
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications").map(_.map(_.id))
   }
 
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId.value}/subscriptions")
+    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId}/subscriptions")
   }
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
+    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId}/subscription")
       .recover {
         case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
       }

@@ -43,7 +43,7 @@ abstract private[commands] class AbstractAppCmdConnector
   val serviceBaseUrl: String
   def http: HttpClient
 
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId}"
 
   def dispatch(
       applicationId: ApplicationId,
