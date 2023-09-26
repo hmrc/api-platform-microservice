@@ -20,7 +20,7 @@ import scala.concurrent.Future
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiIdentifiersForUpliftFetcher
 
 trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMatchersSugar {

@@ -24,11 +24,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
@@ -46,8 +44,8 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
 
   val apiDefintions = Seq(apiDefinitionOne, apiDefinitionTwo, apiDefinitionThree, apiDefinitionPrivate)
 
-  val apiVersionOne        = ApiVersion("1.0")
-  val apiVersionTwo        = ApiVersion("2.0")
+  val apiVersionOne        = ApiVersionNbr("1.0")
+  val apiVersionTwo        = ApiVersionNbr("2.0")
   val apiIdentifierOne     = ApiIdentifier(apiDefinitionOne.context, apiVersionOne)
   val apiIdentifierTwo     = ApiIdentifier(apiDefinitionTwo.context, apiVersionOne)
   val apiIdentifierThree   = ApiIdentifier(apiDefinitionThree.context, apiVersionOne)

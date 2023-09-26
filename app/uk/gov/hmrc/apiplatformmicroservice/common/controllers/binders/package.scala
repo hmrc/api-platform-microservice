@@ -16,29 +16,18 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
-import java.{util => ju}
-import scala.util.Try
-
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
 
 package object binders {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as ApplicationId")
-      .map(ApplicationId(_))
+    ApplicationId.apply(text).toRight(s"Cannot accept $text as ApplicationId")
   }
 
   private def userIdFromString(text: String): Either[String, UserId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as UserId")
-      .map(UserId(_))
+    UserId.apply(text).toRight(s"Cannot accept $text as UserId")
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -48,7 +37,7 @@ package object binders {
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value.toString()
+      applicationId.toString()
     }
   }
 
@@ -59,7 +48,7 @@ package object binders {
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      textBinder.unbind(key, applicationId.value.toString())
+      textBinder.unbind(key, applicationId.toString())
     }
   }
 
@@ -67,8 +56,8 @@ package object binders {
 
     override def bind(key: String, value: String): Either[String, Environment] = {
       for {
-        text <- textBinder.bind(key, value).right
-        env  <- Environment.from(text).toRight("Not a valid environment").right
+        text <- textBinder.bind(key, value)
+        env  <- Environment.apply(text).toRight("Not a valid environment")
       } yield env
     }
 
@@ -84,14 +73,14 @@ package object binders {
         text <- textBinder.bind(key, params)
       } yield {
         text match {
-          case Right(env) => Environment.from(env).toRight("Not a valid environment")
+          case Right(env) => Environment.apply(env).toRight("Not a valid environment")
           case _          => Left("Unable to bind an application ID")
         }
       }
     }
 
     override def unbind(key: String, environment: Environment): String = {
-      textBinder.unbind(key, environment.entryName)
+      textBinder.unbind(key, environment.toString())
     }
   }
 
@@ -102,7 +91,7 @@ package object binders {
     }
 
     override def unbind(key: String, userId: UserId): String = {
-      userId.value.toString
+      userId.toString
     }
   }
 
@@ -114,14 +103,14 @@ package object binders {
       } yield textOrBindError match {
         case Right(idText) =>
           for {
-            id <- UserId.fromString(idText).toRight(s"Cannot accept $idText as a user identifier")
+            id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a user identifier")
           } yield id
         case _             => Left("Unable to bind a user identifier")
       }
     }
 
     override def unbind(key: String, userId: UserId): String = {
-      textBinder.unbind(key, userId.value.toString)
+      textBinder.unbind(key, userId.toString)
     }
   }
 

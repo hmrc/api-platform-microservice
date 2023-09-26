@@ -23,8 +23,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
@@ -68,7 +67,7 @@ class ApplicationController @Inject() (
   def upliftApplication(sandboxId: ApplicationId): Action[JsValue] =
     applicationWithSubscriptionDataAction(sandboxId).async(parse.json) { implicit appData: ApplicationWithSubscriptionDataRequest[JsValue] =>
       withJsonBody[Either[RequestUpliftV1, RequestUpliftV2]] { upliftRequest =>
-        logger.info(s"Uplift of application id ${sandboxId.value} called ${appData.application.name}")
+        logger.info(s"Uplift of application id ${sandboxId} called ${appData.application.name}")
 
         upliftRequest
           .fold(

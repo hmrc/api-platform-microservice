@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import play.api.libs.json.Json
 import java.time.Instant
+
+import play.api.libs.json.Json
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 
 case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: String, lastName: String, registrationTime: Instant, lastModified: Instant, verified: Boolean)
 
 object UserResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
 
-  implicit val format                           = Json.format[UserResponse]
+  implicit val format = Json.format[UserResponse]
 }

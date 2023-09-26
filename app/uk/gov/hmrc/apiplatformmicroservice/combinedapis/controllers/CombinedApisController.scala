@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.BasicCombinedApiJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._

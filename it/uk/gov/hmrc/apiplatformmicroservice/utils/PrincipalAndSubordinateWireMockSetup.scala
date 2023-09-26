@@ -24,7 +24,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.FakeApplicationFactory
 import play.api.{Application, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.http.HeaderCarrier
 import org.scalatest.Suite
 
@@ -58,17 +58,17 @@ trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with Befor
       .in(Mode.Test)
       .build()
 
-  override def beforeAll() {
+  override def beforeAll(): Unit = {
     wireMockPrincipalServer.start()
     wireMockSubordinateServer.start()
   }
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     principalWireMock.resetMappings()
     subordinateWireMock.resetMappings()
   }
 
-  override def afterAll() {
+  override def afterAll(): Unit = {
     wireMockPrincipalServer.stop()
     wireMockSubordinateServer.stop()
   }

@@ -25,11 +25,12 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategoryDetails, ApiDefinition, ApiDefinitionJsonFormatters, ResourceId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{BasicApiDefinitionJsonFormatters, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinitionJsonFormatters
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with BasicApiDefinitionJsonFormatters
     with ApplicationLogger with ConnectorRecovery {
 
   def http: HttpClient with WSGet
@@ -50,14 +51,9 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with ApiDefinit
     http.GET[Option[ApiDefinition]](definitionUrl(serviceName)) recover recovery
   }
 
-  def fetchApiCategoryDetails()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
-    logger.info(s"${this.getClass.getSimpleName} - fetchApiCategoryDetails")
-    http.GET[List[ApiCategoryDetails]](categoriesUrl) recover recovery
-  }
-
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
     http.GET[Option[JsObject]](specificationUrl(serviceName, version)) recover recovery
   }

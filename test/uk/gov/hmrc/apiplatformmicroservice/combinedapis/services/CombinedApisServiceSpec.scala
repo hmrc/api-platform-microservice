@@ -22,9 +22,8 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{RETIRED, STABLE}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiCategory, ApiDefinition, ApiDefinitionTestDataHelper, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -42,14 +41,14 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     val inTest                                          = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockAllApisFetcher)
     val developerId                                     = Some(UserId.random)
 
-    val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD")))
-    val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory("VAT"), ApiCategory("OTHER")))
+    val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory.OTHER, ApiCategory.INCOME_TAX_MTD))
+    val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory.VAT, ApiCategory.OTHER))
     val listOfDefinitions = List(apiDefinition1, apiDefinition2)
 
     val extendedApiDefinition1 = extendedApiDefinition("service-name1")
 
-    val xmlApi1 = XmlApi("xmlService1", "xml-service-1", "context", "desc", Some(List(ApiCategory("SELF_ASSESSMENT"), ApiCategory("CUSTOMS"))))
-    val xmlApi2 = XmlApi("xmlService2", "xml-service-2", "context", "desc", Some(List(ApiCategory("OTHER"), ApiCategory("CUSTOMS"))))
+    val xmlApi1 = XmlApi("xmlService1", "xml-service-1", "context", "desc", Some(List(ApiCategory.SELF_ASSESSMENT, ApiCategory.CUSTOMS)))
+    val xmlApi2 = XmlApi("xmlService2", "xml-service-2", "context", "desc", Some(List(ApiCategory.OTHER, ApiCategory.CUSTOMS)))
     val xmlApis = List(xmlApi1, xmlApi2)
 
     val combinedList = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
@@ -59,7 +58,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         .thenReturn(Future.successful(apisToReturn))
     }
 
-    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedApiDefinition]) = {
+    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedAPIDefinition]) = {
       when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(*))
         .thenReturn(Future.successful(apiToReturn))
     }
@@ -101,9 +100,10 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
 
       "return distinct combined list of apis when both services return results and all api fetcher has `duplicates`" in new SetUp {
         primeXmlConnectorFetchAll(xmlApis)
-        val sameApiFromDifferentEnv = apiDefinition("service1", apiVersion(ApiVersion("1.0"), RETIRED), apiVersion(ApiVersion("2.0"), STABLE)).copy(categories =
-          List(ApiCategory("OTHER"), ApiCategory("INCOME_TAX_MTD"))
-        )
+        val sameApiFromDifferentEnv =
+          apiDefinition("service1", apiVersion(ApiVersionNbr("1.0"), ApiStatus.RETIRED), apiVersion(ApiVersionNbr("2.0"), ApiStatus.STABLE)).copy(categories =
+            List(ApiCategory.OTHER, ApiCategory.INCOME_TAX_MTD)
+          )
         val apisToReturn            = listOfDefinitions ++ List(sameApiFromDifferentEnv)
         when(mockAllApisFetcher.fetch()(*)).thenReturn(Future.successful(apisToReturn))
 

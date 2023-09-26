@@ -25,13 +25,11 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 @Singleton
@@ -79,8 +77,6 @@ class ApiDefinitionController @Inject() (
   }
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
-    import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters.formatApiIdentifier
-
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
   }
 
@@ -102,30 +98,28 @@ object ApiDefinitionController {
   case class VersionData(status: ApiStatus, access: ApiAccess)
 
   object VersionData {
-    def fromDefinition(in: ApiVersionDefinition): VersionData = VersionData(in.status, in.access)
+    def fromDefinition(in: ApiVersion): VersionData = VersionData(in.status, in.access)
   }
 
   case class ApiData(
       serviceName: String,
       name: String,
       isTestSupport: Boolean,
-      versions: Map[ApiVersion, VersionData],
+      versions: Map[ApiVersionNbr, VersionData],
       categories: List[ApiCategory]
     )
 
   object ApiData {
 
-    implicit val ordering: Ordering[(ApiVersion, VersionData)] = new Ordering[(ApiVersion, VersionData)] {
-      override def compare(x: (ApiVersion, VersionData), y: (ApiVersion, VersionData)): Int = y._1.value.compareTo(x._1.value)
-    }
+    implicit val ordering: Ordering[(ApiVersionNbr, VersionData)] = Ordering.by(_._1)
 
     def fromDefinition(in: ApiDefinition): ApiData = {
-      val versionData = ListMap[ApiVersion, VersionData](in.versions.map(v => v.version -> VersionData.fromDefinition(v)).sorted: _*)
+      val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.versionNbr -> VersionData.fromDefinition(v)).sorted: _*)
       ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
     }
   }
 
-  object JsonFormatters extends ApiDefinitionJsonFormatters {
+  object JsonFormatters extends BasicApiDefinitionJsonFormatters {
     import play.api.libs.json._
     implicit val writesVersionData: OWrites[VersionData] = Json.writes[VersionData]
     implicit val writesApiData: OWrites[ApiData]         = Json.writes[ApiData]

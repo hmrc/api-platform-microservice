@@ -27,25 +27,24 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment.{PRODUCTION, SANDBOX}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.utils.ConfigBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import AbstractThirdPartyApplicationConnector._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import java.time.Clock
 
 class ThirdPartyApplicationConnectorISpec
@@ -59,8 +58,8 @@ class ThirdPartyApplicationConnectorISpec
 
   override val clock            = Clock.systemUTC()
   private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne        = ApiVersion("1.0")
-  private val versionTwo        = ApiVersion("2.0")
+  private val versionOne        = ApiVersionNbr("1.0")
+  private val versionTwo        = ApiVersionNbr("2.0")
 
   private val applicationIdOne = ApplicationId.random
   private val applicationIdTwo = ApplicationId.random
@@ -194,8 +193,6 @@ class ThirdPartyApplicationConnectorISpec
       }.statusCode shouldBe NOT_FOUND
     }
   }
-
-  import ApiDefinitionJsonFormatters._
 
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random

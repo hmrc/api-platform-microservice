@@ -18,12 +18,13 @@ package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinition, ApiDefinitionJsonFormatters, ExtendedApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ExtendedAPIDefinition}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 
-trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
+trait DefinitionsFromJson extends BasicApiDefinitionJsonFormatters {
 
   // noinspection ScalaStyle
-  def extendedApiDefinition(name: String): ExtendedApiDefinition = {
+  def extendedApiDefinition(name: String): ExtendedAPIDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -36,13 +37,15 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
+                  |      "endpointsEnabled": true,
                   |      "endpoints" : [
                   |        {
                   |          "uriPattern" : "/hello",
                   |          "endpointName" : "Say Hello",
                   |          "method" : "GET",
                   |          "authType" : "NONE",
-                  |          "throttlingTier" : "UNLIMITED"
+                  |          "throttlingTier" : "UNLIMITED",
+                  |          "queryParameters": []
                   |        }
                   |      ],
                   |      "productionAvailability": {
@@ -78,7 +81,7 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |    }
                   |  ]
                   |}
-     """.stripMargin).as[ExtendedApiDefinition]
+     """.stripMargin).as[ExtendedAPIDefinition]
   }
 
   def apiDefinition(name: String): ApiDefinition = {
@@ -88,23 +91,16 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |  "context" : "test",
                   |  "serviceBaseUrl" : "http://test",
                   |  "serviceName" : "test",
+                  |  "isTestSupport": false,
+                  |  "requiresTrust": false,
+                  |  "categories": [ "OTHER" ],
                   |  "versions" : [
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
-                  |      "endpoints" : [
-                  |        {
-                  |          "uriPattern" : "/hello",
-                  |          "endpointName" : "Say Hello",
-                  |          "method" : "GET",
-                  |          "authType" : "NONE",
-                  |          "throttlingTier" : "UNLIMITED"
-                  |        }
-                  |      ]
-                  |    },
-                  |    {
-                  |      "version" : "2.0",
-                  |      "status" : "STABLE",
+                  |      "access": { "type": "PUBLIC" },
+                  |      "endpointsEnabled": true,
+                  |      "versionSource": "UNKNOWN",
                   |      "endpoints" : [
                   |        {
                   |          "uriPattern" : "/hello",
@@ -112,7 +108,25 @@ trait DefinitionsFromJson extends ApiDefinitionJsonFormatters {
                   |          "method" : "GET",
                   |          "authType" : "NONE",
                   |          "throttlingTier" : "UNLIMITED",
-                  |          "scope": "read:hello"
+                  |          "queryParameters": []
+                  |        }
+                  |      ]
+                  |    },
+                  |    {
+                  |      "version" : "2.0",
+                  |      "status" : "STABLE",
+                  |      "access": { "type": "PUBLIC" },
+                  |      "endpointsEnabled": true,
+                  |      "versionSource": "UNKNOWN",
+                  |      "endpoints" : [
+                  |        {
+                  |          "uriPattern" : "/hello",
+                  |          "endpointName" : "Say Hello",
+                  |          "method" : "GET",
+                  |          "authType" : "NONE",
+                  |          "throttlingTier" : "UNLIMITED",
+                  |          "scope": "read:hello",
+                  |          "queryParameters": []
                   |        }
                   |      ]
                   |    }

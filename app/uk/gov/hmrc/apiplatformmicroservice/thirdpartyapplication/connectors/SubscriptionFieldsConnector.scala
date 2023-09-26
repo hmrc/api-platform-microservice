@@ -28,10 +28,8 @@ import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
@@ -64,7 +62,7 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
 
     val url = urlBulkSubscriptionFieldValues(clientId)
     http.GET[Option[BulkSubscriptionFieldsResponse]](url)
-      .map(_.fold(Map.empty[ApiContext, Map[ApiVersion, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
+      .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
@@ -73,7 +71,7 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
     if (fields.isEmpty) {
       successful(Right(()))
     } else {
-      http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.version, fields)).map { response =>
+      http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.versionNbr, fields)).map { response =>
         response.status match {
           case BAD_REQUEST  =>
             Json.parse(response.body).validate[Map[FieldName, String]] match {
@@ -96,7 +94,7 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
     s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.version.value)}"
+    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.versionNbr.value)}"
 }
 
 object SubordinateSubscriptionFieldsConnector {

@@ -21,25 +21,24 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.STABLE
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 
 class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne        = ApiVersion("1.0")
-  private val versionTwo        = ApiVersion("2.0")
+  private val versionOne        = ApiVersionNbr("1.0")
+  private val versionTwo        = ApiVersionNbr("2.0")
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier = HeaderCarrier()
     val email                  = UserId.random
-    val helloWorldDefinition   = apiDefinition(helloWorldContext.value, apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
-    val helloAgentsDefinition  = apiDefinition("hello-agents", apiVersion(versionOne, STABLE), apiVersion(versionTwo, STABLE))
-    val helloVatDefinition     = apiDefinition("hello-vat", apiVersion(versionOne, STABLE))
+    val helloWorldDefinition   = apiDefinition(helloWorldContext.value, apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
+    val helloAgentsDefinition  = apiDefinition("hello-agents", apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
+    val helloVatDefinition     = apiDefinition("hello-vat", apiVersion(versionOne, ApiStatus.STABLE))
 
     val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }
@@ -65,7 +64,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
       val result = await(underTest.fetch(email))
 
-      result.head.versions.map(_.version) should contain only versionTwo
+      result.head.versions.map(_.versionNbr) should contain only versionTwo
     }
   }
 }

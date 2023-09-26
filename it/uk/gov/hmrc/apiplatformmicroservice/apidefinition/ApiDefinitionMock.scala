@@ -19,15 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategoryDetails
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController.JsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
@@ -97,27 +96,6 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenGetAPICategoryDetails(env: Environment)(categories: ApiCategoryDetails*): Unit = {
-    stubFor(env)(
-      get(urlPathEqualTo(s"/api-categories"))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withJsonBody(categories.toList)
-        )
-    )
-  }
-
-  def whenGetAPICategoryDetailsFails(env: Environment)(statusCode: Int): Unit = {
-    stubFor(env)(
-      get(urlPathEqualTo(s"/api-categories"))
-        .willReturn(
-          aResponse()
-            .withStatus(statusCode)
-        )
-    )
-  }
-
   def mockFetchApiDefinition(env: Environment, anotherApiAuthType: String = "NONE"): Unit = {
     stubFor(env)(
       get(urlEqualTo("/api-definition?type=all"))
@@ -130,17 +108,23 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |      "name": "Hello World",
                          |      "description": "A 'hello world' example of an API on the HMRC API Developer Hub.",
                          |      "context": "hello",
+                         |      "requiresTrust": false,
+                         |      "isTestSupport": false,
+                         |      "categories": [ "OTHER" ],
                          |      "versions": [
                          |          {
                          |              "version": "0.5",
                          |              "status": "RETIRED",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "USER",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -148,13 +132,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "5.0",
                          |              "status": "ALPHA",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []
                          |                  }
                          |              ],
                          |              "endpointsEnabled": false
@@ -162,13 +149,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "3.0",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -176,13 +166,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "2.5rc",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -190,13 +183,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -204,13 +200,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "2.0",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world2",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -218,13 +217,16 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "4.0",
                          |              "status": "DEPRECATED",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world2",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "USER",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -238,17 +240,23 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |      "name": "Hello Another",
                          |      "description": "A 'hello another' example of an API on the HMRC API Developer Hub.",
                          |      "context": "another",
+                         |      "requiresTrust": false,
+                         |      "isTestSupport": false,
+                         |      "categories": ["OTHER"],
                          |      "versions": [
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "$anotherApiAuthType",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -262,17 +270,22 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |      "name": "Hello Trust",
                          |      "description": "A 'hello another' example of an API on the HMRC API Developer Hub.",
                          |      "context": "trusted",
+                         |      "requiresTrust": false,
+                         |      "isTestSupport": false,
                          |      "versions": [
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
+                         |              "access": { "type": "PUBLIC"},
+                         |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
                          |                      "uriPattern": "/world",
                          |                      "endpointName": "Say hello world",
                          |                      "method": "GET",
                          |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED"
+                         |                      "throttlingTier": "UNLIMITED",
+                         |                      "queryParameters": []  
                          |                  }
                          |              ],
                          |              "endpointsEnabled": true
@@ -291,22 +304,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def mockFetchApiCategoryDetails(environment: Environment, categories: Seq[ApiCategoryDetails]): Unit = {
-    val categoriesJsonString: String =
-      categories
-        .map(category => s"""{ "category" : "${category.category}", "name" : "${category.name}" }""")
-        .mkString("[", ",", "]")
-
-    stubFor(environment)(
-      get(urlEqualTo("/api-categories"))
-        .willReturn(
-          aResponse()
-            .withBody(categoriesJsonString)
-        )
-    )
-  }
-
-  def whenFetchApiSpecification(environment: Environment)(serviceName: String, version: ApiVersion, jsValue: JsValue) = {
+  def whenFetchApiSpecification(environment: Environment)(serviceName: String, version: ApiVersionNbr, jsValue: JsValue) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
         .willReturn(
@@ -316,7 +314,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: String, version: ApiVersion) = {
+  def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: String, version: ApiVersionNbr) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
         .willReturn(

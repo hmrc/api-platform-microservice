@@ -18,9 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiCategory
-
 trait BasicCombinedApiJsonFormatters {
-  implicit val apiCategoryFormat: Format[ApiCategory]    = Json.format[ApiCategory]
   implicit val combinedApiFormatter: Format[CombinedApi] = Json.format[CombinedApi]
 }

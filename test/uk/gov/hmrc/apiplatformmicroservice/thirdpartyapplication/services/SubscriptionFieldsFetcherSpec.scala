@@ -20,10 +20,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldName, _}
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.{Environment, ThreeDMap}
+import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionFieldsConnectorModule
 
@@ -35,8 +34,8 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   private val context3 = ApiContext("C3")
   private val context4 = ApiContext("C4")
 
-  private val version1 = ApiVersion("V1")
-  private val version2 = ApiVersion("V2")
+  private val version1 = ApiVersionNbr("V1")
+  private val version2 = ApiVersionNbr("V2")
 
   private val fieldName1 = FieldName("F1")
   private val fieldName2 = FieldName("F2")
@@ -131,7 +130,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   def contexts[Y, Z, V](in: ThreeDMap.Type[ApiContext, Y, Z, V]): Set[ApiContext] =
     in.keys.toSet
 
-  def versions[Z, V](in: ThreeDMap.Type[ApiContext, ApiVersion, Z, V]): Set[(ApiContext, ApiVersion)] = {
+  def versions[Z, V](in: ThreeDMap.Type[ApiContext, ApiVersionNbr, Z, V]): Set[(ApiContext, ApiVersionNbr)] = {
     in.flatMap(tupleXY =>
       tupleXY._2.keys.map(y => (tupleXY._1, y))
     )
@@ -158,19 +157,19 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
 
       val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
 
-      result.keys should contain allOf (context1, context2)
+      result.keys should contain.allOf(context1, context2)
 
-      flattenOut(result) should contain allOf (
+      flattenOut(result) should contain.allOf(
         (context1, version1, fieldName1, fv(1, 1, 1)),
         (context1, version1, fieldName2, fv(1, 1, 2)),
         (context2, version1, fieldName1, fv(2, 1, 1))
       )
 
       // Not subscribed to these contexts
-      contexts(result) should contain noneOf (context3, context4)
+      contexts(result) should contain.noneOf(context3, context4)
 
       // Not subscribed to these versions
-      versions(result) should contain noneOf (
+      versions(result) should contain.noneOf(
         (context1, version2),
         (context2, version2)
       )
@@ -186,10 +185,10 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
 
       // Subscribed to contexts
-      contexts(result) should contain allOf (context1, context2, context3)
+      contexts(result) should contain.allOf(context1, context2, context3)
 
       // Note the blank field for absent field value
-      flattenOut(result) should contain allOf (
+      flattenOut(result) should contain.allOf(
         (context1, version1, fieldName1, fv(1, 1, 1)),
         (context1, version1, fieldName2, fv(1, 1, 2)),
         (context2, version1, fieldName1, fv(2, 1, 1)),
@@ -202,7 +201,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       contexts(result) should not contain (context4)
 
       // Not subscribed to these versions
-      versions(result) should contain noneOf (
+      versions(result) should contain.noneOf(
         (context1, version2),
         (context2, version2)
       )
@@ -219,10 +218,10 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
       contexts(result) should contain(context4)
 
       // Not subscribed to these contexts
-      contexts(result) should contain noneOf (context1, context2, context3)
+      contexts(result) should contain.noneOf(context1, context2, context3)
 
       // Note the blank field for absent field value
-      flattenOut(result) should contain allOf (
+      flattenOut(result) should contain.allOf(
         (context4, version1, fieldName1, FieldValue("")),
         (context4, version1, fieldName2, FieldValue("")),
         (context4, version1, fieldName3, FieldValue(""))

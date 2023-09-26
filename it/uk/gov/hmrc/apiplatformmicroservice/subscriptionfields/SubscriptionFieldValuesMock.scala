@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http._
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
 trait SubscriptionFieldValuesMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def mockBulkFetchFieldValuesAndDefinitions(env: Environment, clientId: ClientId) {
+  def mockBulkFetchFieldValuesAndDefinitions(env: Environment, clientId: ClientId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/definition"))
       .willReturn(
         aResponse()

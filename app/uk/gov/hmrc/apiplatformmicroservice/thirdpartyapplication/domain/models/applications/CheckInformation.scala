@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import java.time.Instant
 
 case class ContactDetails(fullname: String, email: LaxEmailAddress, telephoneNumber: String)
 

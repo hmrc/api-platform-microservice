@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiAccessType._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCombinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
@@ -26,14 +25,14 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 object CombinedApiDataHelper extends FiltersForCombinedApis {
 
   private def determineApiAccessType(api: ApiDefinition): ApiAccessType = {
-    if (allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
+    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.PRIVATE
   }
 
-  private def determineApiAccessType(api: ExtendedApiDefinition): ApiAccessType = {
-    if (allVersionsArePublicAccess(api)) PUBLIC else PRIVATE
+  private def determineApiAccessType(api: ExtendedAPIDefinition): ApiAccessType = {
+    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.PRIVATE
   }
 
   def fromApiDefinition(api: ApiDefinition)                 = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
-  def fromExtendedApiDefinition(api: ExtendedApiDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
-  def fromXmlApi(api: XmlApi)                               = CombinedApi(api.name, api.serviceName, api.categories.getOrElse(List.empty), XML_API, PUBLIC)
+  def fromExtendedApiDefinition(api: ExtendedAPIDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
+  def fromXmlApi(api: XmlApi)                               = CombinedApi(api.name, api.serviceName, api.categories.getOrElse(List.empty), XML_API, ApiAccessType.PUBLIC)
 }

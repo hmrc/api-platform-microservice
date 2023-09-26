@@ -27,9 +27,8 @@ import play.api.test.Helpers.{contentAsJson, status, _}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
@@ -47,7 +46,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     val applicationId = ApplicationId.random
     val context       = ApiContext("hello")
-    val version       = ApiVersion("1.0")
+    val version       = ApiVersionNbr("1.0")
     val apiIdentifier = ApiIdentifier(context, version)
 
     val apiId1 = "context1".asIdentifier()

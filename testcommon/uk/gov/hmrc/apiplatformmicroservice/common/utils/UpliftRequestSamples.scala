@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 
 trait UpliftRequestSamples {

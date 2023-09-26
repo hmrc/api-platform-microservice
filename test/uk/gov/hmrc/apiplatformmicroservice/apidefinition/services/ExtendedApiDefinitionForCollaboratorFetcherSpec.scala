@@ -27,18 +27,16 @@ import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiStatus.{BETA, RETIRED, STABLE}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
-  private val versionOne = ApiVersion("1.0")
-  private val versionTwo = ApiVersion("2.0")
+  private val versionOne = ApiVersionNbr("1.0")
+  private val versionTwo = ApiVersionNbr("2.0")
 
   val doNothingCache = new AsyncCacheApi {
     def set(key: String, value: Any, expiration: Duration = Duration.Inf): Future[Done] = Future.successful(Done)
@@ -57,14 +55,15 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     val applicationId              = ApplicationId.random
     val helloApiDefinition         = apiDefinition("hello-api")
     val requiresTrustApi           = apiDefinition("requires-trust-api").doesRequireTrust
-    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, RETIRED))
+    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
 
-    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, RETIRED), apiVersion(versionTwo, STABLE))
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
+
+    val apiWithPrivateVersion =
+      apiDefinition("api-with-only-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)))
 
     val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = PrivateApiAccess()), apiVersion(versionTwo, access = apiAccess()))
-
-    val apiWithAllowlisting = apiDefinition("api-with-allowlisting", apiVersion(versionOne, access = PrivateApiAccess().withAllowlistedAppIds(applicationId)))
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = apiAccess()))
 
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
       PrincipalApiDefinitionServiceMock.aMock,
@@ -74,11 +73,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       doNothingCache
     )
 
-    val publicApiAvailability  = ApiAvailability(false, PublicApiAccess(), false, true)
-    val privateApiAvailability = ApiAvailability(false, PrivateApiAccess(List(), false), false, false)
+    val publicApiAvailability  = ApiAvailability(false, ApiAccess.PUBLIC, false, true)
+    val privateApiAvailability = ApiAvailability(false, ApiAccess.Private(false), false, false)
 
-    val incomeTaxCategory = ApiCategory("INCOME_TAX")
-    val vatTaxCategory    = ApiCategory("VAT")
+    val incomeTaxCategory = ApiCategory.INCOME_TAX_MTD
+    val vatTaxCategory    = ApiCategory.VAT
   }
 
   "ExtendedApiDefinitionForCollaboratorFetcher" should {
@@ -90,9 +89,9 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
       result.versions.head.sandboxAvailability mustBe None
-      result.categories must not be empty
-      result.categories must contain(incomeTaxCategory)
-      result.categories must contain(vatTaxCategory)
+      result.categories should not be empty
+      result.categories should contain(incomeTaxCategory)
+      result.categories should contain(vatTaxCategory)
     }
 
     "return an extended api with only production availability when api only in principal" in new Setup {
@@ -121,7 +120,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
+      result.versions should have size 1
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
     }
@@ -136,13 +135,13 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     }
 
     "prefer subordinate version when it exists in both environments" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, BETA)))
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, STABLE)))
+      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, ApiStatus.BETA)))
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, ApiStatus.STABLE)))
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
-      result.versions.head.status mustBe STABLE
+      result.versions should have size 1
+      result.versions.head.status mustBe ApiStatus.STABLE
     }
 
     "return none when api doesn't exist in any environments" in new Setup {
@@ -169,8 +168,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions must have size 1
-      result.versions.head.status mustBe STABLE
+      result.versions should have size 1
+      result.versions.head.status mustBe ApiStatus.STABLE
     }
 
     "return none if all verions are retired" in new Setup {
@@ -186,39 +185,17 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPublicAndPrivateVersions)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
-      result.versions.map(_.sandboxAvailability) must contain only (Some(privateApiAvailability), Some(publicApiAvailability))
-      result.versions.map(_.productionAvailability) must contain only None
+      result.value.versions.map(_.sandboxAvailability) should contain.only(Some(privateApiAvailability), Some(publicApiAvailability))
+      result.value.versions.map(_.productionAvailability) should contain only None
     }
 
-    "return true when application ids are matching" in new Setup {
+    "return true when applications ids are subscribed to the api" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(applicationId)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
-
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
-
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
-    }
-
-    "return false when applications ids are not matching" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPrivateVersion)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
-      SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions()
-
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
-
-      result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(false)
-    }
-
-    "return true when applications ids are not matching but it is subscribed to" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithAllowlisting)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
-      val apiId = ApiIdentifier(apiWithAllowlisting.context, apiWithAllowlisting.versions.head.version)
+      val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.head.versionNbr)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))

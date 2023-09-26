@@ -18,17 +18,16 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
-  import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
+  import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
 
   case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
@@ -38,23 +37,23 @@ object SubscriptionFieldsConnectorDomain {
 
   case class SubscriptionFields(
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 
-  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: NEL[FieldDefinition])
+  case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
       clientId: ClientId,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 
   case class ApplicationApiFieldValues(
       clientId: ClientId,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fieldsId: UUID,
       fields: Map[FieldName, FieldValue]
     )
@@ -62,7 +61,7 @@ object SubscriptionFieldsConnectorDomain {
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
     import cats.implicits._
-    type MapType = Map[ApiVersion, Map[FieldName, FieldDefinition]]
+    type MapType = Map[ApiVersionNbr, Map[FieldName, FieldDefinition]]
 
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
@@ -79,7 +78,7 @@ object SubscriptionFieldsConnectorDomain {
   def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): ApiFieldMap[FieldValue] = {
     import cats._
     import cats.implicits._
-    type MapType = Map[ApiVersion, Map[FieldName, FieldValue]]
+    type MapType = Map[ApiVersionNbr, Map[FieldName, FieldValue]]
 
     // Shortcut combining as we know there will never be records for the same version for the same context
     implicit def monoidVersions: Monoid[MapType] =
@@ -95,7 +94,7 @@ object SubscriptionFieldsConnectorDomain {
 
   object JsonFormatters
       extends ApplicationJsonFormatters
-      with ApiDefinitionJsonFormatters
+      with BasicApiDefinitionJsonFormatters
       with FieldsJsonFormatters
       with NonEmptyListFormatters {
 
@@ -108,7 +107,7 @@ object SubscriptionFieldsConnectorDomain {
 
     implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
       (JsPath \ "apiContext").read[ApiContext] and
-        (JsPath \ "apiVersion").read[ApiVersion] and
+        (JsPath \ "apiVersion").read[ApiVersionNbr] and
         (JsPath \ "fields").read[Map[FieldName, FieldValue]]
     )(SubscriptionFields.apply _)
 

@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 /** CDS have a number of API versions that exist, and can be subscribed to, in the sandbox environment.
   *
   * When uplifting a sandbox application to production, we need to map API versions for these contexts to v1.0.
   */
 object CdsVersionHandler {
-  private val apiVersionOne = ApiVersion("1.0")
-  private val apiVersionTwo = ApiVersion("2.0")
+  private val apiVersionOne = ApiVersionNbr("1.0")
+  private val apiVersionTwo = ApiVersionNbr("2.0")
 
   val specialCaseContexts: Set[ApiContext] = Set(
     "customs/declarations",
@@ -36,8 +36,8 @@ object CdsVersionHandler {
   val populateSpecialCases: (Set[ApiIdentifier]) => Set[ApiIdentifier] =
     (in) =>
       in.flatMap(id =>
-        if (specialCaseContexts.contains(id.context) && id.version == apiVersionOne) {
-          Set(id, id.copy(version = apiVersionTwo))
+        if (specialCaseContexts.contains(id.context) && id.versionNbr == apiVersionOne) {
+          Set(id, id.copy(versionNbr = apiVersionTwo))
         } else {
           Set(id)
         }
@@ -46,8 +46,8 @@ object CdsVersionHandler {
   val adjustSpecialCaseVersions: (Set[ApiIdentifier]) => Set[ApiIdentifier] =
     (in) =>
       in.map(id =>
-        if (specialCaseContexts.contains(id.context) && id.version == apiVersionTwo) {
-          id.copy(version = apiVersionOne)
+        if (specialCaseContexts.contains(id.context) && id.versionNbr == apiVersionTwo) {
+          id.copy(versionNbr = apiVersionOne)
         } else {
           id
         }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 
 object SubscriptionsHelper {
@@ -25,8 +25,8 @@ object SubscriptionsHelper {
 
   val ContextA   = ApiContext("A")
   val ContextB   = ApiContext("B")
-  val VersionOne = ApiVersion("1.0")
-  val VersionTwo = ApiVersion("2.0")
+  val VersionOne = ApiVersionNbr("1.0")
+  val VersionTwo = ApiVersionNbr("2.0")
 
   val ApiIdentifierAOne = ApiIdentifier(ContextA, VersionOne)
   val ApiIdentifierATwo = ApiIdentifier(ContextA, VersionTwo)
@@ -36,7 +36,7 @@ object SubscriptionsHelper {
   val FieldNameOne = FieldName("one")
   val FieldNameTwo = FieldName("two")
 
-  implicit class VersionWrapper(v: ApiVersion) {
+  implicit class VersionWrapper(v: ApiVersionNbr) {
     def asInner: InnerVersion = InnerVersion(v)
   }
 

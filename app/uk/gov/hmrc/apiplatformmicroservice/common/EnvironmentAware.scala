@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait EnvironmentAware[C] {
 
   def apply(environment: Environment): C = {
     environment match {
-      case PRODUCTION => principal
-      case _          => subordinate
+      case Environment.PRODUCTION => principal
+      case _                      => subordinate
     }
   }
 

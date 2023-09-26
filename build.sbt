@@ -30,14 +30,12 @@ lazy val root = Project(appName, file("."))
   .settings(ScoverageSettings())
   .configs(IntegrationTest)
   .settings(DefaultBuildSettings.integrationTestSettings())
-  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false
   )
-  .settings(inConfig(Test)(BloopDefaults.configSettings))
   .settings(
     Test / fork := false,
     Test / parallelExecution := false,
@@ -55,3 +53,5 @@ lazy val root = Project(appName, file("."))
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
+
+Global / bloopAggregateSourceDependencies := true

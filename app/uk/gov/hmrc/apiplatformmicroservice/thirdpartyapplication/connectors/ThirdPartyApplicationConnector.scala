@@ -23,9 +23,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
@@ -38,14 +36,13 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] case class ApplicationResponse(id: ApplicationId)
 
   // N.B. This is a small subsection of the model that is normally returned
-  private[connectors] case class InnerVersion(version: ApiVersion)
+  private[connectors] case class InnerVersion(version: ApiVersionNbr)
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
   private[connectors] case class Subscription(context: ApiContext, versions: Seq[SubscriptionVersion])
 
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsApiIdentifier       = Json.reads[ApiIdentifier]
     implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
     implicit val readsInnerVersion        = Json.reads[InnerVersion]
     implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
@@ -95,19 +92,19 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId.value}")
+    http.GET[Option[Application]](s"$serviceBaseUrl/application/${applicationId}")
   }
 
   def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.value}/applications").map(_.map(_.id))
+    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications").map(_.map(_.id))
   }
 
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId.value}/subscriptions")
+    http.GET[Seq[ApiIdentifier]](s"$serviceBaseUrl/developer/${userId}/subscriptions")
   }
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId.value}/subscription")
+    http.GET[Set[ApiIdentifier]](s"$serviceBaseUrl/application/${applicationId}/subscription")
       .recover {
         case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
       }
@@ -136,7 +133,7 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
   override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     super.fetchSubscriptionsById(applicationId)
       .recover {
-        case Upstream5xxResponse(_, _, _, _) => Set.empty // TODO - really mask this ?
+        case UpstreamErrorResponse.Upstream5xxResponse(_) => Set.empty // TODO - really mask this ?
       }
   }
 }

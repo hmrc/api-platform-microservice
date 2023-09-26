@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import java.time.Instant
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 
 case class UnregisteredUserResponse(email: LaxEmailAddress, creationTime: Instant, userId: UserId)
 
 object UnregisteredUserResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
   implicit val unregisteredUserResponseFormat = Json.format[UnregisteredUserResponse]
 }

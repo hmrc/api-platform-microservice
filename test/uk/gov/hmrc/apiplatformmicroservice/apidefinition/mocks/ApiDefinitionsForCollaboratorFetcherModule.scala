@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForCollaboratorFetcher
 
 trait ApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {

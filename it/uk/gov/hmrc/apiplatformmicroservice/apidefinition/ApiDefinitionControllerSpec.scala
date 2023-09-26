@@ -24,13 +24,12 @@ import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.domain.models._
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.utils._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
@@ -52,7 +51,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -70,13 +69,13 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       val context     = result(ApiContext("hello"))
       val versionKeys = context.versions.keys.toList
 
-      versionKeys should contain(ApiVersion("3.0"))
-      versionKeys should contain(ApiVersion("2.5rc"))
-      versionKeys should contain(ApiVersion("2.0"))
-      versionKeys should contain(ApiVersion("1.0"))
+      versionKeys should contain(ApiVersionNbr("3.0"))
+      versionKeys should contain(ApiVersionNbr("2.5rc"))
+      versionKeys should contain(ApiVersionNbr("2.0"))
+      versionKeys should contain(ApiVersionNbr("1.0"))
 
-      versionKeys shouldNot contain(ApiVersion("4.0"))
-      versionKeys shouldNot contain(ApiVersion("5.0"))
+      versionKeys shouldNot contain(ApiVersionNbr("4.0"))
+      versionKeys shouldNot contain(ApiVersionNbr("5.0"))
     }
 
     "stub get request for fetch unrestricted subscribable apis" in {
@@ -90,7 +89,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -108,13 +107,13 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       val context     = result(ApiContext("hello"))
       val versionKeys = context.versions.keys.toList
 
-      versionKeys should contain(ApiVersion("3.0"))
-      versionKeys should contain(ApiVersion("2.5rc"))
-      versionKeys should contain(ApiVersion("2.0"))
-      versionKeys should contain(ApiVersion("1.0"))
+      versionKeys should contain(ApiVersionNbr("3.0"))
+      versionKeys should contain(ApiVersionNbr("2.5rc"))
+      versionKeys should contain(ApiVersionNbr("2.0"))
+      versionKeys should contain(ApiVersionNbr("1.0"))
 
-      withClue("Should return deprecated versions when unrestricted") { versionKeys should contain(ApiVersion("4.0")) }
-      withClue("Should return alpha versions when unrestricted") { versionKeys should contain(ApiVersion("5.0")) }
+      withClue("Should return deprecated versions when unrestricted") { versionKeys should contain(ApiVersionNbr("4.0")) }
+      withClue("Should return alpha versions when unrestricted") { versionKeys should contain(ApiVersionNbr("5.0")) }
     }
 
     "stub get request for fetch open access apis" in {
@@ -125,7 +124,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -152,8 +151,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
-
       response.status shouldBe OK
       val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
@@ -178,7 +175,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       response.status shouldBe OK
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionJsonFormatters._
+      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 
       implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
       implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
@@ -189,7 +186,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       }
 
       result(ApiContext("trusted")).categories.size shouldBe 1
-      result(ApiContext("trusted")).categories(0).value shouldBe "EXAMPLE"
+      result(ApiContext("trusted")).categories(0) shouldBe ApiCategory.EXAMPLE
     }
   }
 }
