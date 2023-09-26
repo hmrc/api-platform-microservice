@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
-import java.{util => ju}
-import scala.util.Try
-
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
