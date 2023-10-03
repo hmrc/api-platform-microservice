@@ -22,6 +22,7 @@ import play.utils.UriEncoding
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with WireMockSugarExtensions {
 
@@ -63,10 +64,10 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
     )
   }
 
-  def whenGetXmlApiByServiceName(name: String, xmlApi: XmlApi): Unit = {
+  def whenGetXmlApiByServiceName(serviceName: ServiceName, xmlApi: XmlApi): Unit = {
     stubForProd(
       get(urlPathEqualTo(s"$getXmlApiUrl"))
-        .withQueryParam("serviceName", equalTo(name))
+        .withQueryParam("serviceName", equalTo(serviceName.value))
         .willReturn(
           aResponse()
             .withStatus(OK)
@@ -75,10 +76,10 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
     )
   }
 
-  def whenGetXmlApiReturnsError(name: String, status: Int): Unit = {
+  def whenGetXmlApiReturnsError(serviceName: ServiceName, status: Int): Unit = {
     stubForProd(
       get(urlPathEqualTo(s"$getXmlApiUrl"))
-        .withQueryParam("serviceName", equalTo(name))
+        .withQueryParam("serviceName", equalTo(serviceName.value))
         .willReturn(
           aResponse()
             .withStatus(status)

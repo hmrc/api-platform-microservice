@@ -47,8 +47,8 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
 
     val extendedApiDefinition1 = extendedApiDefinition("service-name1")
 
-    val xmlApi1 = XmlApi("xmlService1", "xml-service-1", "context", "desc", Some(List(ApiCategory.SELF_ASSESSMENT, ApiCategory.CUSTOMS)))
-    val xmlApi2 = XmlApi("xmlService2", "xml-service-2", "context", "desc", Some(List(ApiCategory.OTHER, ApiCategory.CUSTOMS)))
+    val xmlApi1 = XmlApi("xmlService1", ServiceName("xml-service-1"), "context", "desc", Some(List(ApiCategory.SELF_ASSESSMENT, ApiCategory.CUSTOMS)))
+    val xmlApi2 = XmlApi("xmlService2", ServiceName("xml-service-2"), "context", "desc", Some(List(ApiCategory.OTHER, ApiCategory.CUSTOMS)))
     val xmlApis = List(xmlApi1, xmlApi2)
 
     val combinedList = List(fromApiDefinition(apiDefinition1), fromApiDefinition(apiDefinition2), fromXmlApi(xmlApi1), fromXmlApi(xmlApi2))
@@ -58,7 +58,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         .thenReturn(Future.successful(apisToReturn))
     }
 
-    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: String, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedAPIDefinition]) = {
+    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: ServiceName, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedAPIDefinition]) = {
       when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(*))
         .thenReturn(Future.successful(apiToReturn))
     }
@@ -67,7 +67,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
       when(mockXmlApisConnector.fetchAllXmlApis()(*)).thenReturn(Future.successful(xmlApis))
     }
 
-    def primeXmlConnectorFetchByServiceName(serviceName: String, xmlApis: Option[XmlApi]) = {
+    def primeXmlConnectorFetchByServiceName(serviceName: ServiceName, xmlApis: Option[XmlApi]) = {
       when(mockXmlApisConnector.fetchXmlApiByServiceName(eqTo(serviceName))(*)).thenReturn(Future.successful(xmlApis))
     }
 

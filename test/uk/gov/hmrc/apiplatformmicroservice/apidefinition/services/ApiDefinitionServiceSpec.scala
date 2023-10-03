@@ -34,7 +34,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  private val serviceName = "test-service"
+  private val serviceName = ServiceName("test-service")
   private val versionOne  = ApiVersionNbr("1.0")
   private val resource    = "/mock/resourcename"
 

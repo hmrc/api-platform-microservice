@@ -33,6 +33,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class PrincipalApiDefinitionConnectorSpec
     extends AsyncHmrcSpec
@@ -48,7 +49,7 @@ class PrincipalApiDefinitionConnectorSpec
   val bearer     = "TestBearerToken"
   val apiKeyTest = UUID.randomUUID().toString
 
-  val serviceName = "someService"
+  val serviceName = ServiceName("someService")
   val version     = ApiVersionNbr("1.0")
   val userEmail   = "3rdparty@example.com"
 

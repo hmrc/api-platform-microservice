@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionHttp
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with DefinitionsFromJson {
   private val environmentName = "ENVIRONMENT"
@@ -43,7 +44,7 @@ class SubordinateApiDefinitionConnectorSpec extends AsyncHmrcSpec with Definitio
   private val bearer     = "TestBearerToken"
   private val apiKeyTest = UUID.randomUUID().toString
 
-  private val serviceName = "someService"
+  private val serviceName = ServiceName("someService")
 
   private val apiName1 = "Calendar"
   private val apiName2 = "HelloWorld"

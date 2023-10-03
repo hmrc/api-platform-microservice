@@ -46,14 +46,14 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with BasicApiDe
       })
   }
 
-  def fetchApiDefinition(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
+  def fetchApiDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
     http.GET[Option[ApiDefinition]](definitionUrl(serviceName)) recover recovery
   }
 
   def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
     http.GET[Option[JsObject]](specificationUrl(serviceName, version)) recover recovery
   }

@@ -25,6 +25,6 @@ import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: Submission.Id, submissionInstance: Int)
 
 object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   implicit val format = Json.format[TermsOfUseAcceptance]
 }

@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 import uk.gov.hmrc.http.{HttpClient, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
@@ -31,7 +32,7 @@ class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
     val xmlApi1: XmlApi = XmlApi(
       name = "xml api 1",
-      serviceName = "xml-api-1",
+      serviceName = ServiceName("xml-api-1"),
       context = "xml api context",
       description = "xml api description",
       categories = None
@@ -61,19 +62,19 @@ class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
   "fetchXmlApiByServiceName" should {
     "return an Xml Api" in new Setup {
-      whenGetXmlApiByServiceName(xmlApi1.name, xmlApi1)
+      whenGetXmlApiByServiceName(xmlApi1.serviceName, xmlApi1)
 
-      val result: Option[XmlApi] = await(connector.fetchXmlApiByServiceName(xmlApi1.name))
+      val result: Option[XmlApi] = await(connector.fetchXmlApiByServiceName(xmlApi1.serviceName))
 
       result shouldBe Some(xmlApi1)
     }
 
     "handle exception correctly" in new Setup {
 
-      whenGetXmlApiReturnsError(xmlApi1.name, 500)
+      whenGetXmlApiReturnsError(xmlApi1.serviceName, 500)
 
       intercept[UpstreamErrorResponse] {
-        await(connector.fetchXmlApiByServiceName(xmlApi1.name))
+        await(connector.fetchXmlApiByServiceName(xmlApi1.serviceName))
       }
     }
   }

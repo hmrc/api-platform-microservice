@@ -23,6 +23,7 @@ import org.scalatestplus.play.PlaySpec
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ExtendedAPIDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ExtendedApiDefinitionForCollaboratorFetcher
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -32,30 +33,30 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
     object Fetch {
 
       def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
-        when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
+        when(aMock.fetch(*[ServiceName], *)(*)).thenReturn(Future.successful(Some(extendedApi)))
       }
 
       def willReturnNoExtendedApiDefinition() = {
-        when(aMock.fetch(*, *)(*)).thenReturn(Future.successful(None))
+        when(aMock.fetch(*[ServiceName], *)(*)).thenReturn(Future.successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetch(*, *)(*)).thenReturn(Future.failed(e))
+        when(aMock.fetch(*[ServiceName], *)(*)).thenReturn(Future.failed(e))
       }
     }
 
     object FetchCached {
 
       def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
-        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.successful(Some(extendedApi)))
+        when(aMock.fetchCached(*[ServiceName], *)(*)).thenReturn(Future.successful(Some(extendedApi)))
       }
 
       def willReturnNoExtendedApiDefinition() = {
-        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.successful(None))
+        when(aMock.fetchCached(*[ServiceName], *)(*)).thenReturn(Future.successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchCached(*, *)(*)).thenReturn(Future.failed(e))
+        when(aMock.fetchCached(*[ServiceName], *)(*)).thenReturn(Future.failed(e))
       }
     }
   }

@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
 
@@ -43,7 +44,7 @@ class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
     )
 
     val request               = FakeRequest("GET", "/")
-    val serviceName           = "hello"
+    val serviceName           = ServiceName("hello")
     val version               = ApiVersionNbr("1.0")
     val fakeResponse: JsValue = Json.parse("""{ "x" :1 }""")
   }

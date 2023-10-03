@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, Us
 case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: String, lastName: String, registrationTime: Instant, lastModified: Instant, verified: Boolean)
 
 object UserResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
 
   implicit val format = Json.format[UserResponse]
 }

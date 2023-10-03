@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 @Singleton()
 class ApiSpecificationController @Inject() (
@@ -39,7 +40,7 @@ class ApiSpecificationController @Inject() (
   ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr) = Action.async { implicit request =>
+  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr) = Action.async { implicit request =>
     OptionT(apiSpecificationFetcher.fetch(serviceName, version))
       .map(x => Ok(x))
       .getOrElse(NotFound)

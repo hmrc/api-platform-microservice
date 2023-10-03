@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetche
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.CombinedApi
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 @Singleton
 class CombinedApisService @Inject() (
@@ -50,7 +51,7 @@ class CombinedApisService @Inject() (
     } yield restApis.map(fromApiDefinition).distinct ++ xmlApis.map(fromXmlApi)
   }
 
-  def fetchCombinedApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
+  def fetchCombinedApiByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
     def filterApis(apis: List[CombinedApi]): Option[CombinedApi] = apis.find(_.serviceName == serviceName)
 
     fetchAllCombinedApis().map(filterApis)

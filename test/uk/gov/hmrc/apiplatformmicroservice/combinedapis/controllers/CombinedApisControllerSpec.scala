@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApiJsonFormatters, CombinedApi}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with BasicCombinedApiJsonFormatters {
 
@@ -41,15 +42,15 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
     val objInTest               = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
 
     val combinedApis = List(
-      CombinedApi("restService1", "restService1", List(ApiCategory.VAT), REST_API, ApiAccessType.PUBLIC),
-      CombinedApi("xmlService1", "xmlService1", List(ApiCategory.OTHER), XML_API, ApiAccessType.PUBLIC)
+      CombinedApi("restService1", ServiceName("restService1"), List(ApiCategory.VAT), REST_API, ApiAccessType.PUBLIC),
+      CombinedApi("xmlService1", ServiceName("xmlService1"), List(ApiCategory.OTHER), XML_API, ApiAccessType.PUBLIC)
     )
 
     def primeCombinedApisService(developerId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
     }
 
-    def primeCombinedApiByServiceName(serviceName: String, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
+    def primeCombinedApiByServiceName(serviceName: ServiceName, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
       when(mockCombinedApisService.fetchCombinedApiByServiceName(eqTo(serviceName))(*)).thenReturn(Future.successful(Some(apis)))
     }
   }
@@ -68,7 +69,7 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
 
     "fetchCombinedApiByServiceName" should {
       "return 200 and apis when service returns apis" in new SetUp {
-        val serviceName = "some-service-name"
+        val serviceName = ServiceName("some-service-name")
         primeCombinedApiByServiceName(serviceName, combinedApis.head)
 
         val result: Future[Result] = objInTest.fetchApiByServiceName(serviceName)(FakeRequest())

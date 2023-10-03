@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -32,7 +33,7 @@ class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper 
     val inTest      = new AllApisFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock)
 
     val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
-    val exampleApiDefinition2 = exampleApiDefinition1.copy(serviceName = "hello-api-2")
+    val exampleApiDefinition2 = exampleApiDefinition1.copy(serviceName = ServiceName("hello-api-2"))
   }
 
   "fetch" should {

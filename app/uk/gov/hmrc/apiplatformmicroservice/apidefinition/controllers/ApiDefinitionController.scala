@@ -102,7 +102,7 @@ object ApiDefinitionController {
   }
 
   case class ApiData(
-      serviceName: String,
+      serviceName: ServiceName,
       name: String,
       isTestSupport: Boolean,
       versions: Map[ApiVersionNbr, VersionData],

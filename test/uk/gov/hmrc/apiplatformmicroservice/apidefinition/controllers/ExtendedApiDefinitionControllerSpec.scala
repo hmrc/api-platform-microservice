@@ -33,6 +33,8 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -46,7 +48,8 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
 
     val request                 = FakeRequest("GET", "/")
     val apiName                 = "hello-api"
-    val version                 = "1.0"
+    val serviceName             = ServiceName("hello-api")
+    val version                 = ApiVersionNbr("1.0")
     val anApiDefinition         = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
 
@@ -145,7 +148,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return the extended API definition when email provided" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(serviceName, userId)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(anExtendedApiDefinition)
@@ -154,7 +157,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return the extended API definition when no email provided" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnExtendedApiDefinition(anExtendedApiDefinition)
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, None)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(serviceName, None)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(anExtendedApiDefinition)
@@ -163,7 +166,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return 404 when there is no matching API definition" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willReturnNoExtendedApiDefinition()
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(serviceName, userId)(request)
 
       status(result) mustBe NOT_FOUND
     }
@@ -171,7 +174,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     "return error when the service throws and exception" in new Setup {
       ExtendedApiDefinitionForCollaboratorFetcherMock.Fetch.willThrowException(new RuntimeException("Something went wrong oops..."))
 
-      val result = controller.fetchExtendedApiDefinitionForCollaborator(apiName, userId)(request)
+      val result = controller.fetchExtendedApiDefinitionForCollaborator(serviceName, userId)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe Json.obj("code" -> "UNKNOWN_ERROR", "message" -> "An unexpected error occurred")
@@ -183,7 +186,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
+        controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)
 
       status(result) shouldEqual OK
     }
@@ -196,7 +199,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       when(mockWSResponse.contentType).thenReturn("application/magic")
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
+        controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)
 
       contentType(result) shouldEqual Some("application/magic")
     }
@@ -208,7 +211,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
         .thenReturn(Some("application/zip"))
 
       val result: Future[Result] =
-        controller.fetchApiDocumentationResource(apiName, version, "some/resource")(request)
+        controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)
 
       contentType(result) shouldEqual Some("application/zip")
     }
@@ -219,7 +222,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       intercept[NotFoundException] {
         await(
           controller.fetchApiDocumentationResource(
-            apiName,
+            serviceName,
             version,
             "some/resourceNotThere"
           )(request)
@@ -233,7 +236,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       intercept[InternalServerException] {
         await(
           controller.fetchApiDocumentationResource(
-            apiName,
+            serviceName,
             version,
             "some/resourceInvalid"
           )(request)

@@ -31,7 +31,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   }
 
   def newDefinition(versions: List[ApiVersion]) = {
-    ApiDefinition("test1ServiceName", "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), versions, requiresTrust = false, isTestSupport = false, None, List.empty)
+    ApiDefinition(ServiceName("test1ServiceName"), "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), versions, requiresTrust = false, isTestSupport = false, None, List.empty)
   }
 
   val allPublicVersions: List[ApiVersion] =
@@ -59,11 +59,11 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
 
     "filterOutRetiredApis" should {
       "not filter out api with only one version retired" in {
-        val testData     = List(api1AllPublic, api1mixedAccess, api1AllPublic.copy(serviceName = "newName"))
+        val testData     = List(api1AllPublic, api1mixedAccess, api1AllPublic.copy(serviceName = ServiceName("newName")))
         val filteredList = CombinedApiDataHelper.filterOutRetiredApis(testData)
         filteredList should contain.only(
           api1AllPublic,
-          api1AllPublic.copy(serviceName = "newName"),
+          api1AllPublic.copy(serviceName = ServiceName("newName")),
           api1mixedAccess.copy(versions = List(versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.PUBLIC), versionDefinition("1.0", ApiStatus.STABLE, ApiAccess.Private(false))))
         )
       }
@@ -76,9 +76,9 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             versionDefinition("3.0", ApiStatus.RETIRED, ApiAccess.Private(false))
           )
         )
-        val testData                   = List(api1AllPublic, api1AllPublic.copy(serviceName = "newName"), apiWithOnlyRetiredVersions)
+        val testData                   = List(api1AllPublic, api1AllPublic.copy(serviceName = ServiceName("newName")), apiWithOnlyRetiredVersions)
         val filteredList               = CombinedApiDataHelper.filterOutRetiredApis(testData)
-        filteredList should contain.only(api1AllPublic, api1AllPublic.copy(serviceName = "newName"))
+        filteredList should contain.only(api1AllPublic, api1AllPublic.copy(serviceName =ServiceName("newName")))
       }
     }
 

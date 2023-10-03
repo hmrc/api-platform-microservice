@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 @Singleton()
 class ExtendedApiDefinitionController @Inject() (
@@ -56,17 +57,17 @@ class ExtendedApiDefinitionController @Inject() (
     } recover recovery
   }
 
-  def fetchExtendedApiDefinitionForCollaborator(serviceName: String, developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
+  def fetchExtendedApiDefinitionForCollaborator(serviceName: ServiceName, developerId: Option[UserId]): Action[AnyContent] = Action.async { implicit request =>
     extendedApiDefinitionForCollaboratorFetcher.fetch(serviceName, developerId) map {
       case Some(extendedDefinition) => Ok(Json.toJson(extendedDefinition))
       case _                        => NotFound
     } recover recovery
   }
 
-  def fetchApiDocumentationResource(serviceName: String, version: String, resource: String): Action[AnyContent] = Action.async { implicit request =>
+  def fetchApiDocumentationResource(serviceName: ServiceName, versionNbr: ApiVersionNbr, resource: String): Action[AnyContent] = Action.async { implicit request =>
     import cats.implicits._
 
-    val resourceId = ResourceId(serviceName, ApiVersionNbr(version), resource)
+    val resourceId = ResourceId(serviceName, versionNbr, resource)
     OptionT(apiDocumentationResourceFetcher.fetch(resourceId))
       .getOrElseF(failedDueToNotFoundException(resourceId))
       .map(handler(resourceId))
