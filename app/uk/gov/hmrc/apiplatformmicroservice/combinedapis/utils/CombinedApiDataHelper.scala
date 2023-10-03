@@ -33,6 +33,6 @@ object CombinedApiDataHelper extends FiltersForCombinedApis {
   }
 
   def fromApiDefinition(api: ApiDefinition)                 = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
-  def fromExtendedApiDefinition(api: ExtendedAPIDefinition) = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))
+  def fromExtendedApiDefinition(api: ExtendedAPIDefinition) = CombinedApi(api.name, ServiceName(api.serviceName), api.categories, REST_API, determineApiAccessType(api))
   def fromXmlApi(api: XmlApi)                               = CombinedApi(api.name, api.serviceName, api.categories.getOrElse(List.empty), XML_API, ApiAccessType.PUBLIC)
 }

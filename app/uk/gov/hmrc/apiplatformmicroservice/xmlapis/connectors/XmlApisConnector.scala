@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 @Singleton
 class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConnector.Config)(implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters
@@ -38,7 +39,7 @@ class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConn
     httpClient.GET[Seq[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/apis") recover recovery
   }
 
-  def fetchXmlApiByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
+  def fetchXmlApiByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $serviceName")
     httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api", queryParams = Seq("serviceName" -> s"$serviceName")) recover recovery
   }

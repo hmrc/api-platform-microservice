@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
@@ -34,7 +35,7 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
 
     implicit val headerCarrier = HeaderCarrier()
     implicit val mat           = NoMaterializer
-    val serviceName            = apiName
+    val serviceName            = ServiceName(apiName)
 
     val fetcher = new ApiSpecificationFetcher(environmentAwareApiDefinitionService, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }

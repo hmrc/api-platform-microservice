@@ -27,11 +27,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 trait ApiDefinitionMock extends WireMockSugarExtensions {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def whenGetDefinition(env: Environment)(serviceName: String, apiDefinition: ApiDefinition) = {
+  def whenGetDefinition(env: Environment)(serviceName: ServiceName, apiDefinition: ApiDefinition) = {
     stubFor(env)(
       get(urlEqualTo(s"/api-definition/$serviceName"))
         .willReturn(
@@ -42,7 +43,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenGetDefinitionFindsNothing(env: Environment)(serviceName: String) = {
+  def whenGetDefinitionFindsNothing(env: Environment)(serviceName: ServiceName) = {
     stubFor(env)(
       get(urlEqualTo(s"/api-definition/$serviceName"))
         .willReturn(
@@ -52,7 +53,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenGetDefinitionFails(env: Environment)(serviceName: String, statusCode: Int) = {
+  def whenGetDefinitionFails(env: Environment)(serviceName: ServiceName, statusCode: Int) = {
     stubFor(env)(
       get(urlEqualTo(s"/api-definition/$serviceName"))
         .willReturn(
@@ -304,7 +305,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenFetchApiSpecification(environment: Environment)(serviceName: String, version: ApiVersionNbr, jsValue: JsValue) = {
+  def whenFetchApiSpecification(environment: Environment)(serviceName: ServiceName, version: ApiVersionNbr, jsValue: JsValue) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
         .willReturn(
@@ -314,7 +315,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: String, version: ApiVersionNbr) = {
+  def whenFetchApiSpecificationFindsNothing(environment: Environment)(serviceName: ServiceName, version: ApiVersionNbr) = {
     stubFor(environment)(
       get(urlEqualTo(s"/api-definition/$serviceName/${version.value}/specification"))
         .willReturn(

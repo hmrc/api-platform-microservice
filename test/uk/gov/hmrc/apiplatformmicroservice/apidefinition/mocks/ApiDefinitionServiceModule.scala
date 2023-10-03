@@ -85,26 +85,26 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     object FetchDefinition {
 
       def willReturn(apiDefinition: ApiDefinition) = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(successful(Some(apiDefinition)))
+        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(successful(Some(apiDefinition)))
       }
 
       def willReturnNone() = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(successful(None))
+        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchDefinition(*)(*, *)).thenReturn(failed(e))
+        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(failed(e))
       }
     }
 
     object FetchApiSpecification {
 
       def willReturn(response: JsValue) = {
-        when(aMock.fetchApiSpecification(*, *[ApiVersionNbr])(*, *)).thenReturn(successful(Some(response)))
+        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(*, *)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNone = {
-        when(aMock.fetchApiSpecification(*, *[ApiVersionNbr])(*, *)).thenReturn(successful(None))
+        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(*, *)).thenReturn(successful(None))
       }
     }
   }

@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.http.ws.WSGet
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnectorUtils
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 trait ApiDefinitionHttpMockingHelper
     extends MockitoSugar
@@ -34,7 +35,7 @@ trait ApiDefinitionHttpMockingHelper
 
   val apiDefinitionUrl: String
 
-  private def whenGetDefinition(serviceName: String, response: Future[Option[ApiDefinition]]) = {
+  private def whenGetDefinition(serviceName: ServiceName, response: Future[Option[ApiDefinition]]) = {
     val url = definitionUrl(serviceName)
     when(
       mockThisClient.GET[Option[ApiDefinition]](
@@ -45,15 +46,15 @@ trait ApiDefinitionHttpMockingHelper
     ).thenReturn(response)
   }
 
-  def whenGetDefinition(serviceName: String)(definition: ApiDefinition): Unit = {
+  def whenGetDefinition(serviceName: ServiceName)(definition: ApiDefinition): Unit = {
     whenGetDefinition(serviceName, Future.successful(Some(definition)))
   }
 
-  def whenGetDefinitionFindsNothing(serviceName: String) = {
+  def whenGetDefinitionFindsNothing(serviceName: ServiceName) = {
     whenGetDefinition(serviceName, Future.successful(None))
   }
 
-  def whenGetDefinitionFails(serviceName: String)(exception: Throwable): Unit = {
+  def whenGetDefinitionFails(serviceName: ServiceName)(exception: Throwable): Unit = {
     whenGetDefinition(serviceName, Future.failed(exception))
   }
 

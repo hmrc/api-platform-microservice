@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 trait PushPullNotificationJsonFormatters extends ApplicationJsonFormatters {
   import play.api.libs.json._
 
-  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
 
   implicit val formatBoxId: Format[BoxId]                 = Json.valueFormat[BoxId]
   implicit val formatBoxCreator: Format[BoxCreator]       = Json.format[BoxCreator]

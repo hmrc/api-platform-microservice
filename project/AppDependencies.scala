@@ -11,8 +11,8 @@ object AppDependencies {
     "com.beachape"            %% "enumeratum-play-json"              % "1.6.2",
     "org.julienrf"            %% "play-json-derived-codecs"          % "7.0.0",
     "uk.gov.hmrc"             %% "json-encryption"                   % "5.1.0-play-28",
-    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.4.0",
-    "uk.gov.hmrc"             %% "api-platform-application-commands" % "0.27.0"
+    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.5.0",
+    "uk.gov.hmrc"             %% "api-platform-application-commands" % "0.28.0"
   )
 
   lazy val testDependencies = Seq(

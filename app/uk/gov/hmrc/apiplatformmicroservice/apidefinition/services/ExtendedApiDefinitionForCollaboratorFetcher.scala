@@ -41,7 +41,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
   val cacheExpiry: FiniteDuration = 5 seconds
 
-  def fetch(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetch(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
     val NO_APPS: Future[Set[ApplicationId]] = successful(Set())
     val NO_APIS: Future[Set[ApiIdentifier]] = successful(Set())
 
@@ -53,7 +53,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, applicationIds, subscriptions, developerId)
   }
 
-  def fetchCached(serviceName: String, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetchCached(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
     val key = s"${serviceName}---${developerId.map(_.toString()).getOrElse("NONE")}"
 
     cache.getOrElseUpdate(key, cacheExpiry) {
@@ -82,7 +82,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
           None
         } else {
           Some(ExtendedAPIDefinition(
-            apiDefinition.serviceName,
+            apiDefinition.serviceName.value,
             apiDefinition.serviceBaseUrl,
             apiDefinition.name,
             apiDefinition.description,

@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.BasicCombinedApiJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 @Singleton
 class CombinedApisController @Inject() (combinedApisService: CombinedApisService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends BackendController(cc)
@@ -40,10 +41,9 @@ class CombinedApisController @Inject() (combinedApisService: CombinedApisService
   def fetchAllApis(): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchAllCombinedApis()
       .map(x => Ok(Json.toJson(x))) recover recovery
-
   }
 
-  def fetchApiByServiceName(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
+  def fetchApiByServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
     combinedApisService.fetchCombinedApiByServiceName(serviceName)
       .map(x => Ok(Json.toJson(x))) recover recovery
   }

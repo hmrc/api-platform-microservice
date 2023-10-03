@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 class CombinedApisControllerISpec
     extends WireMockSpec
@@ -49,7 +50,7 @@ class CombinedApisControllerISpec
 
     val xmlApi1: XmlApi = XmlApi(
       name = "xml api 1",
-      serviceName = "xml-api-1",
+      serviceName = ServiceName("xml-api-1"),
       context = "xml api context",
       description = "xml api description",
       categories = Some(List(ApiCategory.VAT))

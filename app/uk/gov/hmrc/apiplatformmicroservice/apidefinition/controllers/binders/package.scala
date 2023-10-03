@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
@@ -32,6 +33,17 @@ package object binders {
 
     override def unbind(key: String, env: Environment): String = {
       env.toString.toLowerCase
+    }
+  }
+
+  implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
+
+    override def bind(key: String, value: String): Either[String, ServiceName] = {
+      textBinder.bind(key, value).map(ServiceName(_))
+    }
+
+    override def unbind(key: String, serviceName: ServiceName): String = {
+      serviceName.value
     }
   }
 

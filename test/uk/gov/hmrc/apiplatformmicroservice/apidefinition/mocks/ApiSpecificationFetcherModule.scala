@@ -25,6 +25,7 @@ import play.api.libs.json.JsValue
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -34,11 +35,11 @@ trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with Argu
     object Fetch {
 
       def willReturn(response: JsValue): Unit = {
-        when(aMock.fetch(*, *[ApiVersionNbr])(*)).thenReturn(successful(Some(response)))
+        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(*)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNotFound(): Unit = {
-        when(aMock.fetch(*, *[ApiVersionNbr])(*)).thenReturn(successful(None))
+        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(*)).thenReturn(successful(None))
       }
     }
   }

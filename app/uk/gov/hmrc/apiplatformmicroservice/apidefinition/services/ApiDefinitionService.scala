@@ -31,12 +31,13 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitio
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{OpenAccessRules, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
-  def fetchDefinition(serviceName: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApiDefinition]] = {
+  def fetchDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApiDefinition]] = {
     lazy val failFn = (e: Throwable) => s"fetchDefinition($serviceName) failed $e"
 
     if (enabled) {
@@ -93,7 +94,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
     }
   }
 
-  def fetchApiSpecification(serviceName: String, version: ApiVersionNbr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
 
     if (enabled) {
