@@ -21,14 +21,15 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 @Singleton()
 class ApiCategoriesController @Inject() (
-                                          cc: ControllerComponents
-                                        ) extends BackendController(cc) {
+    cc: ControllerComponents
+  ) extends BackendController(cc) {
 
-  def fetchAllAPICategories(): Action[AnyContent] = Action { 
+  def fetchAllAPICategories(): Action[AnyContent] = Action {
     Ok(JsArray(ApiCategory.values.toSeq.map[JsValue](c => Json.obj("category" -> JsString(c.toString), "name" -> JsString(c.displayText)))))
   }
 }

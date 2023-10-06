@@ -31,7 +31,18 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   }
 
   def newDefinition(versions: List[ApiVersion]) = {
-    ApiDefinition(ServiceName("test1ServiceName"), "someUrl", "test1Name", "test1Desc", ApiContext("som/context/here"), versions, requiresTrust = false, isTestSupport = false, None, List.empty)
+    ApiDefinition(
+      ServiceName("test1ServiceName"),
+      "someUrl",
+      "test1Name",
+      "test1Desc",
+      ApiContext("som/context/here"),
+      versions,
+      requiresTrust = false,
+      isTestSupport = false,
+      None,
+      List.empty
+    )
   }
 
   val allPublicVersions: List[ApiVersion] =
@@ -78,7 +89,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
         )
         val testData                   = List(api1AllPublic, api1AllPublic.copy(serviceName = ServiceName("newName")), apiWithOnlyRetiredVersions)
         val filteredList               = CombinedApiDataHelper.filterOutRetiredApis(testData)
-        filteredList should contain.only(api1AllPublic, api1AllPublic.copy(serviceName =ServiceName("newName")))
+        filteredList should contain.only(api1AllPublic, api1AllPublic.copy(serviceName = ServiceName("newName")))
       }
     }
 

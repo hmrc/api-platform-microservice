@@ -25,13 +25,12 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{OpenAccessRules, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 
 abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
   def connector: ApiDefinitionConnector
