@@ -21,7 +21,6 @@ import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.ApiDefinitionController._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
@@ -49,11 +48,8 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-      implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
-
       response.status shouldBe OK
-      val result: Map[ApiContext, ApiData] = Json.parse(response.body).validate[Map[ApiContext, ApiData]] match {
+      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }

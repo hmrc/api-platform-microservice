@@ -23,11 +23,11 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
   protected val appId = ApplicationId.random
 
-  protected val api                 = apiDefinition("test")
-  protected val apiId               = ApiIdentifier(api.context, apiVersion().versionNbr)
-  protected val publicApi           = apiDefinition("test", apiVersion().asStable.asPublic)
-  protected val privateApi          = apiDefinition("test", apiVersion().asStable.asPrivate)
-  protected val privateTrialApi     = privateApi.asTrial
+  protected val api             = apiDefinition("test")
+  protected val apiId           = ApiIdentifier(api.context, apiVersion().versionNbr)
+  protected val publicApi       = apiDefinition("test", apiVersion().asStable.asPublic)
+  protected val privateApi      = apiDefinition("test", apiVersion().asStable.asPrivate)
+  protected val privateTrialApi = privateApi.asTrial
 
   protected val allPublicApis = List(
     publicApi.asAlpha,

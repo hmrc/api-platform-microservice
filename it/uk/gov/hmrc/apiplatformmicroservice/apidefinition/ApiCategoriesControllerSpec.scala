@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._

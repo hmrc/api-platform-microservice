@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import javax.inject.{Inject, Singleton}
-import scala.collection.immutable.ListMap
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json._
@@ -47,13 +46,10 @@ class ApiDefinitionController @Inject() (
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
 
-  import ApiDefinitionController.JsonFormatters._
-  import ApiDefinitionController._
-
   private def fetchApiDefinitions(fetch: => Future[List[ApiDefinition]]): Future[Result] = {
     for {
       defs     <- fetch
-      converted = convert(defs)
+      converted = ApiData.from(defs)
     } yield Ok(Json.toJson(converted))
   }
 
@@ -84,44 +80,5 @@ class ApiDefinitionController @Inject() (
     for {
       apis <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield Ok(Json.toJson(apis))
-  }
-}
-
-object ApiDefinitionController {
-
-  import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
-
-  def convert(in: Seq[ApiDefinition]): Map[ApiContext, ApiData] = {
-    in.map(d => d.context -> ApiData.fromDefinition(d)).toMap
-  }
-
-  case class VersionData(status: ApiStatus, access: ApiAccess)
-
-  object VersionData {
-    def fromDefinition(in: ApiVersion): VersionData = VersionData(in.status, in.access)
-  }
-
-  case class ApiData(
-      serviceName: ServiceName,
-      name: String,
-      isTestSupport: Boolean,
-      versions: Map[ApiVersionNbr, VersionData],
-      categories: List[ApiCategory]
-    )
-
-  object ApiData {
-
-    implicit val ordering: Ordering[(ApiVersionNbr, VersionData)] = Ordering.by(_._1)
-
-    def fromDefinition(in: ApiDefinition): ApiData = {
-      val versionData = ListMap[ApiVersionNbr, VersionData](in.versions.map(v => v.versionNbr -> VersionData.fromDefinition(v)).sorted: _*)
-      ApiData(in.serviceName, in.name, in.isTestSupport, versionData, in.categories)
-    }
-  }
-
-  object JsonFormatters extends BasicApiDefinitionJsonFormatters {
-    import play.api.libs.json._
-    implicit val writesVersionData: OWrites[VersionData] = Json.writes[VersionData]
-    implicit val writesApiData: OWrites[ApiData]         = Json.writes[ApiData]
   }
 }

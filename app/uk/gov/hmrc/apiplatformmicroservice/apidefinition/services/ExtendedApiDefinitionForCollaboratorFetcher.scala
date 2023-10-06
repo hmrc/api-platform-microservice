@@ -174,7 +174,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       case ApiAccess.Private(isTrial) =>
         val authorised = subscriptions.contains(ApiIdentifier(context, version.versionNbr))
         Some(ApiAvailability(version.endpointsEnabled, ApiAccess.Private(isTrial), userId.isDefined, authorised))
-      case _                                     => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
+      case _                          => Some(ApiAvailability(version.endpointsEnabled, ApiAccess.PUBLIC, userId.isDefined, authorised = true))
     }
   }
 }
