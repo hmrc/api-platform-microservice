@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
+import uk.gov.hmrc.internalauth.client._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
@@ -41,7 +41,8 @@ class ApiDefinitionController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents,
-    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher
+    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
+    auth: BackendAuthComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
@@ -68,9 +69,10 @@ class ApiDefinitionController @Inject() (
       }
     }
 
-  def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    fetchApiDefinitions(apisFetcher.fetchAllForEnvironment(environment))
-  }
+  def fetchAllApis(environment: Environment): Action[AnyContent] =
+    auth.authorizedAction(predicate = Predicate.Permission(Resource.from("api-platform-microservice", "api-definitions/all"), IAAction("READ"))).async {
+      implicit request: AuthenticatedRequest[AnyContent, Unit] => fetchApiDefinitions(apisFetcher.fetchAllForEnvironment(environment))
+    }
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
