@@ -21,7 +21,7 @@ import javax.inject.{Inject, Provider, Singleton}
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.{DisabledMetrics, Metrics, MetricsImpl}
 
-trait ApiMetrics {
+sealed trait ApiMetrics {
   def recordFailure(api: API): Unit
   def recordSuccess(api: API): Unit
   def startTimer(api: API): Timer
@@ -31,7 +31,7 @@ trait Timer {
   def stop(): Unit
 }
 
-trait BaseApiMetrics extends ApiMetrics {
+sealed trait BaseApiMetrics extends ApiMetrics {
   val metrics: Metrics
 
   val metricsRegistry: MetricRegistry = metrics.defaultRegistry

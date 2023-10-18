@@ -47,7 +47,7 @@ class SubscriptionService @Inject() (
       (apis -- allowedApiIdentifiers) isEmpty
     }
 
-    apiDefinitionsForApplicationFetcher.fetch(application, Set.empty, false)
+    apiDefinitionsForApplicationFetcher.fetch(application.deployedTo, Set.empty, false)
       .flatMap(possibleSubscriptions => {
 
         if (canSubscribeToAll(possibleSubscriptions)) {

@@ -23,7 +23,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 @Singleton
 class ApiDefinitionsForApplicationFetcher @Inject() (
@@ -31,25 +30,23 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetch(application: Application, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(environment: Environment, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     if (restricted) {
-      fetchRestricted(application, subscriptions)
+      fetchRestricted(environment, subscriptions)
     } else {
-      fetchUnrestricted(application)
+      fetchUnrestricted(environment)
     }
   }
 
-  def fetchRestricted(application: Application, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val environment = application.deployedTo
+  def fetchRestricted(environment: Environment, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
-    } yield filterApisForDevHubSubscriptions(Set(application.id), subscriptions)(defs)
+    } yield filterApisForDevHubSubscriptions(subscriptions)(defs)
   }
 
-  def fetchUnrestricted(application: Application)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val environment = application.deployedTo
+  def fetchUnrestricted(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
-    } yield filterApisForGateKeeperSubscriptions(Set(application.id))(defs)
+    } yield filterApisForGateKeeperSubscriptions(defs)
   }
 }

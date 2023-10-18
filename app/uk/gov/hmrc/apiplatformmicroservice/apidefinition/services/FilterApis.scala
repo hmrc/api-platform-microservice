@@ -67,7 +67,7 @@ trait FilterApis {
 
 trait FilterApiDocumentation extends FilterApis {
 
-  def filterApisForDocumentation(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
+  def filterApisForDocumentation(subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
     filterApis(
       Some(_)
         .filterNot(isRetired)
@@ -81,7 +81,7 @@ trait FilterApiDocumentation extends FilterApis {
 trait FilterDevHubSubscriptions extends FilterApis {
   // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
 
-  def filterApisForDevHubSubscriptions(applicationIds: Set[ApplicationId], subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
+  def filterApisForDevHubSubscriptions(subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
     filterApis(
       Some(_)
         .filterNot(isRetired)
@@ -95,7 +95,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
 
 trait FilterGateKeeperSubscriptions extends FilterApis {
 
-  def filterApisForGateKeeperSubscriptions(applicationIds: Set[ApplicationId])(apis: List[ApiDefinition]): List[ApiDefinition] = {
+  def filterApisForGateKeeperSubscriptions(apis: List[ApiDefinition]): List[ApiDefinition] = {
     filterApis(
       Some(_)
         .filterNot(isRetired)
