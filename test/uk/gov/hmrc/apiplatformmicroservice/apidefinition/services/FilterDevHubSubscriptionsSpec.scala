@@ -26,11 +26,11 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
   "FilterDevHubSubscriptions" when {
 
     def testFilterSubs(subscription: ApiIdentifier)(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
-      filter.filterApisForDevHubSubscriptions(Set(appId), Set(subscription))(apiDefinitions.toList)
+      filter.filterApisForDevHubSubscriptions(Set(subscription))(apiDefinitions.toList)
     }
 
     def testFilter(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
-      filter.filterApisForDevHubSubscriptions(Set(appId), Set.empty)(apiDefinitions.toList)
+      filter.filterApisForDevHubSubscriptions(Set.empty)(apiDefinitions.toList)
     }
 
     "filtering public api" should {

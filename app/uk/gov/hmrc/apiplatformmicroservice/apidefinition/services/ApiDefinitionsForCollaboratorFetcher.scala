@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
@@ -41,12 +41,11 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 
     for {
-      principalDefinitions       <- principalDefinitionsFuture
-      subordinateDefinitions     <- subordinateDefinitionsFuture
-      combinedDefinitions         = combineDefinitions(principalDefinitions, subordinateDefinitions)
-      collaboratorApplicationIds <- developerId.fold(successful(Set.empty[ApplicationId]))(appIdsFetcher.fetch)
-      collaboratorSubscriptions  <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
-    } yield filterApisForDocumentation(collaboratorApplicationIds, collaboratorSubscriptions)(combinedDefinitions)
+      principalDefinitions      <- principalDefinitionsFuture
+      subordinateDefinitions    <- subordinateDefinitionsFuture
+      combinedDefinitions        = combineDefinitions(principalDefinitions, subordinateDefinitions)
+      collaboratorSubscriptions <- developerId.fold(successful(Set.empty[ApiIdentifier]))(subscriptionsForCollaborator.fetch)
+    } yield filterApisForDocumentation(collaboratorSubscriptions)(combinedDefinitions)
   }
 
   private def combineDefinitions(principalDefinitions: List[ApiDefinition], subordinateDefinitions: List[ApiDefinition]): List[ApiDefinition] = {

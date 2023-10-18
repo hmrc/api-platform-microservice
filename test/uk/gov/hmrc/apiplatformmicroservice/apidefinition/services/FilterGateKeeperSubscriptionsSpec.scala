@@ -24,7 +24,7 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
 
   "filterApisForGateKeeperSubscription" when {
     def testFilter(apiDefinitions: ApiDefinition*): List[ApiDefinition] = {
-      filter.filterApisForGateKeeperSubscriptions(Set(appId))(apiDefinitions.toList)
+      filter.filterApisForGateKeeperSubscriptions(apiDefinitions.toList)
     }
 
     "filtering public api" should {
