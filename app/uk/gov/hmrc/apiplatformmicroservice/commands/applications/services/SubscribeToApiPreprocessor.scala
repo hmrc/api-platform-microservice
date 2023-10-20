@@ -47,10 +47,10 @@ class SubscribeToApiPreprocessor @Inject() (
   }
 
   private def excludePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
-    in.map(d => d.copy(versions = d.versions.filter(isPublic))).filterNot(_.versions.isEmpty)
+    in.map(d => d.copy(versions = d.versions.filter { case (_, v) => isPublic(v) })).filterNot(_.versions.isEmpty)
 
   private def canSubscribe(allowedSubscriptions: Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
-    val allVersions: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.versionNbr)))
+    val allVersions: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))
 
     allVersions.contains(newSubscriptionApiIdentifier)
   }

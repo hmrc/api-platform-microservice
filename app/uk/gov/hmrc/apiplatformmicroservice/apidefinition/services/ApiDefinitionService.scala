@@ -28,11 +28,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{OpenAccessRules, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}
 import uk.gov.hmrc.apiplatformmicroservice.metrics.RecordMetrics
 
-abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with OpenAccessRules {
+abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
@@ -67,14 +67,14 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics with O
   def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open     = allApis.filterNot(a => isOpenAccess(a))
+      open     = allApis.filterNot(_.isOpenAccess)
     } yield open
   }
 
   def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
-      open     = allApis.filter(a => isOpenAccess(a))
+      open     = allApis.filter(_.isOpenAccess)
     } yield open
   }
 

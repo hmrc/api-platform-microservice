@@ -26,11 +26,11 @@ import uk.gov.hmrc.play.http.ws.WSGet
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{BasicApiDefinitionJsonFormatters, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils with BasicApiDefinitionJsonFormatters
+trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
     with ApplicationLogger with ConnectorRecovery {
 
   def http: HttpClient with WSGet

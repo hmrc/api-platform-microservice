@@ -19,9 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.service
 import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters
 
-trait ApplicationJsonFormatters extends BasicApiDefinitionJsonFormatters with EnvReads with EnvWrites {
+trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
   import uk.gov.hmrc.play.json.Union
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequestOld

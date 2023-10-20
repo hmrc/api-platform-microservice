@@ -26,7 +26,7 @@ import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
 @Singleton
@@ -68,8 +68,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     def toCombinedApiDefinition(
         apiDefinition: ApiDefinition,
-        principalVersions: List[ApiVersion],
-        subordinateVersions: List[ApiVersion]
+        principalVersions: Map[ApiVersionNbr, ApiVersion],
+        subordinateVersions: Map[ApiVersionNbr, ApiVersion]
       ): Option[ExtendedAPIDefinition] = {
       if (apiDefinition.requiresTrust) {
         None
@@ -96,28 +96,30 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     (maybePrincipalDefinition, maybeSubordinateDefinition) match {
       case (Some(principalDefinition), None)                        =>
-        toCombinedApiDefinition(principalDefinition, principalDefinition.versions, List.empty)
+        toCombinedApiDefinition(principalDefinition, principalDefinition.versions, Map.empty)
       case (None, Some(subordinateDefinition))                      =>
-        toCombinedApiDefinition(subordinateDefinition, List.empty, subordinateDefinition.versions)
+        toCombinedApiDefinition(subordinateDefinition, Map.empty, subordinateDefinition.versions)
       case (Some(principalDefinition), Some(subordinateDefinition)) =>
         toCombinedApiDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
-      case _                                                        => None
+      case _                                                        =>
+        None
     }
   }
 
   private def createExtendedApiVersions(
       context: ApiContext,
-      principalVersions: List[ApiVersion],
-      subordinateVersions: List[ApiVersion],
+      principalVersions: Map[ApiVersionNbr, ApiVersion],
+      subordinateVersions: Map[ApiVersionNbr, ApiVersion],
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
     ): List[ExtendedAPIVersion] = {
-    val allVersions = (principalVersions.map(_.versionNbr) ++ subordinateVersions.map(_.versionNbr)).distinct.sorted
-    allVersions map { versionNbr =>
-      combineVersion(context, principalVersions.find(_.versionNbr == versionNbr), subordinateVersions.find(_.versionNbr == versionNbr), subscriptions, userId)
-    } filter { version =>
-      version.status != ApiStatus.RETIRED
-    }
+    val allVersions = principalVersions.keySet ++ subordinateVersions.keySet
+    allVersions.map(versionNbr =>
+      combineVersion(context, principalVersions.get(versionNbr), subordinateVersions.get(versionNbr), subscriptions, userId)
+    )
+      .filter(version => version.status != ApiStatus.RETIRED)
+      .toList
+      .sortBy(_.version)
   }
 
   private def combineVersion(
