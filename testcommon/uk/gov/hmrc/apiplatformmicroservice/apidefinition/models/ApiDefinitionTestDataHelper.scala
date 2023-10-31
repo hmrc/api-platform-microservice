@@ -21,8 +21,19 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApiDefinitionTestDataHelper {
 
-  def extendedApiDefinition(name: String, versions: List[ExtendedAPIVersion] = List(extendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))) = {
-    ExtendedAPIDefinition(name, name, name, name, ApiContext(name), false, false, versions, List.empty, None)
+  def extendedApiDefinition(name: String, versions: List[ExtendedApiVersion] = List(extendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))) = {
+    ExtendedApiDefinition(
+      serviceName = ServiceName(name),
+      serviceBaseUrl = name,
+      name = name,
+      description = name,
+      context = ApiContext(name),
+      versions = versions,
+      requiresTrust = false,
+      isTestSupport = false,
+      lastPublishedAt = None,
+      categories = List.empty
+    )
   }
 
   def extendedApiVersion(
@@ -30,8 +41,8 @@ trait ApiDefinitionTestDataHelper {
       status: ApiStatus = ApiStatus.STABLE,
       productionAvailability: Option[ApiAvailability] = None,
       sandboxAvailability: Option[ApiAvailability] = None
-    ): ExtendedAPIVersion = {
-    ExtendedAPIVersion(version, status, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
+    ): ExtendedApiVersion = {
+    ExtendedApiVersion(version, status, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
   }
 
   def apiDefinition(name: String): ApiDefinition = apiDefinition(name, apiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))

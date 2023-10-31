@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedAPIDefinition, ServiceName}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ExtendedApiDefinitionForCollaboratorFetcher
 
 trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
@@ -31,7 +31,7 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
 
     object Fetch {
 
-      def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
+      def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
         when(aMock.fetch(*[ServiceName], *)(*)).thenReturn(Future.successful(Some(extendedApi)))
       }
 
@@ -46,7 +46,7 @@ trait ExtendedApiDefinitionForCollaboratorFetcherModule extends PlaySpec with Mo
 
     object FetchCached {
 
-      def willReturnExtendedApiDefinition(extendedApi: ExtendedAPIDefinition) = {
+      def willReturnExtendedApiDefinition(extendedApi: ExtendedApiDefinition) = {
         when(aMock.fetchCached(*[ServiceName], *)(*)).thenReturn(Future.successful(Some(extendedApi)))
       }
 

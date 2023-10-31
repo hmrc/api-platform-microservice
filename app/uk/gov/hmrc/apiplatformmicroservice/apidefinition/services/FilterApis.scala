@@ -104,7 +104,7 @@ trait FilterGateKeeperSubscriptions extends FilterApis {
 
 trait FiltersForCombinedApis extends FilterApis {
 
-  private def isOnlyPublicAccess(v: ExtendedAPIVersion): Boolean = {
+  private def isOnlyPublicAccess(v: ExtendedApiVersion): Boolean = {
     (v.productionAvailability, v.sandboxAvailability) match {
       case (Some(prod: ApiAvailability), Some(sand: ApiAvailability)) =>
         prod.access.isPublic && sand.access.isPublic
@@ -117,6 +117,6 @@ trait FiltersForCombinedApis extends FilterApis {
   }
 
   def allVersionsArePublicAccess(a: ApiDefinition): Boolean         = a.versions.forall(kv => isPublicAccess(kv._2))
-  def allVersionsArePublicAccess(a: ExtendedAPIDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
+  def allVersionsArePublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
 
 }
