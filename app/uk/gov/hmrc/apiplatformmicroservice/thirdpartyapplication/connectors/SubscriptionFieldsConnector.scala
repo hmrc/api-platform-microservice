@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import java.net.URLEncoder.encode
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -85,16 +84,14 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
     }
   }
 
-  private def urlEncode(str: String): String = encode(str, "UTF-8")
-
   private lazy val urlBulkSubscriptionFieldDefinitions =
     s"$serviceBaseUrl/definition"
 
   private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}"
+    s"$serviceBaseUrl/field/application/$clientId"
 
   private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/${urlEncode(clientId.value)}/context/${urlEncode(apiIdentifier.context.value)}/version/${urlEncode(apiIdentifier.versionNbr.value)}"
+    s"$serviceBaseUrl/field/application/$clientId/context/${apiIdentifier.context.value}/version/${apiIdentifier.versionNbr.value}"
 }
 
 object SubordinateSubscriptionFieldsConnector {

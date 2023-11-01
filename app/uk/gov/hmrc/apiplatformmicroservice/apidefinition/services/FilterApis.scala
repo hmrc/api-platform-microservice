@@ -20,59 +20,57 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait FilterApis {
-  type ApiFilterFn = ((ApiContext, ApiVersion)) => Boolean
+
+  type ApiFilterFn = (ApiContext) => ApiVersions.ApiVersionFilterFn
 
   def filterApis(filterFn: ApiFilterFn)(apis: List[ApiDefinition]): List[ApiDefinition] = {
 
-    def filteredVersions(filterFn: ApiFilterFn)(apiContext: ApiContext, versions: List[ApiVersion]): List[ApiVersion] = {
-      versions
-        .map(v => ((apiContext, v)))
-        .filter(filterFn)
-        .map(_._2)
-    }
-
     apis
       .filterNot(_.requiresTrust)
-      .map(api => api.copy(versions = filteredVersions(filterFn)(api.context, api.versions)))
-      .filterNot(_.versions.isEmpty)
+      .flatMap(api =>
+        api.filterVersions(filterFn(api.context))
+      )
   }
 
-  protected val isRetired: ApiFilterFn = t => t._2.status == ApiStatus.RETIRED
+  protected val isRetired: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.RETIRED
 
-  protected val isDeprecated: ApiFilterFn = t => t._2.status == ApiStatus.DEPRECATED
+  protected val isDeprecated: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.DEPRECATED
 
-  protected val isAlpha: ApiFilterFn = t => t._2.status == ApiStatus.ALPHA
+  protected val isAlpha: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.ALPHA
 
-  protected val isPrivateTrial: ApiFilterFn = t =>
-    t._2.access match {
+  protected val isPrivateTrial: ApiVersions.ApiVersionFilterFn = apiVersion =>
+    apiVersion.access match {
       case ApiAccess.Private(true) => true
       case _                       => false
     }
 
-  protected val isPublicAccess: ApiFilterFn = t => isPublicAccess(t._2.access)
+  protected val isPublicAccess: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access.isPublic
 
-  protected def isPublicAccess(access: ApiAccess) = {
-    access match {
-      case ApiAccess.PUBLIC => true
-      case _                => false
-    }
+  protected def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = (apiContext) =>
+    (apiVersion) =>
+      subscriptions.contains(ApiIdentifier(apiContext, apiVersion.versionNbr))
+
+  protected def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = (apiContext) =>
+    (apiVersion) =>
+      !isSubscribed(subscriptions)(apiContext)(apiVersion)
+
+  def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
+    definition.filterVersions((v) => v.status != ApiStatus.RETIRED)
   }
 
-  protected def isSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    subscriptions.contains(ApiIdentifier(t._1, t._2.versionNbr))
+  def filterSubscriptions(apiContext: ApiContext, subscriptions: Set[ApiIdentifier]): ApiVersions.ApiVersionFilterFn = (v) =>
+    subscriptions.contains(ApiIdentifier(apiContext, v.versionNbr))
 
-  protected def isNotSubscribed(subscriptions: Set[ApiIdentifier]): ApiFilterFn = t =>
-    !isSubscribed(subscriptions)(t)
 }
 
 trait FilterApiDocumentation extends FilterApis {
 
   def filterApisForDocumentation(subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
-    filterApis(
+    filterApis(apiContext =>
       Some(_)
         .filterNot(isRetired)
-        .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
-        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t) || isPrivateTrial(t))
+        .filterNot(v => isDeprecated(v) && isNotSubscribed(subscriptions)(apiContext)(v))
+        .filter(v => isSubscribed(subscriptions)(apiContext)(v) || isPublicAccess(v) || isPrivateTrial(v))
         .isDefined
     )(apis)
   }
@@ -82,12 +80,12 @@ trait FilterDevHubSubscriptions extends FilterApis {
   // Not allowing production apps post approval can't be subscribed in DevHub - handled by DevHub
 
   def filterApisForDevHubSubscriptions(subscriptions: Set[ApiIdentifier])(apis: List[ApiDefinition]): List[ApiDefinition] = {
-    filterApis(
+    filterApis(apiContext =>
       Some(_)
         .filterNot(isRetired)
         .filterNot(isAlpha)
-        .filterNot(t => isDeprecated(t) && isNotSubscribed(subscriptions)(t))
-        .filter(t => isSubscribed(subscriptions)(t) || isPublicAccess(t))
+        .filterNot(v => isDeprecated(v) && isNotSubscribed(subscriptions)(apiContext)(v))
+        .filter(v => isSubscribed(subscriptions)(apiContext)(v) || isPublicAccess(v))
         .isDefined
     )(apis)
   }
@@ -96,7 +94,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
 trait FilterGateKeeperSubscriptions extends FilterApis {
 
   def filterApisForGateKeeperSubscriptions(apis: List[ApiDefinition]): List[ApiDefinition] = {
-    filterApis(
+    filterApis(apiContext =>
       Some(_)
         .filterNot(isRetired)
         .isDefined
@@ -106,23 +104,19 @@ trait FilterGateKeeperSubscriptions extends FilterApis {
 
 trait FiltersForCombinedApis extends FilterApis {
 
-  private def isOnlyPublicAccess(v: ExtendedAPIVersion): Boolean = {
+  private def isOnlyPublicAccess(v: ExtendedApiVersion): Boolean = {
     (v.productionAvailability, v.sandboxAvailability) match {
       case (Some(prod: ApiAvailability), Some(sand: ApiAvailability)) =>
-        isPublicAccess(prod.access) && isPublicAccess(sand.access)
+        prod.access.isPublic && sand.access.isPublic
       case _                                                          => false
     }
   }
 
   def filterOutRetiredApis(definitions: List[ApiDefinition]): List[ApiDefinition] = {
-    def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-      val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
-      if (filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
-    }
     definitions.flatMap(filterOutRetiredVersions)
   }
 
-  def allVersionsArePublicAccess(a: ApiDefinition): Boolean         = a.versions.forall(v => isPublicAccess((a.context, v)))
-  def allVersionsArePublicAccess(a: ExtendedAPIDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
+  def allVersionsArePublicAccess(a: ApiDefinition): Boolean         = a.versions.forall(kv => isPublicAccess(kv._2))
+  def allVersionsArePublicAccess(a: ExtendedApiDefinition): Boolean = a.versions.forall(v => isOnlyPublicAccess(v))
 
 }

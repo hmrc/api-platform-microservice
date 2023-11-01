@@ -58,7 +58,7 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
         .thenReturn(Future.successful(apisToReturn))
     }
 
-    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: ServiceName, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedAPIDefinition]) = {
+    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: ServiceName, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedApiDefinition]) = {
       when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(*))
         .thenReturn(Future.successful(apiToReturn))
     }

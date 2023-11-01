@@ -72,7 +72,7 @@ class SubscriptionFieldsConnectorSpec
       implicit val writes = Json.writes[BulkSubscriptionFieldsResponse]
 
       stubFor(
-        get(urlEqualTo(s"/field/application/${clientId.value}"))
+        get(urlEqualTo(s"/field/application/${clientId}"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -88,7 +88,7 @@ class SubscriptionFieldsConnectorSpec
         val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
+          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()
@@ -106,7 +106,7 @@ class SubscriptionFieldsConnectorSpec
         val error                                 = "This is wrong"
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId.value}/context/${ContextA.value}/version/${VersionOne.value}"))
+          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()

@@ -31,7 +31,7 @@ trait ApplicationMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
   def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId): Unit = {
-    stubFor(env)(get(urlEqualTo(s"/application/${applicationId.value}"))
+    stubFor(env)(get(urlEqualTo(s"/application/$applicationId"))
       .willReturn(
         aResponse()
           .withStatus(NOT_FOUND)
@@ -39,13 +39,13 @@ trait ApplicationMock {
   }
 
   def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId): Unit = {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/$userId/applications"))
       .willReturn(aResponse()
         .withStatus(NOT_FOUND)))
   }
 
   def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId): Unit = {
-    stubFor(deployedTo)(get(urlEqualTo(s"/developer/${userId.value}/applications"))
+    stubFor(deployedTo)(get(urlEqualTo(s"/developer/$userId/applications"))
       .willReturn(
         aResponse()
           .withBody(s"""[{
@@ -57,7 +57,7 @@ trait ApplicationMock {
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
-                       |          "userId": "${UserId.random.value}",
+                       |          "userId": "${UserId.random}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }
@@ -93,19 +93,19 @@ trait ApplicationMock {
   }
 
   def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random): Unit = {
-    stubFor(deployedTo)(get(urlEqualTo(s"/application/${applicationId.value}"))
+    stubFor(deployedTo)(get(urlEqualTo(s"/application/$applicationId"))
       .willReturn(
         aResponse()
           .withBody(s"""{
-                       |  "id": "${applicationId.value}",
-                       |  "clientId": "${clientId.value}",
+                       |  "id": "$applicationId",
+                       |  "clientId": "$clientId",
                        |  "gatewayId": "w7dwd9GFZX",
                        |  "name": "giu",
                        |  "deployedTo": "$deployedTo",
                        |  "description": "Some test data",
                        |  "collaborators": [
                        |      {
-                       |          "userId": "${UserId.random.value}",
+                       |          "userId": "${UserId.random}",
                        |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
                        |          "role": "ADMINISTRATOR"
                        |      }
@@ -141,7 +141,7 @@ trait ApplicationMock {
   }
 
   def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId): Unit = {
-    stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
+    stubFor(env)(get(urlEqualTo(s"/developer/$userId/subscriptions"))
       .willReturn(
         aResponse()
           .withStatus(NOT_FOUND)
@@ -149,7 +149,7 @@ trait ApplicationMock {
   }
 
   def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId): Unit = {
-    stubFor(env)(get(urlEqualTo(s"/developer/${userId.value}/subscriptions"))
+    stubFor(env)(get(urlEqualTo(s"/developer/$userId/subscriptions"))
       .willReturn(
         aResponse()
           .withBody("""
@@ -170,7 +170,7 @@ trait ApplicationMock {
   }
 
   def mockFetchApplicationSubscriptions(env: Environment, applicationId: ApplicationId): Unit = {
-    stubFor(env)(get(urlEqualTo(s"/application/${applicationId.value}/subscription"))
+    stubFor(env)(get(urlEqualTo(s"/application/$applicationId/subscription"))
       .willReturn(
         aResponse()
           .withBody("""

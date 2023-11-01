@@ -23,13 +23,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 @Singleton
 class ApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
   )(implicit ec: ExecutionContext
-  ) extends OpenAccessRules {
+  ) {
 
   def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apiDefinitionService(environment).fetchAllApiDefinitions

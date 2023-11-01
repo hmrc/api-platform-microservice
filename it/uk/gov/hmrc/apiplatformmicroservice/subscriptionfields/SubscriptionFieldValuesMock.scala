@@ -147,13 +147,13 @@ trait SubscriptionFieldValuesMock {
           .withStatus(OK)
       ))
 
-    stubFor(env)(get(urlEqualTo(s"/field/application/${clientId.value}"))
+    stubFor(env)(get(urlEqualTo(s"/field/application/${clientId}"))
       .willReturn(
         aResponse()
           .withBody(s"""{
                        |  "subscriptions": [
                        |      {
-                       |          "clientId": "${clientId.value}",
+                       |          "clientId": "${clientId}",
                        |          "apiContext": "hello",
                        |          "apiVersion": "1.0",
                        |          "fieldsId": "d7b7c67f-0edb-4811-8e1f-69eb3518ced6",
@@ -164,7 +164,7 @@ trait SubscriptionFieldValuesMock {
                        |          }
                        |      },
                        |      {
-                       |          "clientId": "${clientId.value}",
+                       |          "clientId": "${clientId}",
                        |          "apiContext": "customs/declarations",
                        |          "apiVersion": "1.0",
                        |          "fieldsId": "dcdd563d-44e8-4c0c-a841-df4b882edbc9",

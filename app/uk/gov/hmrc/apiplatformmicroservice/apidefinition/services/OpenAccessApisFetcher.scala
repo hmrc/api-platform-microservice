@@ -23,18 +23,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 
 @Singleton
 class OpenAccessApisFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
   )(implicit ec: ExecutionContext
-  ) extends OpenAccessRules {
-
-  private def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-    val filteredVersions = definition.versions.filterNot(_.status == ApiStatus.RETIRED)
-    if (filteredVersions.isEmpty) None else Some(definition.copy(versions = filteredVersions))
-  }
+  ) extends FilterApis {
 
   def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     import cats.data.Nested

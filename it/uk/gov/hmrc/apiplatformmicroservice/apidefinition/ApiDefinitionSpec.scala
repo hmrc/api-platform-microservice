@@ -25,7 +25,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
 import uk.gov.hmrc.apiplatformmicroservice.utils._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
@@ -38,7 +37,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       val applicationId = ApplicationId.random
       val clientId      = ClientId.random
 
-      mockFetchApplication(Environment.PRODUCTION, applicationId)
+      mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
       mockBulkFetchFieldValuesAndDefinitions(Environment.PRODUCTION, clientId)
       mockFetchApiDefinition(Environment.PRODUCTION)
@@ -49,17 +48,17 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
         .get())
 
       response.status shouldBe OK
-      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
+      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
-      withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No Requires Trust allowed: ") { result.exists(_.requiresTrust) shouldBe false }
 
-      val context     = result(ApiContext("hello"))
-      val versionKeys = context.versions.keys.toList
+      val defn        = result.find(_.context == ApiContext("hello")).value
+      val versionKeys = defn.versions.keys
 
       versionKeys should contain(ApiVersionNbr("3.0"))
       versionKeys should contain(ApiVersionNbr("2.5rc"))

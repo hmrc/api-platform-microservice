@@ -195,7 +195,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPrivateVersion)
       ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
-      val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.head.versionNbr)
+      val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.keySet.head)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 
       val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))

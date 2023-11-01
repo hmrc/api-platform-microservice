@@ -46,30 +46,29 @@ class ApiDefinitionController @Inject() (
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
 
-  private def fetchApiDefinitions(fetch: => Future[List[ApiDefinition]]): Future[Result] = {
+  private def toJson(fetch: => Future[List[ApiDefinition]]): Future[Result] = {
     for {
-      defs     <- fetch
-      converted = ApiData.from(defs)
-    } yield Ok(Json.toJson(converted))
+      defs <- fetch
+    } yield Ok(Json.toJson(defs))
   }
 
   def fetchAllOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    fetchApiDefinitions(openAccessApisFetcher.fetchAllForEnvironment(environment))
+    toJson(openAccessApisFetcher.fetchAllForEnvironment(environment))
   }
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if (restricted.getOrElse(true)) {
       applicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
-        fetchApiDefinitions(applicationBasedApiFetcher.fetchRestricted(request.application.deployedTo, request.subscriptions))
+        toJson(applicationBasedApiFetcher.fetchRestricted(request.application.deployedTo, request.subscriptions))
       }
     } else {
       applicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
-        fetchApiDefinitions(applicationBasedApiFetcher.fetchUnrestricted(request.application.deployedTo))
+        toJson(applicationBasedApiFetcher.fetchUnrestricted(request.application.deployedTo))
       }
     }
 
   def fetchAllApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    fetchApiDefinitions(apisFetcher.fetchAllForEnvironment(environment))
+    toJson(apisFetcher.fetchAllForEnvironment(environment))
   }
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>

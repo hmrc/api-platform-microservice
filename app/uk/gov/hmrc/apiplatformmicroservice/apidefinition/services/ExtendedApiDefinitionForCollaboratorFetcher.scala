@@ -26,7 +26,7 @@ import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
 
 @Singleton
@@ -41,7 +41,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
   val cacheExpiry: FiniteDuration = 5 seconds
 
-  def fetch(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetch(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     val NO_APIS: Future[Set[ApiIdentifier]] = successful(Set())
 
     for {
@@ -51,7 +51,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     } yield createExtendedApiDefinition(principalDefinition, subordinateDefinition, subscriptions, developerId)
   }
 
-  def fetchCached(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedAPIDefinition]] = {
+  def fetchCached(serviceName: ServiceName, developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[Option[ExtendedApiDefinition]] = {
     val key = s"${serviceName}---${developerId.map(_.toString()).getOrElse("NONE")}"
 
     cache.getOrElseUpdate(key, cacheExpiry) {
@@ -64,13 +64,13 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateDefinition: Option[ApiDefinition],
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
-    ): Option[ExtendedAPIDefinition] = {
+    ): Option[ExtendedApiDefinition] = {
 
     def toCombinedApiDefinition(
         apiDefinition: ApiDefinition,
-        principalVersions: List[ApiVersion],
-        subordinateVersions: List[ApiVersion]
-      ): Option[ExtendedAPIDefinition] = {
+        principalVersions: Map[ApiVersionNbr, ApiVersion],
+        subordinateVersions: Map[ApiVersionNbr, ApiVersion]
+      ): Option[ExtendedApiDefinition] = {
       if (apiDefinition.requiresTrust) {
         None
       } else {
@@ -78,17 +78,17 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
         if (extendedVersions.isEmpty) {
           None
         } else {
-          Some(ExtendedAPIDefinition(
-            apiDefinition.serviceName.value,
+          Some(ExtendedApiDefinition(
+            apiDefinition.serviceName,
             apiDefinition.serviceBaseUrl,
             apiDefinition.name,
             apiDefinition.description,
             apiDefinition.context,
+            extendedVersions,
             apiDefinition.requiresTrust,
             apiDefinition.isTestSupport,
-            extendedVersions,
-            apiDefinition.categories,
-            apiDefinition.lastPublishedAt
+            apiDefinition.lastPublishedAt,
+            apiDefinition.categories
           ))
         }
       }
@@ -96,28 +96,30 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
 
     (maybePrincipalDefinition, maybeSubordinateDefinition) match {
       case (Some(principalDefinition), None)                        =>
-        toCombinedApiDefinition(principalDefinition, principalDefinition.versions, List.empty)
+        toCombinedApiDefinition(principalDefinition, principalDefinition.versions, Map.empty)
       case (None, Some(subordinateDefinition))                      =>
-        toCombinedApiDefinition(subordinateDefinition, List.empty, subordinateDefinition.versions)
+        toCombinedApiDefinition(subordinateDefinition, Map.empty, subordinateDefinition.versions)
       case (Some(principalDefinition), Some(subordinateDefinition)) =>
         toCombinedApiDefinition(subordinateDefinition, principalDefinition.versions, subordinateDefinition.versions)
-      case _                                                        => None
+      case _                                                        =>
+        None
     }
   }
 
   private def createExtendedApiVersions(
       context: ApiContext,
-      principalVersions: List[ApiVersion],
-      subordinateVersions: List[ApiVersion],
+      principalVersions: Map[ApiVersionNbr, ApiVersion],
+      subordinateVersions: Map[ApiVersionNbr, ApiVersion],
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
-    ): List[ExtendedAPIVersion] = {
-    val allVersions = (principalVersions.map(_.versionNbr) ++ subordinateVersions.map(_.versionNbr)).distinct.sorted
-    allVersions map { versionNbr =>
-      combineVersion(context, principalVersions.find(_.versionNbr == versionNbr), subordinateVersions.find(_.versionNbr == versionNbr), subscriptions, userId)
-    } filter { version =>
-      version.status != ApiStatus.RETIRED
-    }
+    ): List[ExtendedApiVersion] = {
+    val allVersions = principalVersions.keySet ++ subordinateVersions.keySet
+    allVersions.map(versionNbr =>
+      combineVersion(context, principalVersions.get(versionNbr), subordinateVersions.get(versionNbr), subscriptions, userId)
+    )
+      .filter(version => version.status != ApiStatus.RETIRED)
+      .toList
+      .sortBy(_.version)
   }
 
   private def combineVersion(
@@ -126,7 +128,7 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       maybeSubordinateVersion: Option[ApiVersion],
       subscriptions: Set[ApiIdentifier],
       userId: Option[UserId]
-    ): ExtendedAPIVersion = {
+    ): ExtendedApiVersion = {
 
     (maybePrincipalVersion, maybeSubordinateVersion) match {
       case (Some(principalVersion), None)                     =>
@@ -148,8 +150,8 @@ class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
       apiVersion: ApiVersion,
       productionAvailability: Option[ApiAvailability],
       sandboxAvailability: Option[ApiAvailability]
-    ): ExtendedAPIVersion = {
-    ExtendedAPIVersion(
+    ): ExtendedApiVersion = {
+    ExtendedApiVersion(
       version = apiVersion.versionNbr,
       status = apiVersion.status,
       endpoints = apiVersion.endpoints,

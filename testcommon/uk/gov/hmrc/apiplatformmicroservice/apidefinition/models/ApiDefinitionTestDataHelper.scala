@@ -21,8 +21,19 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApiDefinitionTestDataHelper {
 
-  def extendedApiDefinition(name: String, versions: List[ExtendedAPIVersion] = List(extendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))) = {
-    ExtendedAPIDefinition(name, name, name, name, ApiContext(name), false, false, versions, List.empty, None)
+  def extendedApiDefinition(name: String, versions: List[ExtendedApiVersion] = List(extendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))) = {
+    ExtendedApiDefinition(
+      serviceName = ServiceName(name),
+      serviceBaseUrl = name,
+      name = name,
+      description = name,
+      context = ApiContext(name),
+      versions = versions,
+      requiresTrust = false,
+      isTestSupport = false,
+      lastPublishedAt = None,
+      categories = List.empty
+    )
   }
 
   def extendedApiVersion(
@@ -30,8 +41,8 @@ trait ApiDefinitionTestDataHelper {
       status: ApiStatus = ApiStatus.STABLE,
       productionAvailability: Option[ApiAvailability] = None,
       sandboxAvailability: Option[ApiAvailability] = None
-    ): ExtendedAPIVersion = {
-    ExtendedAPIVersion(version, status, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
+    ): ExtendedApiVersion = {
+    ExtendedApiVersion(version, status, List(endpoint("Today's Date", "/today"), endpoint("Yesterday's Date", "/yesterday")), productionAvailability, sandboxAvailability)
   }
 
   def apiDefinition(name: String): ApiDefinition = apiDefinition(name, apiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE))
@@ -40,7 +51,18 @@ trait ApiDefinitionTestDataHelper {
       name: String,
       versions: ApiVersion*
     ) = {
-    ApiDefinition(ServiceName(name), s"Urlof$name", name, name, ApiContext(name), versions.toList, false, false, None, List.empty)
+    ApiDefinition(
+      ServiceName(name),
+      s"Urlof$name",
+      name,
+      name,
+      ApiContext(name),
+      versions.toList.groupBy(_.versionNbr).map { case (k, v) => (k -> v.head) },
+      false,
+      false,
+      None,
+      List.empty
+    )
   }
 
   def apiAccess() = {
@@ -54,9 +76,9 @@ trait ApiDefinitionTestDataHelper {
     def requiresTrust(is: Boolean): ApiDefinition =
       inner.copy(requiresTrust = is)
 
-    def withClosedAccess: ApiDefinition = inner.copy(versions = inner.versions.map(_.withClosedAccess))
+    def withClosedAccess: ApiDefinition = inner.copy(versions = inner.versions.map { case (k, v) => k -> v.withClosedAccess })
 
-    def asPrivate: ApiDefinition = inner.copy(versions = inner.versions.map(_.asPrivate))
+    def asPrivate: ApiDefinition = inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asPrivate })
 
     def doesRequireTrust: ApiDefinition    = requiresTrust(true)
     def doesNotRequireTrust: ApiDefinition = requiresTrust(false)
@@ -64,28 +86,28 @@ trait ApiDefinitionTestDataHelper {
 
     def withName(name: String): ApiDefinition = inner.copy(name = name)
 
-    def withVersions(versions: ApiVersion*): ApiDefinition = inner.copy(versions = versions.toList)
+    def withVersions(versions: ApiVersion*): ApiDefinition = inner.copy(versions = versions.groupBy(_.versionNbr).map { case (k, vs) => k -> vs.head })
 
     def withCategories(categories: List[ApiCategory]): ApiDefinition = inner.copy(categories = categories)
 
     def asTrial: ApiDefinition = {
-      inner.copy(versions = inner.versions.map(_.asTrial))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asTrial })
     }
 
     def asAlpha: ApiDefinition =
-      inner.copy(versions = inner.versions.map(_.asAlpha))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asAlpha })
 
     def asBeta: ApiDefinition =
-      inner.copy(versions = inner.versions.map(_.asBeta))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asBeta })
 
     def asStable: ApiDefinition =
-      inner.copy(versions = inner.versions.map(_.asStable))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asStable })
 
     def asDeprecated: ApiDefinition =
-      inner.copy(versions = inner.versions.map(_.asDeprecated))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asDeprecated })
 
     def asRetired: ApiDefinition =
-      inner.copy(versions = inner.versions.map(_.asRetired))
+      inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asRetired })
 
   }
 

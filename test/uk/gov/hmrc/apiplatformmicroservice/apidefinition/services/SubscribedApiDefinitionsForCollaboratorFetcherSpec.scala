@@ -64,7 +64,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
 
       val result = await(underTest.fetch(email))
 
-      result.head.versions.map(_.versionNbr) should contain only versionTwo
+      result.head.versions.keySet should contain only versionTwo
     }
   }
 }

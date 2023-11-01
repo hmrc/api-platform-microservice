@@ -69,7 +69,6 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
     when(mockWSResponse.contentType).thenReturn("application/json")
   }
-
   "fetchApiDefinitionsForCollaborator" should {
     val userId = Some(UserId.random)
 
@@ -228,7 +227,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
         )
       }
     }
-
+//
     "throw InternalServerException for any other response" in new Setup {
       ApiDocumentationResourceFetcherMock.willThrowException(new InternalServerException("Unexpected Error"))
 

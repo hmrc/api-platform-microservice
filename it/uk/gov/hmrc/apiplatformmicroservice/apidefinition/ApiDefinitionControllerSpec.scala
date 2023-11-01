@@ -40,7 +40,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       val applicationId = ApplicationId.random
       val clientId      = ClientId(ju.UUID.randomUUID.toString)
 
-      mockFetchApplication(Environment.PRODUCTION, applicationId)
+      mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
       mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
       mockBulkFetchFieldValuesAndDefinitions(Environment.PRODUCTION, clientId)
       mockFetchApiDefinition(Environment.PRODUCTION)
@@ -50,20 +50,18 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.BasicApiDefinitionJsonFormatters._
-
       response.status shouldBe OK
-      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
+      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
-      withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No Requires Trust allowed: ") { result.exists(_.requiresTrust) shouldBe false }
 
-      val context     = result(ApiContext("hello"))
-      val versionKeys = context.versions.keys.toList
+      val defn        = result.find(_.context == ApiContext("hello")).value
+      val versionKeys = defn.versions.keys.toList
 
       versionKeys should contain(ApiVersionNbr("3.0"))
       versionKeys should contain(ApiVersionNbr("2.5rc"))
@@ -86,17 +84,17 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .get())
 
       response.status shouldBe OK
-      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
+      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.values.flatMap(d => d.versions.values.map(v => v.status)).exists(s => s == ApiStatus.RETIRED) shouldBe false }
-      withClue("No Requires Trust allowed: ") { result.keys.exists(_ == ApiContext("trusted")) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No Requires Trust allowed: ") { result.exists(_.requiresTrust) shouldBe false }
 
-      val context     = result(ApiContext("hello"))
-      val versionKeys = context.versions.keys.toList
+      val defn        = result.find(_.context == ApiContext("hello")).value
+      val versionKeys = defn.versions.keys
 
       versionKeys should contain(ApiVersionNbr("3.0"))
       versionKeys should contain(ApiVersionNbr("2.5rc"))
@@ -116,14 +114,14 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
         .get())
 
       response.status shouldBe OK
-      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
+      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
       result should not be empty
 
-      val keys = result.keys
+      val keys = result.map(_.context)
       keys should contain(ApiContext("another"))
       keys should contain(ApiContext("trusted"))
       keys shouldNot contain(ApiContext("hello"))
@@ -161,13 +159,13 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       response.status shouldBe OK
 
-      val result: ApiData.ApiDefinitionMap = Json.parse(response.body).validate[ApiData.ApiDefinitionMap] match {
+      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
         case JsSuccess(v, _) => v
         case e: JsError      => fail(s"Bad response $e")
       }
 
-      result(ApiContext("trusted")).categories.size shouldBe 1
-      result(ApiContext("trusted")).categories(0) shouldBe ApiCategory.EXAMPLE
+      result.find(_.context == ApiContext("trusted")).value.categories.size shouldBe 1
+      result.find(_.context == ApiContext("trusted")).value.categories(0) shouldBe ApiCategory.EXAMPLE
     }
   }
 }

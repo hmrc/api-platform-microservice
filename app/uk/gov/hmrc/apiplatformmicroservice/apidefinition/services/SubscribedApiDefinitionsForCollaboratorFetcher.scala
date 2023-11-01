@@ -31,23 +31,16 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher
   )(implicit ec: ExecutionContext
-  ) extends Recoveries {
+  ) extends Recoveries with FilterApis {
 
   def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
       subscriptions  <- subscriptionsForCollaboratorFetcher.fetch(userId)
-    } yield filterApis(apiDefinitions, subscriptions)
+    } yield filterApisThatHaveSubscriptions(apiDefinitions, subscriptions)
   }
 
-  private def filterApis(apis: List[ApiDefinition], subscriptions: Set[ApiIdentifier]): List[ApiDefinition] = {
-    apis.flatMap(filterVersions(_, subscriptions))
-  }
-
-  private def filterVersions(api: ApiDefinition, subscriptions: Set[ApiIdentifier]): Option[ApiDefinition] = {
-    val filteredVersions = api.versions.filter(v => subscriptions.contains(ApiIdentifier(api.context, v.versionNbr)))
-
-    if (filteredVersions.isEmpty) None
-    else Some(api.copy(versions = filteredVersions))
+  private def filterApisThatHaveSubscriptions(apis: List[ApiDefinition], subscriptions: Set[ApiIdentifier]): List[ApiDefinition] = {
+    apis.flatMap(api => api.filterVersions(filterSubscriptions(api.context, subscriptions)))
   }
 }

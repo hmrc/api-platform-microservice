@@ -42,7 +42,7 @@ class SubscriptionService @Inject() (
   def createManySubscriptionsForApplication(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
 
     def canSubscribeToAll(allowedSubscriptions: Seq[ApiDefinition]): Boolean = {
-      val allowedApiIdentifiers: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.map(version => ApiIdentifier(api.context, version.versionNbr)))
+      val allowedApiIdentifiers: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))
 
       (apis -- allowedApiIdentifiers) isEmpty
     }

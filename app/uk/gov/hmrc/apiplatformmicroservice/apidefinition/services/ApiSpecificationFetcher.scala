@@ -49,7 +49,7 @@ class ApiSpecificationFetcher @Inject() (
       .value
   }
 
-  private def fetchApiVersion(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedAPIVersion] = {
+  private def fetchApiVersion(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): OptionT[Future, ExtendedApiVersion] = {
     OptionT(extendedApiDefinitionFetcher.fetch(serviceName, None))
       .mapFilter(defn => defn.versions.find(_.version == version))
   }
