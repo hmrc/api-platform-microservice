@@ -16,30 +16,31 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
-import cats.data.{EitherT, NonEmptyList}
+import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import cats.data.EitherT
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands.{DeleteApplicationByCollaborator, SubscribeToApi}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures.GenericFailure
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HeaderCarrier
-
-import java.time.LocalDateTime
-import scala.concurrent.Future
 
 class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
 
-  trait SetUp extends ApplicationBuilder{
+  trait SetUp extends ApplicationBuilder {
     val applicationId = ApplicationId.random
-    val application = buildApplication(appId = applicationId)
+    val application   = buildApplication(appId = applicationId)
 
-    implicit val headerCarrier = HeaderCarrier()
+    implicit val headerCarrier         = HeaderCarrier()
     val mockSubscribeToApiPreprocessor = mock[SubscribeToApiPreprocessor]
-    val appCmdPreprocessor = new AppCmdPreprocessor(mockSubscribeToApiPreprocessor)
+    val appCmdPreprocessor             = new AppCmdPreprocessor(mockSubscribeToApiPreprocessor)
   }
 
   "AppCmdPreprocessor" should {
@@ -47,8 +48,8 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
     "route SubscribeToApi to SubscribeToApiPreprocessor" in new SetUp {
       import cats.syntax.either._
 
-      val subscribeToAPICommand = SubscribeToApi(AppCollaborator(LaxEmailAddress("test@test.com")), ApiIdentifier.random, LocalDateTime.now())
-      val dispatchRequest = DispatchRequest(subscribeToAPICommand, Set.empty)
+      val subscribeToAPICommand                                 = SubscribeToApi(AppCollaborator(LaxEmailAddress("test@test.com")), ApiIdentifier.random, LocalDateTime.now())
+      val dispatchRequest                                       = DispatchRequest(subscribeToAPICommand, Set.empty)
       val dispatchResult: AppCmdPreprocessorTypes.AppCmdResultT = EitherT(Future.successful(GenericFailure("Creation of field values failed").leftNel[DispatchRequest]))
 
       when(mockSubscribeToApiPreprocessor.process(eqTo(application), eqTo(subscribeToAPICommand), eqTo(Set.empty))(*[HeaderCarrier]))
@@ -60,7 +61,7 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
     }
 
     "not route other commands to SubscribeToApiPreprocessor" in new SetUp {
-      val command = DeleteApplicationByCollaborator(UserId.random, "someReason", LocalDateTime.now())
+      val command         = DeleteApplicationByCollaborator(UserId.random, "someReason", LocalDateTime.now())
       val dispatchRequest = DispatchRequest(command, Set.empty)
 
       appCmdPreprocessor.process(application, dispatchRequest)
