@@ -69,7 +69,6 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
 
     val preprocessor = new SubscribeToApiPreprocessor(
       mockApiDefinitionsForApplicationFetcher,
-      EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
       ApplicationByIdFetcherMock.aMock,
       SubscriptionFieldsServiceMock.aMock
     )

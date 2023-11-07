@@ -28,14 +28,12 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApiIdentifier, LaxEmailAddress}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{AccessType, Application}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
 
 @Singleton
 class SubscribeToApiPreprocessor @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
     applicationService: ApplicationByIdFetcher,
     subscriptionFieldsService: SubscriptionFieldsService
   )(implicit val ec: ExecutionContext

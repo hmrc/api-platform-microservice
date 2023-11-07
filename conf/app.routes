@@ -3,7 +3,6 @@
 ->       /combined-api-definitions         extendedapidefinition.Routes
 # to be removed once all usages have been re pointed to the new rest xml path
 ->       /combined-rest-xml-apis           combinedrestxmlapis.Routes
-->       /api-categories                   apicategories.Routes
 ->       /api-definitions                  apidefinition.Routes
 ->       /applications                     application.Routes
 ->       /subscription-fields              subscriptionfields.Routes

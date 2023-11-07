@@ -58,27 +58,4 @@ class AppCmdPreprocessor @Inject() (
       case _ => E.pure(dispatchRequest)
     }
   }
-
-  //
-  // case cmd: AddCollaborator    => addCollaboratorCommandHandler.process(app, cmd)
-  //   case cmd: RemoveCollaborator => removeCollaboratorCommandHandler.process(app, cmd)
-
-  //   case cmd: AddClientSecret                                       => addClientSecretCommandHandler.process(app, cmd)
-  //   case cmd: RemoveClientSecret                                    => removeClientSecretCommandHandler.process(app, cmd)
-  //   case cmd: ChangeProductionApplicationName                       => changeProductionApplicationNameCmdHdlr.process(app, cmd)
-  //   case cmd: ChangeProductionApplicationPrivacyPolicyLocation      => changeProductionApplicationPrivacyPolicyLocationCmdHdlr.process(app, cmd)
-  //   case cmd: ChangeProductionApplicationTermsAndConditionsLocation => changeProductionApplicationTermsAndConditionsLocationCmdHdlr.process(app, cmd)
-  //   case cmd: ChangeResponsibleIndividualToSelf                     => changeResponsibleIndividualToSelfCommandHandler.process(app, cmd)
-  //   case cmd: ChangeResponsibleIndividualToOther                    => changeResponsibleIndividualToOtherCommandHandler.process(app, cmd)
-  //   case cmd: VerifyResponsibleIndividual                           => verifyResponsibleIndividualCommandHandler.process(app, cmd)
-  //   case cmd: DeclineResponsibleIndividual                          => declineResponsibleIndividualCommandHandler.process(app, cmd)
-  //   case cmd: DeclineResponsibleIndividualDidNotVerify              => declineResponsibleIndividualDidNotVerifyCommandHandler.process(app, cmd)
-  //   case cmd: DeclineApplicationApprovalRequest                     => declineApplicationApprovalRequestCommandHandler.process(app, cmd)
-  //   case cmd: DeleteApplicationByCollaborator                       => deleteApplicationByCollaboratorCommandHandler.process(app, cmd)
-  //   case cmd: DeleteApplicationByGatekeeper                         => deleteApplicationByGatekeeperCommandHandler.process(app, cmd)
-  //   case cmd: DeleteUnusedApplication                               => deleteUnusedAppCmdHandler.process(app, cmd)
-  //   case cmd: DeleteProductionCredentialsApplication                => deleteProductionCredentialsAppCmdHandler.process(app, cmd)
-  //   case cmd: UnsubscribeFromApi                                    => unsubscribeFromApiCommandHandler.process(app, cmd)
-  //   case cmd: UpdateRedirectUris                                    => updateRedirectUrisCommandHandler.process(app, cmd)
-  // scalastyle:on cyclomatic.complexity
 }
