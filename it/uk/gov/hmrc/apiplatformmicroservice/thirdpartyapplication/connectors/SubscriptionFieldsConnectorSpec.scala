@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, ClientId}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{WireMockSugar, WireMockSugarExtensions}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -121,4 +121,21 @@ class SubscriptionFieldsConnectorSpec
       }
     }
   }
+
+
+    "return simple url" in new SetupPrincipal {
+      connector.urlSubscriptionFieldValues(
+        ClientId("1"),
+        ApiIdentifier(ApiContext("path"),
+        ApiVersionNbr("1"))
+      ) shouldBe "http://localhost:22222/field/application/1/context/path/version/1"
+    }
+    "return complex encoded url" in new SetupPrincipal {
+      connector.urlSubscriptionFieldValues(
+        ClientId("1 2"),
+        ApiIdentifier(ApiContext("path1/path2"),
+        ApiVersionNbr("1.0 demo"))
+      ) shouldBe "http://localhost:22222/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
+    }
+
 }

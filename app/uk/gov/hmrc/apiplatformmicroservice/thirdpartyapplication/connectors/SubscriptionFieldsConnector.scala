@@ -87,10 +87,10 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   private lazy val urlBulkSubscriptionFieldDefinitions =
     s"$serviceBaseUrl/definition"
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
+  def urlBulkSubscriptionFieldValues(clientId: ClientId) =
     s"$serviceBaseUrl/field/application/$clientId"
 
-  private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
+  def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
     s"$serviceBaseUrl/field/application/$clientId/context/${apiIdentifier.context.value}/version/${apiIdentifier.versionNbr.value}"
 }
 
