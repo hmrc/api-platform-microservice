@@ -18,9 +18,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 
 import java.time.{Instant, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, ClientId, Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, IpAllowlist, MoreApplication, CheckInformation, State}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import java.time.LocalDateTime
+import java.time.Clock
+import java.time.temporal.ChronoUnit
 
 case class Application(
     id: ApplicationId,
@@ -34,13 +38,13 @@ case class Application(
     deployedTo: Environment,
     description: Option[String] = None,
     collaborators: Set[Collaborator] = Set.empty,
-    access: Access = Standard(),
-    state: ApplicationState = ApplicationState.testing,
+    access: Access = Access.Standard(),
+    state: ApplicationState = ApplicationState(State.TESTING, None, None, None, updatedOn = LocalDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.MILLIS)),
     rateLimitTier: String = "BRONZE",
     blocked: Boolean = false,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    moreApplication: MoreApplication = MoreApplication()
+    moreApplication: MoreApplication = MoreApplication(true)
   )
 
 case class ApplicationWithSubscriptionData(

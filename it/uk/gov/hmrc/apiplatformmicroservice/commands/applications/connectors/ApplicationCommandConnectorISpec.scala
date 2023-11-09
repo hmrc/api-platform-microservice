@@ -38,7 +38,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import java.time.Period
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import cats.data.NonEmptyList
 import uk.gov.hmrc.http.InternalServerException
@@ -133,7 +133,7 @@ class AppCmdConnectorISpec
 
       val result = await(connector.dispatch(applicationId, request))
 
-      result.right.value shouldBe DispatchSuccessResult(response)
+      result.value shouldBe DispatchSuccessResult(response)
     }
 
     "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {

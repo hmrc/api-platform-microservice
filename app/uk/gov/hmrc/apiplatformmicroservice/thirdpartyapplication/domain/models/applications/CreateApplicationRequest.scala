@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Roles
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, Environment}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
@@ -36,10 +36,10 @@ trait CreateApplicationRequest {
 
   def validate(in: CreateApplicationRequest): Unit = {
     require(in.name.nonEmpty, "name is required")
-    require(in.collaborators.exists(_.role == Roles.ADMINISTRATOR), "at least one ADMINISTRATOR collaborator is required")
+    require(in.collaborators.exists(_.role == Collaborator.Roles.ADMINISTRATOR), "at least one ADMINISTRATOR collaborator is required")
     require(in.collaborators.size == collaborators.map(_.emailAddress.normalise()).size, "duplicate email in collaborator")
     in.access match {
-      case a: Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
+      case a: Access.Standard => require(a.redirectUris.size <= 5, "maximum number of redirect URIs exceeded")
       case _           =>
     }
   }
@@ -47,7 +47,7 @@ trait CreateApplicationRequest {
 
 case class CreateApplicationRequestV1(
     name: String,
-    access: Access = Standard(List.empty, None, None, Set.empty),
+    access: Access = Access.Standard(List.empty, None, None, Set.empty),
     description: Option[String] = None,
     environment: Environment,
     collaborators: Set[Collaborator],
@@ -69,7 +69,7 @@ object CreateApplicationRequestV1 {
 
 case class CreateApplicationRequestV2(
     name: String,
-    access: Access = Standard(List.empty, None, None, Set.empty),
+    access: Access = Access.Standard(List.empty, None, None, Set.empty),
     description: Option[String] = None,
     environment: Environment,
     collaborators: Set[Collaborator],

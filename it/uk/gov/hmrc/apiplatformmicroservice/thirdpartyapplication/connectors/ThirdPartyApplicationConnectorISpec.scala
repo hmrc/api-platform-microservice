@@ -42,10 +42,12 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.Subs
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import java.time.Clock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -94,7 +96,7 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
-    private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
+    private val standardAccess = Access.Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
       Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),

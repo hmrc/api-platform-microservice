@@ -21,9 +21,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.{AppCmdPreprocessor, AppCmdPreprocessorTypes}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 

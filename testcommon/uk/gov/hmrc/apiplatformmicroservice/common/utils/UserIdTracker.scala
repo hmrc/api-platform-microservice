@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import scala.collection.mutable
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[LaxEmailAddress, UserId]()

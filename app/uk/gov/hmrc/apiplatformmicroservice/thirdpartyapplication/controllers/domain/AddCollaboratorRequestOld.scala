@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator.Role
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
 
-case class AddCollaboratorRequestOld(email: LaxEmailAddress, role: Role, requestingEmail: Option[LaxEmailAddress])
+case class AddCollaboratorRequestOld(email: LaxEmailAddress, role: Collaborator.Role, requestingEmail: Option[LaxEmailAddress])
