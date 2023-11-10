@@ -42,7 +42,7 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
 }
 
-abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with UrlEncoders {
 
   val environment: Environment
   val serviceBaseUrl: String
@@ -87,11 +87,11 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   private lazy val urlBulkSubscriptionFieldDefinitions =
     s"$serviceBaseUrl/definition"
 
-  private def urlBulkSubscriptionFieldValues(clientId: ClientId) =
-    s"$serviceBaseUrl/field/application/$clientId"
+  def urlBulkSubscriptionFieldValues(clientId: ClientId) =
+    s"$serviceBaseUrl/field/application/${clientId.urlEncode}"
 
-  private def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/$clientId/context/${apiIdentifier.context.value}/version/${apiIdentifier.versionNbr.value}"
+  def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
+    s"$serviceBaseUrl/field/application/${clientId.urlEncode}/context/${apiIdentifier.context.urlEncode}/version/${apiIdentifier.versionNbr.urlEncode}"
 }
 
 object SubordinateSubscriptionFieldsConnector {
@@ -104,7 +104,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
     val httpClient: HttpClient,
     val proxiedHttpClient: ProxiedHttpClient
   )(implicit val ec: ExecutionContext
-  ) extends AbstractSubscriptionFieldsConnector {
+  ) extends AbstractSubscriptionFieldsConnector{
 
   val environment: Environment = Environment.SANDBOX
   val serviceBaseUrl: String   = config.serviceBaseUrl
