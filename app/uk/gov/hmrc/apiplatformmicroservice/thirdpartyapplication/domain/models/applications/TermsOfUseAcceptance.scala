@@ -20,8 +20,7 @@ import java.time.Instant
 
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.ResponsibleIndividual
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.SubmissionId
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ResponsibleIndividual, SubmissionId}
 
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: SubmissionId, submissionInstance: Int)
 

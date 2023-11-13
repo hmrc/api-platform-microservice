@@ -17,8 +17,8 @@
 package uk.gov.hmrc.apiplatformmicroservice.common
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
 import scala.util.control.NonFatal
-import scala.util.{Failure}
 
 trait AbstractLogWrapper {
 

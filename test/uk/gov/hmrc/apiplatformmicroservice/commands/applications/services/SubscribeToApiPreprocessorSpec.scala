@@ -27,13 +27,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 
 class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationBuilder with FixedClock {
 

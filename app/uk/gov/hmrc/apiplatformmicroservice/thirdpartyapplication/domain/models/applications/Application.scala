@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import java.time.{Instant, Period}
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant, LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, ClientId, Environment}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, IpAllowlist, MoreApplication, CheckInformation, State}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import java.time.LocalDateTime
-import java.time.Clock
-import java.time.temporal.ChronoUnit
 
 case class Application(
     id: ApplicationId,

@@ -21,8 +21,8 @@ import java.time.{Instant, Period}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, Collaborator, State}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, Collaborator, RedirectUri, State}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
@@ -50,7 +50,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
       description = Some(s"$appId-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, Collaborator.Roles.ADMINISTRATOR))),
       access = Access.Standard(
-        redirectUris = List("https://red1", "https://red2"),
+        redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       state = ApplicationState(State.PRODUCTION, None, None, None, now),

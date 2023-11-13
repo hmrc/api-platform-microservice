@@ -25,11 +25,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.UpliftRequest
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, CreateApplicationRequestV1, CreateApplicationRequestV2}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 object UpliftApplicationService {
   type BadRequestMessage = String
@@ -68,24 +69,30 @@ class UpliftApplicationService @Inject() (
     ): Future[Either[BadRequestMessage, ApplicationId]] = {
     val requestedApiSubs: Set[ApiIdentifier] = upliftRequest.subscriptions
     val allRequestedSubsAreInAppSubs         = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
+    val productionEnvironment: Environment   = Environment.PRODUCTION
+    val stdAcccessToCopy                     = app.access match {
+      case Access.Standard(redirectUris, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, overrides)
+      case _                                                    => StandardAccessDataToCopy()
+    }
     (
       for {
-        _                       <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
-        _                       <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
-        _                       <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
-        upliftableApis          <- liftF(apiIdentifiersForUpliftFetcher.fetch)
-        remappedRequestSubs      = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
-        filteredSubs             = remappedRequestSubs.filter(upliftableApis.contains)
-        _                       <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
-        filteredUpliftRequest    = upliftRequest.copy(subscriptions = filteredSubs)
+        _                    <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
+        _                    <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
+        _                    <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
+        upliftableApis       <- liftF(apiIdentifiersForUpliftFetcher.fetch)
+        remappedRequestSubs   = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
+        filteredSubs          = remappedRequestSubs.filter(upliftableApis.contains)
+        _                    <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
+        filteredUpliftRequest = upliftRequest.copy(subscriptions = filteredSubs)
+
         createApplicationRequest = CreateApplicationRequestV2(
                                      app.name,
-                                     app.access,
+                                     stdAcccessToCopy,
                                      app.description,
-                                     Environment.PRODUCTION,
+                                     productionEnvironment,
                                      app.collaborators,
                                      filteredUpliftRequest,
-                                     filteredUpliftRequest.requestedBy,
+                                     filteredUpliftRequest.requestedBy, // TODO - remove once TPA is using the lib version of UpliftRequest
                                      app.id
                                    )
         newAppId                <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))

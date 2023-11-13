@@ -37,7 +37,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -47,7 +46,10 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collabora
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import java.time.Clock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.StandardAccessDataToCopy
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -96,7 +98,9 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
-    private val standardAccess = Access.Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
+
+    private val standardAccess =
+      Access.Standard(List(RedirectUri.unsafeApply("https://example.com/redirect")), Some("https://example.com/terms"), Some("https://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
       Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),
@@ -114,7 +118,7 @@ class ThirdPartyApplicationConnectorISpec
 
     val createAppRequestV2 = CreateApplicationRequestV2(
       name = "V2 Create Application Request",
-      access = standardAccess,
+      access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.overrides),
       description = None,
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
