@@ -17,21 +17,20 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
 import java.{util => ju}
-
 import play.api.libs.json._
 import play.api.http.HeaderNames._
 import play.api.http.MimeTypes._
 import play.api.http.Status._
 import play.api.libs.ws.WSClient
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 
-class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
+class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock with DefinitionsFromJson {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
@@ -166,6 +165,82 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       result.find(_.context == ApiContext("trusted")).value.categories.size shouldBe 1
       result.find(_.context == ApiContext("trusted")).value.categories(0) shouldBe ApiCategory.EXAMPLE
+    }
+
+  }
+
+  "get single api definition" should {
+    val wsClient = app.injector.instanceOf[WSClient]
+
+    "from only production" in {
+      val serviceName = ServiceName("hello-world")
+      val definition  = apiDefinition("Hello World")
+
+      whenGetDefinition(Environment.PRODUCTION)(serviceName, definition)
+      implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[Locator[ApiDefinition]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe Locator.Production(definition)
+    }
+
+    "from only sandbox" in {
+      val serviceName = ServiceName("hello-world")
+      val definition  = apiDefinition("Hello World")
+
+      whenGetDefinition(Environment.SANDBOX)(serviceName, definition)
+      implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[Locator[ApiDefinition]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe Locator.Sandbox(definition)
+    }
+
+    "from both" in {
+      val serviceName = ServiceName("hello-world")
+      val definition  = apiDefinition("Hello World")
+
+      whenGetDefinition(Environment.PRODUCTION)(serviceName, definition)
+      whenGetDefinition(Environment.SANDBOX)(serviceName, definition)
+      implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[Locator[ApiDefinition]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe Locator.Both(definition, definition)
+    }
+
+    "from neither" in {
+      val serviceName = ServiceName("hello-world")
+      val response    = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe NOT_FOUND
+
     }
   }
 }
