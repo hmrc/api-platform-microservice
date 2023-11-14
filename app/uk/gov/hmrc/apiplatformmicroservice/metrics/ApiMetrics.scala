@@ -57,7 +57,7 @@ class ApiMetricsProvider @Inject() (inboundMetrics: Metrics) extends Provider[Ap
   def get(): ApiMetrics = {
     inboundMetrics match {
       case m: MetricsImpl     => new ApiMetricsImpl(m)
-      case _: DisabledMetrics => new NoopApiMetrics
+      case _ => new NoopApiMetrics
     }
   }
 }
