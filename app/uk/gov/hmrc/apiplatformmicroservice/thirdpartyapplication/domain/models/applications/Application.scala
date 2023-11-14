@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import java.time.temporal.ChronoUnit
-import java.time.{Clock, Instant, LocalDateTime, Period}
+import java.time.{Instant, Period}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
@@ -29,20 +28,20 @@ case class Application(
     clientId: ClientId,
     gatewayId: String,
     name: String,
+    deployedTo: Environment,
+    description: Option[String],
+    collaborators: Set[Collaborator],
     createdOn: Instant,
     lastAccess: Option[Instant],
     grantLength: Period,
-    lastAccessTokenUsage: Option[Instant] = None, // API-4376: Temporary inclusion whilst Server Token functionality is retired
-    deployedTo: Environment,
-    description: Option[String] = None,
-    collaborators: Set[Collaborator] = Set.empty,
-    access: Access = Access.Standard(),
-    state: ApplicationState = ApplicationState(State.TESTING, None, None, None, updatedOn = LocalDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.MILLIS)),
-    rateLimitTier: String = "BRONZE",
-    blocked: Boolean = false,
-    checkInformation: Option[CheckInformation] = None,
-    ipAllowlist: IpAllowlist = IpAllowlist(),
-    moreApplication: MoreApplication = MoreApplication(true)
+    lastAccessTokenUsage: Option[Instant], // API-4376: Temporary inclusion whilst Server Token functionality is retired
+    access: Access,
+    state: ApplicationState,
+    rateLimitTier: RateLimitTier,
+    checkInformation: Option[CheckInformation],
+    blocked: Boolean,
+    ipAllowlist: IpAllowlist,
+    moreApplication: MoreApplication
   )
 
 case class ApplicationWithSubscriptionData(

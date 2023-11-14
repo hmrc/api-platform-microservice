@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, Collaborator, RedirectUri, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
@@ -54,9 +54,11 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
       state = ApplicationState(State.PRODUCTION, None, None, None, now),
-      rateLimitTier = "BRONZE",
+      rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
-      checkInformation = checkInformation
+      checkInformation = checkInformation,
+      ipAllowlist = IpAllowlist(),
+      moreApplication = MoreApplication(true)
     )
   }
 
