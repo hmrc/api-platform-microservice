@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.net.URLEncoder.encode
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait UrlEncoders {
@@ -33,4 +34,3 @@ trait UrlEncoders {
     def urlEncode: String = encode(clientId.value, "UTF-8")
   }
 }
-

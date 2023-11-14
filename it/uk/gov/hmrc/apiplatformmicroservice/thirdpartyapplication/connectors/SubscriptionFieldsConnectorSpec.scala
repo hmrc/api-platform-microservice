@@ -122,20 +122,17 @@ class SubscriptionFieldsConnectorSpec
     }
   }
 
-
-    "return simple url" in new SetupPrincipal {
-      connector.urlSubscriptionFieldValues(
-        ClientId("1"),
-        ApiIdentifier(ApiContext("path"),
-        ApiVersionNbr("1"))
-      ) shouldBe "http://localhost:22222/field/application/1/context/path/version/1"
-    }
-    "return complex encoded url" in new SetupPrincipal {
-      connector.urlSubscriptionFieldValues(
-        ClientId("1 2"),
-        ApiIdentifier(ApiContext("path1/path2"),
-        ApiVersionNbr("1.0 demo"))
-      ) shouldBe "http://localhost:22222/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
-    }
+  "return simple url" in new SetupPrincipal {
+    connector.urlSubscriptionFieldValues(
+      ClientId("1"),
+      ApiIdentifier(ApiContext("path"), ApiVersionNbr("1"))
+    ) shouldBe "http://localhost:22222/field/application/1/context/path/version/1"
+  }
+  "return complex encoded url" in new SetupPrincipal {
+    connector.urlSubscriptionFieldValues(
+      ClientId("1 2"),
+      ApiIdentifier(ApiContext("path1/path2"), ApiVersionNbr("1.0 demo"))
+    ) shouldBe "http://localhost:22222/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
+  }
 
 }
