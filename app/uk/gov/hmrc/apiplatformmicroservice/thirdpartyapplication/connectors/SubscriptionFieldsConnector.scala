@@ -104,7 +104,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
     val httpClient: HttpClient,
     val proxiedHttpClient: ProxiedHttpClient
   )(implicit val ec: ExecutionContext
-  ) extends AbstractSubscriptionFieldsConnector{
+  ) extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
   val serviceBaseUrl: String   = config.serviceBaseUrl
