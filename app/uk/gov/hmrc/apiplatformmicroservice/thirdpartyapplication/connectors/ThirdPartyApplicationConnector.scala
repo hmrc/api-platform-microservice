@@ -34,7 +34,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   class ApplicationNotFound     extends RuntimeException
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
-  private[connectors] case class ApplicationResponse(id: ApplicationId)
+  private[connectors] case class ApplicationIdResponse(id: ApplicationId)
 
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersionNbr)
@@ -44,10 +44,10 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsApplicationResponse = Json.reads[ApplicationResponse]
-    implicit val readsInnerVersion        = Json.reads[InnerVersion]
-    implicit val readsSubscriptionVersion = Json.reads[SubscriptionVersion]
-    implicit val readsSubscription        = Json.reads[Subscription]
+    implicit val readsApplicationIdResponse = Json.reads[ApplicationIdResponse]
+    implicit val readsInnerVersion          = Json.reads[InnerVersion]
+    implicit val readsSubscriptionVersion   = Json.reads[SubscriptionVersion]
+    implicit val readsSubscription          = Json.reads[Subscription]
   }
 
   case class Config(
@@ -97,7 +97,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   }
 
   def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    http.GET[Seq[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications").map(_.map(_.id))
+    http.GET[Seq[ApplicationIdResponse]](s"$serviceBaseUrl/developer/${userId}/applications").map(_.map(_.id))
   }
 
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
@@ -113,12 +113,12 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
 
   def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
-    http.POST[CreateApplicationRequestV1, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
+    http.POST[CreateApplicationRequestV1, ApplicationIdResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
   }
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
-    http.POST[CreateApplicationRequestV2, ApplicationResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
+    http.POST[CreateApplicationRequestV2, ApplicationIdResponse](s"$serviceBaseUrl/application", createAppRequest).map(_.id)
   }
 }
 

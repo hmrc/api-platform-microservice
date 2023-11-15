@@ -69,7 +69,7 @@ class ThirdPartyApplicationConnectorISpec
   private val applicationIdTwo = ApplicationId.random
 
   trait Setup {
-    implicit val applicationResponseWrites = Json.writes[ApplicationResponse]
+    implicit val applicationResponseWrites = Json.writes[ApplicationIdResponse]
 
     implicit val hc                     = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
@@ -139,7 +139,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationResponse(appId))
+              .withJsonBody(ApplicationIdResponse(appId))
           )
       )
       await(connector.createApplicationV1(createAppRequestV1))
@@ -157,7 +157,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationResponse(appId))
+              .withJsonBody(ApplicationIdResponse(appId))
           )
       )
       await(connector.createApplicationV2(createAppRequestV2))
@@ -167,7 +167,7 @@ class ThirdPartyApplicationConnectorISpec
   "fetchApplications for a collaborator by user id" should {
     val userId               = UserId.random
     val url                  = s"/developer/${userId.value}/applications"
-    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
+    val applicationResponses = List(ApplicationIdResponse(applicationIdOne), ApplicationIdResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
       stubFor(PRODUCTION)(
