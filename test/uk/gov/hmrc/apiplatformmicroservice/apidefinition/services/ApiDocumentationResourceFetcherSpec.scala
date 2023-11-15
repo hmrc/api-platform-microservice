@@ -25,8 +25,8 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec

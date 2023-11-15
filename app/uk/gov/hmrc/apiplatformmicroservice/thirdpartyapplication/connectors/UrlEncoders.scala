@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
+package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-case class IpAllowlist(required: Boolean = false, allowlist: Set[String] = Set.empty)
+import java.net.URLEncoder.encode
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+
+trait UrlEncoders {
+
+  implicit class UrlEncodeContext(context: ApiContext) {
+    def urlEncode: String = encode(context.value, "UTF-8")
+  }
+
+  implicit class UrlEncodeVersion(versionNbr: ApiVersionNbr) {
+    def urlEncode: String = encode(versionNbr.value, "UTF-8")
+  }
+
+  implicit class UrlEncodeClientId(clientId: ClientId) {
+    def urlEncode: String = encode(clientId.value, "UTF-8")
+  }
+}

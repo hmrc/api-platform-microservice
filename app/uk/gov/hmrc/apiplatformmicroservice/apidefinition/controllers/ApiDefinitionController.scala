@@ -23,8 +23,8 @@ import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
@@ -73,6 +73,22 @@ class ApiDefinitionController @Inject() (
 
   def fetchAllUpliftableApiIdentifiers(): Action[AnyContent] = Action.async { implicit request =>
     apiIdentifiersForUpliftFetcher.fetch.map(xs => Ok(Json.toJson(xs)))
+  }
+
+  def fetchApiForServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
+    implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
+    val sandboxFuture                                       = apiDefinitionService(Environment.SANDBOX).fetchDefinition(serviceName)
+    val productionFuture                                    = apiDefinitionService(Environment.PRODUCTION).fetchDefinition(serviceName)
+
+    for {
+      maybeSandbox    <- sandboxFuture
+      maybeProduction <- productionFuture
+    } yield (maybeSandbox, maybeProduction) match {
+      case (Some(sand), Some(prod)) => Ok(Json.toJson[Locator[ApiDefinition]](Locator.Both(sand, prod)))
+      case (Some(sand), None)       => Ok(Json.toJson[Locator[ApiDefinition]](Locator.Sandbox(sand)))
+      case (None, Some(prod))       => Ok(Json.toJson[Locator[ApiDefinition]](Locator.Production(prod)))
+      case (None, None)             => NotFound
+    }
   }
 
   def fetchAllNonOpenApis(environment: Environment): Action[AnyContent] = Action.async { implicit request =>

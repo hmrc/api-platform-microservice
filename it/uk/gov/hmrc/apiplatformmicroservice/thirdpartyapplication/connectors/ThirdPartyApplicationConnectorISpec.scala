@@ -37,15 +37,19 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.UpliftRequestSamples
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import java.time.Clock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.StandardAccessDataToCopy
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -65,7 +69,7 @@ class ThirdPartyApplicationConnectorISpec
   private val applicationIdTwo = ApplicationId.random
 
   trait Setup {
-    implicit val applicationResponseWrites = Json.writes[ApplicationResponse]
+    implicit val applicationResponseWrites = Json.writes[ApplicationIdResponse]
 
     implicit val hc                     = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
@@ -94,7 +98,9 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
-    private val standardAccess = Standard(List("http://example.com/redirect"), Some("http://example.com/terms"), Some("http://example.com/privacy"))
+
+    private val standardAccess =
+      Access.Standard(List(RedirectUri.unsafeApply("https://example.com/redirect")), Some("https://example.com/terms"), Some("https://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
       Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),
@@ -112,7 +118,7 @@ class ThirdPartyApplicationConnectorISpec
 
     val createAppRequestV2 = CreateApplicationRequestV2(
       name = "V2 Create Application Request",
-      access = standardAccess,
+      access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.overrides),
       description = None,
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
@@ -133,7 +139,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationResponse(appId))
+              .withJsonBody(ApplicationIdResponse(appId))
           )
       )
       await(connector.createApplicationV1(createAppRequestV1))
@@ -151,7 +157,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationResponse(appId))
+              .withJsonBody(ApplicationIdResponse(appId))
           )
       )
       await(connector.createApplicationV2(createAppRequestV2))
@@ -161,7 +167,7 @@ class ThirdPartyApplicationConnectorISpec
   "fetchApplications for a collaborator by user id" should {
     val userId               = UserId.random
     val url                  = s"/developer/${userId.value}/applications"
-    val applicationResponses = List(ApplicationResponse(applicationIdOne), ApplicationResponse(applicationIdTwo))
+    val applicationResponses = List(ApplicationIdResponse(applicationIdOne), ApplicationIdResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
       stubFor(PRODUCTION)(

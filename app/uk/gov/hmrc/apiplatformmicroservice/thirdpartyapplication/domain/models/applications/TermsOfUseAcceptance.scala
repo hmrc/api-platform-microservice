@@ -20,9 +20,9 @@ import java.time.Instant
 
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.Submission
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ResponsibleIndividual, SubmissionId}
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: Submission.Id, submissionInstance: Int)
+case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: SubmissionId, submissionInstance: Int)
 
 object TermsOfUseAcceptance {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._

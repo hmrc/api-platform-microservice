@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator._
 
 sealed trait DevhubAccessRequirement
 

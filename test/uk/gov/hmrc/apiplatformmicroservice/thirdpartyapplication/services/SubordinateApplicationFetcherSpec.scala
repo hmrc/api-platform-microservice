@@ -24,6 +24,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication, RateLimitTier, State}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -41,12 +43,20 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock {
       ClientId("123"),
       "gatewayId",
       "name",
+      Environment.SANDBOX,
+      Some("description"),
+      Set.empty,
       instant,
       Some(instant),
       java.time.Period.ofDays(1),
       None,
-      Environment.SANDBOX,
-      Some("description")
+      Access.Standard(),
+      ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+      RateLimitTier.BRONZE,
+      None,
+      false,
+      IpAllowlist(),
+      MoreApplication(true)
     )
 
     val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock.aMock

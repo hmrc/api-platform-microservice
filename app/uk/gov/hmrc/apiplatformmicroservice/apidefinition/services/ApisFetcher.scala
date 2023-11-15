@@ -21,8 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 @Singleton
 class ApisFetcher @Inject() (

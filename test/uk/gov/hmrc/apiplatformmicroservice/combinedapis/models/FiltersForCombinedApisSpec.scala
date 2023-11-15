@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.FiltersForCombinedApis
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper

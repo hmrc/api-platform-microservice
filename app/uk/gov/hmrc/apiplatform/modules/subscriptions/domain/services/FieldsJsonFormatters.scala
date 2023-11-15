@@ -68,7 +68,7 @@ trait FieldsJsonFormatters extends NonEmptyListFormatters {
 
   implicit val writesAccessRequirements: Writes[AccessRequirements] = Json.writes[AccessRequirements]
 
-  implicit val formatValidationRule: OFormat[ValidationRule] = derived.withTypeTag.oformat(ShortClassName)
+  implicit val formatValidationRule: OFormat[ValidationRule] = derived.withTypeTag.oformat[ValidationRule](ShortClassName)
 
   implicit val formattValidationGroup = Json.format[ValidationGroup]
 

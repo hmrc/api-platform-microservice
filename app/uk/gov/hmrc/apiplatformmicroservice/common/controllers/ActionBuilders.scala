@@ -28,10 +28,9 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.AccessType.{PRIVILEGED, ROPC}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 trait ActionBuilders {
@@ -90,7 +89,7 @@ trait ActionBuilders {
       applicationId: ApplicationId
     )(implicit ec: ExecutionContext
     ): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
-    applicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(PRIVILEGED, ROPC), false)
+    applicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(AccessType.PRIVILEGED, AccessType.ROPC), false)
 
   private case class RepositoryBasedApplicationTypeFilter(
       applicationId: ApplicationId,

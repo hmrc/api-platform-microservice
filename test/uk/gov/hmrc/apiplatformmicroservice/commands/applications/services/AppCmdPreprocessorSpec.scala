@@ -24,11 +24,11 @@ import cats.data.EitherT
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands.{DeleteApplicationByCollaborator, SubscribeToApi}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures.GenericFailure
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 

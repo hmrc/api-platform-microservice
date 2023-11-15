@@ -25,8 +25,8 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.ApiDefinitionConnector
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, LogWrapper}

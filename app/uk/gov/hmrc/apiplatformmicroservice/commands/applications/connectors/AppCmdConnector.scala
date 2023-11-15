@@ -21,8 +21,8 @@ import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
 

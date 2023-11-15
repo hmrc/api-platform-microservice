@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ExtendedApiDefinitionExampleData {
   self: ApiDefinitionTestDataHelper =>
