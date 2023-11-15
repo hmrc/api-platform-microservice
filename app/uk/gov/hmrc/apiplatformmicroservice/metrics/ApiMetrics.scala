@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.metrics
 import javax.inject.{Inject, Provider, Singleton}
 
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.{DisabledMetrics, Metrics, MetricsImpl}
+import com.kenshoo.play.metrics.{Metrics, MetricsImpl}
 
 sealed trait ApiMetrics {
   def recordFailure(api: API): Unit
@@ -56,8 +56,8 @@ class ApiMetricsProvider @Inject() (inboundMetrics: Metrics) extends Provider[Ap
 
   def get(): ApiMetrics = {
     inboundMetrics match {
-      case m: MetricsImpl     => new ApiMetricsImpl(m)
-      case _: DisabledMetrics => new NoopApiMetrics
+      case m: MetricsImpl => new ApiMetricsImpl(m)
+      case _              => new NoopApiMetrics
     }
   }
 }

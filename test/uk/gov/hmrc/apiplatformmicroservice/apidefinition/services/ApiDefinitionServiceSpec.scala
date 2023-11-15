@@ -23,8 +23,8 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec

@@ -26,8 +26,8 @@ import akka.Done
 import play.api.cache.AsyncCacheApi
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -85,7 +85,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withCategories(List(incomeTaxCategory, vatTaxCategory)))
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
       result.versions.head.sandboxAvailability mustBe None
@@ -98,7 +98,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions.head.productionAvailability mustBe Some(publicApiAvailability)
       result.versions.head.sandboxAvailability mustBe None
@@ -108,7 +108,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions.head.productionAvailability mustBe None
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
@@ -118,7 +118,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions should have size 1
       result.versions.head.sandboxAvailability mustBe Some(publicApiAvailability)
@@ -129,7 +129,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withName("hello-principal"))
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withName("hello-subordinate"))
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.name mustBe "hello-subordinate"
     }
@@ -138,7 +138,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, ApiStatus.BETA)))
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(helloApiDefinition.withVersions(apiVersion(versionOne, ApiStatus.STABLE)))
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions should have size 1
       result.versions.head.status mustBe ApiStatus.STABLE
@@ -166,7 +166,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithRetiredVersions)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, None))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, None)).value
 
       result.versions should have size 1
       result.versions.head.status mustBe ApiStatus.STABLE
@@ -198,7 +198,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.keySet.head)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 
-      val Some(result) = await(underTest.fetch(helloApiDefinition.serviceName, email))
+      val result = await(underTest.fetch(helloApiDefinition.serviceName, email)).value
 
       result.versions.head.sandboxAvailability.map(_.authorised) mustBe Some(true)
     }

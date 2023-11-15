@@ -18,11 +18,12 @@ package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
 import java.time.{Instant, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
 
@@ -48,14 +49,16 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
       deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, Collaborator.Roles.ADMINISTRATOR))),
-      access = Standard(
-        redirectUris = List("https://red1", "https://red2"),
+      access = Access.Standard(
+        redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
-      state = ApplicationState(State.PRODUCTION, None, None),
-      rateLimitTier = "BRONZE",
+      state = ApplicationState(State.PRODUCTION, None, None, None, now),
+      rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
-      checkInformation = checkInformation
+      checkInformation = checkInformation,
+      ipAllowlist = IpAllowlist(),
+      moreApplication = MoreApplication(true)
     )
   }
 
@@ -93,9 +96,9 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
     }
 
     def withAccess(access: Access) = app.copy(access = access)
-    def asStandard                 = app.copy(access = Standard())
-    def asPrivileged               = app.copy(access = Privileged())
-    def asROPC                     = app.copy(access = ROPC())
+    def asStandard                 = app.copy(access = Access.Standard())
+    def asPrivileged               = app.copy(access = Access.Privileged())
+    def asROPC                     = app.copy(access = Access.Ropc())
 
     def withState(state: ApplicationState) = app.copy(state = state)
     def inProduction                       = app.copy(state = app.state.inProduction)

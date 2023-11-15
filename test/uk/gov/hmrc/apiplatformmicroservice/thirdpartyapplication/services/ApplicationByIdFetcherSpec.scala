@@ -24,6 +24,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication, RateLimitTier, State}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
@@ -38,7 +40,26 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
   val grantLength: java.time.Period = java.time.Period.ofDays(547)
 
   val application: Application =
-    Application(id, clientId, "gatewayId", "name", instant, Some(instant), grantLength, None, Environment.SANDBOX, Some("description"))
+    Application(
+      id,
+      clientId,
+      "gatewayId",
+      "name",
+      Environment.SANDBOX,
+      Some("description"),
+      Set.empty,
+      instant,
+      Some(instant),
+      grantLength,
+      None,
+      Access.Standard(),
+      ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+      RateLimitTier.BRONZE,
+      None,
+      false,
+      IpAllowlist(),
+      MoreApplication(true)
+    )
   val BANG                     = new RuntimeException("BANG")
 
   trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with MockitoSugar

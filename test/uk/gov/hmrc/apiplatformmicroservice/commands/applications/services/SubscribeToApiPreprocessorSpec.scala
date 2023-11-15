@@ -24,15 +24,15 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationBuilder with FixedClock {
@@ -79,13 +79,13 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
     val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, now)
 
     "fail if ropc app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = ROPC())
+      val application = anApplication.copy(access = Access.Ropc())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
 
     "fail if priviledged app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = Privileged())
+      val application = anApplication.copy(access = Access.Privileged())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
@@ -127,7 +127,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
-      await(preprocessor.process(application, cmdWithPrivate, data).value).right.value shouldBe DispatchRequest(cmdWithPrivate, data)
+      await(preprocessor.process(application, cmdWithPrivate, data).value).value shouldBe DispatchRequest(cmdWithPrivate, data)
     }
 
     "pass on the request if everything is okay" in new Setup {
@@ -137,7 +137,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
-      await(preprocessor.process(application, cmd, data).value).right.value shouldBe DispatchRequest(cmd, data)
+      await(preprocessor.process(application, cmd, data).value).value shouldBe DispatchRequest(cmd, data)
     }
   }
 }

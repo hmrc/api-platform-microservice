@@ -23,8 +23,8 @@ import org.scalatestplus.play.PlaySpec
 
 import play.api.libs.json.JsValue
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiSpecificationFetcher
 
 trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {

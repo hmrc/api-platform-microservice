@@ -38,13 +38,19 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import java.time.Period
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import cats.data.NonEmptyList
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import java.time.Instant
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.IpAllowlist
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.MoreApplication
 
 class AppCmdConnectorISpec
     extends AsyncHmrcSpec
@@ -72,13 +78,20 @@ class AppCmdConnectorISpec
         clientId,
         "gatewayId",
         "appName",
+        Environment.PRODUCTION,
+        Some("random description"),
+        Set.empty,
         instant,
         None,
         Period.ofDays(547),
         None,
-        Environment.PRODUCTION,
-        Some("random description"),
-        Set.empty
+        Access.Standard(),
+        ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+        RateLimitTier.BRONZE,
+        None,
+        false,
+        IpAllowlist(),
+        MoreApplication(true)
       )
     }
   }
@@ -133,7 +146,7 @@ class AppCmdConnectorISpec
 
       val result = await(connector.dispatch(applicationId, request))
 
-      result.right.value shouldBe DispatchSuccessResult(response)
+      result.value shouldBe DispatchSuccessResult(response)
     }
 
     "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {

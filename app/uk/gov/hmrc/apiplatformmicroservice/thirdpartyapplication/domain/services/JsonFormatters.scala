@@ -18,38 +18,11 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.service
 
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
 
 trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
-  import uk.gov.hmrc.play.json.Union
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequestOld
-
-  implicit val formatClientId = Json.valueFormat[ClientId]
-
-  implicit private val formatGrantWithoutConsent = Json.format[GrantWithoutConsent]
-
-  implicit private val readsPersistLogin: Reads[PersistLogin.type] = Reads { _ => JsSuccess(PersistLogin) }
-
-  implicit private val writesPersistLogin: OWrites[PersistLogin.type] = new OWrites[PersistLogin.type] {
-    def writes(pl: PersistLogin.type) = Json.obj()
-  }
-
-  implicit private val formatSuppressIvForAgents        = Json.format[SuppressIvForAgents]
-  implicit private val formatSuppressIvForOrganisations = Json.format[SuppressIvForOrganisations]
-  implicit private val formatSuppressIvForIndividuals   = Json.format[SuppressIvForIndividuals]
-
-  implicit val formatOverrideType: Format[OverrideFlag] = Union.from[OverrideFlag]("overrideType")
-    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
-    .and[PersistLogin.type](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
-    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
-    .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
-    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
-    .format
-
-  implicit val formatStandard   = Json.format[Standard]
-  implicit val formatPrivileged = Json.format[Privileged]
-  implicit val formatROPC       = Json.format[ROPC]
 
   object TOUAHelper {
     // DO NOT POLLUTE WHOLE SCOPE WITH THIS WRITER
@@ -59,21 +32,6 @@ trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
   }
 
   implicit val formatTermsOfUseAgreement = TOUAHelper.formatTOUA
-
-  implicit val formatContactDetails: Format[ContactDetails] = Json.format[ContactDetails]
-
-  implicit val formatApplicationState: Format[ApplicationState] = Json.format[ApplicationState]
-  implicit val formatCheckInformation: Format[CheckInformation] = Json.format[CheckInformation]
-
-  implicit val formatAccessType: Format[Access] = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[ROPC](AccessType.ROPC.toString)
-    .format
-
-  implicit val formatIpAllowlist = Json.format[IpAllowlist]
-
-  implicit val formatMoreApplication: Format[MoreApplication] = Json.format[MoreApplication]
 
   implicit val formatApplication: Format[Application] = Json.format[Application]
 
