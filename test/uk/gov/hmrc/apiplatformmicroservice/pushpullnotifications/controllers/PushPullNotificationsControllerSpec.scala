@@ -53,7 +53,7 @@ class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAf
 
   trait Setup extends BoxBuilder {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-    val mockBoxFetcher         = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
+    val mockBoxFetcher                        = mock[BoxFetcher](org.mockito.Mockito.withSettings().verboseLogging())
 
     val controller = new PushPullNotificationsController(
       mockBoxFetcher,

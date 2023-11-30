@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait SetUp {
-    implicit val hc: HeaderCarrier                                     = mock[HeaderCarrier]
+    implicit val hc: HeaderCarrier                      = mock[HeaderCarrier]
     val mockApiDefinitionsForCollaboratorFetcher        = mock[ApiDefinitionsForCollaboratorFetcher]
     val mockExtendedApiDefinitionForCollaboratorFetcher = mock[ExtendedApiDefinitionForCollaboratorFetcher]
     val mockXmlApisConnector                            = mock[XmlApisConnector]

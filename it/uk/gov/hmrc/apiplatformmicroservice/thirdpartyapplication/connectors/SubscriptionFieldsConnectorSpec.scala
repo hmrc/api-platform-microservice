@@ -30,6 +30,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.json.Writes
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec
@@ -60,7 +61,7 @@ class SubscriptionFieldsConnectorSpec
 
   class SetupPrincipal {
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val clientId    = ClientId("123")
+    val clientId                   = ClientId("123")
 
     val httpClient = app.injector.instanceOf[HttpClient]
     val config     = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
@@ -69,7 +70,7 @@ class SubscriptionFieldsConnectorSpec
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      implicit val writes: Wrotes[BulkSubscriptionFieldsResponse] = Json.writes[BulkSubscriptionFieldsResponse]
+      implicit val writes: Writes[BulkSubscriptionFieldsResponse] = Json.writes[BulkSubscriptionFieldsResponse]
 
       stubFor(
         get(urlEqualTo(s"/field/application/${clientId}"))

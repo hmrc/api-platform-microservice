@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import akka.stream.testkit.NoMaterializer
 import org.scalatest.Assertion
 
@@ -30,15 +31,14 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.{ApiDefinitionServiceModule, ExtendedApiDefinitionForCollaboratorFetcherModule}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ExtendedApiDefinitionExampleData, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import akka.stream.Materializer
 
 class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ExtendedApiDefinitionExampleData {
 
   trait Setup extends ApiDefinitionServiceModule with ExtendedApiDefinitionForCollaboratorFetcherModule {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-    implicit val mat: Materializer           = NoMaterializer
-    val serviceName            = ServiceName("api-example-microservice")
-    val resource               = "someResource"
+    implicit val mat: Materializer            = NoMaterializer
+    val serviceName                           = ServiceName("api-example-microservice")
+    val resource                              = "someResource"
 
     val resourceId    = ResourceId(serviceName, versionOne, resource)
     val noSuchVersion = resourceId.copy(versionNbr = ApiVersionNbr("YouWontFindMe"))

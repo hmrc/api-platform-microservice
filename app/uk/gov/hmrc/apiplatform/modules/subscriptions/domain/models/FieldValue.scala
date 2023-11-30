@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
-import play.api.libs.json.{Json, Format}
+import play.api.libs.json.{Format, Json}
 
 case class FieldValue(value: String) extends AnyVal
 

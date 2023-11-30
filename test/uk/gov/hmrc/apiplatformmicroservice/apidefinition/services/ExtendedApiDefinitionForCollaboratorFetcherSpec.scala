@@ -50,12 +50,12 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
   }
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier: HeaderCarrier     = HeaderCarrier()
-    val email                      = Some(UserId.random)
-    val applicationId              = ApplicationId.random
-    val helloApiDefinition         = apiDefinition("hello-api")
-    val requiresTrustApi           = apiDefinition("requires-trust-api").doesRequireTrust
-    val apiWithOnlyRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val email                                 = Some(UserId.random)
+    val applicationId                         = ApplicationId.random
+    val helloApiDefinition                    = apiDefinition("hello-api")
+    val requiresTrustApi                      = apiDefinition("requires-trust-api").doesRequireTrust
+    val apiWithOnlyRetiredVersions            = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 

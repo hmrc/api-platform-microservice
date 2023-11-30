@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import akka.stream.Materializer
 import akka.stream.testkit.NoMaterializer
 
 import play.api.libs.json.Json
@@ -43,7 +44,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       with ApiDocumentationResourceFetcherModule
       with SubscribedApiDefinitionsForCollaboratorFetcherModule {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-    implicit val mat:Materializer           = NoMaterializer
+    implicit val mat: Materializer            = NoMaterializer
 
     val request                 = FakeRequest("GET", "/")
     val apiName                 = "hello-api"
