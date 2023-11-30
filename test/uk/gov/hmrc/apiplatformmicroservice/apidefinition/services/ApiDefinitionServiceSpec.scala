@@ -44,7 +44,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
   private val resourceId = ResourceId(serviceName, versionOne, resource)
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   trait MockApiMetrics {
     val mockApiMetrics = mock[ApiMetrics]

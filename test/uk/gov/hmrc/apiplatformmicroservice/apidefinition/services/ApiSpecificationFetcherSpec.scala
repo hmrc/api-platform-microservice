@@ -33,8 +33,8 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
   trait Setup extends ExtendedApiDefinitionForCollaboratorFetcherModule with ApiDefinitionServiceModule {
     val environmentAwareApiDefinitionService = new EnvironmentAwareApiDefinitionService(SubordinateApiDefinitionServiceMock.aMock, PrincipalApiDefinitionServiceMock.aMock)
 
-    implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = NoMaterializer
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    implicit val mat: Materilizer           = NoMaterializer
     val serviceName            = ServiceName(apiName)
 
     val fetcher = new ApiSpecificationFetcher(environmentAwareApiDefinitionService, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)

@@ -59,7 +59,7 @@ class SubscriptionFieldsConnectorSpec
   )
 
   class SetupPrincipal {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
     val clientId    = ClientId("123")
 
     val httpClient = app.injector.instanceOf[HttpClient]
@@ -69,7 +69,7 @@ class SubscriptionFieldsConnectorSpec
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      implicit val writes = Json.writes[BulkSubscriptionFieldsResponse]
+      implicit val writes: Wrotes[BulkSubscriptionFieldsResponse] = Json.writes[BulkSubscriptionFieldsResponse]
 
       stubFor(
         get(urlEqualTo(s"/field/application/${clientId}"))

@@ -49,7 +49,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       with UpliftRequestSamples
       with ApplicationJsonFormatters {
 
-    implicit val headerCarrier = HeaderCarrier()
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
     val sandboxApplicationId    = ApplicationId.random
     val sandboxApplication      = buildApplication(appId = sandboxApplicationId)

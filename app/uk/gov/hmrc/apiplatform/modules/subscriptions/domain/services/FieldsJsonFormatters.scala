@@ -70,15 +70,15 @@ trait FieldsJsonFormatters extends NonEmptyListFormatters {
 
   implicit val formatValidationRule: OFormat[ValidationRule] = derived.withTypeTag.oformat[ValidationRule](ShortClassName)
 
-  implicit val formattValidationGroup = Json.format[ValidationGroup]
+  implicit val formattValidationGroup: OFormat[ValidationGroup] = Json.format[ValidationGroup]
 
-  implicit val readsFieldDefinitionType = Reads.enumNameReads(FieldDefinitionType)
+  implicit val readsFieldDefinitionType: Reads[FieldDefinitionType.Value] = Reads.enumNameReads(FieldDefinitionType)
 
   implicit val readsFieldDefinition: Reads[FieldDefinition] = (
     (JsPath \ "name").read[FieldName] and
       (JsPath \ "description").read[String] and
       ((JsPath \ "hint").read[String] or Reads.pure("")) and
-      (JsPath \ "type").read[FieldDefinitionType.FieldDefinitionType] and
+      (JsPath \ "type").read[FieldDefinitionType.Value] and
       ((JsPath \ "shortDescription").read[String] or Reads.pure("")) and
       (JsPath \ "validation").readNullable[ValidationGroup] and
       ((JsPath \ "access").read[AccessRequirements] or Reads.pure(AccessRequirements.Default))

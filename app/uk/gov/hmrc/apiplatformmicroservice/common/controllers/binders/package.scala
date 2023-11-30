@@ -41,7 +41,7 @@ package object binders {
     }
   }
 
-  implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
+  implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApplicationId] = new QueryStringBindable[ApplicationId] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
       textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
@@ -66,7 +66,7 @@ package object binders {
     }
   }
 
-  implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[Environment] {
+  implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[Environment] = new QueryStringBindable[Environment] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Environment]] = {
       for {
@@ -95,7 +95,7 @@ package object binders {
     }
   }
 
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[UserId] {
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
       for {

@@ -33,7 +33,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   private val versionTwo = ApiVersionNbr("2.0")
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier     = HeaderCarrier()
+    implicit val headerCarrier: HeaderCarrier     = HeaderCarrier()
     val userId                     = Some(UserId.random)
     val applicationId              = ApplicationId.random
     val helloApiDefinition         = apiDefinition("hello-api")

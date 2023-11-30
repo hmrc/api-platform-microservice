@@ -26,5 +26,5 @@ case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, da
 
 object TermsOfUseAcceptance {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
-  implicit val format = Json.format[TermsOfUseAcceptance]
+  implicit val format: OFormat[TermsOfUseAcceptance] = Json.format[TermsOfUseAcceptance]
 }

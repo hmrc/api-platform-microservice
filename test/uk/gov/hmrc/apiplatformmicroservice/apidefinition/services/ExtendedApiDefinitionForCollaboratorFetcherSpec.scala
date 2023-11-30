@@ -50,7 +50,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
   }
 
   trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier     = HeaderCarrier()
+    implicit val headerCarrier: HeaderCarrier     = HeaderCarrier()
     val email                      = Some(UserId.random)
     val applicationId              = ApplicationId.random
     val helloApiDefinition         = apiDefinition("hello-api")

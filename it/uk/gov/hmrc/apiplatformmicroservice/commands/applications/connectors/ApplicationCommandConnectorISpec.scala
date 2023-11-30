@@ -63,7 +63,7 @@ class AppCmdConnectorISpec
 
   trait Setup {
 
-    implicit val hc                     = HeaderCarrier()
+    implicit val hc: HeaderCarrier                     = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"

@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ApiDefinitionServiceModule {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
     val inTest      = new AllApisFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock)
 
     val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))

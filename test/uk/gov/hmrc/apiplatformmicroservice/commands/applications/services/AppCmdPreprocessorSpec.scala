@@ -38,7 +38,7 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
     val applicationId = ApplicationId.random
     val application   = buildApplication(appId = applicationId)
 
-    implicit val headerCarrier         = HeaderCarrier()
+    implicit val headerCarrier: HeaderCarrier         = HeaderCarrier()
     val mockSubscribeToApiPreprocessor = mock[SubscribeToApiPreprocessor]
     val appCmdPreprocessor             = new AppCmdPreprocessor(mockSubscribeToApiPreprocessor)
   }

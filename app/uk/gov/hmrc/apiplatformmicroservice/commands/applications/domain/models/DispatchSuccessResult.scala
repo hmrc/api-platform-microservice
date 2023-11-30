@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
@@ -25,5 +25,5 @@ case class DispatchSuccessResult(applicationResponse: Application)
 object DispatchSuccessResult {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
-  implicit val format = Json.format[DispatchSuccessResult]
+  implicit val format: OFormat[DispatchSuccessResult] = Json.format[DispatchSuccessResult]
 }

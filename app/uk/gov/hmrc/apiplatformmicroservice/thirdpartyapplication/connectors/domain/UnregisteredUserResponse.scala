@@ -25,5 +25,5 @@ case class UnregisteredUserResponse(email: LaxEmailAddress, creationTime: Instan
 object UnregisteredUserResponse {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
-  implicit val unregisteredUserResponseFormat = Json.format[UnregisteredUserResponse]
+  implicit val unregisteredUserResponseFormat: Format[UnregisteredUserResponse] = Json.format[UnregisteredUserResponse]
 }

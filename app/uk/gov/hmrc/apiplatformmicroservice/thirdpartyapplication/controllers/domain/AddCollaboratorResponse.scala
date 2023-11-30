@@ -20,5 +20,5 @@ case class AddCollaboratorResponse(registeredUser: Boolean)
 
 object AddCollaboratorResponse {
   import play.api.libs.json._
-  implicit val addCollaboratorResponseFormat = Json.format[AddCollaboratorResponse]
+  implicit val addCollaboratorResponseFormat: OFormat[AddCollaboratorResponse] = Json.format[AddCollaboratorResponse]
 }
