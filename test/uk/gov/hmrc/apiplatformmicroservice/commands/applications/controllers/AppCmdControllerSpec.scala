@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Application
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors._
@@ -43,7 +42,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
   trait Setup
       extends ApplicationByIdFetcherModule
       with ApplicationBuilder
-      with CommandConnectorMockModule
+      with AppCmdConnectorMockModule
       with AppCmdPreprocessorMockModule
       with CollaboratorTracker
       with UpliftRequestSamples
@@ -62,10 +61,9 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
 
     val mockAuthConfig       = mock[AuthConnector.Config]
     val mockAuthConnector    = mock[AuthConnector]
-    val envAwareCmdConnector = new EnvironmentAwareAppCmdConnector(CommandConnectorMocks.Sandbox.aMock, CommandConnectorMocks.Prod.aMock)
 
     val controller: AppCmdController =
-      new AppCmdController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, AppCmdPreprocessorMock.aMock, envAwareCmdConnector, Helpers.stubControllerComponents())
+      new AppCmdController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, AppCmdPreprocessorMock.aMock, AppCmdConnectorMock.aMock, Helpers.stubControllerComponents())
   }
 
   "AppCmdController" should {
@@ -81,8 +79,8 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST
 
       AppCmdPreprocessorMock.Process.verifyNotCalled()
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyNoCommandsIssued()
+      AppCmdConnectorMock.IssueCommand.verifyNoCommandsIssued()
+      AppCmdConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "dont dispatch command when preprocessing finds an issue" in new Setup {
@@ -94,14 +92,13 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
 
       status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST
 
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyNoCommandsIssued()
+      AppCmdConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "dispatch a command when the app exists in sandbox" in new Setup {
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApplication.some)
       AppCmdPreprocessorMock.Process.passThru()
-      CommandConnectorMocks.Sandbox.IssueCommand.Dispatch.succeedsWith(sandboxApplication)
+      AppCmdConnectorMock.IssueCommand.Dispatch.succeedsWith(sandboxApplication)
 
       val cmd                    = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val inboundDispatchRequest = DispatchRequest(cmd, verifiedEmails)
@@ -109,28 +106,26 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
 
       status(controller.dispatch(sandboxApplicationId)(request)) shouldBe OK
 
-      CommandConnectorMocks.Prod.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      AppCmdConnectorMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
 
     "dispatch a command when the app exists in production" in new Setup {
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
       AppCmdPreprocessorMock.Process.passThru()
-      CommandConnectorMocks.Prod.IssueCommand.Dispatch.succeedsWith(productionApplication)
+      AppCmdConnectorMock.IssueCommand.Dispatch.succeedsWith(productionApplication)
 
       val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
 
       status(controller.dispatch(productionApplicationId)(request)) shouldBe OK
 
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMocks.Prod.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
+      AppCmdConnectorMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
 
     "dispatch a command and handle command failure" in new Setup {
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(productionApplication.some)
       AppCmdPreprocessorMock.Process.passThru()
-      CommandConnectorMocks.Prod.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
+      AppCmdConnectorMock.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
 
       val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
@@ -141,8 +136,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       Json.fromJson[NonEmptyList[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyList.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
-      CommandConnectorMocks.Prod.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
-      CommandConnectorMocks.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      AppCmdConnectorMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)
     }
   }
 }
