@@ -24,14 +24,14 @@ import uk.gov.hmrc.http.{HttpClient, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
-
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
-class AppCmdConnector @Inject()(
+class AppCmdConnector @Inject() (
     config: AppCmdConnector.Config,
     val http: HttpClient
-  )(implicit val ec: ExecutionContext) extends ApplicationLogger {
+  )(implicit val ec: ExecutionContext
+  ) extends ApplicationLogger {
 
   val serviceBaseUrl: String = config.baseUrl
 
@@ -75,6 +75,7 @@ class AppCmdConnector @Inject()(
 }
 
 object AppCmdConnector {
+
   case class Config(
       baseUrl: String
     )

@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 trait AppCmdConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-   object AppCmdConnectorMock {
+  object AppCmdConnectorMock {
     val aMock = mock[AppCmdConnector]
     val Types = AppCmdHandlerTypes
 

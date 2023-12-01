@@ -59,11 +59,18 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator
     val verifiedEmails          = Set.empty[LaxEmailAddress]
 
-    val mockAuthConfig       = mock[AuthConnector.Config]
-    val mockAuthConnector    = mock[AuthConnector]
+    val mockAuthConfig    = mock[AuthConnector.Config]
+    val mockAuthConnector = mock[AuthConnector]
 
     val controller: AppCmdController =
-      new AppCmdController(ApplicationByIdFetcherMock.aMock, mockAuthConfig, mockAuthConnector, AppCmdPreprocessorMock.aMock, AppCmdConnectorMock.aMock, Helpers.stubControllerComponents())
+      new AppCmdController(
+        ApplicationByIdFetcherMock.aMock,
+        mockAuthConfig,
+        mockAuthConnector,
+        AppCmdPreprocessorMock.aMock,
+        AppCmdConnectorMock.aMock,
+        Helpers.stubControllerComponents()
+      )
   }
 
   "AppCmdController" should {

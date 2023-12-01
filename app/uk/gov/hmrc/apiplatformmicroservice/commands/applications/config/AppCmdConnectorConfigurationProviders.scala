@@ -20,8 +20,8 @@ import com.google.inject.{Inject, Provider, Singleton}
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.AppCmdConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
 
 @Singleton
 class AppCmdConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
@@ -30,7 +30,7 @@ class AppCmdConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
 
   override def get(): AppCmdConnector.Config = {
     val serviceName = "third-party-orchestrator"
-   AppCmdConnector.Config(
+    AppCmdConnector.Config(
       serviceUrl("third-party-orchestrator")(serviceName)
     )
   }

@@ -103,8 +103,6 @@ class AppCmdConnectorISpec
     val url                        = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
   }
 
- 
-
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
     val requestorEmail     = "requestor@example.com".toLaxEmail
     val newTeamMemberEmail = "newTeamMember@example.com".toLaxEmail
@@ -134,7 +132,7 @@ class AppCmdConnectorISpec
       result.value shouldBe DispatchSuccessResult(response)
     }
 
-    "return teamMember already exists response" in new CollaboratorSetup  {
+    "return teamMember already exists response" in new CollaboratorSetup {
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
 
