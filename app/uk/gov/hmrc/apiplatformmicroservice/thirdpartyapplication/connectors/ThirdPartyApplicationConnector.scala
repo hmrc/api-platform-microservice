@@ -44,10 +44,10 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsApplicationIdResponse = Json.reads[ApplicationIdResponse]
-    implicit val readsInnerVersion          = Json.reads[InnerVersion]
-    implicit val readsSubscriptionVersion   = Json.reads[SubscriptionVersion]
-    implicit val readsSubscription          = Json.reads[Subscription]
+    implicit val readsApplicationIdResponse: Reads[ApplicationIdResponse] = Json.reads[ApplicationIdResponse]
+    implicit val readsInnerVersion: Reads[InnerVersion]                   = Json.reads[InnerVersion]
+    implicit val readsSubscriptionVersion: Reads[SubscriptionVersion]     = Json.reads[SubscriptionVersion]
+    implicit val readsSubscription: Reads[Subscription]                   = Json.reads[Subscription]
   }
 
   case class Config(

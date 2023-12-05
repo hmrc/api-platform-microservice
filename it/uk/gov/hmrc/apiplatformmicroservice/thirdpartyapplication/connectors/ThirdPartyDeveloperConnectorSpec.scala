@@ -37,7 +37,7 @@ class ThirdPartyDeveloperConnectorSpec
     with UserResponseBuilder {
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val email1  = "fakeemail1".toLaxEmail
     val email2  = "fakeemail2".toLaxEmail

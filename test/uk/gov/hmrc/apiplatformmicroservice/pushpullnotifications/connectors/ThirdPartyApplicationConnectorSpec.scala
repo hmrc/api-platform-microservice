@@ -28,7 +28,7 @@ class PushPullNotificationsConnectorSpec extends AsyncHmrcSpec {
   private val baseUrl = "https://example.com"
 
   class Setup(proxyEnabled: Boolean = false) {
-    implicit val hc                     = HeaderCarrier()
+    implicit val hc: HeaderCarrier      = HeaderCarrier()
     protected val mockHttpClient        = mock[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"

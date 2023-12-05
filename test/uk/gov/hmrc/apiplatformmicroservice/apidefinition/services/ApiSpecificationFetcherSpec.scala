@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import akka.stream.testkit.NoMaterializer
 
 import play.api.libs.json.{JsValue, Json}
@@ -33,9 +34,9 @@ class ApiSpecificationFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
   trait Setup extends ExtendedApiDefinitionForCollaboratorFetcherModule with ApiDefinitionServiceModule {
     val environmentAwareApiDefinitionService = new EnvironmentAwareApiDefinitionService(SubordinateApiDefinitionServiceMock.aMock, PrincipalApiDefinitionServiceMock.aMock)
 
-    implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = NoMaterializer
-    val serviceName            = ServiceName(apiName)
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    implicit val mat: Materializer            = NoMaterializer
+    val serviceName                           = ServiceName(apiName)
 
     val fetcher = new ApiSpecificationFetcher(environmentAwareApiDefinitionService, ExtendedApiDefinitionForCollaboratorFetcherMock.aMock)
   }

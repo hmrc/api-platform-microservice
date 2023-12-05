@@ -34,11 +34,11 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
   private val versionTwo        = ApiVersionNbr("2.0")
 
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
-    implicit val headerCarrier = HeaderCarrier()
-    val email                  = UserId.random
-    val helloWorldDefinition   = apiDefinition(helloWorldContext.value, apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
-    val helloAgentsDefinition  = apiDefinition("hello-agents", apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
-    val helloVatDefinition     = apiDefinition("hello-vat", apiVersion(versionOne, ApiStatus.STABLE))
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val email                                 = UserId.random
+    val helloWorldDefinition                  = apiDefinition(helloWorldContext.value, apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
+    val helloAgentsDefinition                 = apiDefinition("hello-agents", apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
+    val helloVatDefinition                    = apiDefinition("hello-vat", apiVersion(versionOne, ApiStatus.STABLE))
 
     val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }

@@ -23,7 +23,6 @@ import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 class ConfigurationModule extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[PrincipalAppCmdConnector.Config]).toProvider(classOf[PrincipalAppCmdConnectorConfigProvider])
-    bind(classOf[SubordinateAppCmdConnector.Config]).toProvider(classOf[SubordinateAppCmdConnectorConfigProvider])
+    bind(classOf[AppCmdConnector.Config]).toProvider(classOf[AppCmdConnectorConfigProvider])
   }
 }

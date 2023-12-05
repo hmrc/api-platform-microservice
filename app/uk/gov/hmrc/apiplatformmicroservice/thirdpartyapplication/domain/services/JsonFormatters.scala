@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
+import java.time.Instant
+
 import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
@@ -27,17 +29,17 @@ trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
   object TOUAHelper {
     // DO NOT POLLUTE WHOLE SCOPE WITH THIS WRITER
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.lenientInstantReads
-    implicit val formatDateTime                 = Format(lenientInstantReads, InstantEpochMilliWrites)
-    val formatTOUA: Format[TermsOfUseAgreement] = Json.format[TermsOfUseAgreement]
+    implicit val formatDateTime: Format[Instant] = Format(lenientInstantReads, InstantEpochMilliWrites)
+    val formatTOUA: Format[TermsOfUseAgreement]  = Json.format[TermsOfUseAgreement]
   }
 
-  implicit val formatTermsOfUseAgreement = TOUAHelper.formatTOUA
+  implicit val formatTermsOfUseAgreement: Format[TermsOfUseAgreement] = TOUAHelper.formatTOUA
 
   implicit val formatApplication: Format[Application] = Json.format[Application]
 
-  implicit val formatApplicationWithSubscriptionData = Json.format[ApplicationWithSubscriptionData]
+  implicit val formatApplicationWithSubscriptionData: OFormat[ApplicationWithSubscriptionData] = Json.format[ApplicationWithSubscriptionData]
 
-  implicit val formatAddCollaboratorRequest = Json.format[AddCollaboratorRequestOld]
+  implicit val formatAddCollaboratorRequest: OFormat[AddCollaboratorRequestOld] = Json.format[AddCollaboratorRequestOld]
 }
 
 object ApplicationJsonFormatters extends ApplicationJsonFormatters

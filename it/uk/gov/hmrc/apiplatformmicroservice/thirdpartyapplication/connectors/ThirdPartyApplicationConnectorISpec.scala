@@ -50,6 +50,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectU
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.StandardAccessDataToCopy
+import play.api.libs.json.Writes
 
 class ThirdPartyApplicationConnectorISpec
     extends AsyncHmrcSpec
@@ -69,9 +70,9 @@ class ThirdPartyApplicationConnectorISpec
   private val applicationIdTwo = ApplicationId.random
 
   trait Setup {
-    implicit val applicationResponseWrites = Json.writes[ApplicationIdResponse]
+    implicit val applicationResponseWrites: Writes[ApplicationIdResponse] = Json.writes[ApplicationIdResponse]
 
-    implicit val hc                     = HeaderCarrier()
+    implicit val hc: HeaderCarrier      = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"

@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
 case class GetOrCreateUserIdResponse(userId: UserId)
 
 object GetOrCreateUserIdResponse {
-  implicit val getOrCreateUserIdResponseFormat = Json.format[GetOrCreateUserIdResponse]
+  implicit val getOrCreateUserIdResponseFormat: OFormat[GetOrCreateUserIdResponse] = Json.format[GetOrCreateUserIdResponse]
 }

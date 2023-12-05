@@ -32,10 +32,10 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
   private[connectors] object JsonFormatters extends ApplicationJsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsBoxId         = Json.valueFormat[BoxId]
-    implicit val readsBoxCreator    = Json.reads[BoxCreator]
-    implicit val readsBoxSubscriber = Json.format[BoxSubscriber]
-    implicit val readsBox           = Json.reads[BoxResponse]
+    implicit val readsBoxId: Format[BoxId]                  = Json.valueFormat[BoxId]
+    implicit val readsBoxCreator: Reads[BoxCreator]         = Json.reads[BoxCreator]
+    implicit val readsBoxSubscriber: OFormat[BoxSubscriber] = Json.format[BoxSubscriber]
+    implicit val readsBox: Reads[BoxResponse]               = Json.reads[BoxResponse]
   }
 
   case class Config(

@@ -24,26 +24,18 @@ import uk.gov.hmrc.http.{HttpClient, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
-trait AppCmdConnector {
+@Singleton
+class AppCmdConnector @Inject() (
+    config: AppCmdConnector.Config,
+    val http: HttpClient
+  )(implicit val ec: ExecutionContext
+  ) extends ApplicationLogger {
 
-  def dispatch(
-      applicationId: ApplicationId,
-      dispatchRequest: DispatchRequest
-    )(implicit hc: HeaderCarrier
-    ): AppCmdHandlerTypes.AppCmdResult
-}
+  val serviceBaseUrl: String = config.baseUrl
 
-abstract private[commands] class AbstractAppCmdConnector
-    extends AppCmdConnector
-    with ApplicationLogger {
-
-  implicit def ec: ExecutionContext
-  val serviceBaseUrl: String
-  def http: HttpClient
-
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/applications/${applicationId}"
 
   def dispatch(
       applicationId: ApplicationId,
@@ -82,49 +74,9 @@ abstract private[commands] class AbstractAppCmdConnector
   }
 }
 
-@Singleton
-class SubordinateAppCmdConnector @Inject() (
-    config: SubordinateAppCmdConnector.Config,
-    httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext
-  ) extends AbstractAppCmdConnector {
-
-  import config._
-  val serviceBaseUrl: String = config.baseUrl
-
-  lazy val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-}
-
-object SubordinateAppCmdConnector {
-
-  case class Config(
-      baseUrl: String,
-      useProxy: Boolean,
-      bearerToken: String,
-      apiKey: String
-    )
-}
-
-@Singleton
-class PrincipalAppCmdConnector @Inject() (
-    config: PrincipalAppCmdConnector.Config,
-    val http: HttpClient
-  )(implicit val ec: ExecutionContext
-  ) extends AbstractAppCmdConnector {
-
-  val serviceBaseUrl: String = config.baseUrl
-}
-
-object PrincipalAppCmdConnector {
+object AppCmdConnector {
 
   case class Config(
       baseUrl: String
     )
 }
-
-@Singleton
-class EnvironmentAwareAppCmdConnector @Inject() (
-    val subordinate: SubordinateAppCmdConnector,
-    val principal: PrincipalAppCmdConnector
-  ) extends EnvironmentAware[AppCmdConnector]

@@ -49,14 +49,14 @@ class PushPullNotificationsConnectorISpec
 
     import play.api.libs.json._
 
-    implicit val clientIdWrites = Json.valueFormat[ClientId]
+    implicit val clientIdWrites: Format[ClientId] = Json.valueFormat[ClientId]
 
-    implicit val boxCreatorWrites    = Json.writes[BoxCreator]
-    implicit val boxSubscriberWrites = Json.writes[BoxSubscriber]
-    implicit val boxIdWrites         = Json.valueFormat[BoxId]
-    implicit val boxResponseWrites   = Json.writes[BoxResponse]
+    implicit val boxCreatorWrites: Writes[BoxCreator]       = Json.writes[BoxCreator]
+    implicit val boxSubscriberWrites: Writes[BoxSubscriber] = Json.writes[BoxSubscriber]
+    implicit val boxIdWrites: Writes[BoxId]                 = Json.valueFormat[BoxId]
+    implicit val boxResponseWrites: Writes[BoxResponse]     = Json.writes[BoxResponse]
 
-    implicit val hc                     = HeaderCarrier()
+    implicit val hc: HeaderCarrier      = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"

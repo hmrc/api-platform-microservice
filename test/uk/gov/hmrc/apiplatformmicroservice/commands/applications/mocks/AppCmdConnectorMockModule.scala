@@ -27,11 +27,11 @@ import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
-trait CommandConnectorMockModule {
+trait AppCmdConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  trait CommandConnectorMock[T <: AppCmdConnector] {
-    def aMock: T
+  object AppCmdConnectorMock {
+    val aMock = mock[AppCmdConnector]
     val Types = AppCmdHandlerTypes
 
     object IssueCommand {
@@ -64,14 +64,4 @@ trait CommandConnectorMockModule {
     }
   }
 
-  object CommandConnectorMocks {
-
-    object Prod extends CommandConnectorMock[PrincipalAppCmdConnector] {
-      val aMock = mock[PrincipalAppCmdConnector]
-    }
-
-    object Sandbox extends CommandConnectorMock[SubordinateAppCmdConnector] {
-      val aMock = mock[SubordinateAppCmdConnector]
-    }
-  }
 }

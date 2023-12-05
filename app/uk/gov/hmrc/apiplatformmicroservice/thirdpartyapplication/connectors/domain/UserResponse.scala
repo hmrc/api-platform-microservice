@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.dom
 
 import java.time.Instant
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 
@@ -27,5 +27,5 @@ case class UserResponse(userId: UserId, email: LaxEmailAddress, firstName: Strin
 object UserResponse {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
 
-  implicit val format = Json.format[UserResponse]
+  implicit val format: OFormat[UserResponse] = Json.format[UserResponse]
 }

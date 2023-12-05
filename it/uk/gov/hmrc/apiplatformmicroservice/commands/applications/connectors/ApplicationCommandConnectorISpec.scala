@@ -63,7 +63,7 @@ class AppCmdConnectorISpec
 
   trait Setup {
 
-    implicit val hc                     = HeaderCarrier()
+    implicit val hc: HeaderCarrier      = HeaderCarrier()
     val httpClient                      = app.injector.instanceOf[HttpClient]
     protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
     val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
@@ -94,30 +94,13 @@ class AppCmdConnectorISpec
         MoreApplication(true)
       )
     }
-  }
 
-  trait PrincipalSetup extends Setup {
-    self: Setup =>
-
-    val config = PrincipalAppCmdConnector.Config(
+    val config = AppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
 
-    val connector: AppCmdConnector = new PrincipalAppCmdConnector(config, httpClient)
+    val connector: AppCmdConnector = new AppCmdConnector(config, httpClient)
     val url                        = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
-  }
-
-  trait SubordinateSetup {
-    self: Setup =>
-
-    val config    = SubordinateAppCmdConnector.Config(
-      baseUrl = s"http://$WireMockHost:$WireMockSubordinatePort",
-      useProxy = false,
-      bearerToken = bearer,
-      apiKey = apiKeyTest
-    )
-    val connector = new SubordinateAppCmdConnector(config, httpClient, mockProxiedHttpClient)
-    val url       = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
   }
 
   trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
@@ -131,11 +114,11 @@ class AppCmdConnectorISpec
   }
 
   "addCollaborator" should {
-    "return success" in new CollaboratorSetup with PrincipalSetup {
+    "return success" in new CollaboratorSetup {
       val response = anApplicationResponse()
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()
@@ -149,12 +132,12 @@ class AppCmdConnectorISpec
       result.value shouldBe DispatchSuccessResult(response)
     }
 
-    "return teamMember already exists response" in new CollaboratorSetup with PrincipalSetup {
+    "return teamMember already exists response" in new CollaboratorSetup {
       import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()
@@ -168,10 +151,10 @@ class AppCmdConnectorISpec
       result.left.value shouldBe NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
     }
 
-    "return for generic error" in new CollaboratorSetup with PrincipalSetup {
+    "return for generic error" in new CollaboratorSetup {
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/application/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()

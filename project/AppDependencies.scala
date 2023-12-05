@@ -3,7 +3,7 @@ import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
-  lazy val bootstrapVersion = "7.12.0"
+  lazy val bootstrapVersion = "7.15.0"
 
   lazy val dependencies = Seq(
     caffeine,
@@ -11,8 +11,8 @@ object AppDependencies {
     "com.beachape"            %% "enumeratum-play-json"              % "1.6.2",
     "org.julienrf"            %% "play-json-derived-codecs"          % "10.0.2",
     "uk.gov.hmrc"             %% "json-encryption"                   % "5.1.0-play-28",
-    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.9.0",
-    "uk.gov.hmrc"             %% "api-platform-application-domain"   % "0.25.0"
+    "uk.gov.hmrc"             %% "api-platform-api-domain"           % "0.10.0",
+    "uk.gov.hmrc"             %% "api-platform-application-domain"   % "0.29.0"
   )
 
   lazy val testDependencies = Seq(

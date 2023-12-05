@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.EnvironmentAwareAppCmdConnector
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.AppCmdConnector
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
@@ -43,7 +43,7 @@ class AppCmdController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     preprocessor: AppCmdPreprocessor,
-    cmdConnector: EnvironmentAwareAppCmdConnector,
+    cmdConnector: AppCmdConnector,
     cc: ControllerComponents
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc)
@@ -57,7 +57,7 @@ class AppCmdController @Inject() (
       (for {
         application             <- E.fromOptionF(applicationService.fetchApplication(id), NonEmptyList.one(CommandFailures.ApplicationNotFound)) // TODO - do we need this or should each preprocess fetch what it needs
         outboundDispatchRequest <- preprocessor.process(application, inboundDispatchRequest)
-        responseStatus          <- E.fromEitherF(cmdConnector(application.deployedTo).dispatch(application.id, outboundDispatchRequest))
+        responseStatus          <- E.fromEitherF(cmdConnector.dispatch(application.id, outboundDispatchRequest))
       } yield responseStatus)
         .fold(
           failures => BadRequest(Json.toJson(failures)),

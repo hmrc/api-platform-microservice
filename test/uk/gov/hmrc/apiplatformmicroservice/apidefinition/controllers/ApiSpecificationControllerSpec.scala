@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import akka.stream.testkit.NoMaterializer
 
 import play.api.libs.json.{JsValue, Json}
@@ -35,8 +36,8 @@ class ApiSpecificationControllerSpec extends AsyncHmrcSpec {
   trait Setup
       extends ApiSpecificationFetcherModule {
 
-    implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = NoMaterializer
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    implicit val mat: Materializer            = NoMaterializer
 
     val controller = new ApiSpecificationController(
       stubControllerComponents(),
