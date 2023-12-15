@@ -37,7 +37,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
 
   trait Setup extends ApplicationByIdFetcherModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
       with SubordinateApplicationFetcherModule with ApplicationJsonFormatters {
-    implicit val headerCarrier = HeaderCarrier()
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
     val applicationId = ApplicationId.random
 

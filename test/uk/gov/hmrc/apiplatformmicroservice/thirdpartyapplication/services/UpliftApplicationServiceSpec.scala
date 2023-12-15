@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPar
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   trait Setup
       extends ApiIdentifiersForUpliftFetcherModule
