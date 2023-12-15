@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services
 
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
 class FieldNameAndValueSpec extends HmrcSpec with ApplicationJsonFormatters {
   "JsonFormatter" should {

@@ -57,7 +57,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       result should not be empty
       withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
-      withClue("No Requires Trust allowed: ") { result.exists(_.requiresTrust) shouldBe false }
 
       val defn        = result.find(_.context == ApiContext("hello")).value
       val versionKeys = defn.versions.keys.toList
@@ -90,7 +89,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       result should not be empty
       withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
-      withClue("No Requires Trust allowed: ") { result.exists(_.requiresTrust) shouldBe false }
 
       val defn        = result.find(_.context == ApiContext("hello")).value
       val versionKeys = defn.versions.keys
@@ -122,7 +120,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       val keys = result.map(_.context)
       keys should contain(ApiContext("another"))
-      keys should contain(ApiContext("trusted"))
       keys shouldNot contain(ApiContext("hello"))
     }
 
@@ -147,26 +144,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
       keys shouldNot contain(ApiContext("trusted"))
       keys should contain(ApiContext("hello"))
     }
-
-    "stub get request for all api definitions" in {
-      mockFetchApiDefinition(Environment.SANDBOX)
-
-      val response = await(wsClient.url(s"$baseUrl/api-definitions/all")
-        .withQueryStringParameters("environment" -> "SANDBOX")
-        .withHttpHeaders(ACCEPT -> JSON)
-        .get())
-
-      response.status shouldBe OK
-
-      val result = Json.parse(response.body).validate[List[ApiDefinition]] match {
-        case JsSuccess(v, _) => v
-        case e: JsError      => fail(s"Bad response $e")
-      }
-
-      result.find(_.context == ApiContext("trusted")).value.categories.size shouldBe 1
-      result.find(_.context == ApiContext("trusted")).value.categories(0) shouldBe ApiCategory.EXAMPLE
-    }
-
   }
 
   "get single api definition" should {

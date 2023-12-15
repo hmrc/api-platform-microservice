@@ -39,7 +39,6 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
       "test1Desc",
       ApiContext("som/context/here"),
       versions.groupBy(_.versionNbr).map { case (k, vs) => k -> vs.head },
-      requiresTrust = false,
       isTestSupport = false,
       None,
       List.empty
@@ -127,7 +126,6 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             description = "desc",
             context = ApiContext("/some/context"),
             isTestSupport = false,
-            requiresTrust = false,
             versions = List(allPublicApiVersion, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))),
             categories = List(ApiCategory.OTHER),
             lastPublishedAt = None
@@ -145,7 +143,6 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             description = "desc",
             context = ApiContext("/some/context"),
             versions = List(mixedApiVersions, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))),
-            requiresTrust = false,
             isTestSupport = false,
             lastPublishedAt = None,
             categories = List(ApiCategory.OTHER)
@@ -163,7 +160,6 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
             description = "desc",
             context = ApiContext("/some/context"),
             versions = List(mixedApiVersionsWithNone, allPublicApiVersion.copy(version = ApiVersionNbr("2.0"))),
-            requiresTrust = false,
             isTestSupport = false,
             lastPublishedAt = None,
             categories = List(ApiCategory.AGENTS)

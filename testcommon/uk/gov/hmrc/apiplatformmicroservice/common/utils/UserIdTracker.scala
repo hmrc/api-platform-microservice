@@ -28,6 +28,7 @@ trait UserIdTracker {
   def idOf(email: Any): UserId = email match {
     case s: String            => idsByEmail.getOrElseUpdate(s.toLaxEmail, UserId.random)
     case lea: LaxEmailAddress => idsByEmail.getOrElseUpdate(lea, UserId.random)
+    case _                    => throw new IllegalArgumentException("Not suitable")
   }
 }
 
