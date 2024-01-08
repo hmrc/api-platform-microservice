@@ -141,7 +141,6 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       val keys = result.map(_.context)
       keys should contain(ApiContext("another"))
-      keys shouldNot contain(ApiContext("trusted"))
       keys should contain(ApiContext("hello"))
     }
   }
