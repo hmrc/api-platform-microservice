@@ -30,11 +30,11 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPart
 class ApplicationIdsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
-    implicit val headerCarrier    = HeaderCarrier()
-    val email                     = UserId.random
-    val subordinateApplicationIds = (1 to 3).map(_ => ApplicationId.random)
-    val principalApplicationIds   = (1 to 2).map(_ => ApplicationId.random)
-    val underTest                 = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val email                                 = UserId.random
+    val subordinateApplicationIds             = (1 to 3).map(_ => ApplicationId.random)
+    val principalApplicationIds               = (1 to 2).map(_ => ApplicationId.random)
+    val underTest                             = new ApplicationIdsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
   }
 
   "ApplicationIdsForCollaboratorFetcher" should {

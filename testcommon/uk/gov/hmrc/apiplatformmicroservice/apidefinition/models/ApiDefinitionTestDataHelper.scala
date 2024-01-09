@@ -29,7 +29,6 @@ trait ApiDefinitionTestDataHelper {
       description = name,
       context = ApiContext(name),
       versions = versions,
-      requiresTrust = false,
       isTestSupport = false,
       lastPublishedAt = None,
       categories = List.empty
@@ -59,7 +58,6 @@ trait ApiDefinitionTestDataHelper {
       ApiContext(name),
       versions.toList.groupBy(_.versionNbr).map { case (k, v) => (k -> v.head) },
       false,
-      false,
       None,
       List.empty
     )
@@ -73,16 +71,9 @@ trait ApiDefinitionTestDataHelper {
 
     def isTestSupport(): ApiDefinition = inner.copy(isTestSupport = true)
 
-    def requiresTrust(is: Boolean): ApiDefinition =
-      inner.copy(requiresTrust = is)
-
     def withClosedAccess: ApiDefinition = inner.copy(versions = inner.versions.map { case (k, v) => k -> v.withClosedAccess })
 
     def asPrivate: ApiDefinition = inner.copy(versions = inner.versions.map { case (k, v) => k -> v.asPrivate })
-
-    def doesRequireTrust: ApiDefinition    = requiresTrust(true)
-    def doesNotRequireTrust: ApiDefinition = requiresTrust(false)
-    def trustNotSpecified: ApiDefinition   = requiresTrust(false)
 
     def withName(name: String): ApiDefinition = inner.copy(name = name)
 

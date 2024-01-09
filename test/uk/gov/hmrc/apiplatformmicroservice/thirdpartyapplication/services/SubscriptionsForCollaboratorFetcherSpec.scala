@@ -30,8 +30,8 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPart
 class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
-    implicit val headerCarrier = HeaderCarrier()
-    val developer              = UserId.random
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val developer                             = UserId.random
 
     val apiContextHelloWorld  = ApiContext("hello-world")
     val apiContextHelloAgents = ApiContext("hello-agents")

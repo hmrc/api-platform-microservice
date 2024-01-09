@@ -34,9 +34,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPart
 class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock {
 
   trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
-    implicit val headerCarrier = HeaderCarrier()
-    val subordinateAppId       = ApplicationId.random
-    val principalAppId         = ApplicationId.random
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val subordinateAppId                      = ApplicationId.random
+    val principalAppId                        = ApplicationId.random
 
     val subordinateApplication = Application(
       subordinateAppId,

@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val id: ApplicationId             = ApplicationId.random
   val clientId: ClientId            = ClientId("123")

@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
-class FilterApisSpecHelper extends HmrcSpec with ApiDefinitionTestDataHelper {
+class FilterApisSpecHelper extends utils.HmrcSpec with ApiDefinitionTestDataHelper {
   protected val appId = ApplicationId.random
 
   protected val api             = apiDefinition("test")
