@@ -37,7 +37,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val userId                                = Some(UserId.random)
     val applicationId                         = ApplicationId.random
     val helloApiDefinition                    = apiDefinition("hello-api")
-    val requiresTrustApi                      = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions            = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
@@ -81,15 +80,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       val result = await(underTest.fetch(userId))
 
       result should contain only (subordinateHelloApi)
-    }
-
-    "filter out an api that requires trust" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(helloApiDefinition, requiresTrustApi)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
-
-      val result = await(underTest.fetch(userId))
-
-      result should contain only (helloApiDefinition)
     }
 
     "filter out an api that only has retired versions" in new Setup {

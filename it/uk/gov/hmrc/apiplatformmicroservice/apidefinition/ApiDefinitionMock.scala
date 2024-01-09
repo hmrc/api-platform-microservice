@@ -109,7 +109,6 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |      "name": "Hello World",
                          |      "description": "A 'hello world' example of an API on the HMRC API Developer Hub.",
                          |      "context": "hello",
-                         |      "requiresTrust": false,
                          |      "isTestSupport": false,
                          |      "categories": [ "OTHER" ],
                          |      "versions": [
@@ -241,7 +240,6 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |      "name": "Hello Another",
                          |      "description": "A 'hello another' example of an API on the HMRC API Developer Hub.",
                          |      "context": "another",
-                         |      "requiresTrust": false,
                          |      "isTestSupport": false,
                          |      "categories": ["OTHER"],
                          |      "versions": [
@@ -264,39 +262,6 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          }
                          |      ],
                          |      "lastPublishedAt": "2018-07-13T13:18:06.124Z"
-                         |  },
-                         |  {
-                         |      "serviceName": "api-example-trusted",
-                         |      "serviceBaseUrl": "http://localhost:9603",
-                         |      "name": "Hello Trust",
-                         |      "description": "A 'hello another' example of an API on the HMRC API Developer Hub.",
-                         |      "context": "trusted",
-                         |      "requiresTrust": false,
-                         |      "isTestSupport": false,
-                         |      "versions": [
-                         |          {
-                         |              "version": "1.0",
-                         |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
-                         |              "versionSource": "UNKNOWN",
-                         |              "endpoints": [
-                         |                  {
-                         |                      "uriPattern": "/world",
-                         |                      "endpointName": "Say hello world",
-                         |                      "method": "GET",
-                         |                      "authType": "NONE",
-                         |                      "throttlingTier": "UNLIMITED",
-                         |                      "queryParameters": []  
-                         |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
-                         |          }
-                         |      ],
-                         |      "lastPublishedAt": "2018-07-13T13:18:06.124Z",
-                         |      "requiresTrust": true,
-                         |      "categories": [
-                         |          "EXAMPLE"
-                         |      ]
                          |  }
                          |]""".stripMargin)
             .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
