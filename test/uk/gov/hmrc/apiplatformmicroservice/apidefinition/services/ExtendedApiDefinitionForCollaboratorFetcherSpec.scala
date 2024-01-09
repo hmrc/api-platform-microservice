@@ -54,7 +54,6 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     val email                                 = Some(UserId.random)
     val applicationId                         = ApplicationId.random
     val helloApiDefinition                    = apiDefinition("hello-api")
-    val requiresTrustApi                      = apiDefinition("requires-trust-api").doesRequireTrust
     val apiWithOnlyRetiredVersions            = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
@@ -147,15 +146,6 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return none when api doesn't exist in any environments" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-
-      val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
-
-      result mustBe None
-    }
-
-    "return none when apis requires trust" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchDefinition.willReturn(requiresTrustApi)
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(requiresTrustApi)
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 

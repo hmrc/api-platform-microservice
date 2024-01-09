@@ -26,7 +26,6 @@ trait FilterApis {
   def filterApis(filterFn: ApiFilterFn)(apis: List[ApiDefinition]): List[ApiDefinition] = {
 
     apis
-      .filterNot(_.requiresTrust)
       .flatMap(api =>
         api.filterVersions(filterFn(api.context))
       )

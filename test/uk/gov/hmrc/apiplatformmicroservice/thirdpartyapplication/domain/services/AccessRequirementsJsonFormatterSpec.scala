@@ -18,10 +18,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.service
 
 import play.api.libs.json.{JsSuccess, Json}
 
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.DevhubAccessRequirement._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.HmrcSpec
 
 class AccessRequirementsJsonFormatterSpec extends HmrcSpec with FieldsJsonFormatters {
   "JsonFormatter" should {

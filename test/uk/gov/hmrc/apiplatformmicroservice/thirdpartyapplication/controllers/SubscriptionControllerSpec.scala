@@ -20,6 +20,7 @@ import java.time.Clock
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
+import akka.stream.Materializer
 import akka.stream.testkit.NoMaterializer
 
 import play.api.libs.json.Json
@@ -41,8 +42,8 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
   val clock = Clock.systemUTC()
 
   trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
-    implicit val headerCarrier = HeaderCarrier()
-    implicit val mat           = NoMaterializer
+    implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    implicit val mat: Materializer            = NoMaterializer
 
     val applicationId = ApplicationId.random
     val context       = ApiContext("hello")
