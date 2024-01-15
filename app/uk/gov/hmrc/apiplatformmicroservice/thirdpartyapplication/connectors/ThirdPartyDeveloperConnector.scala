@@ -40,8 +40,7 @@ private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 @Singleton
 private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
     val config: ThirdPartyDeveloperConnector.Config,
-    http: HttpClient,
-    encryptedJson: EncryptedJson
+    http: HttpClient
   )(implicit val ec: ExecutionContext
   ) {
 
