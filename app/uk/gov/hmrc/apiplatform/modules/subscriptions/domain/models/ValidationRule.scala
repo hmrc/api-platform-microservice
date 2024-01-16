@@ -18,18 +18,40 @@ package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
 import cats.data.{NonEmptyList => NEL}
 
+import play.api.libs.json.Format
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+
 sealed trait ValidationRule
 
 case class RegexValidationRule(regex: String) extends ValidationRule
 case object UrlValidationRule                 extends ValidationRule
 case class ValidationGroup(errorMessage: String, rules: NEL[ValidationRule])
 
-object FieldDefinitionType extends Enumeration {
-  type FieldDefinitionType = Value
+sealed trait FieldDefinitionType {
+  lazy val label = FieldDefinitionType.label(this)
+}
+
+object FieldDefinitionType {
 
   @deprecated("We don't use URL type for any validation", since = "0.5x")
-  val URL          = Value("URL")
-  val SECURE_TOKEN = Value("SecureToken")
-  val STRING       = Value("STRING")
-  val PPNS_FIELD   = Value("PPNSField")
+  case object URL          extends FieldDefinitionType
+  case object SECURE_TOKEN extends FieldDefinitionType
+  case object STRING       extends FieldDefinitionType
+  case object PPNS_FIELD   extends FieldDefinitionType
+
+  val values = Set(URL, SECURE_TOKEN, STRING, PPNS_FIELD)
+
+  def apply(text: String): Option[FieldDefinitionType] = FieldDefinitionType.values.find(_.label == text)
+
+  def unsafeApply(text: String): FieldDefinitionType = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Field Definition Type"))
+
+  def label(fdt: FieldDefinitionType): String = fdt match {
+    case URL          => "URL"
+    case SECURE_TOKEN => "SecureToken"
+    case STRING       => "STRING"
+    case PPNS_FIELD   => "PPNSField"
+  }
+
+  implicit val format: Format[FieldDefinitionType] = SealedTraitJsonFormatting.createFormatFor[FieldDefinitionType]("Field Definition Type", apply, label)
 }

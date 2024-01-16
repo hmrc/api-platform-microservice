@@ -26,18 +26,9 @@ import uk.gov.hmrc.http.NotFoundException
 
 package object controllers extends ApplicationLogger {
 
-  object ErrorCode extends Enumeration {
-    type ErrorCode = Value
-
-    val UNKNOWN_ERROR               = Value("UNKNOWN_ERROR")
-    val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
-    val APPLICATION_NOT_FOUND       = Value("APPLICATION_NOT_FOUND")
-    val SUBSCRIPTION_DENIED         = Value("SUBSCRIPTION_DENIED")
-  }
-
   object JsErrorResponse {
 
-    def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
+    def apply(errorCode: ErrorCode, message: JsValueWrapper): JsObject =
       Json.obj(
         "code"    -> errorCode.toString,
         "message" -> message
@@ -55,5 +46,4 @@ package object controllers extends ApplicationLogger {
     logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
     InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
   }
-
 }

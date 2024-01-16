@@ -16,16 +16,24 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.libs.json.Format
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-sealed trait ApiType extends EnumEntry
+sealed trait ApiType
 
-object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
-  val values = findValues
+object ApiType {
   case object REST_API extends ApiType
   case object XML_API  extends ApiType
+
+  val values = Set(REST_API, XML_API)
+
+  def apply(text: String): Option[ApiType] = ApiType.values.find(_.toString() == text.toUpperCase)
+
+  def unsafeApply(text: String): ApiType = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Api Type"))
+
+  implicit val format: Format[ApiType] = SealedTraitJsonFormatting.createFormatFor[ApiType]("Api Type", apply)
 }
 
 case class CombinedApi(displayName: String, serviceName: ServiceName, categories: List[ApiCategory], apiType: ApiType, accessType: ApiAccessType)

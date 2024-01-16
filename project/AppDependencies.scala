@@ -11,7 +11,6 @@ object AppDependencies {
   lazy val dependencies = Seq(
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-28"         % bootstrapVersion,
-    "com.beachape"            %% "enumeratum-play-json"              % "1.6.2",
     "org.julienrf"            %% "play-json-derived-codecs"          % "10.0.2",
     "uk.gov.hmrc"             %% "api-platform-api-domain"           % apiDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-application-domain"   % appDomainVersion

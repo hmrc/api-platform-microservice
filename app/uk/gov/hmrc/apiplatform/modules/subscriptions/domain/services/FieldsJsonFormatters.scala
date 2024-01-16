@@ -22,7 +22,6 @@ import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFo
 trait FieldsJsonFormatters extends NonEmptyListFormatters {
   import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.DevhubAccessRequirement._
 
-  // TODO switch to easier Enumeratum
   import julienrf.json.derived
   import julienrf.json.derived.TypeTagSetting.ShortClassName
   import play.api.libs.functional.syntax._
@@ -72,13 +71,11 @@ trait FieldsJsonFormatters extends NonEmptyListFormatters {
 
   implicit val formattValidationGroup: OFormat[ValidationGroup] = Json.format[ValidationGroup]
 
-  implicit val readsFieldDefinitionType: Reads[FieldDefinitionType.Value] = Reads.enumNameReads(FieldDefinitionType)
-
   implicit val readsFieldDefinition: Reads[FieldDefinition] = (
     (JsPath \ "name").read[FieldName] and
       (JsPath \ "description").read[String] and
       ((JsPath \ "hint").read[String] or Reads.pure("")) and
-      (JsPath \ "type").read[FieldDefinitionType.Value] and
+      (JsPath \ "type").read[FieldDefinitionType] and
       ((JsPath \ "shortDescription").read[String] or Reads.pure("")) and
       (JsPath \ "validation").readNullable[ValidationGroup] and
       ((JsPath \ "access").read[AccessRequirements] or Reads.pure(AccessRequirements.Default))
@@ -95,7 +92,7 @@ trait FieldsJsonFormatters extends NonEmptyListFormatters {
         (JsPath \ "name").write[FieldName] and
           (JsPath \ "description").write[String] and
           (JsPath \ "hint").write[String] and
-          (JsPath \ "type").write[FieldDefinitionType.FieldDefinitionType] and
+          (JsPath \ "type").write[FieldDefinitionType] and
           (JsPath \ "shortDescription").write[String] and
           (JsPath \ "validation").writeNullable[ValidationGroup]
 

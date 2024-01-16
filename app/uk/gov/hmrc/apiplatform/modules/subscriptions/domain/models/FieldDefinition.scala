@@ -20,7 +20,7 @@ case class FieldDefinition(
     name: FieldName,
     description: String,
     hint: String = "",
-    `type`: FieldDefinitionType.FieldDefinitionType,
+    `type`: FieldDefinitionType,
     shortDescription: String,
     validation: Option[ValidationGroup],
     access: AccessRequirements = AccessRequirements.Default
