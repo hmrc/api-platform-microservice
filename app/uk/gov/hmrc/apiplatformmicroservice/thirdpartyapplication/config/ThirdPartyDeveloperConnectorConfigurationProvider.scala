@@ -32,8 +32,7 @@ class ThirdPartyDeveloperConnectorConfigurationProvider @Inject() (val configura
 
   override def get() = {
     val applicationBaseUrl = baseUrl("third-party-developer")
-    val jsonEncryptionKey  = getString("json.encryption.key")
 
-    ThirdPartyDeveloperConnector.Config(applicationBaseUrl, jsonEncryptionKey)
+    ThirdPartyDeveloperConnector.Config(applicationBaseUrl)
   }
 }

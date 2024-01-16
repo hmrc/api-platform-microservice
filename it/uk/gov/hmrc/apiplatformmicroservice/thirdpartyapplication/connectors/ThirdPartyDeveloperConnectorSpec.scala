@@ -44,13 +44,12 @@ class ThirdPartyDeveloperConnectorSpec
     val userId1 = UserId.random
     val userId2 = UserId.random
 
-    val httpClient        = app.injector.instanceOf[HttpClient]
-    val mockEncryptedJson = mock[EncryptedJson]
+    val httpClient = app.injector.instanceOf[HttpClient]
 
     val mockConfig: ThirdPartyDeveloperConnector.Config = mock[ThirdPartyDeveloperConnector.Config]
     when(mockConfig.applicationBaseUrl).thenReturn(wireMockUrl)
 
-    val tpdConnector = new ThirdPartyDeveloperConnector(mockConfig, httpClient, mockEncryptedJson)
+    val tpdConnector = new ThirdPartyDeveloperConnector(mockConfig, httpClient)
   }
 
   "fetchByEmails" should {

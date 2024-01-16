@@ -32,21 +32,18 @@ private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
   class ApplicationNotFound extends RuntimeException
 
   case class Config(
-      applicationBaseUrl: String,
-      jsonEncryptionKey: String
+      applicationBaseUrl: String
     )
 }
 
 @Singleton
 private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
     val config: ThirdPartyDeveloperConnector.Config,
-    http: HttpClient,
-    encryptedJson: EncryptedJson
+    http: HttpClient
   )(implicit val ec: ExecutionContext
   ) {
 
   lazy val serviceBaseUrl: String    = config.applicationBaseUrl
-  lazy val jsonEncryptionKey: String = config.jsonEncryptionKey
 
   def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
     http.POST[List[LaxEmailAddress], Seq[UserResponse]](s"$serviceBaseUrl/developers/get-by-emails", emails.toList)
