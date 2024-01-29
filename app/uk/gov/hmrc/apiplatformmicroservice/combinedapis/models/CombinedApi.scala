@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.combinedapis.models
 
+import scala.collection.immutable.ListSet
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 sealed trait ApiType
 
 object ApiType {
-  val values: Seq[ApiType] = Seq(REST_API, XML_API)
+  val values: ListSet[ApiType] = ListSet(REST_API, XML_API)
   case object REST_API extends ApiType
   case object XML_API  extends ApiType
 
