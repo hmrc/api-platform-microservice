@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain
 
 import java.time.Instant
-import scala.collection.immutable.ListSet
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 
@@ -43,7 +42,7 @@ case class BoxSubscriber(
 sealed trait SubscriptionType
 
 object SubscriptionType {
-  val values: ListSet[SubscriptionType] = ListSet(API_PUSH_SUBSCRIBER, API_PULL_SUBSCRIBER)
+  val values: Set[SubscriptionType] = Set(API_PUSH_SUBSCRIBER, API_PULL_SUBSCRIBER)
 
   case object API_PUSH_SUBSCRIBER extends SubscriptionType
   case object API_PULL_SUBSCRIBER extends SubscriptionType
