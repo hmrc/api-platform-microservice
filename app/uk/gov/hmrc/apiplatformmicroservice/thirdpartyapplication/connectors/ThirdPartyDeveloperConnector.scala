@@ -43,7 +43,7 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
   )(implicit val ec: ExecutionContext
   ) {
 
-  lazy val serviceBaseUrl: String    = config.applicationBaseUrl
+  lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
   def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
     http.POST[List[LaxEmailAddress], Seq[UserResponse]](s"$serviceBaseUrl/developers/get-by-emails", emails.toList)
