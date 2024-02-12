@@ -51,7 +51,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock {
       java.time.Period.ofDays(1),
       None,
       Access.Standard(),
-      ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+      ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
       RateLimitTier.BRONZE,
       None,
       false,

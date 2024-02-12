@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.metrics
 
-import javax.inject.{Inject, Provider, Singleton}
+import javax.inject.{Inject, Singleton}
 
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.{Metrics, MetricsImpl}
+
+import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 
 sealed trait ApiMetrics {
   def recordFailure(api: API): Unit
@@ -52,24 +53,4 @@ sealed trait BaseApiMetrics extends ApiMetrics {
 }
 
 @Singleton
-class ApiMetricsProvider @Inject() (inboundMetrics: Metrics) extends Provider[ApiMetrics] {
-
-  def get(): ApiMetrics = {
-    inboundMetrics match {
-      case m: MetricsImpl => new ApiMetricsImpl(m)
-      case _              => new NoopApiMetrics
-    }
-  }
-}
-
-class ApiMetricsImpl(val metrics: Metrics) extends BaseApiMetrics
-
-object NoopTimer extends Timer {
-  def stop() = {}
-}
-
-class NoopApiMetrics extends ApiMetrics {
-  override def recordFailure(api: API) = ()
-  override def recordSuccess(api: API) = ()
-  override def startTimer(api: API)    = NoopTimer
-}
+class ApiMetricsImpl @Inject() (val metrics: Metrics) extends BaseApiMetrics

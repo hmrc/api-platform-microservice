@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
-import akka.pattern.FutureTimeoutSupport
 import com.google.inject.{Inject, Singleton}
+import org.apache.pekko.pattern.FutureTimeoutSupport
 
 @Singleton
 class FutureTimeoutSupportImpl @Inject() extends FutureTimeoutSupport {}

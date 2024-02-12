@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import akka.stream.Materializer
-import akka.stream.testkit.NoMaterializer
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.testkit.NoMaterializer
 import org.scalatest.Assertion
 
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}

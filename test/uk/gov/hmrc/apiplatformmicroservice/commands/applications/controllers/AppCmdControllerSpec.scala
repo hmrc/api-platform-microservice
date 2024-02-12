@@ -80,7 +80,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
 
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(None)
 
-      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
+      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, instant)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
 
       status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST
@@ -94,7 +94,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(sandboxApplication.some)
       AppCmdPreprocessorMock.Process.failsWith(CommandFailures.GenericFailure("Something bad"))
 
-      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
+      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, instant)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
 
       status(controller.dispatch(productionApplicationId)(request)) shouldBe BAD_REQUEST
@@ -107,7 +107,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       AppCmdPreprocessorMock.Process.passThru()
       AppCmdConnectorMock.IssueCommand.Dispatch.succeedsWith(sandboxApplication)
 
-      val cmd                    = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
+      val cmd                    = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, instant)
       val inboundDispatchRequest = DispatchRequest(cmd, verifiedEmails)
       val request                = FakeRequest("PATCH", s"/applications/${sandboxApplicationId.value}/dispatch").withBody(Json.toJson(inboundDispatchRequest))
 
@@ -121,7 +121,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       AppCmdPreprocessorMock.Process.passThru()
       AppCmdConnectorMock.IssueCommand.Dispatch.succeedsWith(productionApplication)
 
-      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
+      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, instant)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
 
       status(controller.dispatch(productionApplicationId)(request)) shouldBe OK
@@ -134,7 +134,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       AppCmdPreprocessorMock.Process.passThru()
       AppCmdConnectorMock.IssueCommand.Dispatch.failsWith(CommandFailures.ActorIsNotACollaboratorOnApp)
 
-      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, now)
+      val cmd     = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(adminEmail), developerAsCollaborator, instant)
       val request = FakeRequest("PATCH", s"/applications/${productionApplicationId.value}/dispatch").withBody(Json.toJson(DispatchRequest(cmd, verifiedEmails)))
 
       val result = controller.dispatch(productionApplicationId)(request)

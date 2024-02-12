@@ -19,8 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import akka.stream.Materializer
-import akka.stream.testkit.NoMaterializer
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.testkit.NoMaterializer
 
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse

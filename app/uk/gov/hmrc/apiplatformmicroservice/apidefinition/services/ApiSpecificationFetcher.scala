@@ -19,9 +19,9 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import akka.stream.Materializer
 import cats.data.OptionT
 import cats.implicits._
+import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier

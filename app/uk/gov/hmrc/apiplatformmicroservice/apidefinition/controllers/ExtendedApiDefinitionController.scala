@@ -19,8 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import akka.stream.Materializer
 import cats.data.OptionT
+import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

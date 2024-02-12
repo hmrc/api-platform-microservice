@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, NoopTimer}
+import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, Timer}
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -45,6 +45,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
   private val resourceId = ResourceId(serviceName, versionOne, resource)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  object NoopTimer extends Timer {
+    def stop() = {}
+  }
 
   trait MockApiMetrics {
     val mockApiMetrics = mock[ApiMetrics]

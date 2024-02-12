@@ -86,7 +86,7 @@ class AppCmdConnectorISpec
         Period.ofDays(547),
         None,
         Access.Standard(),
-        ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+        ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
         RateLimitTier.BRONZE,
         None,
         false,
@@ -109,7 +109,7 @@ class AppCmdConnectorISpec
     val adminsToEmail      = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
 
     val newCollaborator = Collaborators.Administrator(UserId.random, newTeamMemberEmail)
-    val cmd             = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, now)
+    val cmd             = ApplicationCommands.AddCollaborator(Actors.AppCollaborator(requestorEmail), newCollaborator, instant)
     val request         = DispatchRequest(cmd, adminsToEmail)
   }
 

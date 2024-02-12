@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 
 import scala.concurrent.ExecutionContext
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.http.Status.NOT_FOUND
 import play.api.http.{HttpEntity, Status}

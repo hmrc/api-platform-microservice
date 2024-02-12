@@ -53,7 +53,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
       grantLength,
       None,
       Access.Standard(),
-      ApplicationState(State.TESTING, None, None, None, updatedOn = now),
+      ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
       RateLimitTier.BRONZE,
       None,
       false,
