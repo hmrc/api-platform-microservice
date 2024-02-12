@@ -19,8 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import akka.pattern.FutureTimeoutSupport
-import akka.stream.Materializer
+import org.apache.pekko.pattern.FutureTimeoutSupport
+import org.apache.pekko.stream.Materializer
 
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}

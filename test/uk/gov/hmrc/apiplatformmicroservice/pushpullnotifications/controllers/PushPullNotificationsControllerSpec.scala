@@ -19,8 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.scalatest.BeforeAndAfterAll
 
 import play.api.libs.json.Json

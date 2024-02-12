@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
 import com.typesafe.config.Config
+import org.apache.pekko.actor.ActorSystem
 
 import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.{ConfigLoader, Configuration}

@@ -75,7 +75,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   }
   "SubscribeToApiPreprocessor" should {
     val data = Set("x".toLaxEmail)
-    val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, now)
+    val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, instant)
 
     "fail if ropc app and not a GK actor" in new Setup {
       val application = anApplication.copy(access = Access.Ropc())

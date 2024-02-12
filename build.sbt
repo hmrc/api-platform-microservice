@@ -6,21 +6,21 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-microservice"
 
-scalaVersion := "2.13.12"
+Global / bloopAggregateSourceDependencies := true
 
-ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 lazy val root = Project(appName, file("."))
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     name := appName,
     organization := "uk.gov.hmrc",
     majorVersion := 0,
     PlayKeys.playDefaultPort := 6700,
-    resolvers ++= Seq(
-      Resolver.typesafeRepo("releases")
-    ),
     libraryDependencies ++= dependencies ++ testDependencies,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
@@ -51,10 +51,6 @@ lazy val root = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
     )
   )
-  .enablePlugins(PlayScala, SbtDistributablesPlugin)
-  .disablePlugins(JUnitXmlReportPlugin)
-
-Global / bloopAggregateSourceDependencies := true
 
 commands ++= Seq(
   Command.command("run-all-tests") { state => "test" :: "it:test" :: state },

@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.config
 
 import javax.inject.{Inject, Singleton}
 
-import akka.pattern.FutureTimeoutSupport
 import com.google.inject.name.Names.named
 import com.google.inject.{AbstractModule, Provider}
+import org.apache.pekko.pattern.FutureTimeoutSupport
 
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig

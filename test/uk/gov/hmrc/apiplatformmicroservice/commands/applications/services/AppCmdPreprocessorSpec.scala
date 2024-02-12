@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.services
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -48,7 +47,7 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
     "route SubscribeToApi to SubscribeToApiPreprocessor" in new SetUp {
       import cats.syntax.either._
 
-      val subscribeToAPICommand                                 = SubscribeToApi(AppCollaborator(LaxEmailAddress("test@test.com")), ApiIdentifier.random, LocalDateTime.now())
+      val subscribeToAPICommand                                 = SubscribeToApi(AppCollaborator(LaxEmailAddress("test@test.com")), ApiIdentifier.random, instant)
       val dispatchRequest                                       = DispatchRequest(subscribeToAPICommand, Set.empty)
       val dispatchResult: AppCmdPreprocessorTypes.AppCmdResultT = EitherT(Future.successful(GenericFailure("Creation of field values failed").leftNel[DispatchRequest]))
 
@@ -61,7 +60,7 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
     }
 
     "not route other commands to SubscribeToApiPreprocessor" in new SetUp {
-      val command         = DeleteApplicationByCollaborator(UserId.random, "someReason", LocalDateTime.now())
+      val command         = DeleteApplicationByCollaborator(UserId.random, "someReason", instant)
       val dispatchRequest = DispatchRequest(command, Set.empty)
 
       appCmdPreprocessor.process(application, dispatchRequest)

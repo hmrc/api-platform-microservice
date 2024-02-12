@@ -53,7 +53,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
         redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
-      state = ApplicationState(State.PRODUCTION, None, None, None, now),
+      state = ApplicationState(State.PRODUCTION, None, None, None, instant),
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
       checkInformation = checkInformation,

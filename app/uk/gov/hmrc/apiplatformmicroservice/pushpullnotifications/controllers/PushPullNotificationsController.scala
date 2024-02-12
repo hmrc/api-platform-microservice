@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
