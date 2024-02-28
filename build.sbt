@@ -20,7 +20,6 @@ lazy val root = Project(appName, file("."))
   .settings(
     name := appName,
     organization := "uk.gov.hmrc",
-    majorVersion := 0,
     PlayKeys.playDefaultPort := 6700,
     libraryDependencies ++= dependencies ++ testDependencies,
     routesImport ++= Seq(
