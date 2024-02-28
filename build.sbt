@@ -9,6 +9,7 @@ lazy val appName = "api-platform-microservice"
 Global / bloopAggregateSourceDependencies := true
 
 ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / majorVersion := 0
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
@@ -28,14 +29,6 @@ lazy val root = Project(appName, file("."))
     )
   )
   .settings(ScoverageSettings())
-  .configs(IntegrationTest)
-  .settings(DefaultBuildSettings.integrationTestSettings())
-  .settings(
-    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
-    IntegrationTest / parallelExecution := false
-  )
   .settings(
     Test / fork := false,
     Test / parallelExecution := false,
@@ -52,11 +45,20 @@ lazy val root = Project(appName, file("."))
     )
   )
 
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(root % "test->test")
+  .settings(
+    name := "integration-tests",
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    inConfig(Test)(BloopDefaults.configSettings),
+  )
+
 commands ++= Seq(
-  Command.command("run-all-tests") { state => "test" :: "it:test" :: state },
+  Command.command("run-all-tests") { state => "test" :: "it/test" :: state },
 
   Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
 
   // Coverage does not need compile !
-  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "scalafixAll" :: "coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
+  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "it/scalafmtAll":: "scalafixAll" :: "it/scalafixAll" :: "coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
 )
