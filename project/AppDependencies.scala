@@ -11,7 +11,6 @@ object AppDependencies {
   lazy val dependencies = Seq(
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-30"         % bootstrapVersion,
-    // "org.julienrf"            %% "play-json-derived-codecs"          % "10.1.0",
     "uk.gov.hmrc"             %% "api-platform-api-domain"           % apiDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-application-domain"   % appDomainVersion
   )

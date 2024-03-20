@@ -89,10 +89,6 @@ trait FieldsJsonFormatters extends NonEmptyListFormatters {
     }
   }
 
-  // implicit val ValidationJF: OFormat[ValidationGroup] = Json.format[ValidationGroup]
-
-  // implicit val formatValidationRule: OFormat[ValidationRule] = derived.withTypeTag.oformat[ValidationRule](ShortClassName)
-
   implicit val formatValidationGroup: OFormat[ValidationGroup] = Json.format[ValidationGroup]
 
   implicit val readsFieldDefinitionType: Reads[FieldDefinitionType.Value] = Reads.enumNameReads(FieldDefinitionType)
