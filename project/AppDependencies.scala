@@ -4,14 +4,13 @@ import sbt._
 
 object AppDependencies {
   val bootstrapVersion = "8.4.0"
-  val apiDomainVersion = "0.13.0"
-  val commonDomainVersion = "0.11.0"
-  val appDomainVersion = "0.35.0"
+  val apiDomainVersion = "0.16.0"
+  val commonDomainVersion = "0.13.0"
+  val appDomainVersion = "0.43.0"
 
   lazy val dependencies = Seq(
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-30"         % bootstrapVersion,
-    "org.julienrf"            %% "play-json-derived-codecs"          % "10.1.0",
     "uk.gov.hmrc"             %% "api-platform-api-domain"           % apiDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-application-domain"   % appDomainVersion
   )
