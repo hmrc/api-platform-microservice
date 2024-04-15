@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication, RateLimitTier, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
@@ -35,9 +35,9 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val id: ApplicationId             = ApplicationId.random
-  val clientId: ClientId            = ClientId("123")
-  val grantLength: java.time.Period = java.time.Period.ofDays(547)
+  val id: ApplicationId        = ApplicationId.random
+  val clientId: ClientId       = ClientId("123")
+  val grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS
 
   val application: Application =
     Application(

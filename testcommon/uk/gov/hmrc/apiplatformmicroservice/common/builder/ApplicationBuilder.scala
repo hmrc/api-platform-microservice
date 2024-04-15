@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.builder
 
-import java.time.{Instant, Period}
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress}
@@ -33,9 +33,9 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
       lastAccess: Instant = instant,
       checkInformation: Option[CheckInformation] = None
     ): Application = {
-    val clientId            = ClientId.random
-    val appOwnerEmail       = "a@b.com".toLaxEmail
-    val grantLength: Period = Period.ofDays(547)
+    val clientId                 = ClientId.random
+    val appOwnerEmail            = "a@b.com".toLaxEmail
+    val grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS
 
     Application(
       id = appId,
