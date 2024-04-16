@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications
 
-import java.time.{Instant, Period}
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
@@ -33,7 +33,7 @@ case class Application(
     collaborators: Set[Collaborator],
     createdOn: Instant,
     lastAccess: Option[Instant],
-    grantLength: Period,
+    grantLength: GrantLength,
     lastAccessTokenUsage: Option[Instant], // API-4376: Temporary inclusion whilst Server Token functionality is retired
     access: Access,
     state: ApplicationState,

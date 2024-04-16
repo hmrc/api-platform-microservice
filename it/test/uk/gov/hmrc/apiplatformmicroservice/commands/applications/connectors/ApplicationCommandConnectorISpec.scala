@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
-import java.time.{Instant, Period}
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -27,7 +27,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId, ClientId, Environment, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
@@ -70,7 +70,7 @@ class AppCmdConnectorISpec
         Set.empty,
         instant,
         None,
-        Period.ofDays(547),
+        GrantLength.EIGHTEEN_MONTHS,
         None,
         Access.Standard(),
         ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
