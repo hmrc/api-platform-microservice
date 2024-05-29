@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException, UnauthorizedException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -39,7 +39,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMock
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
 
-class AppCmdConnectorISpec
+class ApplicationCommandConnectorISpec
     extends AsyncHmrcSpec
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
@@ -136,6 +136,20 @@ class AppCmdConnectorISpec
       val result = await(connector.dispatch(applicationId, request))
 
       result.left.value shouldBe NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
+    }
+
+    "return unauthorised" in new CollaboratorSetup {
+      stubFor(Environment.PRODUCTION)(
+        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
+          .willReturn(
+            aResponse()
+              .withStatus(UNAUTHORIZED)
+          )
+      )
+
+      intercept[UnauthorizedException] {
+        await(connector.dispatch(applicationId, request))
+      }.message shouldBe (s"Command unauthorised")
     }
 
     "return for generic error" in new CollaboratorSetup {

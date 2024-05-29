@@ -64,9 +64,10 @@ class AppCmdConnector @Inject() (
     http.PATCH[DispatchRequest, HttpResponse](url, dispatchRequest, extraHeaders)
       .map(response =>
         response.status match {
-          case OK          => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[AppCmdHandlerTypes.Failures]
-          case BAD_REQUEST => parseWithLogAndThrow[AppCmdHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
-          case status      =>
+          case OK           => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[AppCmdHandlerTypes.Failures]
+          case BAD_REQUEST  => parseWithLogAndThrow[AppCmdHandlerTypes.Failures](response.body).asLeft[DispatchSuccessResult]
+          case UNAUTHORIZED => throw new UnauthorizedException("Command unauthorised")
+          case status       =>
             logger.error(s"Dispatch failed with status code: $status")
             throw new InternalServerException(s"Failed calling dispatch $status")
         }
