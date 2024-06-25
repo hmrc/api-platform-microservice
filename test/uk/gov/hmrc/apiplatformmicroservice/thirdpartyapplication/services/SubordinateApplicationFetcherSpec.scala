@@ -42,7 +42,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock {
       subordinateAppId,
       ClientId("123"),
       "gatewayId",
-      "name",
+      ApplicationName("name"),
       Environment.SANDBOX,
       Some("description"),
       Set.empty,

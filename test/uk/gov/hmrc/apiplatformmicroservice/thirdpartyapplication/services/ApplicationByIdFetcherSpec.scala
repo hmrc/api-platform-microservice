@@ -44,7 +44,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
       id,
       clientId,
       "gatewayId",
-      "name",
+      ApplicationName("name"),
       Environment.SANDBOX,
       Some("description"),
       Set.empty,
