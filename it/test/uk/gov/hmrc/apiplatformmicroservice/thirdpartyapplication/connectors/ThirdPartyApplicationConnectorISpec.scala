@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators, RedirectUri}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, Collaborator, Collaborators, RedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
@@ -97,7 +97,7 @@ class ThirdPartyApplicationConnectorISpec
     )
 
     val createAppRequestV1 = CreateApplicationRequestV1(
-      name = "V1 Create Application Request",
+      name = ApplicationName("V1 Create Application Request"),
       access = standardAccess,
       description = None,
       environment = Environment.PRODUCTION,
@@ -106,7 +106,7 @@ class ThirdPartyApplicationConnectorISpec
     )
 
     val createAppRequestV2 = CreateApplicationRequestV2(
-      name = "V2 Create Application Request",
+      name = ApplicationName("V2 Create Application Request"),
       access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.overrides),
       description = None,
       environment = Environment.PRODUCTION,

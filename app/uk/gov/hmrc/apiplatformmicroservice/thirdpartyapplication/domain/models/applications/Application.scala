@@ -27,7 +27,7 @@ case class Application(
     id: ApplicationId,
     clientId: ClientId,
     gatewayId: String,
-    name: String,
+    name: ApplicationName,
     deployedTo: Environment,
     description: Option[String],
     collaborators: Set[Collaborator],
@@ -51,5 +51,5 @@ case class ApplicationWithSubscriptionData(
   )
 
 object Application {
-  implicit val ordering: Ordering[Application] = Ordering.by(_.name)
+  implicit val ordering: Ordering[Application] = Ordering.by(_.name.value)
 }

@@ -41,7 +41,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
       id = appId,
       clientId = clientId,
       gatewayId = "",
-      name = s"${appId.value}-name",
+      name = ApplicationName(s"${appId.value}-name"),
       createdOn = createdOn,
       lastAccess = Some(lastAccess),
       grantLength = grantLength,
@@ -82,7 +82,7 @@ trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock {
     def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
     def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
 
-    def withName(name: String)               = app.copy(name = name)
+    def withName(name: String)               = app.copy(name = ApplicationName(name))
     def withDescription(description: String) = app.copy(description = Some(description))
 
     def withAdmin(email: LaxEmailAddress) = {

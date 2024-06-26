@@ -64,7 +64,7 @@ class ApplicationCommandConnectorISpec
         applicationId,
         clientId,
         "gatewayId",
-        "appName",
+        ApplicationName("appName"),
         Environment.PRODUCTION,
         Some("random description"),
         Set.empty,
