@@ -29,16 +29,14 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
-import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
 
 @Singleton()
 class ApiSpecificationController @Inject() (
     cc: ControllerComponents,
     apiSpecificationFetcher: ApiSpecificationFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
-  ) extends BackendController(cc)
-    with StreamedResponseResourceHelper {
+  )(implicit val ec: ExecutionContext,
+    val mat: Materializer
+  ) extends BackendController(cc) {
 
   def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr) = Action.async { implicit request =>
     OptionT(apiSpecificationFetcher.fetch(serviceName, version))

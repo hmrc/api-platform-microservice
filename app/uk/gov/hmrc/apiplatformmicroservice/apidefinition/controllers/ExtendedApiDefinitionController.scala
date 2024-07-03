@@ -23,7 +23,7 @@ import cats.data.OptionT
 import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -67,9 +67,13 @@ class ExtendedApiDefinitionController @Inject() (
   def fetchApiDocumentationResource(serviceName: ServiceName, versionNbr: ApiVersionNbr, resource: String): Action[AnyContent] = Action.async { implicit request =>
     import cats.implicits._
 
+    def handleNotFound: Result = {
+      logger.info(s"$resource not found for $serviceName $versionNbr")
+      NotFound
+    }
+
     val resourceId = ResourceId(serviceName, versionNbr, resource)
     OptionT(apiDocumentationResourceFetcher.fetch(resourceId))
-      .getOrElseF(failedDueToNotFoundException(resourceId))
-      .map(handler(resourceId))
+      .fold[Result](handleNotFound)(handler(resourceId))
   }
 }

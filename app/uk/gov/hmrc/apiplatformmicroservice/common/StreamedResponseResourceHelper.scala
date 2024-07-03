@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import scala.concurrent.Future
-
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
-import uk.gov.hmrc.http.NotFoundException
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 
@@ -28,18 +25,9 @@ trait StreamedResponseResourceHelper extends StreamedResponseHelper {
 
   def handler(resourceId: ResourceId): WSResponse => Result = {
     import resourceId._
-    streamedResponseAsResult(
-      handleNotFoundResponse(s"$resource not found for $serviceName $versionNbr")
-        orElse handleErrorsAsInternalServerError(
-          s"Error downloading $resource for $serviceName $versionNbr"
-        )
-    )(_)
-  }
 
-  def failedDueToNotFoundException(resourceId: ResourceId): Future[Nothing] = {
-    import resourceId._
-    Future.failed(
-      new NotFoundException(s"$resource not found for $serviceName $versionNbr")
-    )
+    streamedResponseAsResult(
+      handleErrorsAsInternalServerError(s"Error downloading $resource for $serviceName $versionNbr")
+    )(_)
   }
 }
