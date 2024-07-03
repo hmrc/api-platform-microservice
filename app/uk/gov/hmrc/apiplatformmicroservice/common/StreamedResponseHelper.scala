@@ -20,12 +20,12 @@ import scala.concurrent.ExecutionContext
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.http.Status.NOT_FOUND
 import play.api.http.{HttpEntity, Status}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import uk.gov.hmrc.http.{InternalServerException, NotFoundException}
+
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ErrorCode, JsErrorResponse}
 
 object StreamedResponseHelper {
   val PROXY_SAFE_CONTENT_TYPE = "Proxy-Safe-Content-Type"
@@ -61,17 +61,12 @@ trait StreamedResponseHelper extends ApplicationLogger {
       }
   }
 
-  def handleNotFoundResponse(msg: String): StreamedResponseHandlerPF = {
-    case response if response.status == NOT_FOUND =>
-      throw new NotFoundException(msg)
-  }
-
   def handleErrorsAsInternalServerError(
       msg: String
     ): StreamedResponseHandlerPF = {
     case response: WSResponse =>
       logger.warn(s"Failed due to $msg with status ${response.status}")
-      throw new InternalServerException(msg)
+      InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
   }
 
   def streamedResponseAsResult(

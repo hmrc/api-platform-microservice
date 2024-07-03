@@ -27,7 +27,7 @@ import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, NotFoundException}
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
@@ -215,20 +215,18 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
       contentType(result) shouldEqual Some("application/zip")
     }
 
-    "throw NotFoundException when not found" in new Setup {
-      ApiDocumentationResourceFetcherMock.willThrowException(new NotFoundException("Not Found"))
+    "return not found when not found" in new Setup {
+      ApiDocumentationResourceFetcherMock.willReturnNone()
 
-      intercept[NotFoundException] {
-        await(
-          controller.fetchApiDocumentationResource(
-            serviceName,
-            version,
-            "some/resourceNotThere"
-          )(request)
-        )
-      }
+      val result = controller.fetchApiDocumentationResource(
+        serviceName,
+        version,
+        "some/resourceNotThere"
+      )(request)
+
+      status(result) shouldBe NOT_FOUND
     }
-//
+
     "throw InternalServerException for any other response" in new Setup {
       ApiDocumentationResourceFetcherMock.willThrowException(new InternalServerException("Unexpected Error"))
 
