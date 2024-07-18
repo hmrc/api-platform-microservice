@@ -7,12 +7,14 @@ object AppDependencies {
   val apiDomainVersion = "0.16.0"
   val commonDomainVersion = "0.13.0"
   val appDomainVersion = "0.53.0"
+  val tpdDomainVersion = "0.2.0"
 
   lazy val dependencies = Seq(
     caffeine,
     "uk.gov.hmrc"             %% "bootstrap-backend-play-30"         % bootstrapVersion,
     "uk.gov.hmrc"             %% "api-platform-api-domain"           % apiDomainVersion,
-    "uk.gov.hmrc"             %% "api-platform-application-domain"   % appDomainVersion
+    "uk.gov.hmrc"             %% "api-platform-application-domain"   % appDomainVersion,
+    "uk.gov.hmrc"             %% "api-platform-tpd-domain"           % tpdDomainVersion
   )
 
   lazy val testDependencies = Seq(
@@ -21,5 +23,6 @@ object AppDependencies {
     "org.mockito"             %% "mockito-scala-scalatest"          % "1.17.29",
     "org.scalatest"           %% "scalatest"                        % "3.2.17",
     "uk.gov.hmrc"             %% "api-platform-test-common-domain"  % commonDomainVersion,
+    "uk.gov.hmrc"             %% "api-platform-test-tpd-domain"     % tpdDomainVersion,
   ).map(_ % "test")
 }
