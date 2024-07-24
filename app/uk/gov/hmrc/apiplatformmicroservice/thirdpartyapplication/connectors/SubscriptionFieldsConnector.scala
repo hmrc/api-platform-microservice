@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import scala.concurrent.Future.successful
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
-
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.common.{EnvironmentAware, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
@@ -47,20 +47,23 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   val environment: Environment
   val serviceBaseUrl: String
 
-  import SubscriptionFieldsConnectorDomain._
   import SubscriptionFieldsConnectorDomain.JsonFormatters._
+  import SubscriptionFieldsConnectorDomain._
 
-  protected def http: HttpClient
+  protected def http: HttpClientV2
+  protected def addProxy(requestBuilder: RequestBuilder): RequestBuilder
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
-    http.GET[BulkApiFieldDefinitionsResponse](urlBulkSubscriptionFieldDefinitions)
+    addProxy(http.get(urlBulkSubscriptionFieldDefinitions))
+      .execute[BulkApiFieldDefinitionsResponse]
       .map(r => asMapOfMapsOfFieldDefns(r.apis))
   }
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     val url = urlBulkSubscriptionFieldValues(clientId)
-    http.GET[Option[BulkSubscriptionFieldsResponse]](url)
+    addProxy(http.get(url))
+      .execute[Option[BulkSubscriptionFieldsResponse]]
       .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
@@ -70,28 +73,30 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
     if (fields.isEmpty) {
       successful(Right(()))
     } else {
-      http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.versionNbr, fields)).map { response =>
-        response.status match {
-          case BAD_REQUEST  =>
-            Json.parse(response.body).validate[Map[FieldName, String]] match {
-              case s: JsSuccess[Map[FieldName, String]] => Left(s.get)
-              case _                                    => Left(Map.empty)
-            }
-          case OK | CREATED => Right(())
-          case statusCode   => throw UpstreamErrorResponse("Failed to put subscription fields", statusCode)
+      addProxy(http.put(url))
+        .withBody(Json.toJson(SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.versionNbr, fields)))
+        .execute[HttpResponse].map { response =>
+          response.status match {
+            case BAD_REQUEST  =>
+              Json.parse(response.body).validate[Map[FieldName, String]] match {
+                case s: JsSuccess[Map[FieldName, String]] => Left(s.get)
+                case _                                    => Left(Map.empty)
+              }
+            case OK | CREATED => Right(())
+            case statusCode   => throw UpstreamErrorResponse("Failed to put subscription fields", statusCode)
+          }
         }
-      }
     }
   }
 
   private lazy val urlBulkSubscriptionFieldDefinitions =
-    s"$serviceBaseUrl/definition"
+    url"$serviceBaseUrl/definition"
 
   def urlBulkSubscriptionFieldValues(clientId: ClientId) =
-    s"$serviceBaseUrl/field/application/${clientId.urlEncode}"
+    url"$serviceBaseUrl/field/application/${clientId.value}"
 
   def urlSubscriptionFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier) =
-    s"$serviceBaseUrl/field/application/${clientId.urlEncode}/context/${apiIdentifier.context.urlEncode}/version/${apiIdentifier.versionNbr.urlEncode}"
+    url"$serviceBaseUrl/field/application/${clientId.value}/context/${apiIdentifier.context.value}/version/${apiIdentifier.versionNbr.value}"
 }
 
 object SubordinateSubscriptionFieldsConnector {
@@ -101,8 +106,7 @@ object SubordinateSubscriptionFieldsConnector {
 @Singleton
 class SubordinateSubscriptionFieldsConnector @Inject() (
     val config: SubordinateSubscriptionFieldsConnector.Config,
-    val httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient
+    val http: HttpClientV2
   )(implicit val ec: ExecutionContext
   ) extends AbstractSubscriptionFieldsConnector {
 
@@ -111,8 +115,16 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
   val useProxy: Boolean        = config.useProxy
   val bearerToken: String      = config.bearerToken
   val apiKey: String           = config.apiKey
+  val API_KEY_HEADER_NAME      = "x-api-key"
 
-  protected def http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  protected def addProxy(requestBuilder: RequestBuilder): RequestBuilder = if (useProxy) {
+    requestBuilder.withProxy
+      .setHeader(HeaderNames.AUTHORIZATION -> Authorization(s"Bearer $bearerToken").value)
+      .setHeader(HeaderNames.ACCEPT -> "application/hmrc.vnd.1.0+json")
+      .setHeader(API_KEY_HEADER_NAME -> apiKey)
+  } else {
+    requestBuilder
+  }
 }
 
 object PrincipalSubscriptionFieldsConnector {
@@ -122,9 +134,11 @@ object PrincipalSubscriptionFieldsConnector {
 @Singleton
 class PrincipalSubscriptionFieldsConnector @Inject() (
     val config: PrincipalSubscriptionFieldsConnector.Config,
-    val http: HttpClient
+    val http: HttpClientV2
   )(implicit val ec: ExecutionContext
   ) extends AbstractSubscriptionFieldsConnector {
+
+  protected def addProxy(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder
 
   val environment: Environment = Environment.PRODUCTION
   val serviceBaseUrl: String   = config.serviceBaseUrl
