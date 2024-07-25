@@ -26,7 +26,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.UserResponseBuilder
+import uk.gov.hmrc.apiplatform.modules.tpd.test.builders.UserBuilder
+import uk.gov.hmrc.apiplatform.modules.tpd.test.utils.LocalUserIdTracker
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
@@ -35,7 +36,8 @@ class ThirdPartyDeveloperConnectorSpec
     with WireMockSugar
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
-    with UserResponseBuilder {
+    with UserBuilder
+    with LocalUserIdTracker {
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -57,9 +59,8 @@ class ThirdPartyDeveloperConnectorSpec
     val url = "/developers/get-by-emails"
 
     "respond with 200 and data" in new Setup {
-      val fakeUser1 = buildUserResponse(userId1, email1, true)
-      val fakeUser2 = buildUserResponse(userId2, email2, true)
-
+      val fakeUser1 = buildUser().copy(userId = userId1, email = email1)
+      val fakeUser2 = buildUser().copy(userId = userId2, email = email2)
       stubFor(
         post(urlEqualTo(url))
           .withJsonRequestBody(List(email1, email2))

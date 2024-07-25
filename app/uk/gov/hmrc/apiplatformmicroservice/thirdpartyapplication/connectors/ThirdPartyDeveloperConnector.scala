@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
@@ -45,8 +46,8 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[UserResponse]] = {
-    http.POST[List[LaxEmailAddress], Seq[UserResponse]](s"$serviceBaseUrl/developers/get-by-emails", emails.toList)
+  def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+    http.POST[List[LaxEmailAddress], Seq[User]](s"$serviceBaseUrl/developers/get-by-emails", emails.toList)
   }
 
   def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
