@@ -22,44 +22,38 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.apache.pekko.pattern.FutureTimeoutSupport
 import org.apache.pekko.stream.Materializer
 
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
-import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, ProxiedHttpClient}
+import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
 @Singleton
 class SubordinateApiDefinitionConnector @Inject() (
     val config: Config,
-    val httpClient: HttpClient with WSGet,
-    val proxiedHttpClient: ProxiedHttpClient,
+    val http: HttpClientV2,
     val futureTimeout: FutureTimeoutSupport
   )(implicit val ec: ExecutionContext,
     val mat: Materializer
   ) extends ApiDefinitionConnector with ApplicationLogger {
+
+  lazy val configureEbridgeIfRequired: RequestBuilder => RequestBuilder =
+    EbridgeConfigurator.configure(config.useProxy, config.bearerToken, config.apiKey)
+
   val serviceBaseUrl: String = config.serviceBaseUrl
 
-  import config._
+  override def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+    val theUrl = documentationUrl(resourceId)
 
-  override def http: HttpClient with WSGet =
-    if (useProxy) {
-      proxiedHttpClient.withHeaders(bearerToken, apiKey)
-    } else {
-      httpClient
-    }
+    logger.info(s"${this.getClass.getSimpleName} - S - fetchApiDocumentationResource. Url: $theUrl")
 
-  override def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
-    val url = documentationUrl(resourceId)
-
-    logger.info(s"${this.getClass.getSimpleName} - S - fetchApiDocumentationResource. Url: $url")
-
-    if (useProxy) {
-      proxiedHttpClient
-        .withHeaders(bearerToken, apiKey)
-        .buildRequest(url, Seq.empty)
-        .stream()
+    if (config.useProxy) {
+      configureEbridgeIfRequired(
+        http.get(theUrl)
+      )
+        .stream[HttpResponse]
         .map(Some(_))
     } else {
       Future.successful(None)

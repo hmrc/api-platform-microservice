@@ -16,6 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 
+import java.net.URL
+
+import uk.gov.hmrc.http.StringContextOps
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
@@ -25,17 +29,17 @@ trait ApiDefinitionConnectorUtils {
 
   lazy val definitionsUrl = s"$serviceBaseUrl/api-definition"
 
-  def definitionUrl(serviceName: ServiceName) =
-    s"$serviceBaseUrl/api-definition/$serviceName"
+  def definitionUrl(serviceName: ServiceName): URL =
+    url"$serviceBaseUrl/api-definition/$serviceName"
 
   lazy val categoriesUrl = s"$serviceBaseUrl/api-categories"
 
-  def documentationUrl(resourceId: ResourceId): String = {
+  def documentationUrl(resourceId: ResourceId): URL = {
     import resourceId._
-    s"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/documentation/$resource"
+    url"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/documentation/$resource"
   }
 
-  def specificationUrl(serviceName: ServiceName, versionNbr: ApiVersionNbr): String = {
-    s"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/specification"
+  def specificationUrl(serviceName: ServiceName, versionNbr: ApiVersionNbr): URL = {
+    url"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/specification"
   }
 }

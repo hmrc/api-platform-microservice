@@ -20,14 +20,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Config
 
 @Singleton
-class AuthConnector @Inject() (val http: HttpClient, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector {
+class AuthConnector @Inject() (val httpClientV2: HttpClientV2, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector {
   lazy val serviceUrl: String = authConfig.baseUrl
-
 }
 
 object AuthConnector {

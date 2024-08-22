@@ -29,8 +29,6 @@ lazy val root = Project(appName, file("."))
   )
   .settings(ScoverageSettings())
   .settings(
-    Test / fork := false,
-    Test / parallelExecution := false,
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"

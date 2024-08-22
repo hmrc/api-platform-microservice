@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
 import play.api.libs.json.{Json, Writes}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, ClientId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
@@ -62,7 +63,7 @@ class SubscriptionFieldsConnectorSpec
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val clientId                   = ClientId("123")
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClientV2]
     val config     = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
     val connector  = new PrincipalSubscriptionFieldsConnector(config, httpClient)
   }
@@ -126,13 +127,13 @@ class SubscriptionFieldsConnectorSpec
     connector.urlSubscriptionFieldValues(
       ClientId("1"),
       ApiIdentifier(ApiContext("path"), ApiVersionNbr("1"))
-    ) shouldBe "http://localhost:22222/field/application/1/context/path/version/1"
+    ).toString shouldBe "http://localhost:22222/field/application/1/context/path/version/1"
   }
   "return complex encoded url" in new SetupPrincipal {
     connector.urlSubscriptionFieldValues(
       ClientId("1 2"),
       ApiIdentifier(ApiContext("path1/path2"), ApiVersionNbr("1.0 demo"))
-    ) shouldBe "http://localhost:22222/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
+    ).toString shouldBe "http://localhost:22222/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo"
   }
 
 }

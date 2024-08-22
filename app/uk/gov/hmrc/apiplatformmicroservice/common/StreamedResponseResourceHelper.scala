@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
+import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 
 trait StreamedResponseResourceHelper extends StreamedResponseHelper {
 
-  def handler(resourceId: ResourceId): WSResponse => Result = {
+  def handler(resourceId: ResourceId): HttpResponse => Result = {
     import resourceId._
 
     streamedResponseAsResult(

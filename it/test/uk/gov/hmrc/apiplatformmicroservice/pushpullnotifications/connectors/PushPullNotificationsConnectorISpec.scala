@@ -22,11 +22,11 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
@@ -53,30 +53,14 @@ class PushPullNotificationsConnectorISpec
     implicit val boxIdWrites: Writes[BoxId]                 = Json.valueFormat[BoxId]
     implicit val boxResponseWrites: Writes[BoxResponse]     = Json.writes[BoxResponse]
 
-    implicit val hc: HeaderCarrier      = HeaderCarrier()
-    val httpClient                      = app.injector.instanceOf[HttpClient]
-    protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer                          = "TestBearerToken"
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    val httpClient                 = app.injector.instanceOf[HttpClientV2]
 
-    val config                                            = AbstractPushPullNotificationsConnector.Config(
-      applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort",
-      applicationUseProxy = false,
-      applicationBearerToken = bearer,
-      applicationApiKey = apiKeyTest
+    val config                                            = PrincipalPushPullNotificationsConnector.Config(
+      applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
-    val connector: AbstractPushPullNotificationsConnector = new PrincipalPushPullNotificationsConnector(config, httpClient, mockProxiedHttpClient)
-  }
+    val connector: AbstractPushPullNotificationsConnector = new PrincipalPushPullNotificationsConnector(config, httpClient)
 
-  trait SubordinateSetup extends Setup {
-
-    override val config    = AbstractPushPullNotificationsConnector.Config(
-      applicationBaseUrl = s"http://$WireMockHost:$WireMockSubordinatePort",
-      applicationUseProxy = false,
-      applicationBearerToken = bearer,
-      applicationApiKey = apiKeyTest
-    )
-    override val connector = new SubordinatePushPullNotificationsConnector(config, httpClient, mockProxiedHttpClient)
   }
 
   "Get all boxes" should {

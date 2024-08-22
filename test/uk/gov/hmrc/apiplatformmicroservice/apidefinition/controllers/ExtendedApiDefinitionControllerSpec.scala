@@ -22,12 +22,12 @@ import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.testkit.NoMaterializer
 
+import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
@@ -53,22 +53,22 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     val anApiDefinition         = apiDefinition(apiName)
     val anExtendedApiDefinition = extendedApiDefinition(apiName)
 
-    val controller     = new ExtendedApiDefinitionController(
+    val controller       = new ExtendedApiDefinitionController(
       Helpers.stubControllerComponents(),
       ApiDefinitionsForCollaboratorFetcherMock.aMock,
       ExtendedApiDefinitionForCollaboratorFetcherMock.aMock,
       ApiDocumentationResourceFetcherMock.aMock,
       SubscribedApiDefinitionsForCollaboratorFetcherMock.aMock
     )
-    val mockWSResponse = mock[WSResponse]
-    when(mockWSResponse.status).thenReturn(OK)
-    when(mockWSResponse.headers).thenReturn(
+    val mockHttpResponse = mock[HttpResponse]
+    when(mockHttpResponse.status).thenReturn(OK)
+    when(mockHttpResponse.headers).thenReturn(
       Map(
         "Content-Length" -> Seq("500")
       )
     )
-    when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
-    when(mockWSResponse.contentType).thenReturn("application/json")
+    when(mockHttpResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
+    when(mockHttpResponse.header(eqTo(HeaderNames.CONTENT_TYPE))).thenReturn(Some("application/json"))
   }
   "fetchApiDefinitionsForCollaborator" should {
     val userId = Some(UserId.random)
@@ -182,7 +182,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
 
   "fetchApiDocumentationResource" should {
     "return resource when found" in new Setup {
-      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockHttpResponse)
 
       val result: Future[Result] =
         controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)
@@ -191,11 +191,10 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return resource using content type when no proxy safe content type is present" in new Setup {
-      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockHttpResponse)
 
-      when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE)))
-        .thenReturn(None)
-      when(mockWSResponse.contentType).thenReturn("application/magic")
+      when(mockHttpResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE))).thenReturn(None)
+      when(mockHttpResponse.header(eqTo(HeaderNames.CONTENT_TYPE))).thenReturn(Some("application/magic"))
 
       val result: Future[Result] =
         controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)
@@ -204,10 +203,9 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return resource using proxy safe content type when present" in new Setup {
-      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockWSResponse)
+      ApiDocumentationResourceFetcherMock.willReturnWsResponse(mockHttpResponse)
 
-      when(mockWSResponse.header(eqTo(PROXY_SAFE_CONTENT_TYPE)))
-        .thenReturn(Some("application/zip"))
+      when(mockHttpResponse.header(eqTo(HeaderNames.CONTENT_TYPE))).thenReturn(Some("application/zip"))
 
       val result: Future[Result] =
         controller.fetchApiDocumentationResource(serviceName, version, "some/resource")(request)

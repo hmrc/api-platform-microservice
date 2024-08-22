@@ -22,7 +22,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -47,7 +48,7 @@ class ThirdPartyDeveloperConnectorSpec
     val userId1 = UserId.random
     val userId2 = UserId.random
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClientV2]
 
     val mockConfig: ThirdPartyDeveloperConnector.Config = mock[ThirdPartyDeveloperConnector.Config]
     when(mockConfig.applicationBaseUrl).thenReturn(wireMockUrl)

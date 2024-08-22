@@ -20,33 +20,30 @@ import com.google.inject.{Inject, Provider, Singleton}
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.AbstractPushPullNotificationsConnector
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{PrincipalPushPullNotificationsConnector, SubordinatePushPullNotificationsConnector}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
 
 @Singleton
 class PrincipalPushPullNotificationsConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[AbstractPushPullNotificationsConnector.Config]
+    extends Provider[PrincipalPushPullNotificationsConnector.Config]
     with ConfigProviderHelper {
 
-  override def get(): AbstractPushPullNotificationsConnector.Config = {
+  override def get(): PrincipalPushPullNotificationsConnector.Config = {
     val serviceName = "push-pull-notifications-api-principal"
-    AbstractPushPullNotificationsConnector.Config(
-      serviceUrl("push-pull-notifications-api")(serviceName),
-      useProxy(serviceName),
-      bearerToken(serviceName),
-      apiKey(serviceName)
+    PrincipalPushPullNotificationsConnector.Config(
+      serviceUrl("push-pull-notifications-api")(serviceName)
     )
   }
 }
 
 @Singleton
 class SubordinatePushPullNotificationsConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
-    extends Provider[AbstractPushPullNotificationsConnector.Config]
+    extends Provider[SubordinatePushPullNotificationsConnector.Config]
     with ConfigProviderHelper {
 
-  override def get(): AbstractPushPullNotificationsConnector.Config = {
+  override def get(): SubordinatePushPullNotificationsConnector.Config = {
     val serviceName = "push-pull-notifications-api-subordinate"
-    AbstractPushPullNotificationsConnector.Config(
+    SubordinatePushPullNotificationsConnector.Config(
       serviceUrl("push-pull-notifications-api")(serviceName),
       useProxy(serviceName),
       bearerToken(serviceName),

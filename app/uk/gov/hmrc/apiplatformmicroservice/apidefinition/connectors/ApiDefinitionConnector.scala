@@ -19,10 +19,9 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.{JsObject, JsValue}
-import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -33,13 +32,16 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
     with ApplicationLogger with ConnectorRecovery {
 
-  def http: HttpClient with WSGet
+  def http: HttpClientV2
   def serviceBaseUrl: String
   implicit val ec: ExecutionContext
 
+  def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
+
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    http.GET[Option[List[ApiDefinition]]](definitionsUrl, Seq("type" -> "all"))
+    http.get(url"$definitionsUrl?type=all")
+      .execute[Option[List[ApiDefinition]]]
       .map(_ match {
         case None                 => List.empty
         case Some(apiDefinitions) => apiDefinitions.sortBy(_.name)
@@ -48,14 +50,18 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
 
   def fetchApiDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    http.GET[Option[ApiDefinition]](definitionUrl(serviceName)) recover recovery
+    http.get(definitionUrl(serviceName))
+      .execute[Option[ApiDefinition]]
+      .recover(recovery)
   }
 
-  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]]
+  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]]
 
   def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
-    http.GET[Option[JsObject]](specificationUrl(serviceName, version)) recover recovery
+    http.get(specificationUrl(serviceName, version))
+      .execute[Option[JsObject]]
+      .recover(recovery)
   }
 
 }

@@ -20,10 +20,10 @@ import scala.concurrent.ExecutionContext
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.http.{HttpEntity, Status}
-import play.api.libs.ws.WSResponse
+import play.api.http.{HeaderNames, HttpEntity, MimeTypes, Status}
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ErrorCode, JsErrorResponse}
 
@@ -37,14 +37,14 @@ trait StreamedResponseHelper extends ApplicationLogger {
 
   import StreamedResponseHelper._
 
-  type StreamedResponseHandlerPF = PartialFunction[WSResponse, Result]
+  type StreamedResponseHandlerPF = PartialFunction[HttpResponse, Result]
 
-  def getContentType(wsr: WSResponse): String = {
-    wsr.header(PROXY_SAFE_CONTENT_TYPE).getOrElse(wsr.contentType)
+  def getContentType(response: HttpResponse): String = {
+    response.header(PROXY_SAFE_CONTENT_TYPE).orElse(response.header(HeaderNames.CONTENT_TYPE)).getOrElse(MimeTypes.TEXT)
   }
 
   def handleOkStreamedResponse: StreamedResponseHandlerPF = {
-    case response: WSResponse if response.status == Status.OK =>
+    case response: HttpResponse if response.status == Status.OK =>
       // Get the content type
       val contentType = getContentType(response)
 
@@ -64,7 +64,7 @@ trait StreamedResponseHelper extends ApplicationLogger {
   def handleErrorsAsInternalServerError(
       msg: String
     ): StreamedResponseHandlerPF = {
-    case response: WSResponse =>
+    case response: HttpResponse =>
       logger.warn(s"Failed due to $msg with status ${response.status}")
       InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
   }
@@ -72,7 +72,7 @@ trait StreamedResponseHelper extends ApplicationLogger {
   def streamedResponseAsResult(
       handleError: StreamedResponseHandlerPF
     )(
-      streamedResponse: WSResponse
+      streamedResponse: HttpResponse
     ): Result = {
     logger.info(s"Streamed Response status ${streamedResponse.status}")
     val fn = handleOkStreamedResponse orElse handleError

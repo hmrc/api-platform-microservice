@@ -23,8 +23,7 @@ import cats.data.OptionT
 import cats.implicits._
 import org.apache.pekko.stream.Materializer
 
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedApiDefinition, ExtendedApiVersion}
@@ -45,7 +44,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook
 
-  def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[WSResponse]] = {
+  def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
     (
       for {
         apiDefinition <- OptionT(extendedApiDefinitionFetcher.fetchCached(resourceId.serviceName, None))
@@ -70,13 +69,13 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
   }
 
-  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, WSResponse] =
+  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] =
     whereToLook match {
       case Both           => fetchSubordinateOrPrincipal(resourceId)
       case ProductionOnly => fetchPrincipalResourceOnly(resourceId)
     }
 
-  private def logAndHandleErrorsAsNone(connectorName: String)(resourceId: ResourceId)(x: WSResponse): OptionT[Future, WSResponse] = {
+  private def logAndHandleErrorsAsNone(connectorName: String)(resourceId: ResourceId)(x: HttpResponse): OptionT[Future, HttpResponse] = {
     logger.info(s"$connectorName response code: ${x.status} for ${resourceId}")
 
     if (x.status >= 200 && x.status <= 299) {
@@ -86,13 +85,13 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
   }
 
-  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, WSResponse] = {
+  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
 
-    val subordinateData: OptionT[Future, WSResponse] =
+    val subordinateData: OptionT[Future, HttpResponse] =
       OptionT(subordinateDefinitionService.fetchApiDocumentationResource(resourceId))
         .flatMap(logAndHandleErrorsAsNone("Subordinate")(resourceId))
 
-    lazy val principalData: OptionT[Future, WSResponse] =
+    lazy val principalData: OptionT[Future, HttpResponse] =
       OptionT(principalDefinitionService.fetchApiDocumentationResource(resourceId))
         .flatMap(logAndHandleErrorsAsNone("Principal")(resourceId))
 
@@ -100,7 +99,7 @@ class ApiDocumentationResourceFetcher @Inject() (
       .orElse(principalData)
   }
 
-  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, WSResponse] = {
+  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
     OptionT(principalDefinitionService.fetchApiDocumentationResource(resourceId))
       .flatMap(logAndHandleErrorsAsNone("Principal")(resourceId))
   }
