@@ -177,7 +177,9 @@ class AppCmdControllerISpec
        |    "allowlist": []
        |  },
        |  "moreApplication": {
-       |    "allowAutoDelete": false
+       |    "allowAutoDelete": false,
+       |    "lastActionActor": "GATEKEEPER"
+       |
        |  }
        |}""".stripMargin
   }

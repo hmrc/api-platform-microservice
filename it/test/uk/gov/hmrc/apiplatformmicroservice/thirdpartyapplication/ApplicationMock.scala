@@ -130,7 +130,8 @@ trait ApplicationMock {
                        |      "allowlist": []
                        |  },
                        |  "moreApplication": {
-                       |      "allowAutoDelete": true
+                       |      "allowAutoDelete": true,
+                       |      "lastActionActor": "GATEKEEPER"
                        |  },
                        |  "trusted": false
                        |}""".stripMargin)
