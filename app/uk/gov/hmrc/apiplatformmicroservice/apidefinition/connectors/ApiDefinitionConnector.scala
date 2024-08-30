@@ -40,7 +40,9 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
 
   def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
-    http.get(url"$definitionsUrl?type=all")
+    configureEbridgeIfRequired(
+      http.get(url"$definitionsUrl?type=all")
+    )
       .execute[Option[List[ApiDefinition]]]
       .map(_ match {
         case None                 => List.empty
@@ -50,7 +52,9 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
 
   def fetchApiDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
-    http.get(definitionUrl(serviceName))
+    configureEbridgeIfRequired(
+      http.get(definitionUrl(serviceName))
+    )
       .execute[Option[ApiDefinition]]
       .recover(recovery)
   }
@@ -59,7 +63,9 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
 
   def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
-    http.get(specificationUrl(serviceName, version))
+    configureEbridgeIfRequired(
+      http.get(specificationUrl(serviceName, version))
+    )
       .execute[Option[JsObject]]
       .recover(recovery)
   }
