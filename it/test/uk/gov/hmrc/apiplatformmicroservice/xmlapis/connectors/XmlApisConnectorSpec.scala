@@ -18,7 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import uk.gov.hmrc.http.{HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
@@ -27,7 +28,7 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
   trait Setup {
-    val httpClient                      = app.injector.instanceOf[HttpClient]
+    val httpClient                      = app.injector.instanceOf[HttpClientV2]
     val config: XmlApisConnector.Config = XmlApisConnector.Config(s"http://$WireMockHost:$WireMockPrincipalPort")
     val connector                       = new XmlApisConnector(httpClient, config)
 

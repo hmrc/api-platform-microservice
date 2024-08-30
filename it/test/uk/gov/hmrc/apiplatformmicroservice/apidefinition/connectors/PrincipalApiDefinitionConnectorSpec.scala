@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{HttpClient, UpstreamErrorResponse}
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, Environment}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
@@ -59,7 +59,7 @@ class PrincipalApiDefinitionConnectorSpec
     val apiDefinitionUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     val config           = Config(baseUrl = apiDefinitionUrl)
 
-    val httpClient = app.injector.instanceOf[HttpClient with WSGet]
+    val httpClient = app.injector.instanceOf[HttpClientV2]
 
     val connector = new PrincipalApiDefinitionConnector(httpClient, config)
   }

@@ -22,7 +22,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 
 import play.api.libs.json.JsValue
-import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -65,7 +65,7 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
     object FetchApiDocumentationResource {
 
-      def willReturnWsResponse(wsResponse: WSResponse) = {
+      def willReturnWsResponse(wsResponse: HttpResponse) = {
         when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(Some(wsResponse)))
       }
 

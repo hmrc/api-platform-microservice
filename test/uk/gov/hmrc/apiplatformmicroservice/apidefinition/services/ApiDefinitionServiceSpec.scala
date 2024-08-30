@@ -20,8 +20,7 @@ import scala.concurrent.Future
 
 import org.scalatest.prop.TableDrivenPropertyChecks._
 
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -268,7 +267,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val obj = setupFn()
           import obj._
 
-          val result     = Some(mock[WSResponse])
+          val result     = Some(mock[HttpResponse])
           val mockFuture = Future.successful(result)
 
           when(

@@ -17,14 +17,15 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import java.time.Clock
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
 import play.api.libs.json.{Json, Writes}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, Collaborator, Collaborators, RedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
@@ -60,11 +60,12 @@ class ThirdPartyApplicationConnectorISpec
   trait Setup {
     implicit val applicationResponseWrites: Writes[ApplicationIdResponse] = Json.writes[ApplicationIdResponse]
 
-    implicit val hc: HeaderCarrier      = HeaderCarrier()
-    val httpClient                      = app.injector.instanceOf[HttpClient]
-    protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer                          = "TestBearerToken"
+    implicit val hc: HeaderCarrier    = HeaderCarrier()
+    val httpClient                    = app.injector.instanceOf[HttpClientV2]
+    implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
+    val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
+    val bearer     = "TestBearerToken"
 
     val config                                            = AbstractThirdPartyApplicationConnector.Config(
       applicationBaseUrl = s"http://$WireMockHost:$WireMockPrincipalPort",
@@ -72,7 +73,7 @@ class ThirdPartyApplicationConnectorISpec
       applicationBearerToken = bearer,
       applicationApiKey = apiKeyTest
     )
-    val connector: AbstractThirdPartyApplicationConnector = new PrincipalThirdPartyApplicationConnector(config, httpClient, mockProxiedHttpClient)
+    val connector: AbstractThirdPartyApplicationConnector = new PrincipalThirdPartyApplicationConnector(config, httpClient)
   }
 
   trait SubordinateSetup extends Setup {
@@ -83,7 +84,7 @@ class ThirdPartyApplicationConnectorISpec
       applicationBearerToken = bearer,
       applicationApiKey = apiKeyTest
     )
-    override val connector = new SubordinateThirdPartyApplicationConnector(config, httpClient, mockProxiedHttpClient)
+    override val connector = new SubordinateThirdPartyApplicationConnector(config, httpClient)
   }
 
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {

@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 
-import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDocumentationResourceFetcher
 
@@ -30,7 +30,7 @@ trait ApiDocumentationResourceFetcherModule extends PlaySpec with MockitoSugar w
   object ApiDocumentationResourceFetcherMock {
     val aMock = mock[ApiDocumentationResourceFetcher]
 
-    def willReturnWsResponse(wsResponse: WSResponse) = {
+    def willReturnWsResponse(wsResponse: HttpResponse) = {
       when(aMock.fetch(*)(*)).thenReturn(Future.successful(Some(wsResponse)))
     }
 

@@ -24,7 +24,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException, UnauthorizedException}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, UnauthorizedException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatformmicroservice.common.ProxiedHttpClient
 import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
@@ -50,11 +50,10 @@ class ApplicationCommandConnectorISpec
 
   trait Setup {
 
-    implicit val hc: HeaderCarrier      = HeaderCarrier()
-    val httpClient                      = app.injector.instanceOf[HttpClient]
-    protected val mockProxiedHttpClient = mock[ProxiedHttpClient]
-    val apiKeyTest                      = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
-    val bearer                          = "TestBearerToken"
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    val httpClient                 = app.injector.instanceOf[HttpClientV2]
+    val apiKeyTest                 = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
+    val bearer                     = "TestBearerToken"
 
     val applicationId = ApplicationId.random
     val clientId      = ClientId.random

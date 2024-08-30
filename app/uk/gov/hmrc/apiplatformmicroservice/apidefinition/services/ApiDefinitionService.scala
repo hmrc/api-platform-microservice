@@ -22,8 +22,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
 import play.api.libs.json.JsValue
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
@@ -78,7 +77,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     } yield open
   }
 
-  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[WSResponse]] = {
+  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HttpResponse]] = {
     import resourceId._
     lazy val failFn = (e: Throwable) => s"fetchApiDocumentationResource($serviceName, $versionNbr, $resource) failed $e"
 

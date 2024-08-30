@@ -19,9 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.PrincipalApiDefinitionConnector.Config
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
@@ -29,26 +28,25 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
 class PrincipalApiDefinitionConnector @Inject() (
-    val http: HttpClient with WSGet,
+    val http: HttpClientV2,
     val config: Config
   )(implicit val ec: ExecutionContext
   ) extends ApiDefinitionConnector with ApplicationLogger {
   val serviceBaseUrl: String = config.baseUrl
 
+  val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
+
   override def fetchApiDocumentationResource(
       resourceId: ResourceId
     )(implicit hc: HeaderCarrier
-    ): Future[Option[WSResponse]] = {
-    val url = documentationUrl(resourceId)
+    ): Future[Option[HttpResponse]] = {
+    val theUrl = url"${documentationUrl(resourceId)}"
 
     logger.info(
-      s"${this.getClass.getSimpleName} - P - fetchApiDocumentationResource. Url: $url"
+      s"${this.getClass.getSimpleName} - P - fetchApiDocumentationResource. Url: $theUrl"
     )
 
-    http
-      .buildRequest(url, Seq.empty)
-      .stream()
-      .map(Some(_))
+    http.get(theUrl).stream[HttpResponse].map(Some(_))
   }
 }
 

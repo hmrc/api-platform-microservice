@@ -23,8 +23,7 @@ import org.apache.pekko.stream.testkit.NoMaterializer
 import org.scalatest.Assertion
 
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.ws.WSResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
@@ -43,13 +42,13 @@ class ApiDocumentationResourceFetcherSpec extends AsyncHmrcSpec with ApiDefiniti
     val resourceId    = ResourceId(serviceName, versionOne, resource)
     val noSuchVersion = resourceId.copy(versionNbr = ApiVersionNbr("YouWontFindMe"))
 
-    val mockWSResponse      = mock[WSResponse]
+    val mockWSResponse      = mock[HttpResponse]
     when(mockWSResponse.status).thenReturn(OK)
-    val mockErrorWSResponse = mock[WSResponse]
+    val mockErrorWSResponse = mock[HttpResponse]
     when(mockErrorWSResponse.status).thenReturn(INTERNAL_SERVER_ERROR)
 
     def ensureResult: Assertion = {
-      val oresult: Option[WSResponse] = await(underTest.fetch(resourceId))
+      val oresult: Option[HttpResponse] = await(underTest.fetch(resourceId))
 
       oresult mustBe Symbol("defined")
       oresult map (_.status) shouldEqual Some(OK)

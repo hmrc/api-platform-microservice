@@ -20,7 +20,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
@@ -28,7 +29,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.{BasicXmlApisJsonFormatters, XmlApi}
 
 @Singleton
-class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConnector.Config)(implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters
+class XmlApisConnector @Inject() (http: HttpClientV2, appConfig: XmlApisConnector.Config)(implicit ec: ExecutionContext) extends BasicXmlApisJsonFormatters
     with ApplicationLogger
     with ConnectorRecovery {
 
@@ -36,12 +37,16 @@ class XmlApisConnector @Inject() (httpClient: HttpClient, appConfig: XmlApisConn
 
   def fetchAllXmlApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllXmlApis")
-    httpClient.GET[Seq[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/apis") recover recovery
+    http.get(url"$serviceBaseUrl/api-platform-xml-services/xml/apis")
+      .execute[Seq[XmlApi]]
+      .recover(recovery)
   }
 
   def fetchXmlApiByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $serviceName")
-    httpClient.GET[Option[XmlApi]](s"$serviceBaseUrl/api-platform-xml-services/xml/api", queryParams = Seq("serviceName" -> s"$serviceName")) recover recovery
+    http.get(url"$serviceBaseUrl/api-platform-xml-services/xml/api?serviceName=$serviceName")
+      .execute[Option[XmlApi]]
+      .recover(recovery)
   }
 
 }

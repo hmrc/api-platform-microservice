@@ -19,7 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import uk.gov.hmrc.http.{HttpClient, _}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -29,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 @Singleton
 class AppCmdConnector @Inject() (
     config: AppCmdConnector.Config,
-    val http: HttpClient
+    val http: HttpClientV2
   )(implicit val ec: ExecutionContext
   ) extends ApplicationLogger {
 
@@ -57,11 +58,11 @@ class AppCmdConnector @Inject() (
       }
     }
 
-    val url          = s"${baseApplicationUrl(applicationId)}/dispatch"
-    val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
 
-    http.PATCH[DispatchRequest, HttpResponse](url, dispatchRequest, extraHeaders)
+    http.patch(url"${baseApplicationUrl(applicationId)}/dispatch")
+      .withBody(Json.toJson(dispatchRequest))
+      .execute[HttpResponse]
       .map(response =>
         response.status match {
           case OK           => parseWithLogAndThrow[DispatchSuccessResult](response.body).asRight[AppCmdHandlerTypes.Failures]
