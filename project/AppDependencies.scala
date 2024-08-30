@@ -22,7 +22,6 @@ object AppDependencies {
     "org.pegdown"             %  "pegdown"                          % "1.6.0",
     "org.mockito"             %% "mockito-scala-scalatest"          % "1.17.29",
     "org.scalatest"           %% "scalatest"                        % "3.2.17",
-    "uk.gov.hmrc"             %% "api-platform-test-common-domain"  % commonDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-test-tpd-domain"     % tpdDomainVersion,
   ).map(_ % "test")
 }
