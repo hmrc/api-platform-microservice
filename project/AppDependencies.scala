@@ -7,7 +7,7 @@ object AppDependencies {
   val apiDomainVersion = "0.17.0"  // 0.17.0 uses common-domain 0.13.0
   val commonDomainVersion = "0.13.0"
   val appDomainVersion = "0.57.0"
-  val tpdDomainVersion = "0.2.0"
+  val tpdDomainVersion = "0.9.0"
 
   lazy val dependencies = Seq(
     caffeine,
