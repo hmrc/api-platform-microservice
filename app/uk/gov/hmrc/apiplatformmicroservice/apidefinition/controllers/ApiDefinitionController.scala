@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
@@ -95,5 +96,12 @@ class ApiDefinitionController @Inject() (
     for {
       apis <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield Ok(Json.toJson(apis))
+  }
+
+  def fetchApiEventsForServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      sandboxApiEvents <- apiDefinitionService(SANDBOX).fetchApiEvents(serviceName)
+      prodApiEvents <- apiDefinitionService(PRODUCTION).fetchApiEvents(serviceName)
+    } yield Ok(Json.toJson(sandboxApiEvents ++ prodApiEvents))
   }
 }
