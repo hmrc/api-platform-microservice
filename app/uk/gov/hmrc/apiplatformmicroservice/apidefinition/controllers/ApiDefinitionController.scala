@@ -42,7 +42,8 @@ class ApiDefinitionController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents,
-    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher
+    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
+    apiEventsFetcher: ApiEventsFetcher
   )(implicit val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
@@ -100,8 +101,8 @@ class ApiDefinitionController @Inject() (
 
   def fetchApiEventsForServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
     for {
-      sandboxApiEvents <- apiDefinitionService(SANDBOX).fetchApiEvents(serviceName)
-      prodApiEvents <- apiDefinitionService(PRODUCTION).fetchApiEvents(serviceName)
+      sandboxApiEvents <- apiEventsFetcher.fetchApiVersionsForEnvironment(SANDBOX, serviceName)
+      prodApiEvents <- apiEventsFetcher.fetchApiVersionsForEnvironment(PRODUCTION, serviceName)
     } yield Ok(Json.toJson(sandboxApiEvents ++ prodApiEvents))
   }
 }
