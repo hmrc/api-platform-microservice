@@ -51,9 +51,9 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
     val sandboxApplicationId    = ApplicationId.random
-    val sandboxApplication      = buildApplication(appId = sandboxApplicationId)
+    val sandboxApplication      = buildApplication().withId(sandboxApplicationId).modify(_.copy(deployedTo = Environment.SANDBOX))
     val productionApplicationId = ApplicationId.random
-    val productionApplication   = buildApplication(appId = productionApplicationId).copy(deployedTo = Environment.PRODUCTION)
+    val productionApplication   = buildApplication().withId(productionApplicationId).modify(_.copy(deployedTo = Environment.PRODUCTION))
 
     val adminEmail              = "admin@example.com".toLaxEmail
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator

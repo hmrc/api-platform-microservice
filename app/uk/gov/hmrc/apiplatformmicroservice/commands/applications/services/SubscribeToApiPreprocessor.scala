@@ -26,10 +26,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApiIdentifier, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
 
 @Singleton
@@ -59,14 +59,23 @@ class SubscribeToApiPreprocessor @Inject() (
   }
 
   // Should be done post subscribe probably but it never has been
-  private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
+  private def createFieldValues(
+      application: ApplicationWithCollaborators,
+      apiIdentifier: ApiIdentifier
+    )(implicit hc: HeaderCarrier
+    ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
     import cats.syntax.either._
 
     subscriptionFieldsService.createFieldValues(application.clientId, application.deployedTo, apiIdentifier: ApiIdentifier)
       .map(_.fold(_ => CommandFailures.GenericFailure("Creation of field values failed").leftNel[Unit], _ => ().rightNel[CommandFailure]))
   }
 
-  def process(application: Application, cmd: ApplicationCommands.SubscribeToApi, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT = {
+  def process(
+      application: ApplicationWithCollaborators,
+      cmd: ApplicationCommands.SubscribeToApi,
+      data: Set[LaxEmailAddress]
+    )(implicit hc: HeaderCarrier
+    ): AppCmdPreprocessorTypes.AppCmdResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
     val requiredGKUser           = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)

@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain
 import play.api.mvc._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, Environment}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 
-case class ApplicationWithSubscriptionDataRequest[A](application: Application, subscriptions: Set[ApiIdentifier], deployedTo: Environment, request: Request[A])
+case class ApplicationWithSubscriptionDataRequest[A](application: ApplicationWithCollaborators, subscriptions: Set[ApiIdentifier], deployedTo: Environment, request: Request[A])
     extends WrappedRequest[A](request)

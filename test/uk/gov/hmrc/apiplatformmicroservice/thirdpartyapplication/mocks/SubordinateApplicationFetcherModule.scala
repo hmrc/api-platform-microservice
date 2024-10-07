@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubordinateApplicationFetcher
 
 trait SubordinateApplicationFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
@@ -30,7 +30,9 @@ trait SubordinateApplicationFetcherModule extends MockitoSugar with ArgumentMatc
     val aMock = mock[SubordinateApplicationFetcher]
 
     object FetchSubordinateApplication {
-      def willReturnApplication(application: Application) = when(aMock.fetchSubordinateApplication(*[ApplicationId])(*)).thenReturn(Future.successful(Some(application)))
+
+      def willReturnApplication(application: ApplicationWithCollaborators) =
+        when(aMock.fetchSubordinateApplication(*[ApplicationId])(*)).thenReturn(Future.successful(Some(application)))
 
       def willReturnNothing = when(aMock.fetchSubordinateApplication(*[ApplicationId])(*)).thenReturn(Future.successful(None))
     }

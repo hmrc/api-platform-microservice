@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSugar {
@@ -31,7 +31,7 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
 
     object FetchApplication {
 
-      def willReturnApplication(app: Option[Application]) = {
+      def willReturnApplication(app: Option[ApplicationWithCollaborators]) = {
         when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(Future.successful(app))
       }
 
@@ -42,8 +42,8 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
 
     object FetchApplicationWithSubscriptionData {
 
-      def willReturnApplicationWithSubscriptionData(app: Application, subscriptions: Set[ApiIdentifier] = Set.empty) = {
-        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(ApplicationWithSubscriptionData(app, subscriptions))))
+      def willReturnApplicationWithSubscriptionData(app: ApplicationWithCollaborators, subscriptions: Set[ApiIdentifier] = Set.empty) = {
+        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(app.withSubscriptions(subscriptions).withFieldValues(Map.empty))))
       }
     }
   }

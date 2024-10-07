@@ -23,7 +23,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
 
 trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.domain.AddCollaboratorRequestOld
 
   object TOUAHelper {
@@ -34,10 +33,6 @@ trait ApplicationJsonFormatters extends EnvReads with EnvWrites {
   }
 
   implicit val formatTermsOfUseAgreement: Format[TermsOfUseAgreement] = TOUAHelper.formatTOUA
-
-  implicit val formatApplication: Format[Application] = Json.format[Application]
-
-  implicit val formatApplicationWithSubscriptionData: OFormat[ApplicationWithSubscriptionData] = Json.format[ApplicationWithSubscriptionData]
 
   implicit val formatAddCollaboratorRequest: OFormat[AddCollaboratorRequestOld] = Json.format[AddCollaboratorRequestOld]
 }

@@ -22,9 +22,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, EnvironmentAwareThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
@@ -34,9 +34,9 @@ class ApplicationByIdFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
-  def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
-    val subordinateApp: Future[Option[Application]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
-    val principalApp: Future[Option[Application]]   = thirdPartyApplicationConnector.principal.fetchApplication(id)
+  def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+    val subordinateApp: Future[Option[ApplicationWithCollaborators]] = thirdPartyApplicationConnector.subordinate.fetchApplication(id) recover recoverWithDefault(None)
+    val principalApp: Future[Option[ApplicationWithCollaborators]]   = thirdPartyApplicationConnector.principal.fetchApplication(id)
 
     for {
       subordinate <- subordinateApp
@@ -44,7 +44,7 @@ class ApplicationByIdFetcher @Inject() (
     } yield principal.orElse(subordinate)
   }
 
-  def fetchApplicationWithSubscriptionData(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] = {
+  def fetchApplicationWithSubscriptionData(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     import cats.data.OptionT
     import cats.implicits._
 
@@ -55,7 +55,7 @@ class ApplicationByIdFetcher @Inject() (
         app          <- OptionT(foapp)
         subs         <- OptionT.liftF(thirdPartyApplicationConnector(app.deployedTo).fetchSubscriptionsById(app.id))
         filledFields <- OptionT.liftF(subscriptionFieldsService.fetchFieldValuesWithDefaults(app.deployedTo, app.clientId, subs))
-      } yield ApplicationWithSubscriptionData(app, subs, filledFields)
+      } yield ApplicationWithSubscriptionFields(app.details, app.collaborators, subs, filledFields)
     ).value
   }
 }

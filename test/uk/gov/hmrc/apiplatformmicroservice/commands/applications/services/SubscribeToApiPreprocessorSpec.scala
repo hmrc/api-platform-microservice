@@ -51,8 +51,8 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   val apiIdentifierThree   = ApiIdentifier(apiDefinitionThree.context, apiVersionOne)
   val apiIdentifierPrivate = ApiIdentifier(apiDefinitionPrivate.context, apiVersionOne)
 
-  val applicationId = ApplicationId.random
-  val anApplication = buildApplication(appId = applicationId)
+  // val applicationId = ApplicationId.random
+  val anApplication = buildApplication()
 
   val goodApi = apiIdentifierThree
 
@@ -78,13 +78,13 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
     val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, instant)
 
     "fail if ropc app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = Access.Ropc())
+      val application = anApplication.withAccess(Access.Ropc())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
 
     "fail if priviledged app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = Access.Privileged())
+      val application = anApplication.withAccess(Access.Privileged())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }

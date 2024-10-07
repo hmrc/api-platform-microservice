@@ -25,9 +25,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 /*
  * Do any preprocessing and/or validating of the request
@@ -36,7 +36,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.a
 trait AbstractAppCmdPreprocessor[C] {
   implicit def ec: ExecutionContext
 
-  def process(app: Application, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT
+  def process(app: ApplicationWithCollaborators, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT
 
   val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
 }
@@ -49,7 +49,7 @@ class AppCmdPreprocessor @Inject() (
 
   val E = EitherTHelper.make[NonEmptyList[CommandFailure]]
 
-  def process(app: Application, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT = {
+  def process(app: ApplicationWithCollaborators, dispatchRequest: DispatchRequest)(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT = {
     import ApplicationCommands._
 
     dispatchRequest.command match {

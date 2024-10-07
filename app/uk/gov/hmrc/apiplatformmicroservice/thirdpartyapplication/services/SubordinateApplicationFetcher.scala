@@ -25,9 +25,9 @@ import cats.implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 
 @Singleton
 class SubordinateApplicationFetcher @Inject() (
@@ -36,7 +36,7 @@ class SubordinateApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
-  def fetchSubordinateApplication(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
+  def fetchSubordinateApplication(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     (
       for {
         subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
