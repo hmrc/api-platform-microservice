@@ -42,4 +42,7 @@ trait ApiDefinitionConnectorUtils {
   def specificationUrl(serviceName: ServiceName, versionNbr: ApiVersionNbr): URL = {
     url"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/specification"
   }
+
+  def eventsUrl(serviceName: ServiceName): URL =
+    url"$serviceBaseUrl/api-definition/$serviceName/events"
 }

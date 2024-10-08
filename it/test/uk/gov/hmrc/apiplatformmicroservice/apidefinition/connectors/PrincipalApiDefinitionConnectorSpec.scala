@@ -27,8 +27,10 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, Environment}
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiEventId, DisplayApiEvent}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
@@ -40,7 +42,8 @@ class PrincipalApiDefinitionConnectorSpec
     with DefinitionsFromJson
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApiDefinitionMock {
+    with ApiDefinitionMock
+    with FixedClock {
 
   val UpstreamInternalServerError = UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
@@ -135,6 +138,33 @@ class PrincipalApiDefinitionConnectorSpec
       val result = await(connector.fetchApiSpecification(serviceName, version))
 
       result shouldBe None
+    }
+
+    "when requesting api events" should {
+
+      "call the underlying http client" in new Setup {
+        val displayApiEvent = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+        whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent))
+
+        val result = await(connector.fetchApiEvents(serviceName))
+
+        result shouldEqual List(displayApiEvent)
+      }
+
+      "throw an exception correctly" in new Setup {
+        whenGetApiEventsFails(Environment.PRODUCTION)(serviceName, 500)
+
+        intercept[UpstreamErrorResponse] {
+          await(connector.fetchApiEvents(serviceName))
+        }
+      }
+
+      "return empty list when no events found" in new Setup {
+        whenGetApiEventsFindsNothing(Environment.PRODUCTION)(serviceName)
+
+        val result = await(connector.fetchApiEvents(serviceName))
+        result shouldEqual List.empty
+      }
     }
   }
 }
