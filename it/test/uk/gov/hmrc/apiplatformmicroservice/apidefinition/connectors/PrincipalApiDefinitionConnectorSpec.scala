@@ -151,6 +151,15 @@ class PrincipalApiDefinitionConnectorSpec
         result shouldEqual List(displayApiEvent)
       }
 
+      "call the underlying http client, requesting to exclude no change events" in new Setup {
+        val displayApiEvent = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+        whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent), includeNoChange = false)
+
+        val result = await(connector.fetchApiEvents(serviceName, includeNoChange = false))
+
+        result shouldEqual List(displayApiEvent)
+      }
+
       "throw an exception correctly" in new Setup {
         whenGetApiEventsFails(Environment.PRODUCTION)(serviceName, 500)
 

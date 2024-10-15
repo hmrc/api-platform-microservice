@@ -43,6 +43,6 @@ trait ApiDefinitionConnectorUtils {
     url"$serviceBaseUrl/api-definition/$serviceName/${versionNbr}/specification"
   }
 
-  def eventsUrl(serviceName: ServiceName): URL =
-    url"$serviceBaseUrl/api-definition/$serviceName/events"
+  def eventsUrl(serviceName: ServiceName, includeNoChange: Boolean): URL =
+    url"$serviceBaseUrl/api-definition/$serviceName/events?includeNoChange=$includeNoChange"
 }

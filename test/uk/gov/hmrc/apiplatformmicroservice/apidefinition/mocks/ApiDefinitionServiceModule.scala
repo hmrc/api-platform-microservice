@@ -111,16 +111,16 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
     object FetchApiEvents {
 
-      def willReturn(displayApiEvents: List[DisplayApiEvent]) = {
-        when(aMock.fetchApiEvents(*[ServiceName])(*, *)).thenReturn(successful(displayApiEvents))
+      def willReturn(displayApiEvents: List[DisplayApiEvent], includeNoChange: Boolean = true) = {
+        when(aMock.fetchApiEvents(*[ServiceName], eqTo(includeNoChange))(*, *)).thenReturn(successful(displayApiEvents))
       }
 
       def willReturnEmptyList() = {
-        when(aMock.fetchApiEvents(*[ServiceName])(*, *)).thenReturn(successful(List.empty))
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApiEvents(*[ServiceName])(*, *)).thenReturn(failed(e))
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(failed(e))
       }
     }
 

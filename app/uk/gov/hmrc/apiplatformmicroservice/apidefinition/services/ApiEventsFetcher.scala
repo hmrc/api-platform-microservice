@@ -31,9 +31,9 @@ class ApiEventsFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchApiVersionsForEnvironment(environment: Environment, serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
+  def fetchApiVersionsForEnvironment(environment: Environment, serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
     for {
-      apiEvents           <- apiDefinitionService(environment).fetchApiEvents(serviceName)
+      apiEvents           <- apiDefinitionService(environment).fetchApiEvents(serviceName, includeNoChange)
       environmentApiEvents = apiEvents.map(ev => ev.copy(environment = Some(environment)))
     } yield environmentApiEvents
   }

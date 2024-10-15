@@ -314,10 +314,26 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val expected   = List(mock[DisplayApiEvent])
           val mockFuture = Future.successful(expected)
 
-          when(mockConnector.fetchApiEvents(eqTo(serviceName))(any))
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(true))(any))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchApiEvents(serviceName))
+          actual shouldEqual expected
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
+        }
+
+        "return the api events in a call to fetchApiEvents, excluding no change events" in {
+          val obj = setupFn()
+          import obj._
+
+          val expected   = List(mock[DisplayApiEvent])
+          val mockFuture = Future.successful(expected)
+
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(false))(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchApiEvents(serviceName, includeNoChange = false))
           actual shouldEqual expected
 
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
