@@ -289,9 +289,9 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
     )
   }
 
-  def whenGetApiEvents(env: Environment)(serviceName: ServiceName, displayApiEvents: List[DisplayApiEvent]) = {
+  def whenGetApiEvents(env: Environment)(serviceName: ServiceName, displayApiEvents: List[DisplayApiEvent], includeNoChange: Boolean = true) = {
     stubFor(env)(
-      get(urlEqualTo(s"/api-definition/$serviceName/events"))
+      get(urlEqualTo(s"/api-definition/$serviceName/events?includeNoChange=$includeNoChange"))
         .willReturn(
           aResponse()
             .withStatus(OK)
@@ -312,7 +312,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
 
   def whenGetApiEventsFindsNothing(env: Environment)(serviceName: ServiceName) = {
     stubFor(env)(
-      get(urlEqualTo(s"/api-definition/$serviceName/events"))
+      get(urlEqualTo(s"/api-definition/$serviceName/events?includeNoChange=true"))
         .willReturn(
           aResponse()
             .withStatus(OK)

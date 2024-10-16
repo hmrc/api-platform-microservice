@@ -106,13 +106,13 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchApiEvents(serviceName: ServiceName)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[DisplayApiEvent]] = {
+  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[DisplayApiEvent]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName) failed $e"
 
     if (enabled) {
       record {
         log(failFn) {
-          connector.fetchApiEvents(serviceName)
+          connector.fetchApiEvents(serviceName, includeNoChange)
         }
       }
     } else {

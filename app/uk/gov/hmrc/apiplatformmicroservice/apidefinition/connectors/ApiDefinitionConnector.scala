@@ -70,10 +70,10 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
       .recover(recovery)
   }
 
-  def fetchApiEvents(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
+  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiEvents")
     configureEbridgeIfRequired(
-      http.get(eventsUrl(serviceName))
+      http.get(eventsUrl(serviceName, includeNoChange))
     )
       .execute[List[DisplayApiEvent]]
       .recover(recovery)

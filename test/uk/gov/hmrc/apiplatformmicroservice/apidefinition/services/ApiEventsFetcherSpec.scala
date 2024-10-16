@@ -60,6 +60,14 @@ class ApiEventsFetcherSpec extends AsyncHmrcSpec
       await(inTest.fetchApiVersionsForEnvironment(SANDBOX, serviceName)) should contain.only(expectedApiEvent)
     }
 
+    "fetch api events, excluding no change events" in new Setup() {
+      PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent1), includeNoChange = false)
+
+      val expectedApiEvent = displayApiEvent1.copy(environment = Some(PRODUCTION))
+
+      await(inTest.fetchApiVersionsForEnvironment(PRODUCTION, serviceName, includeNoChange = false)) should contain.only(expectedApiEvent)
+    }
+
     "return empty list when no api events present in environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturnEmptyList()
       SubordinateApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent2))
