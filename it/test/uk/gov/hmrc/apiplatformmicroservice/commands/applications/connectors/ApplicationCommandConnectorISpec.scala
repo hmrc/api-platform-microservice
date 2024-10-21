@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
-import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -53,10 +52,6 @@ class ApplicationCommandConnectorISpec
     val apiKeyTest                 = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer                     = "TestBearerToken"
 
-    def anApplicationResponse(createdOn: Instant = instant, lastAccess: Instant = instant): ApplicationWithCollaborators = {
-      standardApp
-    }
-
     val config = AppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
@@ -77,7 +72,7 @@ class ApplicationCommandConnectorISpec
 
   "addCollaborator" should {
     "return success" in new CollaboratorSetup {
-      val response = anApplicationResponse()
+      val response = standardApp
 
       stubFor(Environment.PRODUCTION)(
         patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
