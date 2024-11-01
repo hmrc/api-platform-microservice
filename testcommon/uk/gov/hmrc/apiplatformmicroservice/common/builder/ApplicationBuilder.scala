@@ -25,13 +25,13 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 
 trait ApplicationBuilder extends CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures {
 
-  def buildApplication(
+  def buildSandboxApp(
     ): ApplicationWithCollaborators = {
 
-    standardApp.modify(_.copy(deployedTo = Environment.SANDBOX))
+    standardApp.inSandbox()
   }
 
-  val DefaultApplication = buildApplication()
+  val DefaultApplication = buildSandboxApp()
 
   implicit class ApplicationStateExtension(applicationState: ApplicationState) {
     def inProduction        = applicationState.copy(name = State.PRODUCTION)

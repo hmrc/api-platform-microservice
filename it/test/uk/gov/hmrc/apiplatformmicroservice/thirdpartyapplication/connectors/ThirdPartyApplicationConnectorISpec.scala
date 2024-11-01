@@ -249,7 +249,7 @@ class ThirdPartyApplicationConnectorISpec
     }
 
     "return the application" in new Setup {
-      val application = buildApplication()
+      val application = buildSandboxApp()
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))

@@ -34,7 +34,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 class AppCmdPreprocessorSpec extends AsyncHmrcSpec {
 
   trait SetUp extends ApplicationBuilder {
-    val application = buildApplication()
+    val application = buildSandboxApp()
 
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val mockSubscribeToApiPreprocessor        = mock[SubscribeToApiPreprocessor]

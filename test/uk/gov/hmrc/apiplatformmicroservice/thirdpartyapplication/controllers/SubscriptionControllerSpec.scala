@@ -63,7 +63,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return OK with a list of upliftable subscriptions" when {
       "there are upliftable apis available for the application id" in new Setup {
-        val application = buildApplication()
+        val application = buildSandboxApp()
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         val apiIdentifiers = Set(apiIdentifierOne)
@@ -78,7 +78,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return NotFound" when {
       "there are no upliftable apis available for the application id" in new Setup {
-        val application = buildApplication()
+        val application = buildSandboxApp()
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))

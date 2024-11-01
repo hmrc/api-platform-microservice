@@ -49,7 +49,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
   }
 
   "UpliftApplicationService" should {
-    val sandboxApp   = buildApplication()
+    val sandboxApp   = buildSandboxApp()
     val newAppId     = ApplicationId.random
     val context1     = "context1".asIdentifier()
     val context2     = "context2".asIdentifier()

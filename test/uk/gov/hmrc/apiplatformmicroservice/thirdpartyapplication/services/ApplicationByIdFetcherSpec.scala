@@ -35,7 +35,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock with Appl
 
   val id: ApplicationId = standardApp.id // ApplicationId.random
 
-  val application: ApplicationWithCollaborators = standardApp.modify(_.copy(deployedTo = Environment.SANDBOX))
+  val application: ApplicationWithCollaborators = standardApp.inSandbox()
 
   val BANG = new RuntimeException("BANG")
 

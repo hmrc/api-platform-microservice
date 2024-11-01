@@ -52,7 +52,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   val apiIdentifierPrivate = ApiIdentifier(apiDefinitionPrivate.context, apiVersionOne)
 
   // val applicationId = ApplicationId.random
-  val anApplication = buildApplication()
+  val anApplication = buildSandboxApp()
 
   val goodApi = apiIdentifierThree
 

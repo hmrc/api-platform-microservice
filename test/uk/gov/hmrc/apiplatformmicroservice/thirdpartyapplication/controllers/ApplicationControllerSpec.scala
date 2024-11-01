@@ -60,7 +60,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildApplication().withId(applicationIdOne)
+      val application = buildSandboxApp().withId(applicationIdOne)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
@@ -80,7 +80,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildApplication()
+      val application = buildSandboxApp()
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
@@ -99,7 +99,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val subordinateAppId = ApplicationId.random
 
     "return 200 if subordinate application is found" in new Setup {
-      val subordinateApplication = buildApplication().withId(subordinateAppId)
+      val subordinateApplication = buildSandboxApp().withId(subordinateAppId)
       SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnApplication(subordinateApplication)
 
       val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))
