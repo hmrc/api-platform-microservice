@@ -32,7 +32,6 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
 
@@ -42,7 +41,7 @@ class ApplicationCommandConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder
+    with ApplicationWithCollaboratorsFixtures
     with FixedClock {
 
   trait Setup {
@@ -60,7 +59,7 @@ class ApplicationCommandConnectorISpec
     val url                        = s"${config.baseUrl}/application/${applicationIdOne}/dispatch"
   }
 
-  trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
+  trait CollaboratorSetup extends Setup {
     val requestorEmail     = "requestor@example.com".toLaxEmail
     val newTeamMemberEmail = "newTeamMember@example.com".toLaxEmail
     val adminsToEmail      = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)

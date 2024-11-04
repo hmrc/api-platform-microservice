@@ -21,14 +21,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPartyApplicationConnectorModule, _}
 
-class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder with ApiDefinitionTestDataHelper with UpliftRequestSamples {
+class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -49,7 +49,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationBuilder
   }
 
   "UpliftApplicationService" should {
-    val sandboxApp   = buildSandboxApp()
+    val sandboxApp   = standardApp.inSandbox()
     val newAppId     = ApplicationId.random
     val context1     = "context1".asIdentifier()
     val context2     = "context2".asIdentifier()

@@ -27,7 +27,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
@@ -36,7 +35,7 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.Uplift
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationWithCollaboratorsFixtures with UpliftRequestSamples
       with SubordinateApplicationFetcherModule with ApplicationJsonFormatters {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
@@ -60,7 +59,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildSandboxApp().withId(applicationIdOne)
+      val application = standardApp.inSandbox().withId(applicationIdOne)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
@@ -80,7 +79,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildSandboxApp()
+      val application = standardApp.inSandbox()
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
@@ -99,7 +98,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val subordinateAppId = ApplicationId.random
 
     "return 200 if subordinate application is found" in new Setup {
-      val subordinateApplication = buildSandboxApp().withId(subordinateAppId)
+      val subordinateApplication = standardApp.inSandbox().withId(subordinateAppId)
       SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnApplication(subordinateApplication)
 
       val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))

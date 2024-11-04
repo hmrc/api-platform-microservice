@@ -30,8 +30,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
@@ -41,7 +41,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
   val clock = Clock.systemUTC()
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationWithCollaboratorsFixtures {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     implicit val mat: Materializer            = NoMaterializer
 
@@ -63,7 +63,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return OK with a list of upliftable subscriptions" when {
       "there are upliftable apis available for the application id" in new Setup {
-        val application = buildSandboxApp()
+        val application = standardApp.inSandbox()
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         val apiIdentifiers = Set(apiIdentifierOne)
@@ -78,7 +78,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return NotFound" when {
       "there are no upliftable apis available for the application id" in new Setup {
-        val application = buildSandboxApp()
+        val application = standardApp.inSandbox()
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))

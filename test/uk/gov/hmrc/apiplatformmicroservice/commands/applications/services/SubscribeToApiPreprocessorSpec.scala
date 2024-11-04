@@ -28,14 +28,14 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
-class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationBuilder with FixedClock {
+class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures with FixedClock {
 
   val apiDefinitionOne     = apiDefinition("one")
   val apiDefinitionTwo     = apiDefinition("two")
@@ -52,7 +52,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   val apiIdentifierPrivate = ApiIdentifier(apiDefinitionPrivate.context, apiVersionOne)
 
   // val applicationId = ApplicationId.random
-  val anApplication = buildSandboxApp()
+  val anApplication = standardApp.inSandbox()
 
   val goodApi = apiIdentifierThree
 
