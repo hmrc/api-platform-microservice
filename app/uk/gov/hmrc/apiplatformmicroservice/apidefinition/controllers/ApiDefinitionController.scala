@@ -23,6 +23,7 @@ import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
@@ -41,7 +42,8 @@ class ApiDefinitionController @Inject() (
     val authConfig: AuthConnector.Config,
     val authConnector: AuthConnector,
     controllerComponents: ControllerComponents,
-    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher
+    apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
+    apiEventsFetcher: ApiEventsFetcher
   )(implicit val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
@@ -95,5 +97,12 @@ class ApiDefinitionController @Inject() (
     for {
       apis <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield Ok(Json.toJson(apis))
+  }
+
+  def fetchApiEventsForServiceName(serviceName: ServiceName, includeNoChange: Boolean = true): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      sandboxApiEvents <- apiEventsFetcher.fetchApiVersionsForEnvironment(SANDBOX, serviceName, includeNoChange)
+      prodApiEvents    <- apiEventsFetcher.fetchApiVersionsForEnvironment(PRODUCTION, serviceName, includeNoChange)
+    } yield Ok(Json.toJson(sandboxApiEvents ++ prodApiEvents))
   }
 }

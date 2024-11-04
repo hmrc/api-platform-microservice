@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.DisplayApiEvent
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
@@ -107,6 +108,22 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
         when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(*, *)).thenReturn(successful(None))
       }
     }
+
+    object FetchApiEvents {
+
+      def willReturn(displayApiEvents: List[DisplayApiEvent], includeNoChange: Boolean = true) = {
+        when(aMock.fetchApiEvents(*[ServiceName], eqTo(includeNoChange))(*, *)).thenReturn(successful(displayApiEvents))
+      }
+
+      def willReturnEmptyList() = {
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(successful(List.empty))
+      }
+
+      def willThrowException(e: Exception) = {
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(failed(e))
+      }
+    }
+
   }
 
   object SubordinateApiDefinitionServiceMock extends ApiDefinitionServiceMock {

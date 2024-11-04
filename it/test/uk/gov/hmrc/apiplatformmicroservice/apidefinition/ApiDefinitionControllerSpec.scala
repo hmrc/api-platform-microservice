@@ -24,14 +24,18 @@ import play.api.http.Status._
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiEventId, DisplayApiEvent}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.utils._
 
-class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock with DefinitionsFromJson {
+class ApiDefinitionControllerSpec extends WireMockSpec
+    with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock with DefinitionsFromJson with FixedClock {
 
   "WireMock" should {
     val wsClient = app.injector.instanceOf[WSClient]
@@ -218,6 +222,77 @@ class ApiDefinitionControllerSpec extends WireMockSpec with ApplicationMock with
 
       response.status shouldBe NOT_FOUND
 
+    }
+  }
+
+  "get api events for service" should {
+    val wsClient = app.injector.instanceOf[WSClient]
+
+    "return the events when events exist" in {
+      val serviceName      = ServiceName("hello-world")
+      val displayApiEvent1 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+      val displayApiEvent2 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+
+      whenGetApiEvents(Environment.SANDBOX)(serviceName, List(displayApiEvent1))
+      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent2))
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[List[DisplayApiEvent]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe List(
+        displayApiEvent1.copy(environment = Some(SANDBOX)),
+        displayApiEvent2.copy(environment = Some(PRODUCTION))
+      )
+    }
+
+    "return the events, excluding no change events" in {
+      val serviceName      = ServiceName("hello-world")
+      val displayApiEvent1 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+      val displayApiEvent2 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
+
+      whenGetApiEvents(Environment.SANDBOX)(serviceName, List(displayApiEvent1), includeNoChange = false)
+      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent2), includeNoChange = false)
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events?includeNoChange=false")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[List[DisplayApiEvent]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe List(
+        displayApiEvent1.copy(environment = Some(SANDBOX)),
+        displayApiEvent2.copy(environment = Some(PRODUCTION))
+      )
+    }
+
+    "return empty list when no events exist" in {
+      val serviceName = ServiceName("hello-world")
+
+      whenGetApiEvents(Environment.SANDBOX)(serviceName, List.empty)
+      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List.empty)
+
+      val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events")
+        .withHttpHeaders(ACCEPT -> JSON)
+        .get())
+
+      response.status shouldBe OK
+
+      val result = Json.parse(response.body).validate[List[DisplayApiEvent]] match {
+        case JsSuccess(v, _) => v
+        case e: JsError      => fail(s"Bad response $e")
+      }
+      result shouldBe List.empty
     }
   }
 }

@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{DisplayApiEvent, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 
@@ -70,4 +70,12 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
       .recover(recovery)
   }
 
+  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
+    logger.info(s"${this.getClass.getSimpleName} - fetchApiEvents")
+    configureEbridgeIfRequired(
+      http.get(eventsUrl(serviceName, includeNoChange))
+    )
+      .execute[List[DisplayApiEvent]]
+      .recover(recovery)
+  }
 }

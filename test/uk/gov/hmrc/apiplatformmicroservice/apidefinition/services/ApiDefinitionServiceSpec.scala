@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, DisplayApiEvent, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, Timer}
 
@@ -136,6 +136,15 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           )
 
           result shouldEqual None
+        }
+
+        "return empty list for fetchApiEvents" in {
+          val obj = setupFn()
+          import obj._
+
+          val result = await(svc.fetchApiEvents(serviceName))
+
+          result shouldEqual List.empty
         }
       }
     }
@@ -296,6 +305,38 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           }
 
           verify(mockApiMetrics).recordFailure(eqTo(svc.api))
+        }
+
+        "return the api events in a call to fetchApiEvents" in {
+          val obj = setupFn()
+          import obj._
+
+          val expected   = List(mock[DisplayApiEvent])
+          val mockFuture = Future.successful(expected)
+
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(true))(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchApiEvents(serviceName))
+          actual shouldEqual expected
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
+        }
+
+        "return the api events in a call to fetchApiEvents, excluding no change events" in {
+          val obj = setupFn()
+          import obj._
+
+          val expected   = List(mock[DisplayApiEvent])
+          val mockFuture = Future.successful(expected)
+
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(false))(any))
+            .thenReturn(mockFuture)
+
+          val actual = await(svc.fetchApiEvents(serviceName, includeNoChange = false))
+          actual shouldEqual expected
+
+          verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
       }
     }

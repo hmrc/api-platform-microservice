@@ -24,6 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, Environment}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.DisplayApiEvent
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.WireMockSugarExtensions
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
@@ -287,4 +288,37 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
         )
     )
   }
+
+  def whenGetApiEvents(env: Environment)(serviceName: ServiceName, displayApiEvents: List[DisplayApiEvent], includeNoChange: Boolean = true) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName/events?includeNoChange=$includeNoChange"))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withJsonBody(displayApiEvents)
+        )
+    )
+  }
+
+  def whenGetApiEventsFails(env: Environment)(serviceName: ServiceName, statusCode: Int) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName/events"))
+        .willReturn(
+          aResponse()
+            .withStatus(statusCode)
+        )
+    )
+  }
+
+  def whenGetApiEventsFindsNothing(env: Environment)(serviceName: ServiceName) = {
+    stubFor(env)(
+      get(urlEqualTo(s"/api-definition/$serviceName/events?includeNoChange=true"))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody("[]")
+        )
+    )
+  }
+
 }
