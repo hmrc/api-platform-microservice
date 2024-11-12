@@ -28,14 +28,14 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures, DispatchRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
-class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationBuilder with FixedClock {
+class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures with FixedClock {
 
   val apiDefinitionOne     = apiDefinition("one")
   val apiDefinitionTwo     = apiDefinition("two")
@@ -51,8 +51,8 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
   val apiIdentifierThree   = ApiIdentifier(apiDefinitionThree.context, apiVersionOne)
   val apiIdentifierPrivate = ApiIdentifier(apiDefinitionPrivate.context, apiVersionOne)
 
-  val applicationId = ApplicationId.random
-  val anApplication = buildApplication(appId = applicationId)
+  // val applicationId = ApplicationId.random
+  val anApplication = standardApp.inSandbox()
 
   val goodApi = apiIdentifierThree
 
@@ -78,13 +78,13 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
     val cmd  = ApplicationCommands.SubscribeToApi(Actors.Unknown, goodApi, instant)
 
     "fail if ropc app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = Access.Ropc())
+      val application = anApplication.withAccess(Access.Ropc())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
 
     "fail if priviledged app and not a GK actor" in new Setup {
-      val application = anApplication.copy(access = Access.Privileged())
+      val application = anApplication.withAccess(Access.Privileged())
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }

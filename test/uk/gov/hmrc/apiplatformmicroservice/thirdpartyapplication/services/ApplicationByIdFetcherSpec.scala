@@ -22,45 +22,22 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.{Application, ApplicationWithSubscriptionData}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
-class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
+class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock with ApplicationWithCollaboratorsFixtures {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val id: ApplicationId        = ApplicationId.random
-  val clientId: ClientId       = ClientId("123")
-  val grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS
+  val id: ApplicationId = standardApp.id // ApplicationId.random
 
-  val application: Application =
-    Application(
-      id,
-      clientId,
-      "gatewayId",
-      ApplicationName("name"),
-      Environment.SANDBOX,
-      Some("description"),
-      Set.empty,
-      instant,
-      Some(instant),
-      grantLength,
-      None,
-      Access.Standard(),
-      ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
-      RateLimitTier.BRONZE,
-      None,
-      false,
-      IpAllowlist(),
-      MoreApplication(true)
-    )
-  val BANG                     = new RuntimeException("BANG")
+  val application: ApplicationWithCollaborators = standardApp.inSandbox()
+
+  val BANG = new RuntimeException("BANG")
 
   trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with MockitoSugar
       with ArgumentMatchersSugar {
@@ -135,11 +112,7 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock {
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
         SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
-        val expect = ApplicationWithSubscriptionData(
-          application,
-          Set(ApiIdentifierAOne),
-          subsFields
-        )
+        val expect = application.withSubscriptions(Set(ApiIdentifierAOne)).withFieldValues(subsFields)
         await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe Some(expect)
       }
     }

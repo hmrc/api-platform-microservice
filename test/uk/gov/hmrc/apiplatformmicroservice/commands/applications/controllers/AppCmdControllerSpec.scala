@@ -28,10 +28,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, _}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
@@ -41,9 +41,9 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
 
   trait Setup
       extends ApplicationByIdFetcherModule
-      with ApplicationBuilder
       with AppCmdConnectorMockModule
       with AppCmdPreprocessorMockModule
+      with ApplicationWithCollaboratorsFixtures
       with CollaboratorTracker
       with UpliftRequestSamples
       with ApplicationJsonFormatters {
@@ -51,9 +51,9 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
     val sandboxApplicationId    = ApplicationId.random
-    val sandboxApplication      = buildApplication(appId = sandboxApplicationId)
+    val sandboxApplication      = standardApp.inSandbox().withId(sandboxApplicationId)
     val productionApplicationId = ApplicationId.random
-    val productionApplication   = buildApplication(appId = productionApplicationId).copy(deployedTo = Environment.PRODUCTION)
+    val productionApplication   = standardApp.inSandbox().withId(productionApplicationId).modify(_.copy(deployedTo = Environment.PRODUCTION))
 
     val adminEmail              = "admin@example.com".toLaxEmail
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator

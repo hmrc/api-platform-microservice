@@ -23,9 +23,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.{AppCmdPreprocessor, AppCmdPreprocessorTypes}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait AppCmdPreprocessorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -50,7 +50,7 @@ trait AppCmdPreprocessorMockModule {
       }
 
       def passThru() = {
-        when(aMock.process(*, *)(*)).thenAnswer((_: Application, inbound: DispatchRequest) => E.pure(inbound))
+        when(aMock.process(*, *)(*)).thenAnswer((_: ApplicationWithCollaborators, inbound: DispatchRequest) => E.pure(inbound))
       }
 
       def failsWith(failure: CommandFailure, failures: CommandFailure*) = {

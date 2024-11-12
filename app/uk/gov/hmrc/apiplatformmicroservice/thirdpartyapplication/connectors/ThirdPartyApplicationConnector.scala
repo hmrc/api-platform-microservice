@@ -26,10 +26,10 @@ import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
@@ -63,7 +63,7 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 }
 
 trait ThirdPartyApplicationConnector {
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]]
+  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]]
 
   def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
 
@@ -90,11 +90,11 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   protected val config: AbstractThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[Application]] = {
+  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     configureEbridgeIfRequired(
       http.get(url"$serviceBaseUrl/application/${applicationId}")
     )
-      .execute[Option[Application]]
+      .execute[Option[ApplicationWithCollaborators]]
   }
 
   def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {

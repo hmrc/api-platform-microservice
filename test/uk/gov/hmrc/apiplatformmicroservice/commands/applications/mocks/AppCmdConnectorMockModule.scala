@@ -22,10 +22,10 @@ import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 trait AppCmdConnectorMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -53,7 +53,7 @@ trait AppCmdConnectorMockModule {
           when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[Types.Failures]))
         }
 
-        def succeedsWith(application: Application) = {
+        def succeedsWith(application: ApplicationWithCollaborators) = {
           when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
         }
 

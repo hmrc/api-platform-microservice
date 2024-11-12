@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 
-case class DispatchSuccessResult(applicationResponse: Application)
+case class DispatchSuccessResult(applicationResponse: ApplicationWithCollaborators)
 
 object DispatchSuccessResult {
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._

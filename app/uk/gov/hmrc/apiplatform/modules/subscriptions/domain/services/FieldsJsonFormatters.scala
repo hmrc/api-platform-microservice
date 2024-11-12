@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services
 
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 

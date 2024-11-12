@@ -22,7 +22,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.{FieldDefinition, _}
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldDefinition
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnectorDomain}
 

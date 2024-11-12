@@ -25,10 +25,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.ApiFieldMap
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionResult, CreateSubscriptionSuccess}
 
 @Singleton
@@ -39,7 +39,7 @@ class SubscriptionService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
 
-  def createManySubscriptionsForApplication(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  def createManySubscriptionsForApplication(application: ApplicationWithCollaborators, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
 
     def canSubscribeToAll(allowedSubscriptions: Seq[ApiDefinition]): Boolean = {
       val allowedApiIdentifiers: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))
@@ -58,12 +58,16 @@ class SubscriptionService @Inject() (
       })
   }
 
-  private def createFieldValuesForGivenApis(application: Application, apiIdentifiers: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  private def createFieldValuesForGivenApis(
+      application: ApplicationWithCollaborators,
+      apiIdentifiers: Set[ApiIdentifier]
+    )(implicit hc: HeaderCarrier
+    ): Future[CreateSubscriptionResult] = {
     Future.sequence(apiIdentifiers.map(api => createFieldValues(application, api)))
       .map(_ => CreateSubscriptionSuccess)
   }
 
-  private def createFieldValues(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  private def createFieldValues(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
     for {
       fieldValues      <- subscriptionFieldsService.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
       fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)

@@ -25,21 +25,19 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.{ApplicationBuilder, CollaboratorsBuilder}
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
-class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures {
 
-  trait Setup extends ApplicationByIdFetcherModule with ApplicationBuilder with CollaboratorsBuilder with UpliftRequestSamples
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationWithCollaboratorsFixtures with UpliftRequestSamples
       with SubordinateApplicationFetcherModule with ApplicationJsonFormatters {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-
-    val applicationId = ApplicationId.random
 
     val mockAuthConfig    = mock[AuthConnector.Config]
     val mockAuthConnector = mock[AuthConnector]
@@ -57,18 +55,18 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
 
   "upliftApplicationV2" should {
     implicit val writes = Json.writes[ApplicationController.RequestUpliftV2]
-    val newAppId        = ApplicationId.random
+    val newAppId        = applicationIdTwo
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application = standardApp.inSandbox().withId(applicationIdOne)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV2(makeUpliftRequest(apiId1))))
+      val request = FakeRequest("POST", s"/applications/${applicationIdOne}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV2(makeUpliftRequest(apiId1))))
 
-      val result = controller.upliftApplication(applicationId)(request)
+      val result = controller.upliftApplication(applicationIdOne)(request)
 
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe (Json.toJson(newAppId))
@@ -81,14 +79,14 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val apiId1          = "context1".asIdentifier()
 
     "return Created when successfully uplifting an Application" in new Setup {
-      val application = buildApplication(appId = applicationId)
+      val application = standardApp.inSandbox()
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
       when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
 
-      val request = FakeRequest("POST", s"/applications/${applicationId.value}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV1(Set(apiId1))))
+      val request = FakeRequest("POST", s"/applications/${applicationIdOne}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV1(Set(apiId1))))
 
-      val result = controller.upliftApplication(applicationId)(request)
+      val result = controller.upliftApplication(applicationIdOne)(request)
 
       status(result) shouldBe CREATED
       contentAsJson(result) shouldBe (Json.toJson(newAppId))
@@ -100,7 +98,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     val subordinateAppId = ApplicationId.random
 
     "return 200 if subordinate application is found" in new Setup {
-      val subordinateApplication = buildApplication(subordinateAppId)
+      val subordinateApplication = standardApp.inSandbox().withId(subordinateAppId)
       SubordinateApplicationFetcherMock.FetchSubordinateApplication.willReturnApplication(subordinateApplication)
 
       val result = controller.fetchLinkedSubordinateApplication(principalAppId)(FakeRequest("GET", "/"))

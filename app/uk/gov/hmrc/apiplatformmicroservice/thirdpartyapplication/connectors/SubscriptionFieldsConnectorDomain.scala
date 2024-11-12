@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import java.util.UUID
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters

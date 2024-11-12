@@ -30,28 +30,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
-class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ClockNow {
+class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ClockNow with ApplicationIdFixtures with ApiIdentifierFixtures {
 
   val clock = Clock.systemUTC()
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationBuilder {
+  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationWithCollaboratorsFixtures {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     implicit val mat: Materializer            = NoMaterializer
-
-    val applicationId = ApplicationId.random
-    val context       = ApiContext("hello")
-    val version       = ApiVersionNbr("1.0")
-    val apiIdentifier = ApiIdentifier(context, version)
-
-    val apiId1 = "context1".asIdentifier()
-    val apiId2 = "context2".asIdentifier()
 
     val mockAuthConfig               = mock[AuthConnector.Config]
     val mockAuthConnector            = mock[AuthConnector]
@@ -71,10 +63,10 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return OK with a list of upliftable subscriptions" when {
       "there are upliftable apis available for the application id" in new Setup {
-        val application = buildApplication(appId = applicationId)
-        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
+        val application = standardApp.inSandbox()
+        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
-        val apiIdentifiers = Set(apiId1)
+        val apiIdentifiers = Set(apiIdentifierOne)
         when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(apiIdentifiers))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
@@ -86,8 +78,8 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
     "return NotFound" when {
       "there are no upliftable apis available for the application id" in new Setup {
-        val application = buildApplication(appId = applicationId)
-        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1, apiId2))
+        val application = standardApp.inSandbox()
+        ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))
 

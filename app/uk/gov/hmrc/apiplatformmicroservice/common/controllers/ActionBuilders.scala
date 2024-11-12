@@ -73,9 +73,9 @@ trait ActionBuilders {
           applicationWithSubscriptionData <- OptionT(applicationService.fetchApplicationWithSubscriptionData(applicationId))
         } yield {
           ApplicationWithSubscriptionDataRequest(
-            applicationWithSubscriptionData.application,
+            applicationWithSubscriptionData.asAppWithCollaborators,
             applicationWithSubscriptionData.subscriptions,
-            applicationWithSubscriptionData.application.deployedTo,
+            applicationWithSubscriptionData.deployedTo,
             request
           )
         }).toRight(NotFound).value

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 
-import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -30,13 +29,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, UnauthorizedExc
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
 
 class ApplicationCommandConnectorISpec
@@ -45,7 +41,7 @@ class ApplicationCommandConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder
+    with ApplicationWithCollaboratorsFixtures
     with FixedClock {
 
   trait Setup {
@@ -55,41 +51,15 @@ class ApplicationCommandConnectorISpec
     val apiKeyTest                 = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer                     = "TestBearerToken"
 
-    val applicationId = ApplicationId.random
-    val clientId      = ClientId.random
-
-    def anApplicationResponse(createdOn: Instant = instant, lastAccess: Instant = instant): Application = {
-      Application(
-        applicationId,
-        clientId,
-        "gatewayId",
-        ApplicationName("appName"),
-        Environment.PRODUCTION,
-        Some("random description"),
-        Set.empty,
-        instant,
-        None,
-        GrantLength.EIGHTEEN_MONTHS,
-        None,
-        Access.Standard(),
-        ApplicationState(State.TESTING, None, None, None, updatedOn = instant),
-        RateLimitTier.BRONZE,
-        None,
-        false,
-        IpAllowlist(),
-        MoreApplication(true)
-      )
-    }
-
     val config = AppCmdConnector.Config(
       baseUrl = s"http://$WireMockHost:$WireMockPrincipalPort"
     )
 
     val connector: AppCmdConnector = new AppCmdConnector(config, httpClient)
-    val url                        = s"${config.baseUrl}/application/${applicationId.value}/dispatch"
+    val url                        = s"${config.baseUrl}/application/${applicationIdOne}/dispatch"
   }
 
-  trait CollaboratorSetup extends Setup with CollaboratorsBuilder {
+  trait CollaboratorSetup extends Setup {
     val requestorEmail     = "requestor@example.com".toLaxEmail
     val newTeamMemberEmail = "newTeamMember@example.com".toLaxEmail
     val adminsToEmail      = Set("bobby@example.com".toLaxEmail, "daisy@example.com".toLaxEmail)
@@ -101,10 +71,10 @@ class ApplicationCommandConnectorISpec
 
   "addCollaborator" should {
     "return success" in new CollaboratorSetup {
-      val response = anApplicationResponse()
+      val response = standardApp
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()
@@ -113,9 +83,9 @@ class ApplicationCommandConnectorISpec
           )
       )
 
-      val result = await(connector.dispatch(applicationId, request))
+      val result = await(connector.dispatch(applicationIdOne, request))
 
-      result.value shouldBe DispatchSuccessResult(response)
+      result shouldBe Right(DispatchSuccessResult(response))
     }
 
     "return teamMember already exists response" in new CollaboratorSetup {
@@ -123,7 +93,7 @@ class ApplicationCommandConnectorISpec
       val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()
@@ -132,14 +102,14 @@ class ApplicationCommandConnectorISpec
           )
       )
 
-      val result = await(connector.dispatch(applicationId, request))
+      val result = await(connector.dispatch(applicationIdOne, request))
 
       result.left.value shouldBe NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp)
     }
 
     "return unauthorised" in new CollaboratorSetup {
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .willReturn(
             aResponse()
               .withStatus(UNAUTHORIZED)
@@ -147,14 +117,14 @@ class ApplicationCommandConnectorISpec
       )
 
       intercept[UnauthorizedException] {
-        await(connector.dispatch(applicationId, request))
+        await(connector.dispatch(applicationIdOne, request))
       }.message shouldBe (s"Command unauthorised")
     }
 
     "return for generic error" in new CollaboratorSetup {
 
       stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s".*/applications/${applicationId.value}/dispatch"))
+        patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
             aResponse()
@@ -163,7 +133,7 @@ class ApplicationCommandConnectorISpec
       )
 
       intercept[InternalServerException] {
-        await(connector.dispatch(applicationId, request))
+        await(connector.dispatch(applicationIdOne, request))
       }.message shouldBe (s"Failed calling dispatch 418")
     }
   }

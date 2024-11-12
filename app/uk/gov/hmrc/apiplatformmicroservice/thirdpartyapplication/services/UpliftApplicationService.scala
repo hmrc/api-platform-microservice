@@ -26,11 +26,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy, UpliftRequest}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.applications.Application
 
 object UpliftApplicationService {
   type BadRequestMessage = String
@@ -47,7 +47,11 @@ class UpliftApplicationService @Inject() (
 
   import UpliftApplicationService.BadRequestMessage
 
-  private def subscribeAll(application: Application, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[SubscriptionService.CreateSubscriptionResult] = {
+  private def subscribeAll(
+      application: ApplicationWithCollaborators,
+      apis: Set[ApiIdentifier]
+    )(implicit hc: HeaderCarrier
+    ): Future[SubscriptionService.CreateSubscriptionResult] = {
     subscriptionService.createManySubscriptionsForApplication(application, apis)
   }
 
@@ -62,7 +66,7 @@ class UpliftApplicationService @Inject() (
    */
 
   def upliftApplicationV2(
-      app: Application,
+      app: ApplicationWithCollaborators,
       appApiSubs: Set[ApiIdentifier],
       upliftRequest: UpliftRequest
     )(implicit hc: HeaderCarrier
@@ -77,7 +81,7 @@ class UpliftApplicationService @Inject() (
     (
       for {
         _                    <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
-        _                    <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
+        _                    <- cond(app.isSandbox, (), "Request cannot uplift production application")
         _                    <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
         upliftableApis       <- liftF(apiIdentifiersForUpliftFetcher.fetch)
         remappedRequestSubs   = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
@@ -86,9 +90,9 @@ class UpliftApplicationService @Inject() (
         filteredUpliftRequest = upliftRequest.copy(subscriptions = filteredSubs)
 
         createApplicationRequest = CreateApplicationRequestV2(
-                                     app.name,
+                                     app.details.name,
                                      stdAcccessToCopy,
-                                     app.description,
+                                     app.details.description,
                                      productionEnvironment,
                                      app.collaborators,
                                      filteredUpliftRequest,
@@ -103,7 +107,7 @@ class UpliftApplicationService @Inject() (
   }
 
   def upliftApplicationV1(
-      app: Application,
+      app: ApplicationWithCollaborators,
       appApiSubs: Set[ApiIdentifier],
       requestedApiSubs: Set[ApiIdentifier]
     )(implicit hc: HeaderCarrier
@@ -112,16 +116,16 @@ class UpliftApplicationService @Inject() (
     (
       for {
         _                       <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
-        _                       <- cond(app.deployedTo.isSandbox, (), "Request cannot uplift production application")
+        _                       <- cond(app.isSandbox, (), "Request cannot uplift production application")
         _                       <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
         upliftableApis          <- liftF(apiIdentifiersForUpliftFetcher.fetch)
         remappedRequestSubs      = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
         filteredSubs             = remappedRequestSubs.filter(upliftableApis.contains)
         _                       <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
         createApplicationRequest = CreateApplicationRequestV1(
-                                     app.name,
-                                     app.access,
-                                     app.description,
+                                     app.details.name,
+                                     app.details.access,
+                                     app.details.description,
                                      Environment.PRODUCTION,
                                      app.collaborators,
                                      None

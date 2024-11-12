@@ -61,11 +61,11 @@ class ApiDefinitionController @Inject() (
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if (restricted.getOrElse(true)) {
       applicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
-        toJson(applicationBasedApiFetcher.fetchRestricted(request.application.deployedTo, request.subscriptions))
+        toJson(applicationBasedApiFetcher.fetchRestricted(request.deployedTo, request.subscriptions))
       }
     } else {
       applicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
-        toJson(applicationBasedApiFetcher.fetchUnrestricted(request.application.deployedTo))
+        toJson(applicationBasedApiFetcher.fetchUnrestricted(request.deployedTo))
       }
     }
 

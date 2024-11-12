@@ -18,6 +18,6 @@ package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
-import uk.gov.hmrc.apiplatform.modules.common.utils
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
-abstract class AsyncHmrcSpec extends utils.HmrcSpec with DefaultAwaitTimeout with FutureAwaits {}
+abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits {}

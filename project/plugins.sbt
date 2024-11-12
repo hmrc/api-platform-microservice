@@ -9,7 +9,7 @@ addSbtPlugin("uk.gov.hmrc"        %  "sbt-distributables"     % "2.5.0")
 addSbtPlugin("org.playframework"  %  "sbt-plugin"             % "3.0.5")
 addSbtPlugin("org.scoverage"      %  "sbt-scoverage"          % "2.0.9")
 addSbtPlugin("org.scalameta"      %  "sbt-scalafmt"           % "2.5.2")
-addSbtPlugin("ch.epfl.scala"      %  "sbt-bloop"              % "1.6.0")
+addSbtPlugin("ch.epfl.scala"      %  "sbt-bloop"              % "2.0.3")
 addSbtPlugin("ch.epfl.scala"      %%  "sbt-scalafix"          % "0.12.1")
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

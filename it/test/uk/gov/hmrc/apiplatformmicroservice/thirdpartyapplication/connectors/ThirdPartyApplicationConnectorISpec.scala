@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import java.time.Clock
 import scala.concurrent.ExecutionContext
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -31,10 +30,10 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCT
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, Collaborator, Collaborators, RedirectUri}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, RedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
-import uk.gov.hmrc.apiplatformmicroservice.common.builder._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
@@ -47,15 +46,9 @@ class ThirdPartyApplicationConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder {
-
-  override val clock            = Clock.systemUTC()
-  private val helloWorldContext = ApiContext("hello-world")
-  private val versionOne        = ApiVersionNbr("1.0")
-  private val versionTwo        = ApiVersionNbr("2.0")
-
-  private val applicationIdOne = ApplicationId.random
-  private val applicationIdTwo = ApplicationId.random
+    with ApplicationWithCollaboratorsFixtures
+    with ApiIdentifierFixtures
+    with FixedClock {
 
   trait Setup {
     implicit val applicationResponseWrites: Writes[ApplicationIdResponse] = Json.writes[ApplicationIdResponse]
@@ -156,7 +149,7 @@ class ThirdPartyApplicationConnectorISpec
 
   "fetchApplications for a collaborator by user id" should {
     val userId               = UserId.random
-    val url                  = s"/developer/${userId.value}/applications"
+    val url                  = s"/developer/${userId}/applications"
     val applicationResponses = List(ApplicationIdResponse(applicationIdOne), ApplicationIdResponse(applicationIdTwo))
 
     "return application Ids" in new Setup {
@@ -192,9 +185,9 @@ class ThirdPartyApplicationConnectorISpec
 
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random
-    val url    = s"/developer/${userId.value}/subscriptions"
+    val url    = s"/developer/${userId}/subscriptions"
 
-    val expectedSubscriptions = Seq(ApiIdentifier(helloWorldContext, versionOne), ApiIdentifier(helloWorldContext, versionTwo))
+    val expectedSubscriptions = Seq(apiIdentifierOne, apiIdentifierTwo)
 
     "return subscriptions" in new Setup {
       stubFor(PRODUCTION)(
@@ -227,8 +220,7 @@ class ThirdPartyApplicationConnectorISpec
   }
 
   "fetchApplication" should {
-    val applicationId = ApplicationId.random
-    val url           = s"/application/${applicationId.value}"
+    val url = s"/application/${applicationIdOne}"
     import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
     "propagate error when endpoint returns error" in new Setup {
@@ -240,7 +232,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(connector.fetchApplication(applicationId))
+        await(connector.fetchApplication(applicationIdOne))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
 
@@ -252,11 +244,11 @@ class ThirdPartyApplicationConnectorISpec
               .withStatus(NOT_FOUND)
           )
       )
-      await(connector.fetchApplication(applicationId)) shouldBe None
+      await(connector.fetchApplication(applicationIdOne)) shouldBe None
     }
 
     "return the application" in new Setup {
-      val application = buildApplication(applicationId)
+      val application = standardApp.inSandbox()
 
       stubFor(PRODUCTION)(
         get(urlEqualTo(url))
@@ -267,14 +259,13 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
 
-      await(connector.fetchApplication(applicationId)) shouldBe Some(application)
+      await(connector.fetchApplication(applicationIdOne)) shouldBe Some(application)
     }
   }
 
   "fetchSubscriptions" should {
     import AbstractThirdPartyApplicationConnector._
-    val applicationId = ApplicationId.random
-    val url           = s"/application/${applicationId.value}/subscription"
+    val url = s"/application/${applicationIdOne}/subscription"
 
     "propagate error when endpoint returns 5xx error" in new Setup {
       stubFor(PRODUCTION)(
@@ -285,7 +276,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(connector.fetchSubscriptionsById(applicationId))
+        await(connector.fetchSubscriptionsById(applicationIdOne))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
 
@@ -298,7 +289,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
 
-      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set.empty
     }
 
     "handle Not Found" in new Setup {
@@ -310,7 +301,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
       intercept[ApplicationNotFound] {
-        await(connector.fetchSubscriptionsById(applicationId))
+        await(connector.fetchSubscriptionsById(applicationIdOne))
       }
     }
 
@@ -324,7 +315,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
 
-      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set.empty
+      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set.empty
     }
 
     "return the subscription versions that are subscribed to" in new Setup {
@@ -337,7 +328,7 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
 
-      await(connector.fetchSubscriptionsById(applicationId)) shouldBe Set(
+      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set(
         ApiIdentifier(ContextA, VersionOne),
         ApiIdentifier(ContextB, VersionTwo)
       )

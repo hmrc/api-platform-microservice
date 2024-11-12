@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models
 
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.FieldName
+
 case class FieldDefinition(
     name: FieldName,
     description: String,

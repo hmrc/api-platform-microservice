@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
-import uk.gov.hmrc.apiplatformmicroservice.common.builder._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
@@ -40,7 +40,7 @@ class PushPullNotificationsConnectorISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
-    with ApplicationBuilder {
+    with ApplicationWithCollaboratorsFixtures {
 
   trait Setup extends BoxBuilder {
 
