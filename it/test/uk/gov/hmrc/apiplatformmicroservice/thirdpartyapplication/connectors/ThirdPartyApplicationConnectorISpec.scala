@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
@@ -35,7 +34,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, RedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
 
@@ -51,7 +49,6 @@ class ThirdPartyApplicationConnectorISpec
     with FixedClock {
 
   trait Setup {
-    implicit val applicationResponseWrites: Writes[ApplicationIdResponse] = Json.writes[ApplicationIdResponse]
 
     implicit val hc: HeaderCarrier    = HeaderCarrier()
     val httpClient                    = app.injector.instanceOf[HttpClientV2]
@@ -122,7 +119,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationIdResponse(appId))
+              .withJsonBody(standardApp.withId(appId))
           )
       )
       await(connector.createApplicationV1(createAppRequestV1))
@@ -140,7 +137,7 @@ class ThirdPartyApplicationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(ApplicationIdResponse(appId))
+              .withJsonBody(standardApp.withId(appId))
           )
       )
       await(connector.createApplicationV2(createAppRequestV2))
@@ -150,7 +147,7 @@ class ThirdPartyApplicationConnectorISpec
   "fetchApplications for a collaborator by user id" should {
     val userId               = UserId.random
     val url                  = s"/developer/${userId}/applications"
-    val applicationResponses = List(ApplicationIdResponse(applicationIdOne), ApplicationIdResponse(applicationIdTwo))
+    val applicationResponses = List(standardApp.withId(applicationIdOne), standardApp.withId(applicationIdTwo))
 
     "return application Ids" in new Setup {
       stubFor(PRODUCTION)(
