@@ -37,7 +37,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   class ApplicationNotFound     extends RuntimeException
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
-  private[connectors] case class ApplicationIdResponse(id: ApplicationId)
 
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersionNbr)
@@ -47,10 +46,9 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   private[connectors] object JsonFormatters {
     import play.api.libs.json._
 
-    implicit val readsApplicationIdResponse: Reads[ApplicationIdResponse] = Json.reads[ApplicationIdResponse]
-    implicit val readsInnerVersion: Reads[InnerVersion]                   = Json.reads[InnerVersion]
-    implicit val readsSubscriptionVersion: Reads[SubscriptionVersion]     = Json.reads[SubscriptionVersion]
-    implicit val readsSubscription: Reads[Subscription]                   = Json.reads[Subscription]
+    implicit val readsInnerVersion: Reads[InnerVersion]               = Json.reads[InnerVersion]
+    implicit val readsSubscriptionVersion: Reads[SubscriptionVersion] = Json.reads[SubscriptionVersion]
+    implicit val readsSubscription: Reads[Subscription]               = Json.reads[Subscription]
   }
 
   case class Config(
@@ -81,7 +79,6 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
     with ApplicationLogger {
 
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
-  import AbstractThirdPartyApplicationConnector.JsonFormatters._
 
   def http: HttpClientV2
 
@@ -101,7 +98,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
     configureEbridgeIfRequired(
       http.get(url"$serviceBaseUrl/developer/${userId}/applications")
     )
-      .execute[Seq[ApplicationIdResponse]]
+      .execute[Seq[ApplicationWithCollaborators]]
       .map(_.map(_.id))
   }
 
@@ -129,7 +126,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
         .post(url"$serviceBaseUrl/application")
         .withBody(Json.toJson(createAppRequest))
     )
-      .execute[ApplicationIdResponse]
+      .execute[ApplicationWithCollaborators]
       .map(_.id)
   }
 
@@ -140,7 +137,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
         .post(url"$serviceBaseUrl/application")
         .withBody(Json.toJson(createAppRequest))
     )
-      .execute[ApplicationIdResponse]
+      .execute[ApplicationWithCollaborators]
       .map(_.id)
   }
 }
