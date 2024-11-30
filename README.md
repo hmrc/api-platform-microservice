@@ -12,3 +12,6 @@ It acts as a gateway to protected services, including:
 ## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+
+## Useful CURL commands for testing
+[link to curl commands](docs/curl-commands.md)
