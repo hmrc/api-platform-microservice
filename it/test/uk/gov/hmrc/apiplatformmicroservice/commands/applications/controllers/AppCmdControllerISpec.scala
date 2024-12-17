@@ -39,6 +39,7 @@ class AppCmdControllerISpec
     with GuiceOneServerPerSuite
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
+    with ApplicationWithCollaboratorsFixtures
     with utils.FixedClock {
 
   private val stubConfig = Configuration(
@@ -57,7 +58,7 @@ class AppCmdControllerISpec
       .build()
 
   trait Setup {
-    val applicationId              = ApplicationId.random
+    val applicationId              = standardApp.id
     implicit val hc: HeaderCarrier = HeaderCarrier()
     lazy val baseUrl               = s"http://localhost:$port"
 
@@ -72,7 +73,15 @@ class AppCmdControllerISpec
   "AppCmdController" should {
     "return 401 when Unauthorised is returned from connector" in new Setup {
 
-      stubForApplication(applicationId, ClientId.random, UserId.random, UserId.random)
+      stubFor(Environment.PRODUCTION)(
+        get(urlPathEqualTo(s"/application/$applicationId"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.toJson(standardApp).toString())
+          )
+      )
 
       stubFor(Environment.PRODUCTION)(
         patch(urlMatching(s"/applications/${applicationId.value}/dispatch"))
@@ -87,100 +96,4 @@ class AppCmdControllerISpec
     }
   }
 
-  private def stubForApplication(applicationId: ApplicationId, clientId: ClientId, userId1: UserId, userId2: UserId) = {
-    stubFor(Environment.SANDBOX)(
-      get(urlPathEqualTo(s"/application/$applicationId"))
-        .willReturn(
-          aResponse()
-            .withStatus(NOT_FOUND)
-            .withHeader("Content-Type", "application/json")
-        )
-    )
-    stubFor(Environment.PRODUCTION)(
-      get(urlPathEqualTo(s"/application/$applicationId"))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(getBody(applicationId, clientId, userId1, userId2))
-        )
-    )
-  }
-
-  private def getBody(applicationId: ApplicationId, clientId: ClientId, userId1: UserId, userId2: UserId) = {
-    s"""{
-       |  "id": "$applicationId",
-       |  "clientId": "$clientId",
-       |  "gatewayId": "gateway-id",
-       |  "name": "Petes test application",
-       |  "deployedTo": "PRODUCTION",
-       |  "description": "Petes test application description",
-       |  "collaborators": [
-       |    {
-       |      "userId": "$userId1",
-       |      "emailAddress": "bob@example.com",
-       |      "role": "ADMINISTRATOR"
-       |    },
-       |    {
-       |      "userId": "$userId2",
-       |      "emailAddress": "bob@example.com",
-       |      "role": "ADMINISTRATOR"
-       |    }
-       |  ],
-       |  "createdOn": "$nowAsText",
-       |  "lastAccess": "$nowAsText",
-       |  "grantLength": 547,
-       |  "redirectUris": [],
-       |  "access": {
-       |    "redirectUris": [],
-       |    "overrides": [],
-       |    "importantSubmissionData": {
-       |      "organisationUrl": "https://www.example.com",
-       |      "responsibleIndividual": {
-       |        "fullName": "Bob Fleming",
-       |        "emailAddress": "bob@example.com"
-       |      },
-       |      "serverLocations": [
-       |        {
-       |          "serverLocation": "inUK"
-       |        }
-       |      ],
-       |      "termsAndConditionsLocation": {
-       |        "termsAndConditionsType": "inDesktop"
-       |      },
-       |      "privacyPolicyLocation": {
-       |        "privacyPolicyType": "inDesktop"
-       |      },
-       |      "termsOfUseAcceptances": [
-       |        {
-       |          "responsibleIndividual": {
-       |            "fullName": "Bob Fleming",
-       |            "emailAddress": "bob@example.com"
-       |          },
-       |          "dateTime": "$nowAsText",
-       |          "submissionId": "4e62811a-7ab3-4421-a89e-65a8bad9b6ae",
-       |          "submissionInstance": 0
-       |        }
-       |      ]
-       |    },
-       |    "accessType": "STANDARD"
-       |  },
-       |  "state": {
-       |    "name": "TESTING",
-       |    "updatedOn": "$nowAsText"
-       |  },
-       |  "rateLimitTier": "BRONZE",
-       |  "blocked": false,
-       |  "trusted": false,
-       |  "ipAllowlist": {
-       |    "required": false,
-       |    "allowlist": []
-       |  },
-       |  "moreApplication": {
-       |    "allowAutoDelete": false,
-       |    "lastActionActor": "GATEKEEPER"
-       |
-       |  }
-       |}""".stripMargin
-  }
 }
