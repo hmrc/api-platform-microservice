@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 
-import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
 import play.api.http._
+import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaboratorsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 
-trait ApplicationMock {
+trait ApplicationMock extends ApplicationWithCollaboratorsFixtures {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
   def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId): Unit = {
@@ -47,45 +47,10 @@ trait ApplicationMock {
     stubFor(deployedTo)(get(urlEqualTo(s"/developer/$userId/applications"))
       .willReturn(
         aResponse()
-          .withBody(s"""[{
-                       |  "id": "${UUID.randomUUID()}",
-                       |  "clientId": "somCLientId",
-                       |  "gatewayId": "w7dwd9GFZX",
-                       |  "name": "giu",
-                       |  "deployedTo": "$deployedTo",
-                       |  "description": "Some test data",
-                       |  "collaborators": [
-                       |      {
-                       |          "userId": "${UserId.random}",
-                       |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
-                       |          "role": "ADMINISTRATOR"
-                       |      }
-                       |  ],
-                       |  "createdOn": 1504526587272,
-                       |  "lastAccess": 1561071600000,
-                       |  "grantLength": 547,
-                       |  "redirectUris": [],
-                       |  "access": {
-                       |      "accessType": "STANDARD",
-                       |      "overrides": [],
-                       |      "redirectUris": []
-                       |  },
-                       |  "state": {
-                       |      "name": "PRODUCTION",
-                       |      "updatedOn": 1504784641632
-                       |  },
-                       |  "rateLimitTier": "BRONZE",
-                       |  "blocked": false,
-                       |  "ipWhitelist": [],
-                       |  "ipAllowlist": {
-                       |      "required": false,
-                       |      "allowlist": []
-                       |  },
-                       |  "moreApplication": {
-                       |      "allowAutoDelete": true
-                       |  },
-                       |  "trusted": false
-                       |}]""".stripMargin)
+          .withBody(Json.toJson(
+            standardApp.withEnvironment(deployedTo)
+              .withCollaborators(Collaborators.Administrator(userId, LaxEmailAddress("bobby.taxation@digital.hmrc.gov.uk")))
+          ).toString())
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
       ))
@@ -95,46 +60,10 @@ trait ApplicationMock {
     stubFor(deployedTo)(get(urlEqualTo(s"/application/$applicationId"))
       .willReturn(
         aResponse()
-          .withBody(s"""{
-                       |  "id": "$applicationId",
-                       |  "clientId": "$clientId",
-                       |  "gatewayId": "w7dwd9GFZX",
-                       |  "name": "giu",
-                       |  "deployedTo": "$deployedTo",
-                       |  "description": "Some test data",
-                       |  "collaborators": [
-                       |      {
-                       |          "userId": "${UserId.random}",
-                       |          "emailAddress": "bobby.taxation@digital.hmrc.gov.uk",
-                       |          "role": "ADMINISTRATOR"
-                       |      }
-                       |  ],
-                       |  "createdOn": 1504526587272,
-                       |  "lastAccess": 1561071600000,
-                       |  "grantLength": 547,
-                       |  "redirectUris": [],
-                       |  "access": {
-                       |      "accessType": "STANDARD",
-                       |      "overrides": [],
-                       |      "redirectUris": []
-                       |  },
-                       |  "state": {
-                       |      "name": "PRODUCTION",
-                       |      "updatedOn": 1504784641632
-                       |  },
-                       |  "rateLimitTier": "BRONZE",
-                       |  "blocked": false,
-                       |  "ipWhitelist": [],
-                       |  "ipAllowlist": {
-                       |      "required": false,
-                       |      "allowlist": []
-                       |  },
-                       |  "moreApplication": {
-                       |      "allowAutoDelete": true,
-                       |      "lastActionActor": "GATEKEEPER"
-                       |  },
-                       |  "trusted": false
-                       |}""".stripMargin)
+          .withBody(Json.toJson(
+            standardApp.withEnvironment(deployedTo).withId(applicationId)
+              .modify(_.copy(clientId = clientId))
+          ).toString())
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
       ))

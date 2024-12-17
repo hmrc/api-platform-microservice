@@ -37,7 +37,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
   class ApplicationNotFound     extends RuntimeException
   class TeamMemberAlreadyExists extends RuntimeException("This user is already a teamMember on this application.")
 
-
   // N.B. This is a small subsection of the model that is normally returned
   private[connectors] case class InnerVersion(version: ApiVersionNbr)
   private[connectors] case class SubscriptionVersion(version: InnerVersion, subscribed: Boolean)
