@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Envi
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, RedirectUri}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, LoginRedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
@@ -80,7 +80,7 @@ class ThirdPartyApplicationConnectorISpec
   trait ApplicationCreateSetup extends Setup with UpliftRequestSamples {
 
     private val standardAccess =
-      Access.Standard(List(RedirectUri.unsafeApply("https://example.com/redirect")), Some("https://example.com/terms"), Some("https://example.com/privacy"))
+      Access.Standard(List(LoginRedirectUri.unsafeApply("https://example.com/redirect")), List.empty, Some("https://example.com/terms"), Some("https://example.com/privacy"))
 
     private val collaborators: Set[Collaborator] = Set(
       Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail),

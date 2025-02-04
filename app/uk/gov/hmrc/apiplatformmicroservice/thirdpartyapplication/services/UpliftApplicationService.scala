@@ -75,8 +75,8 @@ class UpliftApplicationService @Inject() (
     val allRequestedSubsAreInAppSubs         = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
     val productionEnvironment: Environment   = Environment.PRODUCTION
     val stdAcccessToCopy                     = app.access match {
-      case Access.Standard(redirectUris, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, overrides)
-      case _                                                    => StandardAccessDataToCopy()
+      case Access.Standard(redirectUris, _, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, overrides)
+      case _                                                       => StandardAccessDataToCopy()
     }
     (
       for {
