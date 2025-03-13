@@ -25,9 +25,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy, UpliftRequest}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
@@ -75,8 +75,8 @@ class UpliftApplicationService @Inject() (
     val allRequestedSubsAreInAppSubs         = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
     val productionEnvironment: Environment   = Environment.PRODUCTION
     val stdAcccessToCopy                     = app.access match {
-      case Access.Standard(redirectUris, _, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, overrides)
-      case _                                                       => StandardAccessDataToCopy()
+      case Access.Standard(redirectUris, postLogoutRedirectUris, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, postLogoutRedirectUris, overrides)
+      case _                                                                            => StandardAccessDataToCopy()
     }
     (
       for {
@@ -124,7 +124,10 @@ class UpliftApplicationService @Inject() (
         _                       <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
         createApplicationRequest = CreateApplicationRequestV1(
                                      app.details.name,
-                                     app.details.access,
+                                     app.details.access.accessType match {
+                                       case AccessType.STANDARD   => CreationAccess.Standard
+                                       case AccessType.PRIVILEGED => CreationAccess.Privileged
+                                     },
                                      app.details.description,
                                      Environment.PRODUCTION,
                                      app.collaborators,
