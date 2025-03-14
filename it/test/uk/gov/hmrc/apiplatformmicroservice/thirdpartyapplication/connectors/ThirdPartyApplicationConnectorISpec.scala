@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, LoginRedirectUri}
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, StandardAccessDataToCopy}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, CreationAccess, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
@@ -89,7 +89,7 @@ class ThirdPartyApplicationConnectorISpec
 
     val createAppRequestV1 = CreateApplicationRequestV1(
       name = ApplicationName("V1 Create Application Request"),
-      access = standardAccess,
+      access = CreationAccess.Standard,
       description = None,
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
@@ -98,7 +98,7 @@ class ThirdPartyApplicationConnectorISpec
 
     val createAppRequestV2 = CreateApplicationRequestV2(
       name = ApplicationName("V2 Create Application Request"),
-      access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.overrides),
+      access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.postLogoutRedirectUris, standardAccess.overrides),
       description = None,
       environment = Environment.PRODUCTION,
       collaborators = collaborators,
