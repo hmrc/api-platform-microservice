@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
@@ -100,40 +100,6 @@ class UpliftApplicationService @Inject() (
                                      app.id
                                    )
         newAppId                <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
-        app                     <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")
-        _                       <- liftF(subscribeAll(app, filteredSubs))
-      } yield newAppId
-    ).value
-  }
-
-  def upliftApplicationV1(
-      app: ApplicationWithCollaborators,
-      appApiSubs: Set[ApiIdentifier],
-      requestedApiSubs: Set[ApiIdentifier]
-    )(implicit hc: HeaderCarrier
-    ): Future[Either[BadRequestMessage, ApplicationId]] = {
-    val allRequestedSubsAreInAppSubs = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
-    (
-      for {
-        _                       <- cond(requestedApiSubs.nonEmpty, (), "Request contains no apis for uplifting the sandbox application")
-        _                       <- cond(app.isSandbox, (), "Request cannot uplift production application")
-        _                       <- cond(allRequestedSubsAreInAppSubs, (), "Request contains apis not found for the sandbox application")
-        upliftableApis          <- liftF(apiIdentifiersForUpliftFetcher.fetch)
-        remappedRequestSubs      = CdsVersionHandler.adjustSpecialCaseVersions(requestedApiSubs)
-        filteredSubs             = remappedRequestSubs.filter(upliftableApis.contains)
-        _                       <- cond(filteredSubs.nonEmpty, (), "Request contains apis that cannot be uplifted")
-        createApplicationRequest = CreateApplicationRequestV1(
-                                     app.details.name,
-                                     app.details.access.accessType match {
-                                       case AccessType.STANDARD   => CreationAccess.Standard
-                                       case AccessType.PRIVILEGED => CreationAccess.Privileged
-                                     },
-                                     app.details.description,
-                                     Environment.PRODUCTION,
-                                     app.collaborators,
-                                     None
-                                   )
-        newAppId                <- liftF(principalTPAConnector.createApplicationV1(createApplicationRequest))
         app                     <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")
         _                       <- liftF(subscribeAll(app, filteredSubs))
       } yield newAppId
