@@ -27,10 +27,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, EnvironmentAware}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
 private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
@@ -67,8 +66,6 @@ trait ThirdPartyApplicationConnector {
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
-
-  def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
@@ -116,17 +113,6 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
       .recover {
         case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
       }
-  }
-
-  def createApplicationV1(createAppRequest: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
-    logger.info(s" Request to uplift ${createAppRequest.name} to production")
-    configureEbridgeIfRequired(
-      http
-        .post(url"$serviceBaseUrl/application")
-        .withBody(Json.toJson(createAppRequest))
-    )
-      .execute[ApplicationWithCollaborators]
-      .map(_.id)
   }
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
