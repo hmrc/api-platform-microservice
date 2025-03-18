@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
+import java.util.UUID
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
-import java.util.UUID
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   import SubscriptionFieldsConnectorDomain._
@@ -45,34 +45,31 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 }
 
 sealed trait SubsFieldsUpsertResponse
-case class NotFoundSubsFieldsUpsertResponse() extends SubsFieldsUpsertResponse
-case class FailedValidationSubsFieldsUpsertResponse(errorResponses: Map[FieldName, String]) extends SubsFieldsUpsertResponse
+case class NotFoundSubsFieldsUpsertResponse()                                                 extends SubsFieldsUpsertResponse
+case class FailedValidationSubsFieldsUpsertResponse(errorResponses: Map[FieldName, String])   extends SubsFieldsUpsertResponse
 case class SuccessfulSubsFieldsUpsertResponse(wrapped: SubscriptionFields, isInsert: Boolean) extends SubsFieldsUpsertResponse
-case class SubscriptionFieldsId(value: UUID) extends AnyVal
+case class SubscriptionFieldsId(value: UUID)                                                  extends AnyVal
 case class SubscriptionFields(clientId: ClientId, apiIdentifier: ApiIdentifier, fieldsId: SubscriptionFieldsId, fields: Map[FieldName, FieldValue])
 
-  // def upsertSubscriptionFields(clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] = Action.async(parse.json) { implicit request =>
-  //   import JsonFormatters._
+// def upsertSubscriptionFields(clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] = Action.async(parse.json) { implicit request =>
+//   import JsonFormatters._
 
-  //   withJsonBody[SubscriptionFieldsRequest] { payload =>
-  //     if (payload.fields.isEmpty) {
-  //       Future.successful(UnprocessableEntity(JsErrorResponse(INVALID_REQUEST_PAYLOAD, "At least one field must be specified")))
-  //     } else {
-  //       service
-  //         .upsert(clientId, apiContext, apiVersionNbr, payload.fields)
-  //         .map(_ match {
-  //           case NotFoundSubsFieldsUpsertResponse                             => BadRequest(Json.toJson("reason" -> "field definitions not found")) // TODO
-  //           case FailedValidationSubsFieldsUpsertResponse(fieldErrorMessages) => BadRequest(Json.toJson(fieldErrorMessages))
-  //           case SuccessfulSubsFieldsUpsertResponse(response, true)           => Created(Json.toJson(response))
-  //           case SuccessfulSubsFieldsUpsertResponse(response, false)          => Ok(Json.toJson(response))
-  //         })
-  //         .recover(recovery)
-  //     }
-  //   }
-  // }
-
-
-
+//   withJsonBody[SubscriptionFieldsRequest] { payload =>
+//     if (payload.fields.isEmpty) {
+//       Future.successful(UnprocessableEntity(JsErrorResponse(INVALID_REQUEST_PAYLOAD, "At least one field must be specified")))
+//     } else {
+//       service
+//         .upsert(clientId, apiContext, apiVersionNbr, payload.fields)
+//         .map(_ match {
+//           case NotFoundSubsFieldsUpsertResponse                             => BadRequest(Json.toJson("reason" -> "field definitions not found")) // TODO
+//           case FailedValidationSubsFieldsUpsertResponse(fieldErrorMessages) => BadRequest(Json.toJson(fieldErrorMessages))
+//           case SuccessfulSubsFieldsUpsertResponse(response, true)           => Created(Json.toJson(response))
+//           case SuccessfulSubsFieldsUpsertResponse(response, false)          => Ok(Json.toJson(response))
+//         })
+//         .recover(recovery)
+//     }
+//   }
+// }
 
 abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
@@ -124,10 +121,10 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   }
 
   def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-      configureEbridgeIfRequired(
-        http.put(urlSubscriptionFieldValues(clientId, ApiIdentifier(apiIdentifier.context, apiIdentifier.versionNbr)))
-          .withBody(Json.toJson(SubscriptionFieldsPutRequest(values)))
-      )
+    configureEbridgeIfRequired(
+      http.put(urlSubscriptionFieldValues(clientId, ApiIdentifier(apiIdentifier.context, apiIdentifier.versionNbr)))
+        .withBody(Json.toJson(SubscriptionFieldsPutRequest(values)))
+    )
       .execute[HttpResponse]
   }
 

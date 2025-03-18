@@ -121,6 +121,44 @@ class SubscriptionFieldsConnectorSpec
         result shouldBe Left(Map(FieldNameOne -> error))
       }
     }
+
+    "upsert field values" should {
+      "work with good values" in new SetupPrincipal {
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(Map(fieldsForAOne))
+
+        stubFor(
+          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+            .withJsonRequestBody(request)
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+            )
+        )
+
+        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        result.status shouldBe OK
+
+      }
+
+      "return field errors with bad values" in new SetupPrincipal {
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(Map(fieldsForAOne))
+        val error                                 = "This is wrong"
+
+        stubFor(
+          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+            .withJsonRequestBody(request)
+            .willReturn(
+              aResponse()
+                .withStatus(BAD_REQUEST)
+                .withJsonBody(Map(FieldNameOne -> error))
+            )
+        )
+
+        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+
+        result.status shouldBe BAD_REQUEST
+      }
+    }
   }
 
   "return simple url" in new SetupPrincipal {
