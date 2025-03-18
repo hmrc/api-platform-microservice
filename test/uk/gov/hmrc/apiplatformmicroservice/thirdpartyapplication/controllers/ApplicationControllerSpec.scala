@@ -73,26 +73,6 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
     }
   }
 
-  "upliftApplicationV1" should {
-    implicit val writes = Json.writes[ApplicationController.RequestUpliftV1]
-    val newAppId        = ApplicationId.random
-    val apiId1          = "context1".asIdentifier()
-
-    "return Created when successfully uplifting an Application" in new Setup {
-      val application = standardApp.inSandbox()
-
-      ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
-      when(mockUpliftService.upliftApplicationV1(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
-
-      val request = FakeRequest("POST", s"/applications/${applicationIdOne}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV1(Set(apiId1))))
-
-      val result = controller.upliftApplication(applicationIdOne)(request)
-
-      status(result) shouldBe CREATED
-      contentAsJson(result) shouldBe (Json.toJson(newAppId))
-    }
-  }
-
   "fetchLinkedSubordinateApplication" should {
     val principalAppId   = ApplicationId.random
     val subordinateAppId = ApplicationId.random

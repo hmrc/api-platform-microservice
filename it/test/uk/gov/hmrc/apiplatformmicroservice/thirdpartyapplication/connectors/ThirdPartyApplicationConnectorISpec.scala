@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, LoginRedirectUri}
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreateApplicationRequestV2, CreationAccess, StandardAccessDataToCopy}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV2, CreationAccess, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
@@ -87,15 +87,6 @@ class ThirdPartyApplicationConnectorISpec
       Collaborators.Developer(UserId.random, "dev@example.com".toLaxEmail)
     )
 
-    val createAppRequestV1 = CreateApplicationRequestV1(
-      name = ApplicationName("V1 Create Application Request"),
-      access = CreationAccess.Standard,
-      description = None,
-      environment = Environment.PRODUCTION,
-      collaborators = collaborators,
-      subscriptions = Some(Set(ApiIdentifier.random))
-    )
-
     val createAppRequestV2 = CreateApplicationRequestV2(
       name = ApplicationName("V2 Create Application Request"),
       access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.postLogoutRedirectUris, standardAccess.overrides),
@@ -106,24 +97,6 @@ class ThirdPartyApplicationConnectorISpec
       "bob@example.com",
       ApplicationId.random
     )
-  }
-
-  "create application v1" should {
-    val url   = "/application"
-    val appId = ApplicationId.random
-
-    "return application Id" in new ApplicationCreateSetup {
-      stubFor(PRODUCTION)(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(createAppRequestV1)
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(standardApp.withId(appId))
-          )
-      )
-      await(connector.createApplicationV1(createAppRequestV1))
-    }
   }
 
   "create application v2" should {
