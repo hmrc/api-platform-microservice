@@ -44,9 +44,9 @@ object SubscriptionFieldsConnectorDomain {
   case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
-      clientId: ClientId,
-      apiContext: ApiContext,
-      apiVersion: ApiVersionNbr,
+      // clientId: ClientId,
+      // apiContext: ApiContext,
+      // apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 
@@ -102,7 +102,7 @@ object SubscriptionFieldsConnectorDomain {
 
     implicit val writeSubscriptionFields: OWrites[SubscriptionFields] = Json.writes[SubscriptionFields]
 
-    implicit val writeSubscriptionFieldsPutRequest: Writes[SubscriptionFieldsPutRequest] = Json.writes[SubscriptionFieldsPutRequest]
+    implicit val formatSubscriptionFieldsPutRequest: OFormat[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
 
     implicit val readsSubscriptionFields: Reads[SubscriptionFields] = (
       (JsPath \ "apiContext").read[ApiContext] and

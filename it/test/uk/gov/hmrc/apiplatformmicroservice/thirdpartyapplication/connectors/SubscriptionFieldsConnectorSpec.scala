@@ -86,7 +86,7 @@ class SubscriptionFieldsConnectorSpec
 
     "save field values" should {
       "work with good values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(Map(fieldsForAOne))
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
@@ -103,7 +103,7 @@ class SubscriptionFieldsConnectorSpec
       }
 
       "return field errors with bad values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(Map(fieldsForAOne))
         val error                                 = "This is wrong"
 
         stubFor(

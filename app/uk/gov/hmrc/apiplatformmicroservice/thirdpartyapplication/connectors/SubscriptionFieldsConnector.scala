@@ -33,17 +33,46 @@ import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
+import java.util.UUID
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
-
   import SubscriptionFieldsConnectorDomain._
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
-
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
-
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
+  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[HttpResponse]
 }
+
+sealed trait SubsFieldsUpsertResponse
+case class NotFoundSubsFieldsUpsertResponse() extends SubsFieldsUpsertResponse
+case class FailedValidationSubsFieldsUpsertResponse(errorResponses: Map[FieldName, String]) extends SubsFieldsUpsertResponse
+case class SuccessfulSubsFieldsUpsertResponse(wrapped: SubscriptionFields, isInsert: Boolean) extends SubsFieldsUpsertResponse
+case class SubscriptionFieldsId(value: UUID) extends AnyVal
+case class SubscriptionFields(clientId: ClientId, apiIdentifier: ApiIdentifier, fieldsId: SubscriptionFieldsId, fields: Map[FieldName, FieldValue])
+
+  // def upsertSubscriptionFields(clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] = Action.async(parse.json) { implicit request =>
+  //   import JsonFormatters._
+
+  //   withJsonBody[SubscriptionFieldsRequest] { payload =>
+  //     if (payload.fields.isEmpty) {
+  //       Future.successful(UnprocessableEntity(JsErrorResponse(INVALID_REQUEST_PAYLOAD, "At least one field must be specified")))
+  //     } else {
+  //       service
+  //         .upsert(clientId, apiContext, apiVersionNbr, payload.fields)
+  //         .map(_ match {
+  //           case NotFoundSubsFieldsUpsertResponse                             => BadRequest(Json.toJson("reason" -> "field definitions not found")) // TODO
+  //           case FailedValidationSubsFieldsUpsertResponse(fieldErrorMessages) => BadRequest(Json.toJson(fieldErrorMessages))
+  //           case SuccessfulSubsFieldsUpsertResponse(response, true)           => Created(Json.toJson(response))
+  //           case SuccessfulSubsFieldsUpsertResponse(response, false)          => Ok(Json.toJson(response))
+  //         })
+  //         .recover(recovery)
+  //     }
+  //   }
+  // }
+
+
+
 
 abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
@@ -71,13 +100,13 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
       .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
   }
 
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
-    if (fields.isEmpty) {
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
+    if (values.isEmpty) {
       successful(Right(()))
     } else {
       configureEbridgeIfRequired(
         http.put(urlSubscriptionFieldValues(clientId, apiIdentifier))
-          .withBody(Json.toJson(SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.versionNbr, fields)))
+          .withBody(Json.toJson(SubscriptionFieldsPutRequest(values)))
       )
         .execute[HttpResponse]
         .map { response =>
@@ -92,6 +121,14 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
           }
         }
     }
+  }
+
+  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+      configureEbridgeIfRequired(
+        http.put(urlSubscriptionFieldValues(clientId, ApiIdentifier(apiIdentifier.context, apiIdentifier.versionNbr)))
+          .withBody(Json.toJson(SubscriptionFieldsPutRequest(values)))
+      )
+      .execute[HttpResponse]
   }
 
   private lazy val urlBulkSubscriptionFieldDefinitions =

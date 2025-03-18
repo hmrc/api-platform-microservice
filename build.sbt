@@ -24,7 +24,8 @@ lazy val root = Project(appName, file("."))
     libraryDependencies ++= dependencies ++ testDependencies,
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
-      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._"
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._",
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models._"
     )
   )
   .settings(ScoverageSettings())

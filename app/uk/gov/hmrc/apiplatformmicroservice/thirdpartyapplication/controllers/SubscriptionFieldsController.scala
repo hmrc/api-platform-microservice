@@ -25,19 +25,24 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.SubscriptionFieldsPutRequest
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiIdentifier
+
 
 @Singleton
-class FieldDefinitionsController @Inject() (
+class SubscriptionFieldsController @Inject() (
     cc: ControllerComponents,
     subscriptionsFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
   )(implicit ec: ExecutionContext
   ) extends BackendController(cc) {
 
-  import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters._
-
-  def fetchFieldDefinitions(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    subscriptionsFieldsConnector(environment).bulkFetchFieldDefinitions.map(fds => {
-      Ok(Json.toJson(fds))
-    })
+  def upsertSubscriptionFields(environment: Environment, clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[SubscriptionFieldsPutRequest]{ payload =>
+      subscriptionsFieldsConnector(environment).upsertFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), payload.fields).map(response => Status(response.status)(Json.toJson(response.body)))
+    }
   }
 }

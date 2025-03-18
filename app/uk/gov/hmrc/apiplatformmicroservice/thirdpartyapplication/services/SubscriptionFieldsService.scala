@@ -29,10 +29,9 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{Env
 
 @Singleton
 class SubscriptionFieldsService @Inject() (
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
-  )(implicit ec: ExecutionContext
-  ) {
-
+  subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
+)(implicit ec: ExecutionContext
+) {
   def fetchFieldValuesWithDefaults(deployedTo: Environment, clientId: ClientId, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     def filterBySubs[V](data: ApiFieldMap[V]): ApiFieldMap[V] = {
