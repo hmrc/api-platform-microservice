@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common.controllers
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 package object binders {
 
@@ -114,4 +114,61 @@ package object binders {
     }
   }
 
+  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
+
+    override def bind(key: String, value: String): Either[String, ApiContext] = {
+      textBinder.bind(key, value).map(ApiContext(_))
+    }
+
+    override def unbind(key: String, apiContext: ApiContext): String = {
+      apiContext.value
+    }
+  }
+
+  implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiContext] = new QueryStringBindable[ApiContext] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiContext]] = {
+      for {
+        text <- textBinder.bind(key, params)
+      } yield {
+        text match {
+          case Right(context) => Right(ApiContext(context))
+          case _              => Left("Unable to bind an api context")
+        }
+      }
+    }
+
+    override def unbind(key: String, context: ApiContext): String = {
+      textBinder.unbind(key, context.value)
+    }
+  }
+
+  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
+
+    override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
+      textBinder.bind(key, value).map(ApiVersionNbr(_))
+    }
+
+    override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
+      apiVersion.value
+    }
+  }
+
+  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiVersionNbr] = new QueryStringBindable[ApiVersionNbr] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersionNbr]] = {
+      for {
+        text <- textBinder.bind(key, params)
+      } yield {
+        text match {
+          case Right(version) => Right(ApiVersionNbr(version))
+          case _              => Left("Unable to bind an api version")
+        }
+      }
+    }
+
+    override def unbind(key: String, version: ApiVersionNbr): String = {
+      textBinder.unbind(key, version.value)
+    }
+  }
 }

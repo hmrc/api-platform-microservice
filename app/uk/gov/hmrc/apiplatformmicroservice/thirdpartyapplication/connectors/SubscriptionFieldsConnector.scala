@@ -24,7 +24,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
 import play.api.http.Status._
-import play.api.libs.json.{JsSuccess, Json}
+import play.api.libs.json.{JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
@@ -41,7 +41,7 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
-  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[HttpResponse]
+  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, payload: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse]
 }
 
 sealed trait SubsFieldsUpsertResponse
@@ -50,26 +50,6 @@ case class FailedValidationSubsFieldsUpsertResponse(errorResponses: Map[FieldNam
 case class SuccessfulSubsFieldsUpsertResponse(wrapped: SubscriptionFields, isInsert: Boolean) extends SubsFieldsUpsertResponse
 case class SubscriptionFieldsId(value: UUID)                                                  extends AnyVal
 case class SubscriptionFields(clientId: ClientId, apiIdentifier: ApiIdentifier, fieldsId: SubscriptionFieldsId, fields: Map[FieldName, FieldValue])
-
-// def upsertSubscriptionFields(clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] = Action.async(parse.json) { implicit request =>
-//   import JsonFormatters._
-
-//   withJsonBody[SubscriptionFieldsRequest] { payload =>
-//     if (payload.fields.isEmpty) {
-//       Future.successful(UnprocessableEntity(JsErrorResponse(INVALID_REQUEST_PAYLOAD, "At least one field must be specified")))
-//     } else {
-//       service
-//         .upsert(clientId, apiContext, apiVersionNbr, payload.fields)
-//         .map(_ match {
-//           case NotFoundSubsFieldsUpsertResponse                             => BadRequest(Json.toJson("reason" -> "field definitions not found")) // TODO
-//           case FailedValidationSubsFieldsUpsertResponse(fieldErrorMessages) => BadRequest(Json.toJson(fieldErrorMessages))
-//           case SuccessfulSubsFieldsUpsertResponse(response, true)           => Created(Json.toJson(response))
-//           case SuccessfulSubsFieldsUpsertResponse(response, false)          => Ok(Json.toJson(response))
-//         })
-//         .recover(recovery)
-//     }
-//   }
-// }
 
 abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
@@ -120,12 +100,10 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
     }
   }
 
-  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def upsertFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, payload: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     configureEbridgeIfRequired(
-      http.put(urlSubscriptionFieldValues(clientId, ApiIdentifier(apiIdentifier.context, apiIdentifier.versionNbr)))
-        .withBody(Json.toJson(SubscriptionFieldsPutRequest(values)))
-    )
-      .execute[HttpResponse]
+      http.put(urlSubscriptionFieldValues(clientId, apiIdentifier)).withBody(payload)
+    ).execute[HttpResponse]
   }
 
   private lazy val urlBulkSubscriptionFieldDefinitions =

@@ -20,7 +20,7 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
@@ -54,6 +54,13 @@ trait SubscriptionFieldsConnectorModule {
 
       def willReturn(apiIdentifier: ApiIdentifier) = {
         when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(Right(())))
+      }
+    }
+
+    object UpsertFieldValues {
+
+      def willReturn(apiIdentifier: ApiIdentifier)(status: Int, body: String = "") = {
+        when(aMock.upsertFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(HttpResponse(status, body)))
       }
     }
   }

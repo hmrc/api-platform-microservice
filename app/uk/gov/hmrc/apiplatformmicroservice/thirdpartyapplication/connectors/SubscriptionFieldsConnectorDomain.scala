@@ -44,9 +44,6 @@ object SubscriptionFieldsConnectorDomain {
   case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldDefinitions: NEL[FieldDefinition])
 
   case class SubscriptionFieldsPutRequest(
-      // clientId: ClientId,
-      // apiContext: ApiContext,
-      // apiVersion: ApiVersionNbr,
       fields: Map[FieldName, FieldValue]
     )
 

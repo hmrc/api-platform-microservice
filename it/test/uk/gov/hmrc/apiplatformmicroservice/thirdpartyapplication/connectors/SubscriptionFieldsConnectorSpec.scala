@@ -127,7 +127,7 @@ class SubscriptionFieldsConnectorSpec
         val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(Map(fieldsForAOne))
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+          put(urlEqualTo(s"/field/application/$clientId/context/$ContextA/version/$VersionOne"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()
@@ -135,7 +135,7 @@ class SubscriptionFieldsConnectorSpec
             )
         )
 
-        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Json.toJson(request)))
         result.status shouldBe OK
 
       }
@@ -145,7 +145,7 @@ class SubscriptionFieldsConnectorSpec
         val error                                 = "This is wrong"
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+          put(urlEqualTo(s"/field/application/$clientId/context/$ContextA/version/$VersionOne"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()
@@ -154,7 +154,7 @@ class SubscriptionFieldsConnectorSpec
             )
         )
 
-        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.upsertFieldValues(clientId, ApiIdentifierAOne, Json.toJson(request)))
 
         result.status shouldBe BAD_REQUEST
       }

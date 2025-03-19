@@ -26,7 +26,6 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, ClientId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.SubscriptionFieldsPutRequest
 
 @Singleton
 class SubscriptionFieldsController @Inject() (
@@ -37,10 +36,8 @@ class SubscriptionFieldsController @Inject() (
 
   def upsertSubscriptionFields(environment: Environment, clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr): Action[JsValue] =
     Action.async(parse.json) { implicit request =>
-      withJsonBody[SubscriptionFieldsPutRequest] { payload =>
-        subscriptionsFieldsConnector(environment).upsertFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), payload.fields).map(response =>
-          Status(response.status)(Json.toJson(response.body))
-        )
-      }
+      subscriptionsFieldsConnector(environment).upsertFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), request.body).map(response =>
+        Status(response.status)(Json.toJson(response.body))
+      )
     }
 }
