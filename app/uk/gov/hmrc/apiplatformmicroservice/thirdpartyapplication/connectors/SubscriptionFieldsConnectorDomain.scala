@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
-import java.util.UUID
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
@@ -29,7 +27,6 @@ object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
 
-  case class BulkSubscriptionFieldsResponse(subscriptions: Seq[SubscriptionFields])
 
   case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
 
@@ -50,14 +47,6 @@ object SubscriptionFieldsConnectorDomain {
       fields: Map[FieldName, FieldValue]
     )
 
-  case class ApplicationApiFieldValues(
-      clientId: ClientId,
-      apiContext: ApiContext,
-      apiVersion: ApiVersionNbr,
-      fieldsId: UUID,
-      fields: Map[FieldName, FieldValue]
-    )
-
   def asMapOfMapsOfFieldDefns(fieldDefs: Seq[ApiFieldDefinitions]): ApiFieldMap[FieldDefinition] = {
     import cats._
     import cats.implicits._
@@ -72,23 +61,6 @@ object SubscriptionFieldsConnectorDomain {
 
     Monoid.combineAll(
       fieldDefs.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fieldDefinitions.map(fd => fd.name -> fd).toList.toMap)))
-    )
-  }
-
-  def asMapOfMaps(subscriptions: Seq[SubscriptionFields]): ApiFieldMap[FieldValue] = {
-    import cats._
-    import cats.implicits._
-    type MapType = Map[ApiVersionNbr, Map[FieldName, FieldValue]]
-
-    // Shortcut combining as we know there will never be records for the same version for the same context
-    implicit def monoidVersions: Monoid[MapType] =
-      new Monoid[MapType] {
-        override def combine(x: MapType, y: MapType): MapType = x ++ y
-        override def empty: MapType                           = Map.empty
-      }
-
-    Monoid.combineAll(
-      subscriptions.map(s => Map(s.apiContext -> Map(s.apiVersion -> s.fields)))
     )
   }
 
@@ -109,10 +81,6 @@ object SubscriptionFieldsConnectorDomain {
         (JsPath \ "apiVersion").read[ApiVersionNbr] and
         (JsPath \ "fields").read[Map[FieldName, FieldValue]]
     )(SubscriptionFields.apply _)
-
-    implicit val readsBulkSubscriptionFieldsResponse: Reads[BulkSubscriptionFieldsResponse] = Json.reads[BulkSubscriptionFieldsResponse]
-
-    implicit val readsApplicationApiFieldValues: Reads[ApplicationApiFieldValues] = Json.reads[ApplicationApiFieldValues]
 
     implicit val readsFieldDefinitions: Reads[NEL[FieldDefinition]] = nelReads[FieldDefinition]
 

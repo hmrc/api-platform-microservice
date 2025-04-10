@@ -31,33 +31,16 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMock
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.interface.models.BulkSubscriptionFieldsResponseFixtures
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiIdentifierFixtures
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.ApiFieldMapFixtures
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with WireMockSugarExtensions
-    with GuiceOneServerPerSuite {
-
-  val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
-  val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
-  val fieldsForBOne = FieldNameTwo -> "twoValueB".asFieldValue
-
-  val subsFields =
-    Map(
-      ContextA -> Map(
-        VersionOne -> Map(fieldsForAOne),
-        VersionTwo -> Map(fieldsForATwo)
-      ),
-      ContextB -> Map(
-        VersionOne -> Map(fieldsForBOne)
-      )
-    )
-
-  val bulkSubscriptions = Seq(
-    SubscriptionFields(ContextA, VersionOne, Map(fieldsForAOne)),
-    SubscriptionFields(ContextA, VersionTwo, Map(fieldsForATwo)),
-    SubscriptionFields(ContextB, VersionOne, Map(fieldsForBOne))
-  )
+    with GuiceOneServerPerSuite
+    with BulkSubscriptionFieldsResponseFixtures with ApiIdentifierFixtures with ApiFieldMapFixtures {
 
   class SetupPrincipal {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -70,23 +53,32 @@ class SubscriptionFieldsConnectorSpec
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      implicit val writes: Writes[BulkSubscriptionFieldsResponse] = Json.writes[BulkSubscriptionFieldsResponse]
-
       stubFor(
         get(urlEqualTo(s"/field/application/${clientId}"))
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(BulkSubscriptionFieldsResponse(bulkSubscriptions))
+              .withJsonBody(bulkSubsOne)
           )
       )
 
-      await(connector.bulkFetchFieldValues(clientId)) shouldBe subsFields
+      val expected = Map(
+        apiContextOne -> Map(
+          apiVersionNbrOne -> fieldMapOne,
+          apiVersionNbrTwo -> fieldMapTwo
+        ),
+        apiContextTwo -> Map(
+          apiVersionNbrOne -> fieldMapThree
+        )
+      )
+
+
+      await(connector.bulkFetchFieldValues(clientId)) shouldBe expected
     }
 
     "save field values" should {
       "work with good values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, fieldMapOne)
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
@@ -97,13 +89,13 @@ class SubscriptionFieldsConnectorSpec
             )
         )
 
-        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, fieldMapOne))
 
         result shouldBe Right(())
       }
 
       "return field errors with bad values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, fieldMapOne)
         val error                                 = "This is wrong"
 
         stubFor(
@@ -116,7 +108,7 @@ class SubscriptionFieldsConnectorSpec
             )
         )
 
-        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, fieldMapOne))
 
         result shouldBe Left(Map(FieldNameOne -> error))
       }
