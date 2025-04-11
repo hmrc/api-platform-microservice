@@ -19,22 +19,9 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
 
-object SubscriptionsHelper {
+object SubscriptionsHelper extends ApiIdentifierFixtures {
 
   import AbstractThirdPartyApplicationConnector._
-
-  val ContextA   = ApiContext("A")
-  val ContextB   = ApiContext("B")
-  val VersionOne = ApiVersionNbr("1.0")
-  val VersionTwo = ApiVersionNbr("2.0")
-
-  val ApiIdentifierAOne = ApiIdentifier(ContextA, VersionOne)
-  val ApiIdentifierATwo = ApiIdentifier(ContextA, VersionTwo)
-  val ApiIdentifierBOne = ApiIdentifier(ContextB, VersionOne)
-  val ApiIdentifierBTwo = ApiIdentifier(ContextB, VersionTwo)
-
-  val FieldNameOne = FieldName("one")
-  // val FieldNameTwo = FieldName("two")
 
   implicit class VersionWrapper(v: ApiVersionNbr) {
     def asInner: InnerVersion = InnerVersion(v)
@@ -44,12 +31,12 @@ object SubscriptionsHelper {
     def asFieldValue: FieldValue = FieldValue(v)
   }
 
-  val SubsVersionsForA = Seq(SubscriptionVersion(VersionOne.asInner, true), SubscriptionVersion(VersionTwo.asInner, false))
-  val SubsVersionsForB = Seq(SubscriptionVersion(VersionTwo.asInner, true))
+  val SubsVersionsForA = Seq(SubscriptionVersion(apiVersionNbrOne.asInner, true), SubscriptionVersion(apiVersionNbrTwo.asInner, false))
+  val SubsVersionsForB = Seq(SubscriptionVersion(apiVersionNbrTwo.asInner, true))
 
   val MixedSubscriptions: Set[ApiIdentifier] =
     Set(
-      ApiIdentifierAOne,
-      ApiIdentifierBTwo
+      apiIdentifierOne,
+      apiIdentifierFour
     )
 }

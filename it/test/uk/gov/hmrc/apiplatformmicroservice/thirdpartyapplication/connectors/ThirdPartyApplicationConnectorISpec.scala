@@ -299,8 +299,8 @@ class ThirdPartyApplicationConnectorISpec
       )
 
       await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set(
-        ApiIdentifier(ContextA, VersionOne),
-        ApiIdentifier(ContextB, VersionTwo)
+        ApiIdentifier(apiContextOne, apiVersionNbrOne),
+        ApiIdentifier(apiContextTwo, apiVersionNbrTwo)
       )
     }
   }
