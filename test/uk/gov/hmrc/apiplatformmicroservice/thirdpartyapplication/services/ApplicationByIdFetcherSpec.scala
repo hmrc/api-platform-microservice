@@ -25,11 +25,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
-class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock with ApplicationWithCollaboratorsFixtures {
+class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
+    with FixedClock
+    with ApplicationWithCollaboratorsFixtures
+    with ApiIdentifierFixtures
+    with FieldNameFixtures
+    with FieldValueFixtures
+    with FieldsFixtures
+    with ApiFieldMapFixtures {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -96,23 +103,19 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec with FixedClock with Appl
       }
 
       "return an application with subscritions from subordinate if present" in new Setup {
-        val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
-        val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
-
         val subsFields =
           Map(
-            ContextA -> Map(
-              VersionOne -> Map(fieldsForAOne),
-              VersionTwo -> Map(fieldsForATwo)
+            apiIdentifierOne.context -> Map(
+              apiIdentifierOne.versionNbr -> fieldsMapOne
             )
           )
 
         EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
         EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(ApiIdentifierAOne)
+        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(apiIdentifierOne)
         SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
 
-        val expect = application.withSubscriptions(Set(ApiIdentifierAOne)).withFieldValues(subsFields)
+        val expect = application.withSubscriptions(Set(apiIdentifierOne)).withFieldValues(subsFields)
         await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe Some(expect)
       }
     }

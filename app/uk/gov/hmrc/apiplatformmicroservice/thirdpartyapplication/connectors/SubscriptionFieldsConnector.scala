@@ -64,11 +64,13 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   }
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+    import Implicits.OverrideForBulkResponse._
+
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldValues(clientId))
     )
-      .execute[Option[BulkSubscriptionFieldsResponse]]
-      .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(r => asMapOfMaps(r.subscriptions)))
+      .execute[Option[ApiFieldMap[FieldValue]]]
+      .map(_.getOrElse(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]]))
   }
 
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {

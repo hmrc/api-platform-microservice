@@ -16,48 +16,34 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
+import java.net.URLEncoder
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, ClientId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiIdentifierFixtures, ApiVersionNbr, ClientId}
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.JsonFormatters._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with WireMockSugarExtensions
-    with GuiceOneServerPerSuite {
-
-  val fieldsForAOne = FieldNameOne -> "oneValue".asFieldValue
-  val fieldsForATwo = FieldNameTwo -> "twoValue".asFieldValue
-  val fieldsForBOne = FieldNameTwo -> "twoValueB".asFieldValue
-
-  val subsFields =
-    Map(
-      ContextA -> Map(
-        VersionOne -> Map(fieldsForAOne),
-        VersionTwo -> Map(fieldsForATwo)
-      ),
-      ContextB -> Map(
-        VersionOne -> Map(fieldsForBOne)
-      )
-    )
-
-  val bulkSubscriptions = Seq(
-    SubscriptionFields(ContextA, VersionOne, Map(fieldsForAOne)),
-    SubscriptionFields(ContextA, VersionTwo, Map(fieldsForATwo)),
-    SubscriptionFields(ContextB, VersionOne, Map(fieldsForBOne))
-  )
+    with GuiceOneServerPerSuite
+    with ApiIdentifierFixtures
+    with FieldsFixtures
+    with FieldNameFixtures
+    with FieldValueFixtures
+    with ApiFieldMapFixtures {
 
   class SetupPrincipal {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -66,30 +52,41 @@ class SubscriptionFieldsConnectorSpec
     val httpClient = app.injector.instanceOf[HttpClientV2]
     val config     = PrincipalSubscriptionFieldsConnector.Config(wireMockUrl)
     val connector  = new PrincipalSubscriptionFieldsConnector(config, httpClient)
+    val fieldsId   = UUID.randomUUID()
+
+    val bulkSubsOne = Json.parse(
+      s"""{"subscriptions":[{"clientId":"123","apiContext":"$apiContextOne","apiVersion":"$apiVersionNbrOne", "fieldsId":"$fieldsId","fields":{"$fieldNameOne":"$fieldValueOne"}}]}"""
+    )
   }
+
+  def encode(in: ApiContext): String = URLEncoder.encode(in.value, "UTF-8")
 
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
-      implicit val writes: Writes[BulkSubscriptionFieldsResponse] = Json.writes[BulkSubscriptionFieldsResponse]
-
       stubFor(
         get(urlEqualTo(s"/field/application/${clientId}"))
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withJsonBody(BulkSubscriptionFieldsResponse(bulkSubscriptions))
+              .withJsonBody(bulkSubsOne)
           )
       )
 
-      await(connector.bulkFetchFieldValues(clientId)) shouldBe subsFields
+      val expected = Map(
+        apiContextOne -> Map(
+          apiVersionNbrOne -> fieldsMapOne
+        )
+      )
+
+      await(connector.bulkFetchFieldValues(clientId)) shouldBe expected
     }
 
     "save field values" should {
       "work with good values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContextOne, apiVersionNbrOne, fieldsMapOne)
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+          put(urlEqualTo(s"/field/application/${clientId}/context/${encode(apiContextOne)}/version/${apiVersionNbrOne}"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()
@@ -97,28 +94,28 @@ class SubscriptionFieldsConnectorSpec
             )
         )
 
-        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.saveFieldValues(clientId, apiIdentifierOne, fieldsMapOne))
 
         result shouldBe Right(())
       }
 
       "return field errors with bad values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, ContextA, VersionOne, Map(fieldsForAOne))
+        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContextOne, apiVersionNbrOne, fieldsMapOne)
         val error                                 = "This is wrong"
 
         stubFor(
-          put(urlEqualTo(s"/field/application/${clientId}/context/${ContextA}/version/${VersionOne}"))
+          put(urlEqualTo(s"/field/application/${clientId}/context/${encode(apiContextOne)}/version/${apiVersionNbrOne}"))
             .withJsonRequestBody(request)
             .willReturn(
               aResponse()
                 .withStatus(BAD_REQUEST)
-                .withJsonBody(Map(FieldNameOne -> error))
+                .withJsonBody(Map(fieldNameOne -> error))
             )
         )
 
-        val result = await(connector.saveFieldValues(clientId, ApiIdentifierAOne, Map(fieldsForAOne)))
+        val result = await(connector.saveFieldValues(clientId, apiIdentifierOne, fieldsMapOne))
 
-        result shouldBe Left(Map(FieldNameOne -> error))
+        result shouldBe Left(Map(fieldNameOne -> error))
       }
     }
   }
