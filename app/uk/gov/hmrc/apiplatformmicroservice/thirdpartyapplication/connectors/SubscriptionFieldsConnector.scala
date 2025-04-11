@@ -33,7 +33,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.
 import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.interface.models.BulkSubscriptionFieldsResponse
 
 private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
@@ -65,11 +64,13 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   }
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+    import Implicits.OverrideForBulkResponse._
+
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldValues(clientId))
     )
-      .execute[Option[BulkSubscriptionFieldsResponse]]
-      .map(_.fold(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]])(BulkSubscriptionFieldsResponse.toApiFieldMap))
+      .execute[Option[ApiFieldMap[FieldValue]]]
+      .map(_.getOrElse(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]]))
   }
 
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {

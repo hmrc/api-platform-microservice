@@ -34,7 +34,7 @@ object SubscriptionsHelper {
   val ApiIdentifierBTwo = ApiIdentifier(ContextB, VersionTwo)
 
   val FieldNameOne = FieldName("one")
-  val FieldNameTwo = FieldName("two")
+  // val FieldNameTwo = FieldName("two")
 
   implicit class VersionWrapper(v: ApiVersionNbr) {
     def asInner: InnerVersion = InnerVersion(v)

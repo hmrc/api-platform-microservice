@@ -27,7 +27,6 @@ object SubscriptionFieldsConnectorDomain {
   import cats.data.{NonEmptyList => NEL}
   import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
 
-
   case class BulkApiFieldDefinitionsResponse(apis: Seq[ApiFieldDefinitions])
 
   type FieldErrors = Map[FieldName, String]
