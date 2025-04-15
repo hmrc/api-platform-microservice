@@ -23,8 +23,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models.FieldDefinition
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
 
 trait SubscriptionFieldsConnectorModule {
