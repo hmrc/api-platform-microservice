@@ -17,9 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.services.FieldsJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.services.NonEmptyListFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
@@ -65,7 +63,6 @@ object SubscriptionFieldsConnectorDomain {
 
   object JsonFormatters
       extends ApplicationJsonFormatters
-      with FieldsJsonFormatters
       with NonEmptyListFormatters {
 
     import play.api.libs.json._

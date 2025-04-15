@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 

@@ -5,7 +5,7 @@ import sbt._
 object AppDependencies {
   val bootstrapVersion = "9.11.0"
   val apiDomainVersion = "0.19.1"
-  val appDomainVersion = "0.77.0"
+  val appDomainVersion = "0.78.0"
   val tpdDomainVersion = "0.13.0"
 
   lazy val dependencies = Seq(

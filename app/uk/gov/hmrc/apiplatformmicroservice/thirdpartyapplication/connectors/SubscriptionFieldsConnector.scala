@@ -29,8 +29,7 @@ import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
