@@ -69,7 +69,7 @@ trait ThirdPartyApplicationConnector {
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
-  // TODO API-8363
+  // TODO Move to TPA/Remove (API-8358)
   // add methods currently in subs field connector
 }
 

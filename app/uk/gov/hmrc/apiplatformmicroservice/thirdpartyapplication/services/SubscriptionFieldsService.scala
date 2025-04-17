@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnectorDomain}
 
-// TODO API-8363
+// TODO Move to TPA/Remove (API-8358)
 @Singleton
 class SubscriptionFieldsService @Inject() (
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
