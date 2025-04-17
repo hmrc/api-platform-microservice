@@ -39,8 +39,10 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
+  // TODO Move to TPA/Remove (API-8358)
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
 
+  // TODO Move to TPA/Remove (API-8358)
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
 }
 

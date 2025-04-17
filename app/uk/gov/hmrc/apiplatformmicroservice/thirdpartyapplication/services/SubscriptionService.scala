@@ -26,15 +26,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.{CreateSubscriptionDenied, CreateSubscriptionResult, CreateSubscriptionSuccess}
 
 @Singleton
 class SubscriptionService @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
     subscriptionFieldsService: SubscriptionFieldsService
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
@@ -51,28 +48,11 @@ class SubscriptionService @Inject() (
       .flatMap(possibleSubscriptions => {
 
         if (canSubscribeToAll(possibleSubscriptions)) {
-          createFieldValuesForGivenApis(application, apis)
+          subscriptionFieldsService.createFieldValuesForGivenApis(application.clientId, application.deployedTo, apis).map(_ => CreateSubscriptionSuccess)
         } else {
           successful(CreateSubscriptionDenied)
         }
       })
-  }
-
-  private def createFieldValuesForGivenApis(
-      application: ApplicationWithCollaborators,
-      apiIdentifiers: Set[ApiIdentifier]
-    )(implicit hc: HeaderCarrier
-    ): Future[CreateSubscriptionResult] = {
-    Future.sequence(apiIdentifiers.map(api => createFieldValues(application, api)))
-      .map(_ => CreateSubscriptionSuccess)
-  }
-
-  private def createFieldValues(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
-    for {
-      fieldValues      <- subscriptionFieldsService.fetchFieldValuesWithDefaults(application.deployedTo, application.clientId, Set(apiIdentifier))
-      fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
-      fvResuls         <- subscriptionFieldsConnector(application.deployedTo).saveFieldValues(application.clientId, apiIdentifier, fieldValuesForApi)
-    } yield CreateSubscriptionSuccess
   }
 }
 
