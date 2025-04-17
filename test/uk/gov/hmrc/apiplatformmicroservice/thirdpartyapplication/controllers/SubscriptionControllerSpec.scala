@@ -41,7 +41,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
 
   val clock = Clock.systemUTC()
 
-  trait Setup extends ApplicationByIdFetcherModule with SubscriptionServiceModule with ApplicationWithCollaboratorsFixtures {
+  trait Setup extends ApplicationByIdFetcherModule with ApplicationWithCollaboratorsFixtures {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     implicit val mat: Materializer            = NoMaterializer
 
@@ -50,7 +50,6 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
     val mockUpliftApplicationService = mock[UpliftApplicationService]
 
     val controller = new SubscriptionController(
-      SubscriptionServiceMock.aMock,
       ApplicationByIdFetcherMock.aMock,
       mockAuthConfig,
       mockAuthConnector,

@@ -44,7 +44,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
       response.status shouldBe OK
       Json.parse(response.body) shouldBe Json.parse("""
       {
-        "hello": {
+        "hello": {  
             "1.0": {
                 "helloworldFieldOne": {
                     "name": "helloworldFieldOne",

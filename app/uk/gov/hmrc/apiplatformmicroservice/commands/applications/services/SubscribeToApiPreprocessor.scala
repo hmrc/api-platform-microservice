@@ -58,6 +58,7 @@ class SubscribeToApiPreprocessor @Inject() (
     existingSubscriptions.contains(newSubscriptionApiIdentifier)
   }
 
+  // TODO API-8363
   // Should be done post subscribe probably but it never has been
   private def createFieldValues(
       application: ApplicationWithCollaborators,
@@ -102,6 +103,7 @@ class SubscribeToApiPreprocessor @Inject() (
       allowedSubscriptions   = if (canManagePrivateVersions) possibleSubscriptions else excludePrivateVersions(possibleSubscriptions)
       isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(isAllowed, (), NonEmptyList.one(CommandFailures.SubscriptionNotAvailable))
+      // TODO API-8363
       _                     <- E.fromEitherF(createFieldValues(application, newSubscriptionApiIdentifier))
     } yield DispatchRequest(cmd, data)
   }
