@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnectorDomain}
 
+// TODO Move to TPA/Remove (API-8358)
 @Singleton
 class SubscriptionFieldsService @Inject() (
     subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
@@ -53,6 +54,25 @@ class SubscriptionFieldsService @Inject() (
     } yield filledFields
   }
 
+  def createFieldValuesForGivenApis(
+      clientId: ClientId,
+      deployedTo: Environment,
+      apiIdentifiers: Set[ApiIdentifier]
+    )(implicit hc: HeaderCarrier
+    ): Future[Either[Map[ApiIdentifier, SubscriptionFieldsConnectorDomain.FieldErrors], Unit]] = {
+    import cats._
+    import cats.implicits._
+
+    Future.sequence(
+      apiIdentifiers.toList.map(api =>
+        createFieldValues(clientId, deployedTo, api).map(cfv =>
+          cfv.leftMap(err => Map(api -> err))
+        )
+      )
+    )
+      .map(Monoid.combineAll(_))
+  }
+
   def createFieldValues(
       clientId: ClientId,
       deployedTo: Environment,
@@ -65,5 +85,4 @@ class SubscriptionFieldsService @Inject() (
       fvResults        <- subscriptionFieldsConnector(deployedTo).saveFieldValues(clientId, apiIdentifier, fieldValuesForApi)
     } yield fvResults
   }
-
 }

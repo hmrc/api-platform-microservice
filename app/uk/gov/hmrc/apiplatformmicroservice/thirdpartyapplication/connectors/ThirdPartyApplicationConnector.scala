@@ -69,6 +69,8 @@ trait ThirdPartyApplicationConnector {
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
+  // TODO Move to TPA/Remove (API-8358)
+  // add methods currently in subs field connector
 }
 
 abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
