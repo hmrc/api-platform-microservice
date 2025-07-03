@@ -191,7 +191,6 @@ class ThirdPartyApplicationConnectorISpec
 
   "fetchApplication" should {
     val url = s"/application/${applicationIdOne}"
-    import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
     "propagate error when endpoint returns error" in new Setup {
       stubFor(PRODUCTION)(

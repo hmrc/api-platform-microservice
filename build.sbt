@@ -8,7 +8,7 @@ lazy val appName = "api-platform-microservice"
 
 Global / bloopAggregateSourceDependencies := true
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / majorVersion := 0
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
