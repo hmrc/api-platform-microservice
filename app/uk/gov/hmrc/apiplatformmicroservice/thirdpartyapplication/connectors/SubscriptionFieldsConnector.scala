@@ -44,6 +44,8 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
   // TODO Move to TPA/Remove (API-8358)
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
+  
+  def csv()(implicit hc: HeaderCarrier): Future[String]
 }
 
 abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -94,6 +96,13 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
           }
         }
     }
+  }
+
+  def csv()(implicit hc: HeaderCarrier): Future[String] = {
+    configureEbridgeIfRequired(
+      http.get(url"$serviceBaseUrl/csv")
+    )
+    .execute[String]
   }
 
   private lazy val urlBulkSubscriptionFieldDefinitions =

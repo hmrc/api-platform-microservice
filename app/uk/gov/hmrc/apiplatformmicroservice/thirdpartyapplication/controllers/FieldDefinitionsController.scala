@@ -39,4 +39,10 @@ class FieldDefinitionsController @Inject() (
     })
   }
 
+  def csv(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+    subscriptionsFieldsConnector(environment).csv().map(text => {
+      Ok(text)
+    })
+  }
+
 }
