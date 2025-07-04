@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -44,6 +45,8 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
 
   // TODO Move to TPA/Remove (API-8358)
   def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
+
+  def csv()(implicit hc: HeaderCarrier): Future[String]
 }
 
 abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
@@ -94,6 +97,21 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
           }
         }
     }
+  }
+
+  def csv()(implicit hc: HeaderCarrier): Future[String] = {
+    val csv = configureEbridgeIfRequired(
+      http.get(url"$serviceBaseUrl/csv")
+        .setHeader(HeaderNames.ACCEPT -> "text/csv")
+    )
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case OK         => response.body
+          case statusCode => throw UpstreamErrorResponse("Failed to get CSV", statusCode)
+        }
+      }
+    csv
   }
 
   private lazy val urlBulkSubscriptionFieldDefinitions =

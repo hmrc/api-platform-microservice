@@ -23,7 +23,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 case class DispatchSuccessResult(applicationResponse: ApplicationWithCollaborators)
 
 object DispatchSuccessResult {
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters._
 
   implicit val format: OFormat[DispatchSuccessResult] = Json.format[DispatchSuccessResult]
 }
