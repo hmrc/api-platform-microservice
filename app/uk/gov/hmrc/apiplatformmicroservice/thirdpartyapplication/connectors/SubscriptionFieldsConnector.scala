@@ -22,8 +22,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
+import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
@@ -102,7 +102,7 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
   def csv()(implicit hc: HeaderCarrier): Future[String] = {
     val csv = configureEbridgeIfRequired(
       http.get(url"$serviceBaseUrl/csv")
-        .setHeader(HeaderNames.ACCEPT -> ContentTypes.TEXT)
+        .setHeader(HeaderNames.ACCEPT -> "text/csv")
     )
       .execute[HttpResponse]
       .map { response =>
