@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
+package uk.gov.hmrc.apiplatformmicroservice.extendedapidefinition.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

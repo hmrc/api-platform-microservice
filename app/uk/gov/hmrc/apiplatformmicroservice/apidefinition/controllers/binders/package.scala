@@ -22,20 +22,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 package object binders {
   import play.api.mvc.{PathBindable, QueryStringBindable}
 
-  implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
-
-    override def bind(key: String, value: String): Either[String, Environment] = {
-      for {
-        text <- textBinder.bind(key, value)
-        env  <- Environment.apply(text).toRight("Not a valid environment")
-      } yield env
-    }
-
-    override def unbind(key: String, env: Environment): String = {
-      env.toString.toLowerCase
-    }
-  }
-
   implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
 
     override def bind(key: String, value: String): Either[String, ServiceName] = {

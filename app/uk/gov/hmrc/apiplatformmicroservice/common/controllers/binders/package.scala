@@ -51,7 +51,6 @@ package object binders {
       textBinder.unbind(key, applicationId.toString())
     }
   }
-
   implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
 
     override def bind(key: String, value: String): Either[String, Environment] = {
