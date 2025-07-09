@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.extendedapidefinition.controllers
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.extended
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
