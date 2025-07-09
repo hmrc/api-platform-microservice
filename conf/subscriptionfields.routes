@@ -1,2 +1,3 @@
-GET        /           uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.FieldDefinitionsController.fetchFieldDefinitions(environment: uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment)
-GET        /csv        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.CsvController.csv(environment: uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment)     
+GET        /                                                                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.FieldDefinitionsController.fetchFieldDefinitions(environment: Environment)
+PUT        /field/application/:clientId/context/:apiContext/version/:apiVersionNbr  uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.SubscriptionFieldsController.saveFieldValues(environment: Environment, clientId: ClientId, apiContext: ApiContext, apiVersionNbr: ApiVersionNbr)
+GET        /csv                                                                     uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.CsvController.csv(environment: Environment)     

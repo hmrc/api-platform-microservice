@@ -59,7 +59,6 @@ class SubscriptionService @Inject() (
 object SubscriptionService {
   trait CreateSubscriptionResult
 
-  case object CreateSubscriptionSuccess   extends CreateSubscriptionResult
-  case object CreateSubscriptionDenied    extends CreateSubscriptionResult
-  case object CreateSubscriptionDuplicate extends CreateSubscriptionResult
+  case object CreateSubscriptionSuccess extends CreateSubscriptionResult
+  case object CreateSubscriptionDenied  extends CreateSubscriptionResult
 }

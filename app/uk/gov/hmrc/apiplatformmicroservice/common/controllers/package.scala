@@ -33,6 +33,7 @@ package object controllers extends ApplicationLogger {
     val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
     val APPLICATION_NOT_FOUND       = Value("APPLICATION_NOT_FOUND")
     val SUBSCRIPTION_DENIED         = Value("SUBSCRIPTION_DENIED")
+    val INVALID_REQUEST_PAYLOAD     = Value("INVALID_REQUEST_PAYLOAD")
   }
 
   object JsErrorResponse {

@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnectorDomain}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
 
 // TODO Move to TPA/Remove (API-8358)
 @Singleton
@@ -59,7 +59,7 @@ class SubscriptionFieldsService @Inject() (
       deployedTo: Environment,
       apiIdentifiers: Set[ApiIdentifier]
     )(implicit hc: HeaderCarrier
-    ): Future[Either[Map[ApiIdentifier, SubscriptionFieldsConnectorDomain.FieldErrors], Unit]] = {
+    ): Future[Either[Map[ApiIdentifier, FieldErrorMap], Unit]] = {
     import cats._
     import cats.implicits._
 
@@ -78,7 +78,7 @@ class SubscriptionFieldsService @Inject() (
       deployedTo: Environment,
       apiIdentifier: ApiIdentifier
     )(implicit hc: HeaderCarrier
-    ): Future[Either[SubscriptionFieldsConnectorDomain.FieldErrors, Unit]] = {
+    ): Future[Either[FieldErrorMap, Unit]] = {
     for {
       fieldValues      <- fetchFieldValuesWithDefaults(deployedTo, clientId, Set(apiIdentifier))
       fieldValuesForApi = ApiFieldMap.extractApi(apiIdentifier)(fieldValues)
