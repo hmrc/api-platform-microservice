@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Provider, Singleton}
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import uk.gov.hmrc.apiplatformmicroservice.common.config.ConfigProviderHelper
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector
 
 @Singleton

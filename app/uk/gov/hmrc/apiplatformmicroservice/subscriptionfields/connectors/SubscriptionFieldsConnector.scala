@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors
 
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,12 +31,11 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, Upstream
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
-private[thirdpartyapplication] trait SubscriptionFieldsConnector {
-
-  import SubscriptionFieldsConnectorDomain._
+trait SubscriptionFieldsConnector {
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
@@ -44,19 +43,17 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
 
   // TODO Move to TPA/Remove (API-8358)
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]]
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]]
 
   def csv()(implicit hc: HeaderCarrier): Future[String]
 }
 
-abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
   def serviceBaseUrl: String
   def http: HttpClientV2
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
-
-  import SubscriptionFieldsConnectorDomain._
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
     import Implicits.OverrideForBulkResponse._
@@ -76,13 +73,13 @@ abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnecto
       .map(_.getOrElse(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]]))
   }
 
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrors, Unit]] = {
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]] = {
     if (fields.isEmpty) {
       successful(Right(()))
     } else {
       configureEbridgeIfRequired(
         http.put(urlSubscriptionFieldValues(clientId, apiIdentifier))
-          .withBody(Json.toJson(SubscriptionFieldsPutRequest(clientId, apiIdentifier.context, apiIdentifier.versionNbr, fields)))
+          .withBody(Json.toJson(UpsertFieldValuesRequest(fields)))
       )
         .execute[HttpResponse]
         .map { response =>

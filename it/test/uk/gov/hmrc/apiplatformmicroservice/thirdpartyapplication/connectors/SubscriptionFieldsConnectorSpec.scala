@@ -30,8 +30,9 @@ import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionFieldsConnectorDomain.SubscriptionFieldsPutRequest
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.PrincipalSubscriptionFieldsConnector
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec
@@ -82,7 +83,7 @@ class SubscriptionFieldsConnectorSpec
 
     "save field values" should {
       "work with good values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContextOne, apiVersionNbrOne, fieldsMapOne)
+        val request = UpsertFieldValuesRequest(fieldsMapOne)
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId}/context/${encode(apiContextOne)}/version/${apiVersionNbrOne}"))
@@ -99,8 +100,8 @@ class SubscriptionFieldsConnectorSpec
       }
 
       "return field errors with bad values" in new SetupPrincipal {
-        val request: SubscriptionFieldsPutRequest = SubscriptionFieldsPutRequest(clientId, apiContextOne, apiVersionNbrOne, fieldsMapOne)
-        val error                                 = "This is wrong"
+        val request = UpsertFieldValuesRequest(fieldsMapOne)
+        val error   = "This is wrong"
 
         stubFor(
           put(urlEqualTo(s"/field/application/${clientId}/context/${encode(apiContextOne)}/version/${apiVersionNbrOne}"))

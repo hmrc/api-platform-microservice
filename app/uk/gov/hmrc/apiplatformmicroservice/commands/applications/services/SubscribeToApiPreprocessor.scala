@@ -30,7 +30,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationByIdFetcher, SubscriptionFieldsService}
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 @Singleton
 class SubscribeToApiPreprocessor @Inject() (

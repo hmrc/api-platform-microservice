@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks
 
 import scala.concurrent.Future.{failed, successful}
 
@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
 
 trait SubscriptionFieldsConnectorModule {
   self: MockitoSugar with ArgumentMatchersSugar =>
