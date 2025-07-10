@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsServiceModule}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec

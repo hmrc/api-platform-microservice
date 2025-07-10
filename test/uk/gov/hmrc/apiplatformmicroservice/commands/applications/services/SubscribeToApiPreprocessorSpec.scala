@@ -33,6 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{Appl
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks._
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures with FixedClock {

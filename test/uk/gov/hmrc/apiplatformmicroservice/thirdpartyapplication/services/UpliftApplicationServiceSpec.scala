@@ -26,7 +26,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.Create
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ThirdPartyApplicationConnectorModule, _}
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 

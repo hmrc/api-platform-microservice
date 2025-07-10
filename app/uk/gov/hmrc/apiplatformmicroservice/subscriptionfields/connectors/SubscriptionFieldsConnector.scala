@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors
 
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.Upser
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
-private[thirdpartyapplication] trait SubscriptionFieldsConnector {
+trait SubscriptionFieldsConnector {
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
@@ -48,7 +48,7 @@ private[thirdpartyapplication] trait SubscriptionFieldsConnector {
   def csv()(implicit hc: HeaderCarrier): Future[String]
 }
 
-abstract private[thirdpartyapplication] class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
 
   def serviceBaseUrl: String
   def http: HttpClientV2

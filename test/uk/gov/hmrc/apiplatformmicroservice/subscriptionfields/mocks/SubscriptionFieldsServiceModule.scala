@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks
 
 import scala.concurrent.Future.successful
 
@@ -22,7 +22,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionFieldsService
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
 
 trait SubscriptionFieldsServiceModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

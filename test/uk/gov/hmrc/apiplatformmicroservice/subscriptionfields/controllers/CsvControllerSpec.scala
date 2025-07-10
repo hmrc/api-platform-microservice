@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
 
 class CsvControllerSpec extends AsyncHmrcSpec {
 

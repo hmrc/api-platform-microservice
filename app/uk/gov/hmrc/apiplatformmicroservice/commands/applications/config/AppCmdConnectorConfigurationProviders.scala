@@ -21,7 +21,7 @@ import com.google.inject.{Inject, Provider, Singleton}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.AppCmdConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config.ConfigProviderHelper
+import uk.gov.hmrc.apiplatformmicroservice.common.config.ConfigProviderHelper
 
 @Singleton
 class AppCmdConnectorConfigProvider @Inject() (override val sc: ServicesConfig)

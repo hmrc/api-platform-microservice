@@ -14,28 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.controllers
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.EnvironmentAwareSubscriptionFieldsConnector
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.EnvironmentAwareSubscriptionFieldsConnector
 
 @Singleton
-class CsvController @Inject() (
+class FieldDefinitionsController @Inject() (
     cc: ControllerComponents,
     subscriptionsFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector
   )(implicit ec: ExecutionContext
   ) extends BackendController(cc) with ApplicationLogger {
 
-  def csv(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    subscriptionsFieldsConnector(environment).csv().map(text => {
-      Ok(text).as("text/csv")
+  def fetchFieldDefinitions(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
+    subscriptionsFieldsConnector(environment).bulkFetchFieldDefinitions.map(fds => {
+      Ok(Json.toJson(fds))
     })
   }
 }

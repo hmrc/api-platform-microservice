@@ -27,14 +27,8 @@ class ConfigurationModule extends AbstractModule {
     bind(classOf[AbstractThirdPartyApplicationConnector.Config]).annotatedWith(named("principal")).toProvider(classOf[PrincipalThirdPartyApplicationConnectorConfigProvider])
     bind(classOf[AbstractThirdPartyApplicationConnector.Config]).annotatedWith(named("subordinate")).toProvider(classOf[SubordinateThirdPartyApplicationConnectorConfigProvider])
 
-    bind(classOf[PrincipalSubscriptionFieldsConnector.Config]).toProvider(classOf[PrincipalSubscriptionFieldsConnectorConfigProvider])
-    bind(classOf[SubordinateSubscriptionFieldsConnector.Config]).toProvider(classOf[SubordinateSubscriptionFieldsConnectorConfigProvider])
-
     bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateThirdPartyApplicationConnector])
     bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("principal")).to(classOf[PrincipalThirdPartyApplicationConnector])
-
-    bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("subordinate")).to(classOf[SubordinateSubscriptionFieldsConnector])
-    bind(classOf[SubscriptionFieldsConnector]).annotatedWith(named("principal")).to(classOf[PrincipalSubscriptionFieldsConnector])
 
     bind(classOf[ThirdPartyDeveloperConnector.Config]).toProvider(classOf[ThirdPartyDeveloperConnectorConfigurationProvider])
   }

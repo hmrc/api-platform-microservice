@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.PrincipalSubscriptionFieldsConnector
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec

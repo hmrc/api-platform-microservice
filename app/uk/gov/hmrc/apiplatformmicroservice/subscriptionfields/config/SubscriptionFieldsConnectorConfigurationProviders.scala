@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.config
+package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.config
 
 import com.google.inject.{Inject, Provider, Singleton}
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalSubscriptionFieldsConnector, SubordinateSubscriptionFieldsConnector}
+import uk.gov.hmrc.apiplatformmicroservice.common.config.ConfigProviderHelper
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{PrincipalSubscriptionFieldsConnector, SubordinateSubscriptionFieldsConnector}
 
 @Singleton
 class PrincipalSubscriptionFieldsConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
