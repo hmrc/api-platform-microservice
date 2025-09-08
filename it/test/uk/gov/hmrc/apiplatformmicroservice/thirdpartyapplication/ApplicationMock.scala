@@ -62,7 +62,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures {
         aResponse()
           .withBody(Json.toJson(
             standardApp.withEnvironment(deployedTo).withId(applicationId)
-              .modify(_.copy(clientId = clientId))
+              .modify(_.copy(token = standardApp.details.token.copy(clientId = clientId)))
           ).toString())
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
