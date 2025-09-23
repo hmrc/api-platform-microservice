@@ -8,3 +8,5 @@ GET        /:id/upliftableSubscriptions                       uk.gov.hmrc.apipla
 POST       /:id/uplift                                        uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.upliftApplication(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 GET        /:id/linked-subordinate                            uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.ApplicationController.fetchLinkedSubordinateApplication(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
+
+GET        /environment/:environment/query                    uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers.QueryController.queryEnv(environment: uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment)
