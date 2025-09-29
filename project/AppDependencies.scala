@@ -3,7 +3,7 @@ import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
-  val bootstrapVersion = "9.18.0"
+  val bootstrapVersion = "9.19.0"
   val apiDomainVersion = "0.20.0"
   val appDomainVersion = "0.87.0"
   val tpdDomainVersion = "0.14.0"

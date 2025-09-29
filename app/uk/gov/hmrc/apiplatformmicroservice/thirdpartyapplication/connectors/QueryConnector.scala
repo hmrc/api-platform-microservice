@@ -45,15 +45,10 @@ class QueryConnector @Inject() (
   val api = API("third-party-application")
 
   def query(environment: Environment, qry: Map[String, Seq[String]])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    println("*" * 32)
-    println("here")
 
     val simplifiedQry = qry.map {
       case (k, vs) => k -> vs.mkString
     }
-
-    println("*" * 32)
-    println(url"${tpoBaseUrl}/environment/$environment/query?$simplifiedQry")
 
     http
       .get(url"${tpoBaseUrl}/environment/$environment/query?$simplifiedQry")
