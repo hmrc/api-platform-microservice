@@ -32,8 +32,7 @@ lazy val root = Project(appName, file("."))
   .settings(
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
-    Test / unmanagedSourceDirectories += baseDirectory.value / "test",
-    Test / javaOptions += s"-javaagent:${csrCacheDirectory.value.getAbsolutePath}/https/repo1.maven.org/maven2/org/mockito/mockito-core/${AppDependencies.mockitoVersion}/mockito-core-${AppDependencies.mockitoVersion}.jar"
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .settings(
     scalacOptions ++= Seq(
