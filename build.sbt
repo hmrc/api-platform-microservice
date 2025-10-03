@@ -47,9 +47,7 @@ lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
   .dependsOn(root % "test->test")
   .settings(
-    name := "integration-tests",
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    inConfig(Test)(BloopDefaults.configSettings),
     DefaultBuildSettings.itSettings()
   )
 

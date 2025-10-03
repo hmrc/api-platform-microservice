@@ -31,5 +31,7 @@ class ConfigurationModule extends AbstractModule {
     bind(classOf[ThirdPartyApplicationConnector]).annotatedWith(named("principal")).to(classOf[PrincipalThirdPartyApplicationConnector])
 
     bind(classOf[ThirdPartyDeveloperConnector.Config]).toProvider(classOf[ThirdPartyDeveloperConnectorConfigurationProvider])
+
+    bind(classOf[QueryConnector.Config]).toProvider(classOf[QueryConnectorConfigProvider])
   }
 }
