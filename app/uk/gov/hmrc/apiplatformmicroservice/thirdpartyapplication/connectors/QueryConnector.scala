@@ -42,7 +42,7 @@ class QueryConnector @Inject() (
 
   import config.tpoBaseUrl
 
-  val api = API("third-party-application")
+  val api = API("third-party-orchestrator")
 
   def query(environment: Environment, qry: Map[String, Seq[String]])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 

@@ -22,6 +22,5 @@ object AppDependencies {
     "org.mockito"             %% "mockito-scala-scalatest"                    % mockitoScalaVersion,
     "uk.gov.hmrc"             %% "api-platform-test-tpd-domain"               % tpdDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-application-domain-fixtures"   % appDomainVersion
-
   ).map(_ % "test")
 }
