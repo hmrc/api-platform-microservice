@@ -47,18 +47,6 @@ trait ThirdPartyApplicationConnectorModule {
       }
     }
 
-    object FetchApplicationsByUserId {
-
-      def willReturnApplicationIds(applicationIds: ApplicationId*) = {
-        when(aMock.fetchApplications(*[UserId])(*)).thenReturn(successful(applicationIds))
-      }
-
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchApplications(*[UserId])(*))
-          .thenReturn(failed(e))
-      }
-    }
-
     object FetchSubscriptionsByUserId {
 
       def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {

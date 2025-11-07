@@ -61,8 +61,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 trait ThirdPartyApplicationConnector {
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]]
 
-  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
-
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
 
   def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
@@ -90,14 +88,6 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
       http.get(url"$serviceBaseUrl/application/${applicationId}")
     )
       .execute[Option[ApplicationWithCollaborators]]
-  }
-
-  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    configureEbridgeIfRequired(
-      http.get(url"$serviceBaseUrl/developer/${userId}/applications")
-    )
-      .execute[Seq[ApplicationWithCollaborators]]
-      .map(_.map(_.id))
   }
 
   def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {

@@ -25,14 +25,14 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 
 class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
   private val versionOne = ApiVersionNbr("1.0")
   private val versionTwo = ApiVersionNbr("2.0")
 
-  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val userId                                = Some(UserId.random)
     val applicationId                         = ApplicationId.random
@@ -53,7 +53,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       new ApiDefinitionsForCollaboratorFetcher(
         PrincipalApiDefinitionServiceMock.aMock,
         SubordinateApiDefinitionServiceMock.aMock,
-        ApplicationIdsForCollaboratorFetcherMock.aMock,
         SubscriptionsForCollaboratorFetcherMock.aMock
       )
     SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturnNones()
@@ -63,7 +62,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
   "ApiDefinitionsForCollaboratorFetcher" should {
     "return the public APIs" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(helloApiDefinition)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 
@@ -75,7 +73,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       val subordinateHelloApi = helloApiDefinition.withName("hello-subordinate")
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(principalHelloApi)
       SubordinateApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(subordinateHelloApi)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 
@@ -84,7 +81,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "filter out an api that only has retired versions" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithRetiredVersions, apiWithOnlyRetiredVersions)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 
@@ -94,7 +90,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "filter out private versions for an api" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPublicAndPrivateVersions)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 
@@ -111,7 +106,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "filter out an api if it only has private versions" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithOnlyPrivateVersions)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 
@@ -120,7 +114,6 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     "return api if it's private but with trials" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPrivateTrials)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(List.empty: _*)
 
       val result = await(underTest.fetch(userId))
 

@@ -117,42 +117,6 @@ class ThirdPartyApplicationConnectorISpec
     }
   }
 
-  "fetchApplications for a collaborator by user id" should {
-    val userId               = UserId.random
-    val url                  = s"/developer/${userId}/applications"
-    val applicationResponses = List(standardApp.withId(applicationIdOne), standardApp.withId(applicationIdTwo))
-
-    "return application Ids" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(applicationResponses)
-          )
-      )
-
-      val result = await(connector.fetchApplications(userId))
-
-      result.size shouldBe 2
-      result should contain.allOf(applicationIdOne, applicationIdTwo)
-    }
-
-    "propagate error when endpoint returns error" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchApplications(userId))
-      }.statusCode shouldBe NOT_FOUND
-    }
-  }
-
   "fetchSubscriptions for a collaborator by userId" should {
     val userId = UserId.random
     val url    = s"/developer/${userId}/subscriptions"
