@@ -22,10 +22,9 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 import play.api.http.Status._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
@@ -34,7 +33,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborator, Collaborators, LoginRedirectUri}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV2, StandardAccessDataToCopy}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples, WireMockSugarExtensions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubscriptionsHelper._
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
 
 class ThirdPartyApplicationConnectorISpec
@@ -104,7 +102,7 @@ class ThirdPartyApplicationConnectorISpec
     val appId = ApplicationId.random
 
     "return application Id" in new ApplicationCreateSetup {
-      stubFor(PRODUCTION)(
+      stubForProd(
         post(urlEqualTo(url))
           .withJsonRequestBody(createAppRequestV2)
           .willReturn(
@@ -114,157 +112,6 @@ class ThirdPartyApplicationConnectorISpec
           )
       )
       await(connector.createApplicationV2(createAppRequestV2))
-    }
-  }
-
-  "fetchSubscriptions for a collaborator by userId" should {
-    val userId = UserId.random
-    val url    = s"/developer/${userId}/subscriptions"
-
-    val expectedSubscriptions = Seq(apiIdentifierOne, apiIdentifierTwo)
-
-    "return subscriptions" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(expectedSubscriptions)
-          )
-      )
-
-      val result = await(connector.fetchSubscriptions(userId))
-
-      result shouldBe expectedSubscriptions
-    }
-
-    "propagate error when endpoint returns error" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchSubscriptions(userId))
-      }.statusCode shouldBe NOT_FOUND
-    }
-  }
-
-  "fetchApplication" should {
-    val url = s"/application/${applicationIdOne}"
-
-    "propagate error when endpoint returns error" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchApplication(applicationIdOne))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return None when appropriate" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-          )
-      )
-      await(connector.fetchApplication(applicationIdOne)) shouldBe None
-    }
-
-    "return the application" in new Setup {
-      val application = standardApp.inSandbox()
-
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(application)
-          )
-      )
-
-      await(connector.fetchApplication(applicationIdOne)) shouldBe Some(application)
-    }
-  }
-
-  "fetchSubscriptions" should {
-    import AbstractThirdPartyApplicationConnector._
-    val url = s"/application/${applicationIdOne}/subscription"
-
-    "propagate error when endpoint returns 5xx error" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchSubscriptionsById(applicationIdOne))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "handle 5xx from subordinate" in new SubordinateSetup {
-      stubFor(SANDBOX)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set.empty
-    }
-
-    "handle Not Found" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-          )
-      )
-      intercept[ApplicationNotFound] {
-        await(connector.fetchSubscriptionsById(applicationIdOne))
-      }
-    }
-
-    "return None when appropriate" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(Set.empty[ApiIdentifier])
-          )
-      )
-
-      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set.empty
-    }
-
-    "return the subscription versions that are subscribed to" in new Setup {
-      stubFor(PRODUCTION)(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withJsonBody(MixedSubscriptions)
-          )
-      )
-
-      await(connector.fetchSubscriptionsById(applicationIdOne)) shouldBe Set(
-        ApiIdentifier(apiContextOne, apiVersionNbrOne),
-        ApiIdentifier(apiContextTwo, apiVersionNbrTwo)
-      )
     }
   }
 }

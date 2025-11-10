@@ -71,7 +71,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting an api definition" should {
 
       "call the underlying http client" in new Setup {
-        whenGetDefinition(Environment.PRODUCTION)(serviceName, apiDefinition(apiName1))
+        whenGetDefinition(Environment.PRODUCTION)(serviceName, apiDefinitionFromJson(apiName1))
 
         val result = await(connector.fetchApiDefinition(serviceName))
 
@@ -98,7 +98,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting all api definitions" should {
 
       "call the underlying http client with the type argument set to all" in new Setup {
-        whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition(apiName1), apiDefinition(apiName2))
+        whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinitionFromJson(apiName1), apiDefinitionFromJson(apiName2))
 
         val result = await(connector.fetchAllApiDefinitions)
 

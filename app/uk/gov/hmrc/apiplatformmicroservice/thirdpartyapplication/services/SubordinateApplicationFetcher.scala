@@ -23,15 +23,17 @@ import cats.data.OptionT
 import cats.implicits._
 
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, SubordinateThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{PrincipalThirdPartyApplicationConnector, QueryConnector}
 
 @Singleton
 class SubordinateApplicationFetcher @Inject() (
-    subordinateThirdPartyApplicationConnector: SubordinateThirdPartyApplicationConnector,
+    queryConnector: QueryConnector,
     principalThirdPartyApplicationConnector: PrincipalThirdPartyApplicationConnector
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
@@ -40,7 +42,8 @@ class SubordinateApplicationFetcher @Inject() (
     (
       for {
         subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
-        subordinateApplication <- OptionT(subordinateThirdPartyApplicationConnector.fetchApplication(subordinateAppId))
+        qry                     = ApplicationQuery.ById(subordinateAppId, Nil)
+        subordinateApplication <- OptionT(queryConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry))
       } yield subordinateApplication
     ).value
   }

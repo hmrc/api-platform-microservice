@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMock
 trait SubscriptionFieldValuesMock {
   self: PrincipalAndSubordinateWireMockSetup => // To allow for stubFor to work with environment
 
-  def mockBulkFetchFieldValuesAndDefinitions(env: Environment, clientId: ClientId): Unit = {
+  def mockBulkFetchFieldDefinitions(env: Environment, clientId: ClientId): Unit = {
     stubFor(env)(get(urlEqualTo(s"/definition"))
       .willReturn(
         aResponse()
@@ -144,39 +144,6 @@ trait SubscriptionFieldValuesMock {
                       |        }
                       |    ]
                       |}""".stripMargin)
-          .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
-          .withStatus(OK)
-      ))
-
-    stubFor(env)(get(urlEqualTo(s"/field/application/${clientId}"))
-      .willReturn(
-        aResponse()
-          .withBody(s"""{
-                       |  "subscriptions": [
-                       |      {
-                       |          "clientId": "${clientId}",
-                       |          "apiContext": "hello",
-                       |          "apiVersion": "1.0",
-                       |          "fieldsId": "d7b7c67f-0edb-4811-8e1f-69eb3518ced6",
-                       |          "fields": {
-                       |              "helloworldFieldOne": "a",
-                       |              "helloworldFieldTwo": "b",
-                       |              "helloworldFieldThree": "c"
-                       |          }
-                       |      },
-                       |      {
-                       |          "clientId": "${clientId}",
-                       |          "apiContext": "customs/declarations",
-                       |          "apiVersion": "1.0",
-                       |          "fieldsId": "dcdd563d-44e8-4c0c-a841-df4b882edbc9",
-                       |          "fields": {
-                       |              "callbackUrl": "http://localhost:123/blah",
-                       |              "securityToken": "y",
-                       |              "authenticatedEori": ""
-                       |          }
-                       |      }
-                       |  ]
-                       |}""".stripMargin)
           .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
           .withStatus(OK)
       ))

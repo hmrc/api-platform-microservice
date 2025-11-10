@@ -37,9 +37,8 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       val applicationId = ApplicationId.random
       val clientId      = ClientId.random
 
-      mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
-      mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
-      mockBulkFetchFieldValuesAndDefinitions(Environment.PRODUCTION, clientId)
+      mockFetchApplicationWithFields(Environment.PRODUCTION, applicationId, clientId)
+      mockBulkFetchFieldDefinitions(Environment.PRODUCTION, clientId)
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")

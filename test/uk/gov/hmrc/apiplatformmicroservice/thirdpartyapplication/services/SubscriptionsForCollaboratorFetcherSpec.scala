@@ -23,13 +23,15 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionsFixtures
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.QueryConnectorMockModule
 
-class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithSubscriptionsFixtures {
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup extends QueryConnectorMockModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val developer                             = UserId.random
 
@@ -40,13 +42,25 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     val subordinateSubscriptions = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))
     val principalSubscriptions   = Seq(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloAgents, apiVersionOne))
-    val underTest                = new SubscriptionsForCollaboratorFetcher(SubordinateThirdPartyApplicationConnectorMock.aMock, PrincipalThirdPartyApplicationConnectorMock.aMock)
+    val underTest                = new SubscriptionsForCollaboratorFetcher(QueryConnectorMock.aMock)
+
+    val subordinateApps = List(
+      standardApp.withId(ApplicationId.random).withSubscriptions(Set(ApiIdentifier(apiContextHelloWorld, apiVersionOne), ApiIdentifier(apiContextHelloWorld, apiVersionTwo))),
+      standardApp.withId(ApplicationId.random).withSubscriptions(Set(ApiIdentifier(apiContextHelloWorld, apiVersionTwo)))
+    )
+
+    val principalApps = List(
+      standardApp.withId(ApplicationId.random).withSubscriptions(Set(ApiIdentifier(apiContextHelloWorld, apiVersionOne))),
+      standardApp.withId(ApplicationId.random).withSubscriptions(Set(ApiIdentifier(apiContextHelloAgents, apiVersionOne)))
+    )
+
+    val qry = ApplicationQueries.applicationsByUserId(developer, wantSubscriptions = true)
   }
 
   "SubscriptionsForCollaboratorFetcher" should {
     "concatenate both subordinate and principal subscriptions without duplicates" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(subordinateSubscriptions: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(principalSubscriptions: _*)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -58,8 +72,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return subordinate subscriptions if there are no matching principal subscriptions" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(subordinateSubscriptions: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(Seq.empty: _*)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, List.empty)
 
       val result = await(underTest.fetch(developer))
 
@@ -67,8 +81,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return principal subscriptions if there are no matching subordinate subscriptions" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(principalSubscriptions: _*)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -76,8 +90,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return an empty set if there are no matching subscriptions in any environment" in new Setup {
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(Seq.empty: _*)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, List.empty)
 
       val result = await(underTest.fetch(developer))
 
@@ -86,8 +100,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     "return principal subscriptions if something goes wrong in subordinate" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(principalSubscriptions: _*)
+      QueryConnectorMock.ByQuery.failsFor(Environment.SANDBOX, qry, new RuntimeException(expectedExceptionMessage))
+      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -96,8 +110,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     "throw exception if something goes wrong in principal" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      SubordinateThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willReturnSubscriptions(Seq.empty: _*)
-      PrincipalThirdPartyApplicationConnectorMock.FetchSubscriptionsByUserId.willThrowException(new RuntimeException(expectedExceptionMessage))
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.failsFor(Environment.PRODUCTION, qry, new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
         await(underTest.fetch(developer))

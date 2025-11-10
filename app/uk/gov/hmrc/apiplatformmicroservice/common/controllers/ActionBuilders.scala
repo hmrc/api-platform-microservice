@@ -70,7 +70,7 @@ trait ActionBuilders {
         import cats.implicits._
 
         (for {
-          applicationWithSubscriptionData <- OptionT(applicationService.fetchApplicationWithSubscriptionData(applicationId))
+          applicationWithSubscriptionData <- OptionT(applicationService.fetchApplicationWithSubscriptionFields(applicationId))
         } yield {
           ApplicationWithSubscriptionDataRequest(
             applicationWithSubscriptionData.asAppWithCollaborators,
