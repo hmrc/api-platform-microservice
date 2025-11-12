@@ -68,13 +68,13 @@ class CombinedApisControllerISpec
   "CombinedApisController" should {
     "return OK with a combination of xml and rest apis when api definitions and xml services return results" in new Setup {
 
-      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
       mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
       mockFetchApiDefinition(PRODUCTION)
       whenGetAllXmlApis(xmlApis: _*)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
-        .withQueryStringParameters("developerId" -> s"${userId.value}").get())
+        .withQueryStringParameters("developerId" -> s"${userId.toString()}").get())
 
       result.status shouldBe OK
       val body = result.body
@@ -87,9 +87,9 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when xml services returns Internal server error" in new Setup {
 
-      mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
       mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
+      mockFetchApiDefinition(PRODUCTION)
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
@@ -113,9 +113,9 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when get applications as collaborator returns Not Found" in new Setup {
 
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -127,8 +127,8 @@ class CombinedApisControllerISpec
     "return INTERNAL_SERVER_ERROR when get developer subscriptions returns Not Found" in new Setup {
 
       mockFetchApiDefinition(PRODUCTION)
-      mockFetchApplicationsForDeveloper(PRODUCTION, userId)
-      mockFetchSubscriptionsForDeveloperNotFound(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -140,7 +140,8 @@ class CombinedApisControllerISpec
     "return INTERNAL_SERVER_ERROR when getcolloborators returns Not Found" in new Setup {
 
       whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
-      mockFetchApplicationsForDeveloperNotFound(PRODUCTION, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())

@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, Extend
 trait DefinitionsFromJson {
 
   // noinspection ScalaStyle
-  def extendedApiDefinition(name: String): ExtendedApiDefinition = {
+  def extendedApiDefinitionFromJson(name: String): ExtendedApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -83,7 +83,7 @@ trait DefinitionsFromJson {
      """.stripMargin).as[ExtendedApiDefinition]
   }
 
-  def apiDefinition(name: String): ApiDefinition = {
+  def apiDefinitionFromJson(name: String): ApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",
                   |  "description" : "Test API",
@@ -132,5 +132,5 @@ trait DefinitionsFromJson {
                   |  ]
                   |}""".stripMargin.replaceAll("\n", " ")).as[ApiDefinition]
   }
-  def apiDefinitions(names: String*)             = names.map(apiDefinition)
+  def apiDefinitionsFromJson(names: String*)             = names.map(apiDefinitionFromJson)
 }

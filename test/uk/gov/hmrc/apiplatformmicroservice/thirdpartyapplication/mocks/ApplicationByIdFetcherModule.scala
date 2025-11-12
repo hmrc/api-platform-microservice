@@ -43,7 +43,7 @@ trait ApplicationByIdFetcherModule extends MockitoSugar with ArgumentMatchersSug
     object FetchApplicationWithSubscriptionData {
 
       def willReturnApplicationWithSubscriptionData(app: ApplicationWithCollaborators, subscriptions: Set[ApiIdentifier] = Set.empty) = {
-        when(aMock.fetchApplicationWithSubscriptionData(*[ApplicationId])(*)).thenReturn(Future.successful(Some(app.withSubscriptions(subscriptions).withFieldValues(Map.empty))))
+        when(aMock.fetchApplicationWithSubscriptionFields(*[ApplicationId])(*)).thenReturn(Future.successful(Some(app.withSubscriptions(subscriptions).withFieldValues(Map.empty))))
       }
     }
   }

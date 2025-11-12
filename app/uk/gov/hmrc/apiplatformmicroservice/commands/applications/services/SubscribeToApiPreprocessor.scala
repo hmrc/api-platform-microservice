@@ -97,7 +97,7 @@ class SubscribeToApiPreprocessor @Inject() (
 
     for {
       _                     <- E.cond(permissionsPassed, (), NonEmptyList.one(CommandFailures.SubscriptionNotAvailable))
-      existingSubscriptions <- E.liftF(applicationService.fetchApplicationWithSubscriptionData(application.id).map(_.get.subscriptions)) // .get is safe as we already have the app
+      existingSubscriptions <- E.liftF(applicationService.fetchApplicationWithSubscriptionFields(application.id).map(_.get.subscriptions)) // .get is safe as we already have the app
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyList.one(CommandFailures.DuplicateSubscription))
       possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application.deployedTo, existingSubscriptions, !canManagePrivateVersions))

@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsServiceModule}
@@ -41,17 +42,19 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val id: ApplicationId = standardApp.id // ApplicationId.random
+  val id: ApplicationId = standardApp.id
 
   val application: ApplicationWithCollaborators = standardApp.inSandbox()
 
   val BANG = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with MockitoSugar
+  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with QueryConnectorMockModule
+      with MockitoSugar
       with ArgumentMatchersSugar {
 
     val fetcher = new ApplicationByIdFetcher(
       EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
+      QueryConnectorMock.aMock,
       EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
       SubscriptionFieldsServiceMock.aMock
     )
@@ -59,66 +62,71 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
 
   "ApplicationByIdFetcher" when {
     "fetchApplicationId is called" should {
+      val qry = ApplicationQuery.ById(id, Nil)
+
       "return None if absent from principal and subordinate" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry, None)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry, None)
 
         await(fetcher.fetchApplication(id)) shouldBe None
       }
 
       "return an application from subordinate if present" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry, Some(application))
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry, None)
 
         await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an application from principal if present" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnApplication(application)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry, None)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry, Some(application))
+
         await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an application from principal if present even when subordinate throws" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willThrowException(BANG)
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnApplication(application)
+        QueryConnectorMock.ByQuery.failsFor[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry, BANG)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry, Some(application))
+
         await(fetcher.fetchApplication(id)) shouldBe Some(application)
       }
 
       "return an exception if principal throws even if subordinate has the application" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willThrowException(BANG)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry, Some(application))
+        QueryConnectorMock.ByQuery.failsFor[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry, BANG)
+
         intercept[Exception] {
           await(fetcher.fetchApplication(id)) shouldBe Some(application)
         }.shouldBe(BANG)
       }
     }
 
-    "fetchApplicationWithSubscriptionData" should {
+      "fetchApplicationWithSubscriptionData" should {
+        val qry = ApplicationQuery.ById(id, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
 
-      "return None when application is not found" in new Setup {
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
+        "return None when application is not found" in new Setup {
+          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry, None)
+          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
 
-        await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe None
-      }
+          await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe None
+        }
 
-      "return an application with subscritions from subordinate if present" in new Setup {
-        val subsFields =
-          Map(
-            apiIdentifierOne.context -> Map(
-              apiIdentifierOne.versionNbr -> fieldsMapOne
+        "return an application with subscritions from subordinate if present" in new Setup {
+          val subscriptions = Set(apiIdentifierOne)
+          val subsFields =
+            Map(
+              apiIdentifierOne.context -> Map(
+                apiIdentifierOne.versionNbr -> fieldsMapOne
+              )
             )
-          )
 
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchApplicationById.willReturnApplication(application)
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Principal.FetchApplicationById.willReturnNone
-        EnvironmentAwareThirdPartyApplicationConnectorMock.Subordinate.FetchSubscriptionsById.willReturnSubscriptions(apiIdentifierOne)
-        SubscriptionFieldsServiceMock.FetchFieldValuesWithDefaults.willReturnFieldValues(subsFields)
+          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry, Some(application.withSubscriptions(subscriptions).withFieldValues(subsFields)))
+          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
 
-        val expect = application.withSubscriptions(Set(apiIdentifierOne)).withFieldValues(subsFields)
-        await(fetcher.fetchApplicationWithSubscriptionData(id)) shouldBe Some(expect)
+          val expect = application.withSubscriptions(Set(apiIdentifierOne)).withFieldValues(subsFields)
+          await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe Some(expect)
+        }
       }
-    }
   }
 }

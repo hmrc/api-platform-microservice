@@ -24,6 +24,7 @@ import org.apache.pekko.util.ByteString
 import play.api.http.ContentTypes
 import play.api.http.HttpEntity.Strict
 import play.api.mvc.{Action, AnyContent, ControllerComponents, ResponseHeader, Result}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -39,7 +40,7 @@ class QueryController @Inject() (
   ) extends BackendController(cc) with ApplicationLogger {
 
   def queryEnv(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    queryConnector.query(environment, request.queryString).map(convertToResult)
+    queryConnector.query[HttpResponse](environment, request.queryString).map(convertToResult)
   }
 
   private def convertToResult(resp: HttpResponse) = {

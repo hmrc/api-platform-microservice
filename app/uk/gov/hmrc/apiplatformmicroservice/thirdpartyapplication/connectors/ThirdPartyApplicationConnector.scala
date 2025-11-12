@@ -19,11 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
@@ -59,13 +58,6 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 }
 
 trait ThirdPartyApplicationConnector {
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]]
-
-  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]]
-
-  def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]]
-
-  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]]
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
 
@@ -76,46 +68,12 @@ trait ThirdPartyApplicationConnector {
 abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
     with ApplicationLogger {
 
-  import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.AbstractThirdPartyApplicationConnector._
-
   def http: HttpClientV2
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
   protected val config: AbstractThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
-
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(
-      http.get(url"$serviceBaseUrl/application/${applicationId}")
-    )
-      .execute[Option[ApplicationWithCollaborators]]
-  }
-
-  def fetchApplications(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApplicationId]] = {
-    configureEbridgeIfRequired(
-      http.get(url"$serviceBaseUrl/developer/${userId}/applications")
-    )
-      .execute[Seq[ApplicationWithCollaborators]]
-      .map(_.map(_.id))
-  }
-
-  def fetchSubscriptions(userId: UserId)(implicit hc: HeaderCarrier): Future[Seq[ApiIdentifier]] = {
-    configureEbridgeIfRequired(
-      http.get(url"$serviceBaseUrl/developer/${userId}/subscriptions")
-    )
-      .execute[Seq[ApiIdentifier]]
-  }
-
-  def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    configureEbridgeIfRequired(
-      http.get(url"$serviceBaseUrl/application/${applicationId}/subscription")
-    )
-      .execute[Set[ApiIdentifier]]
-      .recover {
-        case UpstreamErrorResponse(_, NOT_FOUND, _, _) => throw new ApplicationNotFound
-      }
-  }
 
   def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
@@ -143,13 +101,6 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
 
   lazy val configureEbridgeIfRequired: RequestBuilder => RequestBuilder =
     EbridgeConfigurator.configure(useProxy, bearerToken, apiKey)
-
-  override def fetchSubscriptionsById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
-    super.fetchSubscriptionsById(applicationId)
-      .recover {
-        case UpstreamErrorResponse.Upstream5xxResponse(_) => Set.empty // TODO - really mask this ?
-      }
-  }
 }
 
 @Singleton

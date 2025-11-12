@@ -27,13 +27,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.{ApplicationIdsForCollaboratorFetcher, SubscriptionsForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
 @Singleton
 class ExtendedApiDefinitionForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
-    appIdsFetcher: ApplicationIdsForCollaboratorFetcher,
     subscriptionsForCollaboratorFetcher: SubscriptionsForCollaboratorFetcher,
     cache: AsyncCacheApi
   )(implicit ec: ExecutionContext

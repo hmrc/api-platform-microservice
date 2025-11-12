@@ -22,32 +22,33 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.SubordinateThirdPartyApplicationConnector
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ThirdPartyApplicationConnectorModule
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{QueryConnectorMockModule, ThirdPartyApplicationConnectorModule}
 
 class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock with ApplicationWithCollaboratorsFixtures {
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with MockitoSugar with ArgumentMatchersSugar {
+  trait Setup extends ThirdPartyApplicationConnectorModule with QueryConnectorMockModule with MockitoSugar with ArgumentMatchersSugar {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val subordinateAppId                      = ApplicationId.random
     val principalAppId                        = ApplicationId.random
 
     val subordinateApplication = standardApp.withId(subordinateAppId)
 
-    val subordinateConnector = SubordinateThirdPartyApplicationConnectorMock.aMock
-    val principalConnector   = PrincipalThirdPartyApplicationConnectorMock.aMock
+    val queryConnector     = QueryConnectorMock.aMock
+    val principalConnector = PrincipalThirdPartyApplicationConnectorMock.aMock
 
-    val service = new SubordinateApplicationFetcher(subordinateConnector.asInstanceOf[SubordinateThirdPartyApplicationConnector], principalConnector)
+    val service = new SubordinateApplicationFetcher(queryConnector, principalConnector)
   }
 
   "fetchSubordinateApplication" should {
     "return the subordinate application if it exists" in new Setup {
       PrincipalThirdPartyApplicationConnectorMock.GetLinkedSubordinateApplicationId.thenReturn(subordinateAppId)
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationById.willReturnApplication(subordinateApplication)
+      val qry = ApplicationQuery.ById(subordinateAppId, Nil)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, Some(subordinateApplication))
 
       val result = await(service.fetchSubordinateApplication(principalAppId))
 
@@ -64,7 +65,8 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock wi
 
     "return nothing if subordinate app does not exist" in new Setup {
       PrincipalThirdPartyApplicationConnectorMock.GetLinkedSubordinateApplicationId.thenReturn(subordinateAppId)
-      SubordinateThirdPartyApplicationConnectorMock.FetchApplicationById.willReturnNone
+      val qry = ApplicationQuery.ById(subordinateAppId, Nil)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, None)
 
       val result = await(service.fetchSubordinateApplication(principalAppId))
 

@@ -21,8 +21,7 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, _}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
 
@@ -31,55 +30,6 @@ trait ThirdPartyApplicationConnectorModule {
 
   abstract class ThirdPartyApplicationConnectorMock {
     val aMock: ThirdPartyApplicationConnector
-
-    object FetchApplicationById {
-
-      def willReturnApplication(application: ApplicationWithCollaborators) = {
-        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(Some(application)))
-      }
-
-      def willReturnNone = {
-        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(None))
-      }
-
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(e))
-      }
-    }
-
-    object FetchApplicationsByUserId {
-
-      def willReturnApplicationIds(applicationIds: ApplicationId*) = {
-        when(aMock.fetchApplications(*[UserId])(*)).thenReturn(successful(applicationIds))
-      }
-
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchApplications(*[UserId])(*))
-          .thenReturn(failed(e))
-      }
-    }
-
-    object FetchSubscriptionsByUserId {
-
-      def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
-        when(aMock.fetchSubscriptions(*[UserId])(*)).thenReturn(successful(subscriptions))
-      }
-
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchSubscriptions(*[UserId])(*)).thenReturn(failed(e))
-      }
-    }
-
-    object FetchSubscriptionsById {
-
-      def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
-        when(aMock.fetchSubscriptionsById(*[ApplicationId])(*)).thenReturn(successful(subscriptions.toSet[ApiIdentifier]))
-      }
-
-      def willThrowException(e: Exception) = {
-        when(aMock.fetchSubscriptionsById(*[ApplicationId])(*)).thenReturn(failed(e))
-      }
-    }
 
     object CreateApplicationV2 {
 

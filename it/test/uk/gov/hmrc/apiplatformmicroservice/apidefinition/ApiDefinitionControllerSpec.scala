@@ -44,9 +44,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val applicationId = ApplicationId.random
       val clientId      = ClientId(ju.UUID.randomUUID.toString)
 
-      mockFetchApplication(Environment.PRODUCTION, applicationId, clientId)
-      mockFetchApplicationSubscriptions(Environment.PRODUCTION, applicationId)
-      mockBulkFetchFieldValuesAndDefinitions(Environment.PRODUCTION, clientId)
+      mockFetchApplicationWithFields(Environment.PRODUCTION, applicationId, clientId)
+      mockBulkFetchFieldDefinitions(Environment.PRODUCTION, clientId)
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
@@ -82,7 +81,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       mockFetchApiDefinition(Environment.PRODUCTION)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
-        .withQueryStringParameters("applicationId" -> applicationId.value.toString(), "restricted" -> "false")
+        .withQueryStringParameters("applicationId" -> applicationId.toString(), "restricted" -> "false")
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 

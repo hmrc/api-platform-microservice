@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{ApplicationIdsForCollaboratorFetcherModule, SubscriptionsForCollaboratorFetcherModule}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.SubscriptionsForCollaboratorFetcherModule
 
 class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
 
@@ -49,7 +49,7 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  trait Setup extends ApiDefinitionServiceModule with ApplicationIdsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
+  trait Setup extends ApiDefinitionServiceModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val email                                 = Some(UserId.random)
     val applicationId                         = ApplicationId.random
@@ -67,7 +67,6 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
       PrincipalApiDefinitionServiceMock.aMock,
       SubordinateApiDefinitionServiceMock.aMock,
-      ApplicationIdsForCollaboratorFetcherMock.aMock,
       SubscriptionsForCollaboratorFetcherMock.aMock,
       doNothingCache
     )
@@ -184,7 +183,6 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
     "return true when applications ids are subscribed to the api" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
       SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPrivateVersion)
-      ApplicationIdsForCollaboratorFetcherMock.FetchAllApplicationIds.willReturnApplicationIds(ApplicationId.random)
       val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.keySet.head)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 

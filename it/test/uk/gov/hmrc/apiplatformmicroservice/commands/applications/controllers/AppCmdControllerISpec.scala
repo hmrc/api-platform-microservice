@@ -45,8 +45,8 @@ class AppCmdControllerISpec
   private val stubConfig = Configuration(
     "microservice.services.third-party-application-principal.host"   -> WireMockHost,
     "microservice.services.third-party-application-principal.port"   -> WireMockPrincipalPort,
-    "microservice.services.third-party-application-subordinate.host" -> WireMockHost,
     "microservice.services.third-party-application-subordinate.port" -> WireMockSubordinatePort,
+    "microservice.services.third-party-application-subordinate.host" -> WireMockHost,
     "microservice.services.third-party-orchestrator.host"            -> WireMockHost,
     "microservice.services.third-party-orchestrator.port"            -> WireMockPrincipalPort
   )
@@ -73,8 +73,9 @@ class AppCmdControllerISpec
   "AppCmdController" should {
     "return 401 when Unauthorised is returned from connector" in new Setup {
 
-      stubFor(Environment.PRODUCTION)(
-        get(urlPathEqualTo(s"/application/$applicationId"))
+      stubForProd(
+        get(urlPathEqualTo("/environment/PRODUCTION/query"))
+          .withQueryParam("applicationId", equalTo(applicationId.toString()))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -83,15 +84,15 @@ class AppCmdControllerISpec
           )
       )
 
-      stubFor(Environment.PRODUCTION)(
-        patch(urlMatching(s"/applications/${applicationId.value}/dispatch"))
+      stubForProd(
+        patch(urlMatching(s"/applications/${applicationId}/dispatch"))
           .willReturn(
             aResponse()
               .withStatus(UNAUTHORIZED)
           )
       )
       val body                 = Json.toJson(request).toString()
-      val response: WSResponse = await(wsClient.url(s"${baseUrl}/applications/${applicationId.value}/dispatch").withHttpHeaders(("content-type", "application/json")).patch(body))
+      val response: WSResponse = await(wsClient.url(s"${baseUrl}/applications/$applicationId/dispatch").withHttpHeaders(("content-type", "application/json")).patch(body))
       response.status shouldBe UNAUTHORIZED
     }
   }
