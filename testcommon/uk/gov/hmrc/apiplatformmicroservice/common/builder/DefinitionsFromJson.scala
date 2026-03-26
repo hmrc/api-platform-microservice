@@ -22,7 +22,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, Extend
 
 trait DefinitionsFromJson {
 
-  // noinspection ScalaStyle
   def extendedApiDefinitionFromJson(name: String): ExtendedApiDefinition = {
     Json.parse(s"""{
                   |  "name" : "$name",

@@ -19,6 +19,8 @@ package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
+import sttp.model.HeaderNames
+
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -48,7 +50,7 @@ class CsvControllerSpec extends AsyncHmrcSpec {
       val expectedCsv = "A,B\n1,2\n3,4"
       when(subsFieldConnector.csv()(*)).thenReturn(successful(expectedCsv))
 
-      val result = controller.csv(Environment.PRODUCTION)(FakeRequest())
+      val result = controller.csv(Environment.PRODUCTION)(FakeRequest().withHeaders(HeaderNames.Accept -> "text/csv"))
 
       contentAsString(result) shouldBe expectedCsv
       contentType(result).value shouldBe "text/csv"

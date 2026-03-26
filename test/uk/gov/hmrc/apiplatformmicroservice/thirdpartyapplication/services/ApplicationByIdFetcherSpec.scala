@@ -102,31 +102,35 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
       }
     }
 
-      "fetchApplicationWithSubscriptionData" should {
-        val qry = ApplicationQuery.ById(id, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
+    "fetchApplicationWithSubscriptionData" should {
+      val qry = ApplicationQuery.ById(id, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
 
-        "return None when application is not found" in new Setup {
-          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry, None)
-          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
+      "return None when application is not found" in new Setup {
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry, None)
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
 
-          await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe None
-        }
-
-        "return an application with subscritions from subordinate if present" in new Setup {
-          val subscriptions = Set(apiIdentifierOne)
-          val subsFields =
-            Map(
-              apiIdentifierOne.context -> Map(
-                apiIdentifierOne.versionNbr -> fieldsMapOne
-              )
-            )
-
-          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry, Some(application.withSubscriptions(subscriptions).withFieldValues(subsFields)))
-          QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
-
-          val expect = application.withSubscriptions(Set(apiIdentifierOne)).withFieldValues(subsFields)
-          await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe Some(expect)
-        }
+        await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe None
       }
+
+      "return an application with subscritions from subordinate if present" in new Setup {
+        val subscriptions = Set(apiIdentifierOne)
+        val subsFields    =
+          Map(
+            apiIdentifierOne.context -> Map(
+              apiIdentifierOne.versionNbr -> fieldsMapOne
+            )
+          )
+
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](
+          Environment.SANDBOX,
+          qry,
+          Some(application.withSubscriptions(subscriptions).withFieldValues(subsFields))
+        )
+        QueryConnectorMock.ByQuery.returnsFor[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry, None)
+
+        val expect = application.withSubscriptions(Set(apiIdentifierOne)).withFieldValues(subsFields)
+        await(fetcher.fetchApplicationWithSubscriptionFields(id)) shouldBe Some(expect)
+      }
+    }
   }
 }
