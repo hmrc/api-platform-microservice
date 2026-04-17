@@ -42,36 +42,36 @@ class FilterGateKeeperSubscriptionsSpec extends FilterApisSpecHelper with Filter
       }
     }
 
-    "filtering private apis where the app is not in the allow list" should {
+    "filtering non-public apis where the app is not in the allow list" should {
       "allow all except retired" in {
-        testFilter(allPrivateApis: _*) should contain.only(
-          privateApi.asAlpha,
-          privateApi.asBeta,
-          privateApi.asStable,
-          privateApi.asDeprecated
+        testFilter(allInternalApis: _*) should contain.only(
+          internalApi.asAlpha,
+          internalApi.asBeta,
+          internalApi.asStable,
+          internalApi.asDeprecated
         )
       }
 
       "reject retired" in {
-        testFilter(privateApi.asRetired) shouldBe empty
+        testFilter(internalApi.asRetired) shouldBe empty
       }
     }
 
-    "filtering private trial apis where the app is not in the allow list" should {
+    "filtering controlled apis where the app is not in the allow list" should {
       "allow all except retired" in {
-        testFilter(allPrivateTrialApis: _*) should contain.only(
-          privateTrialApi.asAlpha,
-          privateTrialApi.asBeta,
-          privateTrialApi.asStable,
-          privateTrialApi.asDeprecated
+        testFilter(allControlledApis: _*) should contain.only(
+          controlledApi.asAlpha,
+          controlledApi.asBeta,
+          controlledApi.asStable,
+          controlledApi.asDeprecated
         )
       }
 
       "reject retired" in {
-        testFilter(privateTrialApi.asRetired) shouldBe empty
+        testFilter(controlledApi.asRetired) shouldBe empty
       }
     }
 
-    "filtering private apis where the app is in the allow list" should {}
+    "filtering non-public apis where the app is in the allow list" should {}
   }
 }

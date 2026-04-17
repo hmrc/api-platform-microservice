@@ -23,11 +23,11 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTes
 class FilterApisSpecHelper extends utils.HmrcSpec with ApiDefinitionTestDataHelper {
   protected val appId = ApplicationId.random
 
-  protected val api             = apiDefinition("test")
-  protected val apiId           = ApiIdentifier(api.context, apiVersion().versionNbr)
-  protected val publicApi       = apiDefinition("test", apiVersion().asStable.asPublic)
-  protected val privateApi      = apiDefinition("test", apiVersion().asStable.asPrivate)
-  protected val privateTrialApi = privateApi.asTrial
+  protected val api           = apiDefinition("test")
+  protected val apiId         = ApiIdentifier(api.context, apiVersion().versionNbr)
+  protected val publicApi     = apiDefinition("test", apiVersion().asStable.asPublic)
+  protected val internalApi   = apiDefinition("test", apiVersion().asStable.asInternal)
+  protected val controlledApi = internalApi.asControlled
 
   protected val allPublicApis = List(
     publicApi.asAlpha,
@@ -37,19 +37,19 @@ class FilterApisSpecHelper extends utils.HmrcSpec with ApiDefinitionTestDataHelp
     publicApi.asRetired
   )
 
-  protected val allPrivateTrialApis = List(
-    privateApi.asTrial.asAlpha,
-    privateApi.asTrial.asBeta,
-    privateApi.asTrial.asStable,
-    privateApi.asTrial.asDeprecated,
-    privateApi.asTrial.asRetired
+  protected val allControlledApis = List(
+    controlledApi.asAlpha,
+    controlledApi.asBeta,
+    controlledApi.asStable,
+    controlledApi.asDeprecated,
+    controlledApi.asRetired
   )
 
-  protected val allPrivateApis = List(
-    privateApi.asAlpha,
-    privateApi.asBeta,
-    privateApi.asStable,
-    privateApi.asDeprecated,
-    privateApi.asRetired
+  protected val allInternalApis = List(
+    internalApi.asAlpha,
+    internalApi.asBeta,
+    internalApi.asStable,
+    internalApi.asDeprecated,
+    internalApi.asRetired
   )
 }

@@ -41,13 +41,8 @@ class SubscribeToApiPreprocessor @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
 
-  private def isPublic(in: ApiVersion) = in.access match {
-    case ApiAccess.PUBLIC => true
-    case _                => false
-  }
-
-  private def excludePrivateVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
-    in.map(d => d.copy(versions = d.versions.filter { case (_, v) => isPublic(v) })).filterNot(_.versions.isEmpty)
+  private def excludeNonPublicVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
+    in.map(d => d.copy(versions = d.versions.filter { case (_, v) => v.access.isPublic })).filterNot(_.versions.isEmpty)
 
   private def canSubscribe(allowedSubscriptions: Seq[ApiDefinition], newSubscriptionApiIdentifier: ApiIdentifier): Boolean = {
     val allVersions: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))
@@ -80,15 +75,15 @@ class SubscribeToApiPreprocessor @Inject() (
     ): AppCmdPreprocessorTypes.AppCmdResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
-    val requiredGKUser           = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
-    val permissionsPassed        = {
+    val requiredGKUser             = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
+    val permissionsPassed          = {
       (requiredGKUser, cmd.actor) match {
         case (true, Actors.GatekeeperUser(_)) => true
         case (true, _)                        => false
         case (_, _)                           => true
       }
     }
-    val canManagePrivateVersions = cmd.actor match {
+    val canManageNonPublicVersions = cmd.actor match {
       case Actors.GatekeeperUser(_) => true
       case _                        => false
     }
@@ -100,8 +95,8 @@ class SubscribeToApiPreprocessor @Inject() (
       existingSubscriptions <- E.liftF(applicationService.fetchApplicationWithSubscriptionFields(application.id).map(_.get.subscriptions)) // .get is safe as we already have the app
       isAlreadySubscribed    = isSubscribed(existingSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(not(isAlreadySubscribed), (), NonEmptyList.one(CommandFailures.DuplicateSubscription))
-      possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application.deployedTo, existingSubscriptions, !canManagePrivateVersions))
-      allowedSubscriptions   = if (canManagePrivateVersions) possibleSubscriptions else excludePrivateVersions(possibleSubscriptions)
+      possibleSubscriptions <- E.liftF(apiDefinitionsForApplicationFetcher.fetch(application.deployedTo, existingSubscriptions, !canManageNonPublicVersions))
+      allowedSubscriptions   = if (canManageNonPublicVersions) possibleSubscriptions else excludeNonPublicVersions(possibleSubscriptions)
       isAllowed              = canSubscribe(allowedSubscriptions, newSubscriptionApiIdentifier)
       _                     <- E.cond(isAllowed, (), NonEmptyList.one(CommandFailures.SubscriptionNotAvailable))
       // TODO Move to TPA/Remove (API-8358)
