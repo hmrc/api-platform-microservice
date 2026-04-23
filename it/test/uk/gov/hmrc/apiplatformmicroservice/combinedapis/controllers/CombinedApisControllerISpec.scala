@@ -26,11 +26,9 @@ import play.api.libs.ws.WSClient
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, UserId}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType, CombinedApi, ServiceName}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.ApiType.{REST_API, XML_API}
-import uk.gov.hmrc.apiplatformmicroservice.combinedapis.models.{BasicCombinedApiJsonFormatters, CombinedApi}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisMock
@@ -41,7 +39,6 @@ class CombinedApisControllerISpec
     with ApiDefinitionMock
     with ApplicationMock
     with XmlApisMock
-    with BasicCombinedApiJsonFormatters
     with ApiDefinitionTestDataHelper {
 
   trait Setup {
@@ -80,9 +77,9 @@ class CombinedApisControllerISpec
       val body = result.body
       body shouldBe """[{"displayName":"Hello Another","serviceName":"api-example-another","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"Hello World","serviceName":"api-example-microservice","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
 
-      val apiList = Json.parse(body).as[List[CombinedApi]]
-      apiList.count(_.apiType == XML_API) shouldBe 2
-      apiList.count(_.apiType == REST_API) shouldBe 2
+      val apiList = Json.parse(body).as[Set[CombinedApi]]
+      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
     }
 
     "return INTERNAL_SERVER_ERROR when xml services returns Internal server error" in new Setup {
@@ -164,9 +161,9 @@ class CombinedApisControllerISpec
       result.status shouldBe OK
       val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":["OTHER","INCOME_TAX_MTD"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
-      val apiList = Json.parse(body).as[List[CombinedApi]]
-      apiList.count(_.apiType == XML_API) shouldBe 2
-      apiList.count(_.apiType == REST_API) shouldBe 2
+      val apiList = Json.parse(body).as[Set[CombinedApi]]
+      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
     }
 
     "return combined apis when only xml apis are returned" in new Setup {
@@ -181,9 +178,9 @@ class CombinedApisControllerISpec
       result.status shouldBe OK
       val body    = result.body
       body shouldBe """[{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
-      val apiList = Json.parse(body).as[List[CombinedApi]]
-      apiList.count(_.apiType == XML_API) shouldBe 2
-      apiList.count(_.apiType == REST_API) shouldBe 0
+      val apiList = Json.parse(body).as[Set[CombinedApi]]
+      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.REST_API) shouldBe 0
     }
 
     "return combined apis when only rest apis are returned" in new Setup {
@@ -198,9 +195,9 @@ class CombinedApisControllerISpec
       result.status shouldBe OK
       val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":["OTHER","INCOME_TAX_MTD"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"}]"""
-      val apiList = Json.parse(body).as[List[CombinedApi]]
-      apiList.count(_.apiType == XML_API) shouldBe 0
-      apiList.count(_.apiType == REST_API) shouldBe 2
+      val apiList = Json.parse(body).as[Set[CombinedApi]]
+      apiList.count(_.apiType == ApiType.XML_API) shouldBe 0
+      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
     }
 
     "return no apis when no xml or rest apis are returned" in new Setup {
@@ -245,9 +242,9 @@ class CombinedApisControllerISpec
       result.status shouldBe OK
       val body    = result.body
       body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"}]"""
-      val apiList = Json.parse(body).as[List[CombinedApi]]
-      apiList.count(_.apiType == XML_API) shouldBe 0
-      apiList.count(_.apiType == REST_API) shouldBe 1
+      val apiList = Json.parse(body).as[Set[CombinedApi]]
+      apiList.count(_.apiType == ApiType.XML_API) shouldBe 0
+      apiList.count(_.apiType == ApiType.REST_API) shouldBe 1
 
     }
 
