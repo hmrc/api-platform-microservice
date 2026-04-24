@@ -38,19 +38,19 @@ import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
 
 class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures with FixedClock {
 
-  val apiDefinitionOne     = apiDefinition("one")
-  val apiDefinitionTwo     = apiDefinition("two")
-  val apiDefinitionThree   = apiDefinition("three")
-  val apiDefinitionPrivate = apiDefinition("four").asPrivate
+  val apiDefinitionOne      = apiDefinition("one")
+  val apiDefinitionTwo      = apiDefinition("two")
+  val apiDefinitionThree    = apiDefinition("three")
+  val apiDefinitionInternal = apiDefinition("four").asInternal
 
-  val apiDefintions = Seq(apiDefinitionOne, apiDefinitionTwo, apiDefinitionThree, apiDefinitionPrivate)
+  val apiDefintions = Seq(apiDefinitionOne, apiDefinitionTwo, apiDefinitionThree, apiDefinitionInternal)
 
-  val apiVersionOne        = ApiVersionNbr("1.0")
-  val apiVersionTwo        = ApiVersionNbr("2.0")
-  val apiIdentifierOne     = ApiIdentifier(apiDefinitionOne.context, apiVersionOne)
-  val apiIdentifierTwo     = ApiIdentifier(apiDefinitionTwo.context, apiVersionOne)
-  val apiIdentifierThree   = ApiIdentifier(apiDefinitionThree.context, apiVersionOne)
-  val apiIdentifierPrivate = ApiIdentifier(apiDefinitionPrivate.context, apiVersionOne)
+  val apiVersionOne         = ApiVersionNbr("1.0")
+  val apiVersionTwo         = ApiVersionNbr("2.0")
+  val apiIdentifierOne      = ApiIdentifier(apiDefinitionOne.context, apiVersionOne)
+  val apiIdentifierTwo      = ApiIdentifier(apiDefinitionTwo.context, apiVersionOne)
+  val apiIdentifierThree    = ApiIdentifier(apiDefinitionThree.context, apiVersionOne)
+  val apiIdentifierInternal = ApiIdentifier(apiDefinitionInternal.context, apiVersionOne)
 
   // val applicationId = ApplicationId.random
   val anApplication = standardApp.inSandbox()
@@ -99,14 +99,14 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       await(preprocessor.process(application, cmdWithDuplicate, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.DuplicateSubscription)
     }
 
-    "fail if denied due to private and restricted" in new Setup {
+    "fail if denied due to internal and restricted" in new Setup {
       val application    = anApplication
-      val cmdWithPrivate = cmd.copy(apiIdentifier = apiIdentifierPrivate)
+      val cmdWithInteral = cmd.copy(apiIdentifier = apiIdentifierInternal)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
 
-      await(preprocessor.process(application, cmdWithPrivate, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
+      await(preprocessor.process(application, cmdWithInteral, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
 
     "fail if create field values fails" in new Setup {
@@ -119,15 +119,15 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.GenericFailure("Creation of field values failed"))
     }
 
-    "pass with private api when from gatekeeper" in new Setup {
-      val application    = anApplication
-      val cmdWithPrivate = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierPrivate)
+    "pass with internal api when from gatekeeper" in new Setup {
+      val application     = anApplication
+      val cmdWithInternal = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierInternal)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
       when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
-      await(preprocessor.process(application, cmdWithPrivate, data).value).value shouldBe DispatchRequest(cmdWithPrivate, data)
+      await(preprocessor.process(application, cmdWithInternal, data).value).value shouldBe DispatchRequest(cmdWithInternal, data)
     }
 
     "pass on the request if everything is okay" in new Setup {

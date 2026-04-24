@@ -25,11 +25,11 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 object CombinedApiDataHelper extends FiltersForCombinedApis {
 
   private def determineApiAccessType(api: ApiDefinition): ApiAccessType = {
-    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.PRIVATE
+    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.INTERNAL
   }
 
   private def determineApiAccessType(api: ExtendedApiDefinition): ApiAccessType = {
-    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.PRIVATE
+    if (allVersionsArePublicAccess(api)) ApiAccessType.PUBLIC else ApiAccessType.INTERNAL
   }
 
   def fromApiDefinition(api: ApiDefinition)                 = CombinedApi(api.name, api.serviceName, api.categories, REST_API, determineApiAccessType(api))

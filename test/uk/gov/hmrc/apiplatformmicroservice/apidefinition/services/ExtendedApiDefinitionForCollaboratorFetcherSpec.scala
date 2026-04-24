@@ -58,11 +58,11 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
-    val apiWithPrivateVersion =
-      apiDefinition("api-with-only-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)))
+    val apiWithInteralVersion =
+      apiDefinition("api-with-only-internal-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL))
 
-    val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = apiAccess()))
+    val apiWithPublicAndInternalVersions =
+      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL), apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
 
     val underTest = new ExtendedApiDefinitionForCollaboratorFetcher(
       PrincipalApiDefinitionServiceMock.aMock,
@@ -71,8 +71,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       doNothingCache
     )
 
-    val publicApiAvailability  = ApiAvailability(false, ApiAccess.PUBLIC, false, true)
-    val privateApiAvailability = ApiAvailability(false, ApiAccess.Private(false), false, false)
+    val publicApiAvailability  = ApiAvailability(false, ApiAccessType.PUBLIC, false, true)
+    val privateApiAvailability = ApiAvailability(false, ApiAccessType.INTERNAL, false, false)
 
     val incomeTaxCategory = ApiCategory.INCOME_TAX_MTD
     val vatTaxCategory    = ApiCategory.VAT
@@ -170,9 +170,9 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       result mustBe None
     }
 
-    "return public and private availability for api public and private versions " in new Setup {
+    "return public and non-public availability for api public and non-public versions " in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPublicAndPrivateVersions)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPublicAndInternalVersions)
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, None))
 
@@ -182,8 +182,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
 
     "return true when applications ids are subscribed to the api" in new Setup {
       PrincipalApiDefinitionServiceMock.FetchDefinition.willReturnNone()
-      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithPrivateVersion)
-      val apiId = ApiIdentifier(apiWithPrivateVersion.context, apiWithPrivateVersion.versions.keySet.head)
+      SubordinateApiDefinitionServiceMock.FetchDefinition.willReturn(apiWithInteralVersion)
+      val apiId = ApiIdentifier(apiWithInteralVersion.context, apiWithInteralVersion.versions.keySet.head)
       SubscriptionsForCollaboratorFetcherMock.willReturnSubscriptions(apiId)
 
       val result = await(underTest.fetch(helloApiDefinition.serviceName, email)).value

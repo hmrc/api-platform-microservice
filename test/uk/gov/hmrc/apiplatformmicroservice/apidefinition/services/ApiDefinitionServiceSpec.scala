@@ -39,7 +39,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
   private val api1 = apiDefinition("Bob")
   private val api2 = apiDefinition("Charlie").withClosedAccess
-  private val api3 = apiDefinition("Dannie").asPrivate
+  private val api3 = apiDefinition("Dannie").asInternal
 
   private val resourceId = ResourceId(serviceName, versionOne, resource)
 
@@ -241,7 +241,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           verify(mockApiMetrics).recordSuccess(eqTo(svc.api))
         }
 
-        "return the definitions in a call to fetchAllOpenAccessApiDefinitions eliminating private access" in {
+        "return the definitions in a call to fetchAllOpenAccessApiDefinitions eliminating non-public access" in {
           val obj = setupFn()
           import obj._
 

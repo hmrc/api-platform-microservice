@@ -55,32 +55,32 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
       }
     }
 
-    "filtering private apis" should {
+    "filtering non-public apis" should {
 
       "reject any state" in {
-        testFilter(allPrivateApis: _*) shouldBe empty
+        testFilter(allInternalApis: _*) shouldBe empty
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateApis: _*) should contain.only(
-          privateApi.asBeta,
-          privateApi.asStable,
-          privateApi.asDeprecated
+        testFilterSubs(apiId)(allInternalApis: _*) should contain.only(
+          internalApi.asBeta,
+          internalApi.asStable,
+          internalApi.asDeprecated
         )
       }
     }
 
-    "filtering private trial apis" should {
+    "filtering controlled apis" should {
 
       "reject any state when not subscribed" in {
-        testFilter(allPrivateTrialApis: _*) shouldBe empty
+        testFilter(allControlledApis: _*) shouldBe empty
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allPrivateTrialApis: _*) should contain.only(
-          privateApi.asTrial.asBeta,
-          privateApi.asTrial.asStable,
-          privateApi.asTrial.asDeprecated
+        testFilterSubs(apiId)(allControlledApis: _*) should contain.only(
+          controlledApi.asBeta,
+          controlledApi.asStable,
+          controlledApi.asDeprecated
         )
       }
     }

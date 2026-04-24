@@ -41,13 +41,13 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
     val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
 
-    val apiWithPublicAndPrivateVersions =
-      apiDefinition("api-with-public-and-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = apiAccess()))
+    val apiWithPublicAndInternalVersions =
+      apiDefinition("api-with-public-and-internal-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL), apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
 
-    val apiWithOnlyPrivateVersions =
-      apiDefinition("api-with-private-versions", apiVersion(versionOne, access = ApiAccess.Private(false)), apiVersion(versionTwo, access = ApiAccess.Private(false)))
+    val apiWithOnlyInternalVersions =
+      apiDefinition("api-with-internal-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL), apiVersion(versionTwo, access = ApiAccessType.INTERNAL))
 
-    val apiWithPrivateTrials = apiDefinition("api-with-trials", apiVersion(versionOne, access = ApiAccess.Private(false).asTrial))
+    val apiWithControlled = apiDefinition("api-with-controlled", apiVersion(versionOne, access = ApiAccessType.CONTROLLED))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(
@@ -88,36 +88,36 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
       result.head.versions.keySet should contain only (versionTwo)
     }
 
-    "filter out private versions for an api" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPublicAndPrivateVersions)
+    "filter out non-public versions for an api" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPublicAndInternalVersions)
 
       val result = await(underTest.fetch(userId))
 
-      result.head.versions.values should contain only (apiVersion(versionTwo, access = apiAccess()))
+      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
     }
 
-    "filter out private versions for an api if no email provided" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPublicAndPrivateVersions)
+    "filter out non-public versions for an api if no email provided" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPublicAndInternalVersions)
 
       val result = await(underTest.fetch(None))
 
-      result.head.versions.values should contain only (apiVersion(versionTwo, access = apiAccess()))
+      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
     }
 
-    "filter out an api if it only has private versions" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithOnlyPrivateVersions)
+    "filter out an api if it only has non-public versions" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithOnlyInternalVersions)
 
       val result = await(underTest.fetch(userId))
 
       result shouldBe empty
     }
 
-    "return api if it's private but with trials" in new Setup {
-      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithPrivateTrials)
+    "return api if it's controlled" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchAllApiDefinitions.willReturn(apiWithControlled)
 
       val result = await(underTest.fetch(userId))
 
-      result should contain only (apiWithPrivateTrials)
+      result should contain only (apiWithControlled)
     }
   }
 }

@@ -37,11 +37,7 @@ trait FilterApis {
 
   protected val isAlpha: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.ALPHA
 
-  protected val isPrivateTrial: ApiVersions.ApiVersionFilterFn = apiVersion =>
-    apiVersion.access match {
-      case ApiAccess.Private(true) => true
-      case _                       => false
-    }
+  protected val isControlled: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access == ApiAccessType.CONTROLLED
 
   protected val isPublicAccess: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access.isPublic
 
@@ -69,7 +65,7 @@ trait FilterApiDocumentation extends FilterApis {
       Some(_)
         .filterNot(isRetired)
         .filterNot(v => isDeprecated(v) && isNotSubscribed(subscriptions)(apiContext)(v))
-        .filter(v => isSubscribed(subscriptions)(apiContext)(v) || isPublicAccess(v) || isPrivateTrial(v))
+        .filter(v => isSubscribed(subscriptions)(apiContext)(v) || isPublicAccess(v) || isControlled(v))
         .isDefined
     )(apis)
   }
