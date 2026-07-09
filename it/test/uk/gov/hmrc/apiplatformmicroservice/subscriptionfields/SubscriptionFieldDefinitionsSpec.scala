@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields
 
-import play.api.http.HeaderNames._
-import play.api.http.MimeTypes._
-import play.api.http.Status._
+import play.api.http.HeaderNames.*
+import play.api.http.MimeTypes.*
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatformmicroservice.utils.WireMockSpec
 
 class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFieldDefinitionsMock {
@@ -32,12 +31,12 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
     val wsClient = app.injector.instanceOf[WSClient]
 
     "stub get request for fetching subscription fields" in {
-      val testingIn: Environment = PRODUCTION
+      val testingIn: Environment = Environment.Production
 
-      mockbulkFetchFieldDefinitions(PRODUCTION)
+      mockbulkFetchFieldDefinitions(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields")
-        .withQueryStringParameters("environment" -> testingIn.toString)
+        .withQueryStringParameters("environment" -> testingIn.toString.toUpperCase())
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
@@ -51,7 +50,8 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What is your name?",
                     "hint": "You could be Arthur, King of the Britons",
                     "type": "STRING",
-                    "shortDescription": "Field 1"
+                    "shortDescription": "Field 1",
+                    
                 },
                 "helloworldFieldTwo": {
                     "name": "helloworldFieldTwo",

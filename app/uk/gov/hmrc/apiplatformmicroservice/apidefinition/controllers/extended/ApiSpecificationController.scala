@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
-import cats.implicits._
+import cats.implicits.*
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.ControllerComponents
@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 
 @Singleton()
 class ApiSpecificationController @Inject() (

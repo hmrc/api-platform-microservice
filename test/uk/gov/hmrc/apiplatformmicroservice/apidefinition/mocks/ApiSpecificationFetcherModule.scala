@@ -35,11 +35,11 @@ trait ApiSpecificationFetcherModule extends PlaySpec with MockitoSugar with Argu
     object Fetch {
 
       def willReturn(response: JsValue): Unit = {
-        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(*)).thenReturn(successful(Some(response)))
+        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(using *)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNotFound(): Unit = {
-        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(*)).thenReturn(successful(None))
+        when(aMock.fetch(*[ServiceName], *[ApiVersionNbr])(using *)).thenReturn(successful(None))
       }
     }
   }

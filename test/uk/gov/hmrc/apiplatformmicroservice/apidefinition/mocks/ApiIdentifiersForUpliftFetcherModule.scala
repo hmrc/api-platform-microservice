@@ -31,11 +31,11 @@ trait ApiIdentifiersForUpliftFetcherModule extends MockitoSugar with ArgumentMat
     object FetchUpliftableApis {
 
       def willReturn(ids: ApiIdentifier*) = {
-        when(aMock.fetch(*)).thenReturn(Future.successful(ids.toSet))
+        when(aMock.fetch(using *)).thenReturn(Future.successful(ids.toSet))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetch(*)).thenReturn(Future.failed(e))
+        when(aMock.fetch(using *)).thenReturn(Future.failed(e))
       }
     }
   }

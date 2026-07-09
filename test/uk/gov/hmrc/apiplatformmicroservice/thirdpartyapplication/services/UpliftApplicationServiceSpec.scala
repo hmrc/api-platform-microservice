@@ -20,14 +20,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, *}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiIdentifiersForUpliftFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.*
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.*
 
 class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiDefinitionTestDataHelper with UpliftRequestSamples {
 
@@ -63,7 +62,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCol
     "successfully create an uplifted application" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.modify(_.copy(deployedTo = Environment.PRODUCTION))))
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.modify(_.copy(deployedTo = Environment.Production))))
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.willReturnOk
 
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2), makeUpliftRequest(context1)))
@@ -71,10 +70,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCol
       result shouldBe Right(newAppId)
 
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest()
-      createAppRequest match {
-        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(context1)
-        case _                              => fail("Not the expected request")
-      }
+      createAppRequest.upliftRequest.subscriptions shouldBe Set(context1)
 
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.verifyCalled(Set(context1))
     }
@@ -82,7 +78,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCol
     "successfully create an uplifted application AND handle CDS uplift" in new Setup {
       ApiIdentifiersForUpliftFetcherMock.FetchUpliftableApis.willReturn(context1, context2, contextCDSv1)
       PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.willReturnSuccess(newAppId)
-      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.modify(_.copy(deployedTo = Environment.PRODUCTION))))
+      ApplicationByIdFetcherMock.FetchApplication.willReturnApplication(Option(sandboxApp.modify(_.copy(deployedTo = Environment.Production))))
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.willReturnOk
 
       val result = await(upliftService.upliftApplicationV2(sandboxApp, Set(context1, context2, contextCDSv2), makeUpliftRequest(contextCDSv2)))
@@ -90,10 +86,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCol
       result shouldBe Right(newAppId)
 
       val createAppRequest = PrincipalThirdPartyApplicationConnectorMock.CreateApplicationV2.captureRequest()
-      createAppRequest match {
-        case v2: CreateApplicationRequestV2 => v2.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
-        case _                              => fail("Not the expected request")
-      }
+      createAppRequest.upliftRequest.subscriptions shouldBe Set(contextCDSv1)
 
       SubscriptionServiceMock.CreateManySubscriptionsForApplication.verifyCalled(Set(contextCDSv1))
     }
@@ -106,7 +99,7 @@ class UpliftApplicationServiceSpec extends AsyncHmrcSpec with ApplicationWithCol
     }
 
     "successfully handle when app is not a sandbox app" in new Setup {
-      val applicationInProd = sandboxApp.modify(_.copy(deployedTo = Environment.PRODUCTION))
+      val applicationInProd = sandboxApp.modify(_.copy(deployedTo = Environment.Production))
       val result            = await(upliftService.upliftApplicationV2(applicationInProd, Set(context1, context2), makeUpliftRequest(context3)))
 
       result shouldBe LEFT

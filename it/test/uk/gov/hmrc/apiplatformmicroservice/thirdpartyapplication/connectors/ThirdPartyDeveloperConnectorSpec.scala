@@ -18,19 +18,20 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.tpd.test.builders.UserBuilder
 import uk.gov.hmrc.apiplatform.modules.tpd.test.utils.LocalUserIdTracker
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.*
 
 class ThirdPartyDeveloperConnectorSpec
     extends AsyncHmrcSpec
@@ -38,7 +39,9 @@ class ThirdPartyDeveloperConnectorSpec
     with WireMockSugarExtensions
     with GuiceOneServerPerSuite
     with UserBuilder
-    with LocalUserIdTracker {
+    with LocalUserIdTracker
+    with MockitoSugar
+    with ArgumentMatchersSugar {
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()

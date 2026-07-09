@@ -23,7 +23,7 @@ import play.api.{Configuration, Environment}
 
 class Module extends play.api.inject.Module {
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[?]] = {
     Seq(
       bind[ApiMetrics].to[ApiMetricsImpl].in[Singleton]
     )

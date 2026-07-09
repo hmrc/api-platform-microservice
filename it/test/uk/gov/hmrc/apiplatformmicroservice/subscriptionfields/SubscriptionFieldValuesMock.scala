@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
-import play.api.http._
+import play.api.http.*
+import play.api.http.Status.*
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment}
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup

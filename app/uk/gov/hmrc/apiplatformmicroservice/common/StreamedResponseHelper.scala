@@ -22,7 +22,7 @@ import org.apache.pekko.stream.Materializer
 
 import play.api.http.{HeaderNames, HttpEntity, MimeTypes, Status}
 import play.api.mvc.Result
-import play.api.mvc.Results._
+import play.api.mvc.Results.*
 import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ErrorCode, JsErrorResponse}

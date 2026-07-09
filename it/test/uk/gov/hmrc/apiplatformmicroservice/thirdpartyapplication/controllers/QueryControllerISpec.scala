@@ -16,18 +16,18 @@
 
 package uk.gov.hmrc.thirdpartyorchestrator.controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Application, Configuration, Mode}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamNames
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
+import uk.gov.hmrc.apiplatformmicroservice.utils.*
 
 class QueryControllerISpec extends WireMockSpec with ApplicationWithCollaboratorsFixtures {
 
@@ -55,7 +55,7 @@ class QueryControllerISpec extends WireMockSpec with ApplicationWithCollaborator
       // TPO only in production
       stubForProd(
         get(urlPathEqualTo(s"/environment/SANDBOX/query"))
-          .withQueryParam(ParamNames.ApplicationId, equalTo(s"$applicationId"))
+          .withQueryParam(ParamName.ApplicationId.text, equalTo(s"$applicationId"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -68,7 +68,7 @@ class QueryControllerISpec extends WireMockSpec with ApplicationWithCollaborator
         wsClient
           .url(s"$baseUrl/applications/environment/SANDBOX/query")
           .withHttpHeaders(("content-type", "application/json"))
-          .withQueryStringParameters((ParamNames.ApplicationId -> s"$applicationId"))
+          .withQueryStringParameters((ParamName.ApplicationId.text -> s"$applicationId"))
           .get()
       )
       response.status shouldBe OK

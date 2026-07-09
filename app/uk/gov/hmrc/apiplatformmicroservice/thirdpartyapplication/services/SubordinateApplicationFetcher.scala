@@ -20,10 +20,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
-import cats.implicits._
+import cats.implicits.*
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
@@ -43,7 +43,7 @@ class SubordinateApplicationFetcher @Inject() (
       for {
         subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))
         qry                     = ApplicationQuery.ById(subordinateAppId, Nil)
-        subordinateApplication <- OptionT(queryConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry))
+        subordinateApplication <- OptionT(queryConnector.query[Option[ApplicationWithCollaborators]](Environment.Sandbox, qry))
       } yield subordinateApplication
     ).value
   }

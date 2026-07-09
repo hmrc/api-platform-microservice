@@ -21,12 +21,12 @@ import scala.concurrent.ExecutionContext
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters.*
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
 
 @Singleton()

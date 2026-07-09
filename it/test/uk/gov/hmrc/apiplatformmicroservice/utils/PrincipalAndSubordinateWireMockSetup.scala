@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.FakeApplicationFactory
@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with BeforeAndAfterAll {
-  self: Suite with ConfigBuilder with FakeApplicationFactory =>
+  self: Suite & ConfigBuilder & FakeApplicationFactory =>
 
   val WireMockHost            = "localhost"
   val WireMockPrincipalPort   = 11111
@@ -42,14 +42,14 @@ trait PrincipalAndSubordinateWireMockSetup extends BeforeAndAfterEach with Befor
   val principalWireMock   = WireMock.create().host(WireMockHost).port(WireMockPrincipalPort).build()
   val subordinateWireMock = WireMock.create().host(WireMockHost).port(WireMockSubordinatePort).build()
 
-  def stubFor(environment: Environment = Environment.PRODUCTION)(mappingBuilder: MappingBuilder): StubMapping = environment match {
-    case Environment.PRODUCTION => principalWireMock.register(mappingBuilder)
+  def stubFor(environment: Environment = Environment.Production)(mappingBuilder: MappingBuilder): StubMapping = environment match {
+    case Environment.Production => principalWireMock.register(mappingBuilder)
     case _                      => subordinateWireMock.register(mappingBuilder)
   }
 
-  def stubForProd: MappingBuilder => StubMapping = stubFor(Environment.PRODUCTION)
+  def stubForProd: MappingBuilder => StubMapping = stubFor(Environment.Production)
 
-  def stubForSandbox: MappingBuilder => StubMapping = stubFor(Environment.SANDBOX)
+  def stubForSandbox: MappingBuilder => StubMapping = stubFor(Environment.Sandbox)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

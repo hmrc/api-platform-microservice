@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import play.api.http.HeaderNames._
-import play.api.http.MimeTypes._
-import play.api.http.Status._
-import play.api.libs.json._
+import play.api.http.HeaderNames.*
+import play.api.http.MimeTypes.*
+import play.api.http.Status.*
+import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, *}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import uk.gov.hmrc.apiplatformmicroservice.utils.*
 
 class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock {
 
@@ -37,9 +37,9 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       val applicationId = ApplicationId.random
       val clientId      = ClientId.random
 
-      mockFetchApplicationWithFields(Environment.PRODUCTION, applicationId, clientId)
-      mockBulkFetchFieldDefinitions(Environment.PRODUCTION, clientId)
-      mockFetchApiDefinition(Environment.PRODUCTION)
+      mockFetchApplicationWithFields(Environment.Production, applicationId, clientId)
+      mockBulkFetchFieldDefinitions(Environment.Production, clientId)
+      mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
         .withQueryStringParameters("applicationId" -> applicationId.value.toString)
@@ -53,7 +53,7 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.Retired)) shouldBe false }
 
       val defn        = result.find(_.context == ApiContext("hello")).value
       val versionKeys = defn.versions.keys

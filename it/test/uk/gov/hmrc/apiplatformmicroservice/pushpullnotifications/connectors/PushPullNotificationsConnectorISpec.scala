@@ -18,15 +18,14 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.builder.BoxBuilder
@@ -46,7 +45,7 @@ class PushPullNotificationsConnectorISpec
 
     import play.api.libs.json._
 
-    implicit val clientIdWrites: Format[ClientId] = Json.valueFormat[ClientId]
+    // implicit val clientIdWrites: Format[ClientId] = Json.format[ClientId]
 
     implicit val boxCreatorWrites: Writes[BoxCreator]       = Json.writes[BoxCreator]
     implicit val boxSubscriberWrites: Writes[BoxSubscriber] = Json.writes[BoxSubscriber]
@@ -69,7 +68,7 @@ class PushPullNotificationsConnectorISpec
     "return all boxes" in new Setup {
       val boxes = List(buildBoxResponse("1"))
 
-      stubFor(PRODUCTION)(
+      stubFor(Environment.Production)(
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
@@ -88,7 +87,7 @@ class PushPullNotificationsConnectorISpec
         applicationId = None
       ))
 
-      stubFor(PRODUCTION)(
+      stubFor(Environment.Production)(
         get(urlEqualTo(url))
           .willReturn(
             aResponse()

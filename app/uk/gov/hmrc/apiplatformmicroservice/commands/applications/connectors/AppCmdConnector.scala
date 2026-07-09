@@ -19,12 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 
 @Singleton
@@ -32,7 +34,7 @@ class AppCmdConnector @Inject() (
     config: AppCmdConnector.Config,
     val http: HttpClientV2
   )(implicit val ec: ExecutionContext
-  ) extends ApplicationLogger {
+  ) extends ApplicationLogger with JsonBodyWritables {
 
   val serviceBaseUrl: String = config.baseUrl
 
@@ -44,7 +46,6 @@ class AppCmdConnector @Inject() (
     )(implicit hc: HeaderCarrier
     ): AppCmdHandlerTypes.AppCmdResult = {
 
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
     import play.api.libs.json._
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._

@@ -24,11 +24,11 @@ import org.apache.pekko.util.ByteString
 import play.api.http.ContentTypes
 import play.api.http.HttpEntity.Strict
 import play.api.mvc.{Action, AnyContent, ControllerComponents, ResponseHeader, Result}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.QueryConnector
 
@@ -39,12 +39,18 @@ class QueryController @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends BackendController(cc) with ApplicationLogger {
 
+  private def simplify(in: Map[String, Seq[String]]): Map[String, String] = {
+    in.map {
+      case (k, vs) => k -> vs.mkString("%2C")
+    }
+  }
+
   def queryEnv(environment: Environment): Action[AnyContent] = Action.async { implicit request =>
-    queryConnector.query[HttpResponse](environment, request.queryString).map(convertToResult)
+    queryConnector.query[HttpResponse](environment, simplify(request.queryString)).map(convertToResult)
   }
 
   private def convertToResult(resp: HttpResponse) = {
     Result(ResponseHeader(resp.status), Strict(ByteString(resp.body), Some(ContentTypes.JSON)))
-      .withHeaders(resp.headers.toSeq.map(a => (a._1, a._2.head)): _*)
+      .withHeaders(resp.headers.toSeq.map(a => (a._1, a._2.head))*)
   }
 }

@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.{
 }
 
 trait PushPullNotificationsConnectorModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   abstract class PushPullNotificationsConnectorMock {
     val aMock: PushPullNotificationsConnector
@@ -37,7 +37,7 @@ trait PushPullNotificationsConnectorModule {
     object FetchBoxes {
 
       def willReturnAllBoxes(boxes: List[BoxResponse]) = {
-        when(aMock.fetchAllBoxes()((*))).thenReturn(successful(boxes))
+        when(aMock.fetchAllBoxes()(using *)).thenReturn(successful(boxes))
       }
     }
   }

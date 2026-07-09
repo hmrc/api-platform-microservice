@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
 
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -89,7 +89,7 @@ trait ActionBuilders {
       applicationId: ApplicationId
     )(implicit ec: ExecutionContext
     ): ActionBuilder[ApplicationWithSubscriptionDataRequest, AnyContent] =
-    applicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(AccessType.PRIVILEGED, AccessType.ROPC), false)
+    applicationWithSubscriptionDataAction(applicationId) andThen RepositoryBasedApplicationTypeFilter(applicationId, List(AccessType.Privileged, AccessType.Ropc), false)
 
   private case class RepositoryBasedApplicationTypeFilter(
       applicationId: ApplicationId,

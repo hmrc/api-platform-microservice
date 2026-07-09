@@ -23,14 +23,15 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, *}
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
@@ -48,7 +49,7 @@ trait SubscriptionFieldsConnector {
   def csv()(implicit hc: HeaderCarrier): Future[String]
 }
 
-abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with JsonBodyWritables {
 
   def serviceBaseUrl: String
   def http: HttpClientV2
@@ -56,7 +57,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
-    import Implicits.OverrideForBulkResponse._
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldDefinitions)
     )
@@ -64,7 +64,6 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   }
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
-    import Implicits.OverrideForBulkResponse._
 
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldValues(clientId))
@@ -132,7 +131,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends AbstractSubscriptionFieldsConnector {
 
-  val environment: Environment = Environment.SANDBOX
+  val environment: Environment = Environment.Sandbox
   val serviceBaseUrl: String   = config.serviceBaseUrl
   val useProxy: Boolean        = config.useProxy
   val bearerToken: String      = config.bearerToken
@@ -156,7 +155,7 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
 
-  val environment: Environment = Environment.PRODUCTION
+  val environment: Environment = Environment.Production
   val serviceBaseUrl: String   = config.serviceBaseUrl
 }
 

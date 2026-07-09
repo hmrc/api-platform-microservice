@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 
 class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelper with FilterApiDocumentation {
@@ -34,7 +34,7 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
 
     "filtering public api" should {
       "allow alpha, beta and stable" in {
-        testFilter(allPublicApis: _*) should contain.only(publicApi.asAlpha, publicApi.asBeta, publicApi.asStable)
+        testFilter(allPublicApis*) should contain.only(publicApi.asAlpha, publicApi.asBeta, publicApi.asStable)
       }
 
       "reject retired" in {
@@ -52,11 +52,11 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
 
     "filtering non-public apis" should {
       "reject any state" in {
-        testFilter(allInternalApis: _*) shouldBe empty
+        testFilter(allInternalApis*) shouldBe empty
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allInternalApis: _*) should contain.only(
+        testFilterSubs(apiId)(allInternalApis*) should contain.only(
           internalApi.asAlpha,
           internalApi.asBeta,
           internalApi.asStable,
@@ -68,7 +68,7 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
     "filtering controlled apis" should {
       // Note - the DocFe will only show the summary docs unless allow listed/ subscribed
       "allow alpha, beta and stable when not subscribed" in {
-        testFilter(allControlledApis: _*) should contain.only(
+        testFilter(allControlledApis*) should contain.only(
           controlledApi.asAlpha,
           controlledApi.asBeta,
           controlledApi.asStable
@@ -76,7 +76,7 @@ class FilterApisSpec extends FilterApisSpecHelper with ApiDefinitionTestDataHelp
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allControlledApis: _*) should contain.only(
+        testFilterSubs(apiId)(allControlledApis*) should contain.only(
           controlledApi.asAlpha,
           controlledApi.asBeta,
           controlledApi.asStable,

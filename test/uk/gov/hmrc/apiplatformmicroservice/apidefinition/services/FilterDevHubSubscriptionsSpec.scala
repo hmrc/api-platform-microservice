@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevHubSubscriptions {
 
@@ -35,7 +35,7 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
 
     "filtering public api" should {
       "allow beta and stable" in {
-        testFilter(allPublicApis: _*) should contain.only(publicApi.asBeta, publicApi.asStable)
+        testFilter(allPublicApis*) should contain.only(publicApi.asBeta, publicApi.asStable)
       }
 
       "reject retired" in {
@@ -58,11 +58,11 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
     "filtering non-public apis" should {
 
       "reject any state" in {
-        testFilter(allInternalApis: _*) shouldBe empty
+        testFilter(allInternalApis*) shouldBe empty
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allInternalApis: _*) should contain.only(
+        testFilterSubs(apiId)(allInternalApis*) should contain.only(
           internalApi.asBeta,
           internalApi.asStable,
           internalApi.asDeprecated
@@ -73,11 +73,11 @@ class FilterDevHubSubscriptionsSpec extends FilterApisSpecHelper with FilterDevH
     "filtering controlled apis" should {
 
       "reject any state when not subscribed" in {
-        testFilter(allControlledApis: _*) shouldBe empty
+        testFilter(allControlledApis*) shouldBe empty
       }
 
       "allow when subscribed" in {
-        testFilterSubs(apiId)(allControlledApis: _*) should contain.only(
+        testFilterSubs(apiId)(allControlledApis*) should contain.only(
           controlledApi.asBeta,
           controlledApi.asStable,
           controlledApi.asDeprecated

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.utils
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import org.scalatest._
+import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite

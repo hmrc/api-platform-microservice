@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
 import play.api.http.Status.OK
 import play.utils.UriEncoding
@@ -69,7 +69,7 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
   def whenGetXmlApiByServiceName(serviceName: ServiceName, xmlApi: XmlApi): Unit = {
     stubForProd(
       get(urlPathEqualTo(s"$getXmlApiUrl"))
-        .withQueryParam("serviceName", equalTo(serviceName.value))
+        .withQueryParam("serviceName", equalTo(serviceName))
         .willReturn(
           aResponse()
             .withStatus(OK)
@@ -81,7 +81,7 @@ trait XmlApisMock extends WireMockSpec with BasicXmlApisJsonFormatters with Wire
   def whenGetXmlApiReturnsError(serviceName: ServiceName, status: Int): Unit = {
     stubForProd(
       get(urlPathEqualTo(s"$getXmlApiUrl"))
-        .withQueryParam("serviceName", equalTo(serviceName.value))
+        .withQueryParam("serviceName", equalTo(serviceName))
         .willReturn(
           aResponse()
             .withStatus(status)

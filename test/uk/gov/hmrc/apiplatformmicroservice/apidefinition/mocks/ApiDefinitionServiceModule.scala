@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks
 
-import scala.concurrent.Future._
+import scala.concurrent.Future.*
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
@@ -25,7 +25,7 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.DisplayApiEvent
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
 
@@ -37,100 +37,100 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
     object FetchAllApiDefinitions {
 
       def willReturn(apiDefinitions: ApiDefinition*) = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
+        when(aMock.fetchAllApiDefinitions(using *, *)).thenReturn(successful(apiDefinitions.toList))
       }
 
       def willReturnNones() = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(successful(List.empty))
+        when(aMock.fetchAllApiDefinitions(using *, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchAllApiDefinitions(*, *)).thenReturn(failed(e))
+        when(aMock.fetchAllApiDefinitions(using *, *)).thenReturn(failed(e))
       }
     }
 
     object FetchAllNonOpenAccessDefinitions {
 
       def willReturn(apiDefinitions: ApiDefinition*) = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(successful(apiDefinitions.toList))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(using *, *)).thenReturn(successful(apiDefinitions.toList))
       }
 
       def willReturnNones() = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(successful(List.empty))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(using *, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchAllNonOpenAccessApiDefinitions(*, *)).thenReturn(failed(e))
+        when(aMock.fetchAllNonOpenAccessApiDefinitions(using *, *)).thenReturn(failed(e))
       }
     }
 
     object FetchApiDocumentationResource {
 
       def willReturnWsResponse(wsResponse: HttpResponse) = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(Some(wsResponse)))
+        when(aMock.fetchApiDocumentationResource(*)(using *, *)).thenReturn(successful(Some(wsResponse)))
       }
 
       def willReturnNoResponse() = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(successful(None))
+        when(aMock.fetchApiDocumentationResource(*)(using *, *)).thenReturn(successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApiDocumentationResource(*)(*, *)).thenReturn(failed(e))
+        when(aMock.fetchApiDocumentationResource(*)(using *, *)).thenReturn(failed(e))
       }
 
       def verifyCalled(wantedNumberOfInvocations: Int) = {
-        verify(aMock, times(wantedNumberOfInvocations)).fetchApiDocumentationResource(*)(*, *)
+        verify(aMock, times(wantedNumberOfInvocations)).fetchApiDocumentationResource(*)(using *, *)
       }
     }
 
     object FetchDefinition {
 
       def willReturn(apiDefinition: ApiDefinition) = {
-        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(successful(Some(apiDefinition)))
+        when(aMock.fetchDefinition(*[ServiceName])(using *, *)).thenReturn(successful(Some(apiDefinition)))
       }
 
       def willReturnNone() = {
-        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(successful(None))
+        when(aMock.fetchDefinition(*[ServiceName])(using *, *)).thenReturn(successful(None))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchDefinition(*[ServiceName])(*, *)).thenReturn(failed(e))
+        when(aMock.fetchDefinition(*[ServiceName])(using *, *)).thenReturn(failed(e))
       }
     }
 
     object FetchApiSpecification {
 
       def willReturn(response: JsValue) = {
-        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(*, *)).thenReturn(successful(Some(response)))
+        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(using *, *)).thenReturn(successful(Some(response)))
       }
 
       def willReturnNone = {
-        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(*, *)).thenReturn(successful(None))
+        when(aMock.fetchApiSpecification(*[ServiceName], *[ApiVersionNbr])(using *, *)).thenReturn(successful(None))
       }
     }
 
     object FetchApiEvents {
 
       def willReturn(displayApiEvents: List[DisplayApiEvent], includeNoChange: Boolean = true) = {
-        when(aMock.fetchApiEvents(*[ServiceName], eqTo(includeNoChange))(*, *)).thenReturn(successful(displayApiEvents))
+        when(aMock.fetchApiEvents(*[ServiceName], eqTo(includeNoChange))(using *, *)).thenReturn(successful(displayApiEvents))
       }
 
       def willReturnEmptyList() = {
-        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(successful(List.empty))
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(using *, *)).thenReturn(successful(List.empty))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(*, *)).thenReturn(failed(e))
+        when(aMock.fetchApiEvents(*[ServiceName], *[Boolean])(using *, *)).thenReturn(failed(e))
       }
     }
 
   }
 
   object SubordinateApiDefinitionServiceMock extends ApiDefinitionServiceMock {
-    override val aMock = mock[SubordinateApiDefinitionService]
+    override val aMock: SubordinateApiDefinitionService = mock[SubordinateApiDefinitionService]
   }
 
   object PrincipalApiDefinitionServiceMock extends ApiDefinitionServiceMock {
-    override val aMock = mock[PrincipalApiDefinitionService]
+    override val aMock: PrincipalApiDefinitionService = mock[PrincipalApiDefinitionService]
   }
 }

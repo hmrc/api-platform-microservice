@@ -23,9 +23,9 @@ import org.apache.pekko.pattern.FutureTimeoutSupport
 import org.apache.pekko.stream.Materializer
 
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StreamHttpReadsInstances}
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
@@ -37,7 +37,7 @@ class SubordinateApiDefinitionConnector @Inject() (
     val futureTimeout: FutureTimeoutSupport
   )(implicit val ec: ExecutionContext,
     val mat: Materializer
-  ) extends ApiDefinitionConnector with ApplicationLogger {
+  ) extends ApiDefinitionConnector with ApplicationLogger with StreamHttpReadsInstances {
 
   lazy val configureEbridgeIfRequired: RequestBuilder => RequestBuilder =
     EbridgeConfigurator.configure(config.useProxy, config.bearerToken, config.apiKey)

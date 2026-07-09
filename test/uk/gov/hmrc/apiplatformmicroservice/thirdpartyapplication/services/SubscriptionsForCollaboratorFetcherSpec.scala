@@ -22,7 +22,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionsFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
@@ -59,8 +59,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
   "SubscriptionsForCollaboratorFetcher" should {
     "concatenate both subordinate and principal subscriptions without duplicates" in new Setup {
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Production, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -72,8 +72,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return subordinate subscriptions if there are no matching principal subscriptions" in new Setup {
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Production, qry, List.empty)
 
       val result = await(underTest.fetch(developer))
 
@@ -81,8 +81,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return principal subscriptions if there are no matching subordinate subscriptions" in new Setup {
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, List.empty)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Production, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -90,8 +90,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
     }
 
     "return an empty set if there are no matching subscriptions in any environment" in new Setup {
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, List.empty)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, List.empty)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Production, qry, List.empty)
 
       val result = await(underTest.fetch(developer))
 
@@ -100,8 +100,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     "return principal subscriptions if something goes wrong in subordinate" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      QueryConnectorMock.ByQuery.failsFor(Environment.SANDBOX, qry, new RuntimeException(expectedExceptionMessage))
-      QueryConnectorMock.ByQuery.returnsFor(Environment.PRODUCTION, qry, principalApps)
+      QueryConnectorMock.ByQuery.failsFor(Environment.Sandbox, qry, new RuntimeException(expectedExceptionMessage))
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Production, qry, principalApps)
 
       val result = await(underTest.fetch(developer))
 
@@ -110,8 +110,8 @@ class SubscriptionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDefi
 
     "throw exception if something goes wrong in principal" in new Setup {
       val expectedExceptionMessage = "something went wrong"
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, subordinateApps)
-      QueryConnectorMock.ByQuery.failsFor(Environment.PRODUCTION, qry, new RuntimeException(expectedExceptionMessage))
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, subordinateApps)
+      QueryConnectorMock.ByQuery.failsFor(Environment.Production, qry, new RuntimeException(expectedExceptionMessage))
 
       val ex = intercept[RuntimeException] {
         await(underTest.fetch(developer))

@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector.Confi
 
 @Singleton
 class AuthConnector @Inject() (val httpClientV2: HttpClientV2, authConfig: Config)(implicit val ec: ExecutionContext) extends PlayAuthConnector {
-  lazy val serviceUrl: String = authConfig.baseUrl
+  val serviceUrl: String = authConfig.baseUrl
 }
 
 object AuthConnector {

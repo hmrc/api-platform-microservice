@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.models
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 trait ExtendedApiDefinitionExampleData {
   self: ApiDefinitionTestDataHelper =>
@@ -27,7 +27,7 @@ trait ExtendedApiDefinitionExampleData {
 
   val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
     apiName,
-    List(extendedApiVersion(versionOne, ApiStatus.STABLE, None, Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.PUBLIC, loggedIn = true, authorised = true))))
+    List(extendedApiVersion(versionOne, ApiStatus.Stable, None, Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true))))
   )
 
   val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
@@ -35,11 +35,11 @@ trait ExtendedApiDefinitionExampleData {
     List(
       extendedApiVersion(
         versionOne,
-        ApiStatus.STABLE,
+        ApiStatus.Stable,
         Some(
           ApiAvailability(
             endpointsEnabled = true,
-            ApiAccessType.PUBLIC,
+            ApiAccessType.Public,
             loggedIn = true,
             authorised = true
           )
@@ -53,9 +53,9 @@ trait ExtendedApiDefinitionExampleData {
     apiName,
     List(extendedApiVersion(
       versionOne,
-      ApiStatus.STABLE,
-      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.PUBLIC, loggedIn = true, authorised = true)),
-      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.PUBLIC, loggedIn = true, authorised = true))
+      ApiStatus.Stable,
+      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true)),
+      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true))
     ))
   )
 }

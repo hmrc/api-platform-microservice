@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.http.client.RequestBuilder
 
-class EbridgeConfiguratorSpec extends AsyncHmrcSpec {
+class EbridgeConfiguratorSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
 
   trait Setup {
     val bearerToken    = "bearer-token"

@@ -20,14 +20,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
-import cats.implicits._
+import cats.implicits.*
 import org.apache.pekko.stream.Materializer
 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedApiDefinition, ExtendedApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 
 @Singleton
@@ -64,8 +64,8 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
 
     version match {
-      case ApiVersionNbr("common") => Both.some
-      case _                       => findVersion.map(whereToLookForVersion)
+      case v: ApiVersionNbr if v == ApiVersionNbr("common") => Both.some
+      case _                                                => findVersion.map(whereToLookForVersion)
     }
   }
 

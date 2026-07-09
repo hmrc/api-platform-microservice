@@ -24,22 +24,32 @@ import cats.data.NonEmptyList
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApiIdentifier, LaxEmailAddress}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.services.BaseCommandHandler
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
+trait SubscribeToApiPreprocessor {
+
+  def process(
+      application: ApplicationWithCollaborators,
+      cmd: ApplicationCommands.SubscribeToApi,
+      data: Set[LaxEmailAddress]
+    )(implicit hc: HeaderCarrier
+    ): AppCmdPreprocessorTypes.AppCmdResultT
+}
+
 @Singleton
-class SubscribeToApiPreprocessor @Inject() (
+class SubscribeToApiPreprocessorImpl @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     applicationService: ApplicationByIdFetcher,
     subscriptionFieldsService: SubscriptionFieldsService
   )(implicit val ec: ExecutionContext
-  ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] {
+  ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] with SubscribeToApiPreprocessor {
 
   private def excludeNonPublicVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =
     in.map(d => d.copy(versions = d.versions.filter { case (_, v) => v.access.isPublic })).filterNot(_.versions.isEmpty)
@@ -75,7 +85,7 @@ class SubscribeToApiPreprocessor @Inject() (
     ): AppCmdPreprocessorTypes.AppCmdResultT = {
     val newSubscriptionApiIdentifier = cmd.apiIdentifier
 
-    val requiredGKUser             = List(AccessType.PRIVILEGED, AccessType.ROPC).contains(application.access.accessType)
+    val requiredGKUser             = List(AccessType.Privileged, AccessType.Ropc).contains(application.access.accessType)
     val permissionsPassed          = {
       (requiredGKUser, cmd.actor) match {
         case (true, Actors.GatekeeperUser(_)) => true

@@ -24,8 +24,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, *}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
@@ -33,8 +33,8 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{Appl
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.ApiDefinitionsForApplicationFetcher
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.*
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.*
 
 class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures with FixedClock {
 
@@ -68,7 +68,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
 
     val mockApiDefinitionsForApplicationFetcher = mock[ApiDefinitionsForApplicationFetcher]
 
-    val preprocessor = new SubscribeToApiPreprocessor(
+    val preprocessor = new SubscribeToApiPreprocessorImpl(
       mockApiDefinitionsForApplicationFetcher,
       ApplicationByIdFetcherMock.aMock,
       SubscriptionFieldsServiceMock.aMock
@@ -104,7 +104,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       val cmdWithInteral = cmd.copy(apiIdentifier = apiIdentifierInternal)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
-      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
+      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(using *)).thenReturn(successful(apiDefintions.toList))
 
       await(preprocessor.process(application, cmdWithInteral, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.SubscriptionNotAvailable)
     }
@@ -113,7 +113,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       val application = anApplication
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
-      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
+      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(using *)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.fails()
 
       await(preprocessor.process(application, cmd, data).value).left.value shouldBe NonEmptyList.one(CommandFailures.GenericFailure("Creation of field values failed"))
@@ -124,7 +124,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       val cmdWithInternal = cmd.copy(actor = Actors.GatekeeperUser("Bob"), apiIdentifier = apiIdentifierInternal)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
-      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
+      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(using *)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
       await(preprocessor.process(application, cmdWithInternal, data).value).value shouldBe DispatchRequest(cmdWithInternal, data)
@@ -134,7 +134,7 @@ class SubscribeToApiPreprocessorSpec extends AsyncHmrcSpec with ApiDefinitionTes
       val application = anApplication
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
-      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(*)).thenReturn(successful(apiDefintions.toList))
+      when(mockApiDefinitionsForApplicationFetcher.fetch(*, *, *)(using *)).thenReturn(successful(apiDefintions.toList))
       SubscriptionFieldsServiceMock.CreateFieldValues.succeeds()
 
       await(preprocessor.process(application, cmd, data).value).value shouldBe DispatchRequest(cmd, data)

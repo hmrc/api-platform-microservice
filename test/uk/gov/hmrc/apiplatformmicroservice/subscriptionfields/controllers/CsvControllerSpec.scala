@@ -19,9 +19,10 @@ package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import sttp.model.HeaderNames
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -29,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
 
-class CsvControllerSpec extends AsyncHmrcSpec {
+class CsvControllerSpec extends AsyncHmrcSpec with MockitoSugar with ArgumentMatchersSugar {
 
   trait Setup {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
@@ -48,9 +49,9 @@ class CsvControllerSpec extends AsyncHmrcSpec {
   "CsvController" should {
     "return CSV" in new Setup {
       val expectedCsv = "A,B\n1,2\n3,4"
-      when(subsFieldConnector.csv()(*)).thenReturn(successful(expectedCsv))
+      when(subsFieldConnector.csv()(using *)).thenReturn(successful(expectedCsv))
 
-      val result = controller.csv(Environment.PRODUCTION)(FakeRequest().withHeaders(HeaderNames.Accept -> "text/csv"))
+      val result = controller.csv(Environment.Production)(FakeRequest().withHeaders(HeaderNames.Accept -> "text/csv"))
 
       contentAsString(result) shouldBe expectedCsv
       contentType(result).value shouldBe "text/csv"

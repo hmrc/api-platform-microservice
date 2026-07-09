@@ -47,7 +47,7 @@ class XmlApisConnectorSpec extends WireMockSpec with XmlApisMock {
 
   "fetchAllXmlApis" should {
     "return all Xml Apis" in new Setup {
-      whenGetAllXmlApis(xmlApis: _*)
+      whenGetAllXmlApis(xmlApis*)
 
       val response = await(connector.fetchAllXmlApis())
 

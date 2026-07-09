@@ -31,7 +31,7 @@ class AllApisFetcherSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper 
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val inTest                     = new AllApisFetcher(PrincipalApiDefinitionServiceMock.aMock, SubordinateApiDefinitionServiceMock.aMock)
 
-    val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory.EXAMPLE))
+    val exampleApiDefinition1 = apiDefinition("hello-api").withCategories(List(ApiCategory.Example))
     val exampleApiDefinition2 = exampleApiDefinition1.copy(serviceName = ServiceName("hello-api-2"))
   }
 

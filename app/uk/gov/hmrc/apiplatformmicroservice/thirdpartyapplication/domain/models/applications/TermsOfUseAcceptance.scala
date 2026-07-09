@@ -18,13 +18,12 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.models.
 
 import java.time.Instant
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ResponsibleIndividual, SubmissionId}
 
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: Instant, submissionId: SubmissionId, submissionInstance: Int)
 
 object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   implicit val format: OFormat[TermsOfUseAcceptance] = Json.format[TermsOfUseAcceptance]
 }

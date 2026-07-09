@@ -31,11 +31,11 @@ trait SubscribedApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with
     val aMock = mock[SubscribedApiDefinitionsForCollaboratorFetcher]
 
     def willReturnApiDefinitions(apis: ApiDefinition*) = {
-      when(aMock.fetch(*[UserId])(*)).thenReturn(Future.successful(apis.toList))
+      when(aMock.fetch(*[UserId])(using *)).thenReturn(Future.successful(apis.toList))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock.fetch(*[UserId])(*)).thenReturn(Future.failed(e))
+      when(aMock.fetch(*[UserId])(using *)).thenReturn(Future.failed(e))
     }
   }
 }

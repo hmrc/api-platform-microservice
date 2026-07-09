@@ -19,18 +19,20 @@ package uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
+import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, UnauthorizedException}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.utils.{ConfigBuilder, PrincipalAndSubordinateWireMockSetup}
@@ -42,7 +44,8 @@ class ApplicationCommandConnectorISpec
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
     with ApplicationWithCollaboratorsFixtures
-    with FixedClock {
+    with FixedClock
+    with JsonBodyWritables {
 
   trait Setup {
 
@@ -73,7 +76,7 @@ class ApplicationCommandConnectorISpec
     "return success" in new CollaboratorSetup {
       val response = standardApp
 
-      stubFor(Environment.PRODUCTION)(
+      stubFor(Environment.Production)(
         patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
@@ -89,10 +92,9 @@ class ApplicationCommandConnectorISpec
     }
 
     "return teamMember already exists response" in new CollaboratorSetup {
-      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       val response = NonEmptyList.one[CommandFailure](CommandFailures.CollaboratorAlreadyExistsOnApp)
 
-      stubFor(Environment.PRODUCTION)(
+      stubFor(Environment.Production)(
         patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(
@@ -108,7 +110,7 @@ class ApplicationCommandConnectorISpec
     }
 
     "return unauthorised" in new CollaboratorSetup {
-      stubFor(Environment.PRODUCTION)(
+      stubFor(Environment.Production)(
         patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .willReturn(
             aResponse()
@@ -123,7 +125,7 @@ class ApplicationCommandConnectorISpec
 
     "return for generic error" in new CollaboratorSetup {
 
-      stubFor(Environment.PRODUCTION)(
+      stubFor(Environment.Production)(
         patch(urlMatching(s".*/applications/${applicationIdOne}/dispatch"))
           .withJsonRequestBody(request)
           .willReturn(

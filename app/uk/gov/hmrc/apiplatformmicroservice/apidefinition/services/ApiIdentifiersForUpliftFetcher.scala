@@ -21,8 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 @Singleton
 class ApiIdentifiersForUpliftFetcher @Inject() (
@@ -33,8 +33,8 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
   def fetch(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
     for {
       defs                <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
-      filteredDefs         = defs.filterNot(d => d.isTestSupport || d.categories.contains(ApiCategory.EXAMPLE))
-      ids                  = filteredDefs.flatMap(d => d.versionsAsList.filterNot(v => v.status == ApiStatus.RETIRED || v.status == ApiStatus.ALPHA).map(v => ApiIdentifier(d.context, v.versionNbr)))
+      filteredDefs         = defs.filterNot(d => d.isTestSupport || d.categories.contains(ApiCategory.Example))
+      ids                  = filteredDefs.flatMap(d => d.versionsAsList.filterNot(v => v.status == ApiStatus.Retired || v.status == ApiStatus.Alpha).map(v => ApiIdentifier(d.context, v.versionNbr)))
       withAnyAdditionalIds = CdsVersionHandler.populateSpecialCases(ids)
     } yield withAnyAdditionalIds
   }

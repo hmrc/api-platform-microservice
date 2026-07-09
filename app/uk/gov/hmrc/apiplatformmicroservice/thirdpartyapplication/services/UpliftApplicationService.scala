@@ -23,11 +23,11 @@ import cats.instances.future.catsStdInstancesForFuture
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, *}
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiIdentifiersForUpliftFetcher, CdsVersionHandler}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.PrincipalThirdPartyApplicationConnector
@@ -73,7 +73,7 @@ class UpliftApplicationService @Inject() (
     ): Future[Either[BadRequestMessage, ApplicationId]] = {
     val requestedApiSubs: Set[ApiIdentifier] = upliftRequest.subscriptions
     val allRequestedSubsAreInAppSubs         = requestedApiSubs.intersect(appApiSubs) == requestedApiSubs
-    val productionEnvironment: Environment   = Environment.PRODUCTION
+    val productionEnvironment: Environment   = Environment.Production
     val stdAcccessToCopy                     = app.access match {
       case Access.Standard(redirectUris, postLogoutRedirectUris, _, _, overrides, _, _) => StandardAccessDataToCopy(redirectUris, postLogoutRedirectUris, overrides)
       case _                                                                            => StandardAccessDataToCopy()
@@ -97,7 +97,8 @@ class UpliftApplicationService @Inject() (
                                      app.collaborators,
                                      filteredUpliftRequest,
                                      filteredUpliftRequest.requestedBy, // TODO - remove once TPA is using the lib version of UpliftRequest
-                                     app.id
+                                     app.id,
+                                     None
                                    )
         newAppId                <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
         app                     <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")

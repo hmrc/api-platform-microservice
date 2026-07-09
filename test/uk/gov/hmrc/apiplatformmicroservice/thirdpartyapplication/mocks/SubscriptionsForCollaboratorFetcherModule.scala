@@ -20,10 +20,10 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, *}
 
 trait SubscriptionsForCollaboratorFetcherModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
@@ -31,11 +31,11 @@ trait SubscriptionsForCollaboratorFetcherModule {
     val aMock = mock[SubscriptionsForCollaboratorFetcher]
 
     def willReturnSubscriptions(subscriptions: ApiIdentifier*) = {
-      when(aMock.fetch(*[UserId])(*)).thenReturn(successful(subscriptions.toSet))
+      when(aMock.fetch(*[UserId])(using *)).thenReturn(successful(subscriptions.toSet))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock.fetch(*[UserId])(*)).thenReturn(failed(e))
+      when(aMock.fetch(*[UserId])(using *)).thenReturn(failed(e))
     }
   }
 

@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 @Singleton
 class OpenAccessApisFetcher @Inject() (
@@ -34,7 +34,7 @@ class OpenAccessApisFetcher @Inject() (
     import cats.data.Nested
     import cats.implicits._
 
-    Nested(apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions)
+    Nested[Future, List, ApiDefinition](apiDefinitionService(environment).fetchAllOpenAccessApiDefinitions)
       .map(filterOutRetiredVersions)
       .collect({ case Some(x) => x })
       .value

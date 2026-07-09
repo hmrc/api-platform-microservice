@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionService.CreateSubscriptionSuccess
 
@@ -32,11 +32,11 @@ trait SubscriptionServiceModule extends MockitoSugar with ArgumentMatchersSugar 
     object CreateManySubscriptionsForApplication {
 
       def willReturnOk = {
-        when(aMock.createManySubscriptionsForApplication(*, *)(*)).thenReturn(successful(CreateSubscriptionSuccess))
+        when(aMock.createManySubscriptionsForApplication(*, *)(using *)).thenReturn(successful(CreateSubscriptionSuccess))
       }
 
       def verifyCalled(apis: Set[ApiIdentifier]) = {
-        verify(aMock).createManySubscriptionsForApplication(*, eqTo(apis))(*)
+        verify(aMock).createManySubscriptionsForApplication(*, eqTo(apis))(using *)
       }
     }
   }
