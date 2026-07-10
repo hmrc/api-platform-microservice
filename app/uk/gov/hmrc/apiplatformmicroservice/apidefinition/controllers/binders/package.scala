@@ -18,6 +18,8 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
+// N.B. Commented code rather than removing it as we're waiting to restore service-as-is once Play supports path bindables for opaque types
+
 package object binders {
   import play.api.mvc.QueryStringBindable
 

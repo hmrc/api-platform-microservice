@@ -79,11 +79,11 @@ class ApiDefinitionController @Inject() (
   def fetchApiForServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
     implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
     val sandboxFuture                                       = apiDefinitionService(Environment.Sandbox).fetchDefinition(serviceName)
-    val ProductionFuture                                    = apiDefinitionService(Environment.Production).fetchDefinition(serviceName)
+    val productionFuture                                    = apiDefinitionService(Environment.Production).fetchDefinition(serviceName)
 
     for {
       maybeSandbox    <- sandboxFuture
-      maybeProduction <- ProductionFuture
+      maybeProduction <- productionFuture
     } yield (maybeSandbox, maybeProduction) match {
       case (Some(sand), Some(prod)) => Ok(Json.toJson[Locator[ApiDefinition]](Locator.Both(sand, prod)))
       case (Some(sand), None)       => Ok(Json.toJson[Locator[ApiDefinition]](Locator.Sandbox(sand)))

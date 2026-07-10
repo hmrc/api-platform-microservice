@@ -20,6 +20,8 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
 
+// N.B. Commented code rather than removing it as we're waiting to restore service-as-is once Play supports path bindables for opaque types
+
 package object binders {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
