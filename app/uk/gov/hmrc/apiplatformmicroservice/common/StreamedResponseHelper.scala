@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common
 
-import scala.concurrent.ExecutionContext
-
-import org.apache.pekko.stream.Materializer
-
 import play.api.http.{HeaderNames, HttpEntity, MimeTypes, Status}
 import play.api.mvc.Result
 import play.api.mvc.Results.*
@@ -32,8 +28,6 @@ object StreamedResponseHelper {
 }
 
 trait StreamedResponseHelper extends ApplicationLogger {
-  implicit val mat: Materializer
-  implicit val ec: ExecutionContext
 
   import StreamedResponseHelper._
 

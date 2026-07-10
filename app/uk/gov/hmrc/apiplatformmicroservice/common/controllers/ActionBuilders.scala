@@ -33,10 +33,8 @@ import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
-trait ActionBuilders {
+trait ActionBuilders(using ExecutionContext) {
   self: BackendController =>
-
-  implicit def ec: ExecutionContext
 
   val applicationService: ApplicationByIdFetcher
   val authConfig: AuthConnector.Config

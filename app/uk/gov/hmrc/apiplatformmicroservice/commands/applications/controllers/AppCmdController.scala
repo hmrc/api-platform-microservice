@@ -45,7 +45,7 @@ class AppCmdController @Inject() (
     preprocessor: AppCmdPreprocessor,
     cmdConnector: AppCmdConnector,
     cc: ControllerComponents
-  )(implicit val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends BackendController(cc)
     with ActionBuilders
     with ApplicationLogger {

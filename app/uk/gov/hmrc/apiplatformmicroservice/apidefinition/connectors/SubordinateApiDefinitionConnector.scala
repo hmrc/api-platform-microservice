@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import org.apache.pekko.pattern.FutureTimeoutSupport
-import org.apache.pekko.stream.Materializer
 
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StreamHttpReadsInstances}
@@ -35,8 +34,7 @@ class SubordinateApiDefinitionConnector @Inject() (
     val config: Config,
     val http: HttpClientV2,
     val futureTimeout: FutureTimeoutSupport
-  )(implicit val ec: ExecutionContext,
-    val mat: Materializer
+  )(using ExecutionContext
   ) extends ApiDefinitionConnector with ApplicationLogger with StreamHttpReadsInstances {
 
   lazy val configureEbridgeIfRequired: RequestBuilder => RequestBuilder =

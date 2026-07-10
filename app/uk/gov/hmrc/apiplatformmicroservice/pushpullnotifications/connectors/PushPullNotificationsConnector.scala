@@ -42,10 +42,10 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 }
 
 trait PushPullNotificationsConnector {
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]]
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[BoxResponse]]
 }
 
-abstract private[pushpullnotifications] class AbstractPushPullNotificationsConnector(implicit val ec: ExecutionContext) extends PushPullNotificationsConnector {
+abstract private[pushpullnotifications] class AbstractPushPullNotificationsConnector(using ExecutionContext) extends PushPullNotificationsConnector {
   import AbstractPushPullNotificationsConnector.JsonFormatters._
 
   def serviceBaseUrl: String
@@ -78,7 +78,7 @@ object SubordinatePushPullNotificationsConnector {
 class SubordinatePushPullNotificationsConnector @Inject() (
     config: SubordinatePushPullNotificationsConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractPushPullNotificationsConnector {
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
@@ -101,7 +101,7 @@ object PrincipalPushPullNotificationsConnector {
 class PrincipalPushPullNotificationsConnector @Inject() (
     config: PrincipalPushPullNotificationsConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractPushPullNotificationsConnector {
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl

@@ -21,7 +21,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
 import cats.implicits.*
-import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,8 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedRe
 class ApiSpecificationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
+  )(using ExecutionContext
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 

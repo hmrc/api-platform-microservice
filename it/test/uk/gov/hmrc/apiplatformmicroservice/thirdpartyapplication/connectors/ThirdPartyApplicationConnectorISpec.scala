@@ -50,7 +50,7 @@ class ThirdPartyApplicationConnectorISpec
 
     implicit val hc: HeaderCarrier    = HeaderCarrier()
     val httpClient                    = app.injector.instanceOf[HttpClientV2]
-    implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+    given ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
     val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer     = "TestBearerToken"

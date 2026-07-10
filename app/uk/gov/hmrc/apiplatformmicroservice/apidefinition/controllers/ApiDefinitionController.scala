@@ -43,7 +43,7 @@ class ApiDefinitionController @Inject() (
     controllerComponents: ControllerComponents,
     apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
     apiEventsFetcher: ApiEventsFetcher
-  )(implicit val ec: ExecutionContext
+  )(using val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
 

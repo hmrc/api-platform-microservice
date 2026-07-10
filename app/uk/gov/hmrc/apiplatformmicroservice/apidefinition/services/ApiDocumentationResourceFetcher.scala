@@ -21,7 +21,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
 import cats.implicits.*
-import org.apache.pekko.stream.Materializer
 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -35,8 +34,7 @@ class ApiDocumentationResourceFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
+  )(using ExecutionContext
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 

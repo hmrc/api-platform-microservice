@@ -48,7 +48,7 @@ class SubscribeToApiPreprocessorImpl @Inject() (
     apiDefinitionsForApplicationFetcher: ApiDefinitionsForApplicationFetcher,
     applicationService: ApplicationByIdFetcher,
     subscriptionFieldsService: SubscriptionFieldsService
-  )(implicit val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractAppCmdPreprocessor[ApplicationCommands.SubscribeToApi] with BaseCommandHandler[String] with SubscribeToApiPreprocessor {
 
   private def excludeNonPublicVersions(in: Seq[ApiDefinition]): Seq[ApiDefinition] =

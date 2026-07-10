@@ -21,7 +21,6 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
 import cats.implicits.*
-import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.ControllerComponents
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -34,8 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 class ApiSpecificationController @Inject() (
     cc: ControllerComponents,
     apiSpecificationFetcher: ApiSpecificationFetcher
-  )(implicit val ec: ExecutionContext,
-    val mat: Materializer
+  )(using ExecutionContext
   ) extends BackendController(cc) {
 
   def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr) = Action.async { implicit request =>

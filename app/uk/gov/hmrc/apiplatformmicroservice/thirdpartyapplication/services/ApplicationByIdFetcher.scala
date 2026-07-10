@@ -26,17 +26,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Envi
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, QueryConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.QueryConnector
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
-    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
-    queryConnector: QueryConnector,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsService: SubscriptionFieldsService
-  )(implicit ec: ExecutionContext
+    queryConnector: QueryConnector
+  )(using ExecutionContext
   ) extends Recoveries {
 
   def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {

@@ -57,7 +57,7 @@ class SubscriptionFieldsController @Inject() (
         subscriptionFieldsConnector(environment).saveFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), payload.fields)
           .map(_ match {
             case Left(errs: FieldErrorMap) => BadRequest(Json.toJson(errs))
-            case Right(subsFields)         => Ok
+            case Right(())                 => Ok
           })
       }
     }

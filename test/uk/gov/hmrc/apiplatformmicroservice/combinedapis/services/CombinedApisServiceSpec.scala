@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
@@ -35,13 +35,12 @@ import uk.gov.hmrc.apiplatformmicroservice.xmlapis.models.XmlApi
 class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with MockitoSugar with ArgumentMatchersSugar {
 
   trait SetUp {
-    implicit val hc: HeaderCarrier                      = mock[HeaderCarrier]
-    val mockApiDefinitionsForCollaboratorFetcher        = mock[ApiDefinitionsForCollaboratorFetcher]
-    val mockExtendedApiDefinitionForCollaboratorFetcher = mock[ExtendedApiDefinitionForCollaboratorFetcher]
-    val mockXmlApisConnector                            = mock[XmlApisConnector]
-    val mockAllApisFetcher                              = mock[AllApisFetcher]
-    val inTest                                          = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockExtendedApiDefinitionForCollaboratorFetcher, mockXmlApisConnector, mockAllApisFetcher)
-    val developerId                                     = Some(UserId.random)
+    implicit val hc: HeaderCarrier               = mock[HeaderCarrier]
+    val mockApiDefinitionsForCollaboratorFetcher = mock[ApiDefinitionsForCollaboratorFetcher]
+    val mockXmlApisConnector                     = mock[XmlApisConnector]
+    val mockAllApisFetcher                       = mock[AllApisFetcher]
+    val inTest                                   = new CombinedApisService(mockApiDefinitionsForCollaboratorFetcher, mockXmlApisConnector, mockAllApisFetcher)
+    val developerId                              = Some(UserId.random)
 
     val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory.Other, ApiCategory.IncomeTaxMtd))
     val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory.Vat, ApiCategory.Other))
@@ -58,11 +57,6 @@ class CombinedApisServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHe
     def primeApiDefinitionsForCollaboratorFetcher(developerIdentifier: Option[UserId], apisToReturn: List[ApiDefinition]) = {
       when(mockApiDefinitionsForCollaboratorFetcher.fetch(eqTo(developerIdentifier))(using *))
         .thenReturn(Future.successful(apisToReturn))
-    }
-
-    def primeExtendedApiDefinitionForCollaboratorFetcher(serviceName: ServiceName, developerIdentifier: Option[UserId], apiToReturn: Option[ExtendedApiDefinition]) = {
-      when(mockExtendedApiDefinitionForCollaboratorFetcher.fetch(eqTo(serviceName), eqTo(developerIdentifier))(using *))
-        .thenReturn(Future.successful(apiToReturn))
     }
 
     def primeXmlConnectorFetchAll(xmlApis: List[XmlApi]) = {

@@ -28,7 +28,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{ApiFieldMapFixtures, FieldNameFixtures, FieldValueFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.{SubscriptionFieldsConnectorModule, SubscriptionFieldsServiceModule}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.*
 
 class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
@@ -48,15 +47,12 @@ class ApplicationByIdFetcherSpec extends AsyncHmrcSpec
 
   val BANG = new RuntimeException("BANG")
 
-  trait Setup extends ThirdPartyApplicationConnectorModule with SubscriptionFieldsConnectorModule with SubscriptionFieldsServiceModule with QueryConnectorMockModule
+  trait Setup extends QueryConnectorMockModule
       with MockitoSugar
       with ArgumentMatchersSugar {
 
     val fetcher = new ApplicationByIdFetcher(
-      EnvironmentAwareThirdPartyApplicationConnectorMock.instance,
-      QueryConnectorMock.aMock,
-      EnvironmentAwareSubscriptionFieldsConnectorMock.instance,
-      SubscriptionFieldsServiceMock.aMock
+      QueryConnectorMock.aMock
     )
   }
 

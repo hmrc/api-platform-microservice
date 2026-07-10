@@ -60,13 +60,13 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
 trait ThirdPartyApplicationConnector {
 
-  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(using HeaderCarrier): Future[ApplicationId]
 
   // TODO Move to TPA/Remove (API-8358)
   // add methods currently in subs field connector
 }
 
-abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext)
+abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(using ExecutionContext)
     extends ThirdPartyApplicationConnector
     with JsonBodyWritables
     with ApplicationLogger {
@@ -95,7 +95,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
 class SubordinateThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") override val config: AbstractThirdPartyApplicationConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractThirdPartyApplicationConnector {
 
   lazy val useProxy: Boolean   = config.applicationUseProxy
@@ -111,7 +111,7 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
 class PrincipalThirdPartyApplicationConnector @Inject() (
     @Named("principal") override val config: AbstractThirdPartyApplicationConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractThirdPartyApplicationConnector {
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity

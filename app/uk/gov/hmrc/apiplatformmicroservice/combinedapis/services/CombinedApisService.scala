@@ -23,14 +23,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{CombinedApi, ServiceName}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 
 @Singleton
 class CombinedApisService @Inject() (
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
-    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     xmlApisConnector: XmlApisConnector,
     allApisFetcher: AllApisFetcher
   )(implicit ec: ExecutionContext

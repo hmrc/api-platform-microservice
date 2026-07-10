@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
-import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
@@ -40,8 +39,7 @@ class ExtendedApiDefinitionController @Inject() (
     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
     subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
+  )(using ExecutionContext
   ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 

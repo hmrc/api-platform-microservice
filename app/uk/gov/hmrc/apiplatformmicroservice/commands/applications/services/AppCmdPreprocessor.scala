@@ -33,8 +33,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
  * Do any preprocessing and/or validating of the request
  */
 
-trait AbstractAppCmdPreprocessor[C] {
-  implicit def ec: ExecutionContext
+trait AbstractAppCmdPreprocessor[C](using ExecutionContext) {
 
   def process(app: ApplicationWithCollaborators, cmd: C, data: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): AppCmdPreprocessorTypes.AppCmdResultT
 
@@ -44,7 +43,7 @@ trait AbstractAppCmdPreprocessor[C] {
 @Singleton
 class AppCmdPreprocessor @Inject() (
     subscribeToApiPreprocessor: SubscribeToApiPreprocessor
-  )(implicit val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends ApplicationLogger {
 
   val E = EitherTHelper.make[NonEmptyList[CommandFailure]]

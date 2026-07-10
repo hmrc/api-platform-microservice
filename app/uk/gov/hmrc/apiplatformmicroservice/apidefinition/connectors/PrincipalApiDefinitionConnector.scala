@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 class PrincipalApiDefinitionConnector @Inject() (
     val http: HttpClientV2,
     val config: Config
-  )(implicit val ec: ExecutionContext
+  )(using val ec: ExecutionContext
   ) extends ApiDefinitionConnector with ApplicationLogger with StreamHttpReadsInstances {
   val serviceBaseUrl: String = config.baseUrl
 
@@ -38,7 +38,7 @@ class PrincipalApiDefinitionConnector @Inject() (
 
   override def fetchApiDocumentationResource(
       resourceId: ResourceId
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[Option[HttpResponse]] = {
     val theUrl = url"${documentationUrl(resourceId)}"
 
