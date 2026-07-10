@@ -78,7 +78,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   protected val config: AbstractThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(using HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
     configureEbridgeIfRequired(
       http
@@ -116,7 +116,7 @@ class PrincipalThirdPartyApplicationConnector @Inject() (
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
 
-  def getLinkedSubordinateApplicationId(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationId]] = {
+  def getLinkedSubordinateApplicationId(principalApplicationId: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationId]] = {
     http.get(url"$serviceBaseUrl/application/${principalApplicationId.value}/linked-subordinate-id")
       .execute[Option[ApplicationId]]
   }

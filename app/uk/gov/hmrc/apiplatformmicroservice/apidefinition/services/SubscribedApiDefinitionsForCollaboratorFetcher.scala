@@ -33,7 +33,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries with FilterApis {
 
-  def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(userId: UserId)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
       subscriptions  <- subscriptionsForCollaboratorFetcher.fetch(userId)

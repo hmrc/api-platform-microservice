@@ -38,7 +38,7 @@ class SubordinateApplicationFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
-  def fetchSubordinateApplication(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def fetchSubordinateApplication(principalApplicationId: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     (
       for {
         subordinateAppId       <- OptionT(principalThirdPartyApplicationConnector.getLinkedSubordinateApplicationId(principalApplicationId))

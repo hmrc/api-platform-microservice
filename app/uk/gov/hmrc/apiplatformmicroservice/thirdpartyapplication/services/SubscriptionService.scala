@@ -37,7 +37,7 @@ class SubscriptionService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
 
-  def createManySubscriptionsForApplication(application: ApplicationWithCollaborators, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  def createManySubscriptionsForApplication(application: ApplicationWithCollaborators, apis: Set[ApiIdentifier])(using HeaderCarrier): Future[CreateSubscriptionResult] = {
 
     def canSubscribeToAll(allowedSubscriptions: Seq[ApiDefinition]): Boolean = {
       val allowedApiIdentifiers: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))

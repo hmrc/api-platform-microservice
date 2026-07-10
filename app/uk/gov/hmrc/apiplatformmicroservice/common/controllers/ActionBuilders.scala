@@ -40,7 +40,7 @@ trait ActionBuilders(using ExecutionContext) {
   val authConfig: AuthConnector.Config
   val authConnector: AuthConnector
 
-  private def applicationRefiner(applicationId: ApplicationId)(implicit ec: ExecutionContext): ActionRefiner[Request, ApplicationRequest] =
+  private def applicationRefiner(applicationId: ApplicationId)(using ec: ExecutionContext): ActionRefiner[Request, ApplicationRequest] =
     new ActionRefiner[Request, ApplicationRequest] {
       override protected def executionContext: ExecutionContext = ec
 

@@ -34,7 +34,7 @@ class ApplicationByIdFetcher @Inject() (
   )(using ExecutionContext
   ) extends Recoveries {
 
-  def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def fetchApplication(id: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     val qry                                                          = ApplicationQuery.ById(id, Nil)
     val subordinateApp: Future[Option[ApplicationWithCollaborators]] =
       queryConnector.query[Option[ApplicationWithCollaborators]](Environment.Sandbox, qry) recover recoverWithDefault(None)
@@ -46,7 +46,7 @@ class ApplicationByIdFetcher @Inject() (
     } yield principal.orElse(subordinate)
   }
 
-  def fetchApplicationWithSubscriptionFields(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
+  def fetchApplicationWithSubscriptionFields(id: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     val qry                                                               = ApplicationQuery.ById(id, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
     val subordinateApp: Future[Option[ApplicationWithSubscriptionFields]] =
       queryConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Sandbox, qry) recover recoverWithDefault(None)

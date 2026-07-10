@@ -27,10 +27,10 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 @Singleton
 class ApiDefinitionsForApplicationFetcher @Inject() (
     apiDefinitionService: EnvironmentAwareApiDefinitionService
-  )(implicit ec: ExecutionContext
+  )(using ExecutionContext
   ) extends FilterDevHubSubscriptions with FilterGateKeeperSubscriptions {
 
-  def fetch(environment: Environment, subscriptions: Set[ApiIdentifier], restricted: Boolean)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(environment: Environment, subscriptions: Set[ApiIdentifier], restricted: Boolean)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     if (restricted) {
       fetchRestricted(environment, subscriptions)
     } else {
@@ -38,13 +38,13 @@ class ApiDefinitionsForApplicationFetcher @Inject() (
     }
   }
 
-  def fetchRestricted(environment: Environment, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchRestricted(environment: Environment, subscriptions: Set[ApiIdentifier])(using HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield filterApisForDevHubSubscriptions(subscriptions)(defs)
   }
 
-  def fetchUnrestricted(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchUnrestricted(environment: Environment)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       defs <- apiDefinitionService(environment).fetchAllNonOpenAccessApiDefinitions
     } yield filterApisForGateKeeperSubscriptions(defs)

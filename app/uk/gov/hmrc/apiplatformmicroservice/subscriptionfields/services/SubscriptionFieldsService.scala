@@ -33,7 +33,7 @@ class SubscriptionFieldsService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchFieldValuesWithDefaults(deployedTo: Environment, clientId: ClientId, subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+  def fetchFieldValuesWithDefaults(deployedTo: Environment, clientId: ClientId, subscriptions: Set[ApiIdentifier])(using HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
 
     def filterBySubs[V](data: ApiFieldMap[V]): ApiFieldMap[V] = {
       ThreeDMap.filter((c: ApiContext, v: ApiVersionNbr, _: FieldName, _: V) => subscriptions.contains(ApiIdentifier(c, v)))(data)

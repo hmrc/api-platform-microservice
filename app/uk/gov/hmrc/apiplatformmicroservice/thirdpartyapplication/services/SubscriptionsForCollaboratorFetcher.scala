@@ -34,7 +34,7 @@ class SubscriptionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
-  def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+  def fetch(userId: UserId)(using HeaderCarrier): Future[Set[ApiIdentifier]] = {
     val qry = ApplicationQueries.applicationsByUserId(userId, wantSubscriptions = true)
 
     val subordinateSubscriptions =

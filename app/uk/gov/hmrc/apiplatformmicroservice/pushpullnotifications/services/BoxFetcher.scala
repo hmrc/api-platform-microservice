@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.*
 class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[Box]] = {
     for {
       subordinateBoxes               <- pushpullnotificationsConnector.subordinate.fetchAllBoxes()
       principalBoxes                 <- pushpullnotificationsConnector.principal.fetchAllBoxes()

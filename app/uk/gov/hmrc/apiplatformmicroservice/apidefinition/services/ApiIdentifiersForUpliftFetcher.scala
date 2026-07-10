@@ -30,7 +30,7 @@ class ApiIdentifiersForUpliftFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetch(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+  def fetch(using HeaderCarrier): Future[Set[ApiIdentifier]] = {
     for {
       defs                <- apiDefinitionService.principal.fetchAllApiDefinitions.map(_.toSet)
       filteredDefs         = defs.filterNot(d => d.isTestSupport || d.categories.contains(ApiCategory.Example))

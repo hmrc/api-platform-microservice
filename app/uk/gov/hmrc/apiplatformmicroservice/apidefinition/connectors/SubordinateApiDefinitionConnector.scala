@@ -42,7 +42,7 @@ class SubordinateApiDefinitionConnector @Inject() (
 
   val serviceBaseUrl: String = config.serviceBaseUrl
 
-  override def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+  override def fetchApiDocumentationResource(resourceId: ResourceId)(using HeaderCarrier): Future[Option[HttpResponse]] = {
     val theUrl = documentationUrl(resourceId)
 
     logger.info(s"${this.getClass.getSimpleName} - S - fetchApiDocumentationResource. Url: $theUrl")

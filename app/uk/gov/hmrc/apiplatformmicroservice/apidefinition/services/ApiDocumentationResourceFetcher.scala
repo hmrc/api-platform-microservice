@@ -43,7 +43,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook
 
-  def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+  def fetch(resourceId: ResourceId)(using HeaderCarrier): Future[Option[HttpResponse]] = {
     (
       for {
         apiDefinition <- OptionT(extendedApiDefinitionFetcher.fetchCached(resourceId.serviceName, None))
@@ -68,7 +68,7 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
   }
 
-  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] =
+  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] =
     whereToLook match {
       case Both           => fetchSubordinateOrPrincipal(resourceId)
       case ProductionOnly => fetchPrincipalResourceOnly(resourceId)
@@ -84,7 +84,7 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
   }
 
-  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
+  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] = {
 
     val subordinateData: OptionT[Future, HttpResponse] =
       OptionT(subordinateDefinitionService.fetchApiDocumentationResource(resourceId))
@@ -98,7 +98,7 @@ class ApiDocumentationResourceFetcher @Inject() (
       .orElse(principalData)
   }
 
-  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
+  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] = {
     OptionT(principalDefinitionService.fetchApiDocumentationResource(resourceId))
       .flatMap(logAndHandleErrorsAsNone("Principal")(resourceId))
   }

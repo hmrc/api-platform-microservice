@@ -47,14 +47,14 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchByEmails(emails: Set[LaxEmailAddress])(using HeaderCarrier): Future[Seq[User]] = {
     http.post(url"$serviceBaseUrl/developers/get-by-emails")
       .withBody(Json.toJson(emails.toList))
       .execute[Seq[User]]
 
   }
 
-  def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
+  def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(using HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
     http.post(url"$serviceBaseUrl/developers/user-id")
       .withBody(Json.toJson(getOrCreateUserIdRequest))
       .execute[GetOrCreateUserIdResponse]

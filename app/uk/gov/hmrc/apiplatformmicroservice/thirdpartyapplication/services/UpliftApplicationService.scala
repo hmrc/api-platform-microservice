@@ -107,7 +107,7 @@ class UpliftApplicationService @Inject() (
     ).value
   }
 
-  def fetchUpliftableApisForApplication(subscriptions: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[Set[ApiIdentifier]] = {
+  def fetchUpliftableApisForApplication(subscriptions: Set[ApiIdentifier])(using HeaderCarrier): Future[Set[ApiIdentifier]] = {
     for {
       upliftableApis <- apiIdentifiersForUpliftFetcher.fetch
       filteredSubs    = subscriptions.filter(upliftableApis.contains)

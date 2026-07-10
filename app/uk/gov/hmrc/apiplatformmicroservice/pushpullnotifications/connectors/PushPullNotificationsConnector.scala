@@ -54,7 +54,7 @@ abstract private[pushpullnotifications] class AbstractPushPullNotificationsConne
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]] = {
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[BoxResponse]] = {
     val aUrl = url"$serviceBaseUrl/box"
     configureEbridgeIfRequired(
       http.get(aUrl)

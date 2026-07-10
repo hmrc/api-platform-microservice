@@ -30,7 +30,7 @@ class OpenAccessApisFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends FilterApis {
 
-  def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllForEnvironment(environment: Environment)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     import cats.data.Nested
     import cats.implicits._
 

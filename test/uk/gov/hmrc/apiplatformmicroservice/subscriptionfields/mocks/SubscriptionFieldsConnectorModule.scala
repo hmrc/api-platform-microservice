@@ -34,12 +34,12 @@ trait SubscriptionFieldsConnectorModule {
 
     object BulkFetchFieldValues {
 
-      def willReturnFields(subs: ApiFieldMap[FieldValue])(implicit hc: HeaderCarrier) = {
-        when(aMock.bulkFetchFieldValues(*[ClientId])(using eqTo(hc))).thenReturn(successful(subs))
+      def willReturnFields(subs: ApiFieldMap[FieldValue])(using HeaderCarrier) = {
+        when(aMock.bulkFetchFieldValues(*[ClientId])(using *)).thenReturn(successful(subs))
       }
 
       def willThrowException(e: Exception) =
-        when(aMock.bulkFetchFieldValues(*[ClientId])(using *[HeaderCarrier])).thenReturn(failed(e))
+        when(aMock.bulkFetchFieldValues(*[ClientId])(using *)).thenReturn(failed(e))
     }
 
     object BulkFetchFieldDefinitions {

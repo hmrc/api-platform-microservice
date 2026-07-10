@@ -38,15 +38,15 @@ import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
 trait SubscriptionFieldsConnector {
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
+  def bulkFetchFieldDefinitions(using HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
   // TODO Move to TPA/Remove (API-8358)
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
+  def bulkFetchFieldValues(clientId: ClientId)(using HeaderCarrier): Future[ApiFieldMap[FieldValue]]
 
   // TODO Move to TPA/Remove (API-8358)
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]]
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(using HeaderCarrier): Future[Either[FieldErrorMap, Unit]]
 
-  def csv()(implicit hc: HeaderCarrier): Future[String]
+  def csv()(using HeaderCarrier): Future[String]
 }
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with JsonBodyWritables {
@@ -56,7 +56,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
+  def bulkFetchFieldDefinitions(using HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
     import Implicits.OverrideForBulkResponse.given
 
     configureEbridgeIfRequired(
@@ -65,7 +65,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       .execute[ApiFieldMap[FieldDefinition]]
   }
 
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+  def bulkFetchFieldValues(clientId: ClientId)(using HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
     import Implicits.OverrideForBulkResponse.given
 
     configureEbridgeIfRequired(
@@ -75,7 +75,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       .map(_.getOrElse(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]]))
   }
 
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]] = {
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(using HeaderCarrier): Future[Either[FieldErrorMap, Unit]] = {
     if (fields.isEmpty) {
       successful(Right(()))
     } else {
@@ -98,7 +98,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
   }
 
-  def csv()(implicit hc: HeaderCarrier): Future[String] = {
+  def csv()(using HeaderCarrier): Future[String] = {
     val csv = configureEbridgeIfRequired(
       http.get(url"$serviceBaseUrl/csv")
         .setHeader(HeaderNames.ACCEPT -> "text/csv")
