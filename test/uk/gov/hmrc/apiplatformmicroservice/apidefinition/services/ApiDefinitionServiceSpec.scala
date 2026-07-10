@@ -281,7 +281,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val mockFuture = Future.successful(result)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(using *)
           )
             .thenReturn(mockFuture)
 
@@ -297,7 +297,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val mockFuture = Future.failed(new RuntimeException)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(using *)
           )
             .thenReturn(mockFuture)
 

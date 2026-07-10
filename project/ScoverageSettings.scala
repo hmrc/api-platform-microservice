@@ -5,8 +5,9 @@ object ScoverageSettings {
     ScoverageKeys.coverageExcludedPackages := Seq(
       "<empty",
       """.*\.domain\.models\..*""" ,
-      """uk\.gov\.hmrc\.apiplatformmicroservice\.common\.controllers\.binders""",
+
       """uk\.gov\.hmrc\.apiplatformmicroservice\.apidefinition\.controllers\.binders""",
+      """uk\.gov\.hmrc\.apiplatformmicroservice\.common\.controllers\.binders""",
       """uk\.gov\.hmrc\.apiplatform.modules\.apis\..*""",
       """uk\.gov\.hmrc\.apiplatform.modules\.applications\..*""",
       """uk\.gov\.hmrc\.apiplatform.modules\.developers\..*""",

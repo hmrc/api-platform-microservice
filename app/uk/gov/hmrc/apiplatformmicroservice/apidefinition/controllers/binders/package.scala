@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformmicroservice
+package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 

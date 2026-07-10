@@ -57,6 +57,8 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
   def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
+    import Implicits.OverrideForBulkResponse.given
+
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldDefinitions)
     )
@@ -64,6 +66,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   }
 
   def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+    import Implicits.OverrideForBulkResponse.given
 
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldValues(clientId))

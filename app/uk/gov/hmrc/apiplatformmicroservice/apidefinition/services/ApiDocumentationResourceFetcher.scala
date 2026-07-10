@@ -40,6 +40,7 @@ class ApiDocumentationResourceFetcher @Inject() (
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
+// TODO - enum
   sealed trait WhereToLook
   case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook

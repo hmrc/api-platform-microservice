@@ -40,8 +40,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
-      response.status shouldBe OK
-      Json.parse(response.body) shouldBe Json.parse("""
+      val expectedJsValue = Json.parse("""
       {
         "hello": {  
             "1.0": {
@@ -50,7 +49,7 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
                     "description": "What is your name?",
                     "hint": "You could be Arthur, King of the Britons",
                     "type": "STRING",
-                    "shortDescription": "Field 1",
+                    "shortDescription": "Field 1"
                     
                 },
                 "helloworldFieldTwo": {
@@ -124,6 +123,9 @@ class SubscriptionFieldDefinitionsSpec extends WireMockSpec with SubscriptionFie
             }
         }
     }""".stripMargin)
+
+      response.status shouldBe OK
+      Json.parse(response.body) shouldBe expectedJsValue
     }
   }
 }
