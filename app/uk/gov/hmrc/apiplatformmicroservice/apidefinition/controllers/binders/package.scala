@@ -16,33 +16,34 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+
+// N.B. Commented code rather than removing it as we're waiting to restore service-as-is once Play supports path bindables for opaque types
 
 package object binders {
-  import play.api.mvc.{PathBindable, QueryStringBindable}
+  import play.api.mvc.QueryStringBindable
 
-  implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
+  // implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
 
-    override def bind(key: String, value: String): Either[String, ServiceName] = {
-      textBinder.bind(key, value).map(ServiceName(_))
-    }
+  //   override def bind(key: String, value: String): Either[String, ServiceName] = {
+  //     textBinder.bind(key, value).map(ServiceName(_))
+  //   }
 
-    override def unbind(key: String, serviceName: ServiceName): String = {
-      serviceName.value
-    }
-  }
+  //   override def unbind(key: String, serviceName: ServiceName): String = {
+  //     serviceName
+  //   }
+  // }
 
-  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
+  // implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
 
-    override def bind(key: String, value: String): Either[String, ApiContext] = {
-      textBinder.bind(key, value).map(ApiContext(_))
-    }
+  //   override def bind(key: String, value: String): Either[String, ApiContext] = {
+  //     textBinder.bind(key, value).map(ApiContext(_))
+  //   }
 
-    override def unbind(key: String, apiContext: ApiContext): String = {
-      apiContext.value
-    }
-  }
+  //   override def unbind(key: String, apiContext: ApiContext): String = {
+  //     apiContext.value
+  //   }
+  // }
 
   implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiContext] = new QueryStringBindable[ApiContext] {
 
@@ -62,16 +63,16 @@ package object binders {
     }
   }
 
-  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
+  // implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
 
-    override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
-      textBinder.bind(key, value).map(ApiVersionNbr(_))
-    }
+  //   override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
+  //     textBinder.bind(key, value).map(ApiVersionNbr(_))
+  //   }
 
-    override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
-      apiVersion.value
-    }
-  }
+  //   override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
+  //     apiVersion.value
+  //   }
+  // }
 
   implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiVersionNbr] = new QueryStringBindable[ApiVersionNbr] {
 

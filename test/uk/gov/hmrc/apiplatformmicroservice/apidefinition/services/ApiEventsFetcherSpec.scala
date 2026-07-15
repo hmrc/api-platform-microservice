@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
@@ -46,33 +46,33 @@ class ApiEventsFetcherSpec extends AsyncHmrcSpec
       PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent1))
       SubordinateApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent2))
 
-      val expectedApiEvent = displayApiEvent1.copy(environment = Some(PRODUCTION))
+      val expectedApiEvent = displayApiEvent1.copy(environment = Some(Environment.Production))
 
-      await(inTest.fetchApiVersionsForEnvironment(PRODUCTION, serviceName)) should contain.only(expectedApiEvent)
+      await(inTest.fetchApiVersionsForEnvironment(Environment.Production, serviceName)) should contain.only(expectedApiEvent)
     }
 
     "fetch api events for Subordinate environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent1))
       SubordinateApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent2))
 
-      val expectedApiEvent = displayApiEvent2.copy(environment = Some(SANDBOX))
+      val expectedApiEvent = displayApiEvent2.copy(environment = Some(Environment.Sandbox))
 
-      await(inTest.fetchApiVersionsForEnvironment(SANDBOX, serviceName)) should contain.only(expectedApiEvent)
+      await(inTest.fetchApiVersionsForEnvironment(Environment.Sandbox, serviceName)) should contain.only(expectedApiEvent)
     }
 
     "fetch api events, excluding no change events" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent1), includeNoChange = false)
 
-      val expectedApiEvent = displayApiEvent1.copy(environment = Some(PRODUCTION))
+      val expectedApiEvent = displayApiEvent1.copy(environment = Some(Environment.Production))
 
-      await(inTest.fetchApiVersionsForEnvironment(PRODUCTION, serviceName, includeNoChange = false)) should contain.only(expectedApiEvent)
+      await(inTest.fetchApiVersionsForEnvironment(Environment.Production, serviceName, includeNoChange = false)) should contain.only(expectedApiEvent)
     }
 
     "return empty list when no api events present in environment" in new Setup() {
       PrincipalApiDefinitionServiceMock.FetchApiEvents.willReturnEmptyList()
       SubordinateApiDefinitionServiceMock.FetchApiEvents.willReturn(List(displayApiEvent2))
 
-      await(inTest.fetchApiVersionsForEnvironment(PRODUCTION, serviceName)) shouldBe List.empty
+      await(inTest.fetchApiVersionsForEnvironment(Environment.Production, serviceName)) shouldBe List.empty
     }
   }
 }

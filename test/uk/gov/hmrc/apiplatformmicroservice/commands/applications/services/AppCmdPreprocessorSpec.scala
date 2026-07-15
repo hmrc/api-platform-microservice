@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import cats.data.EitherT
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -32,7 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.Comma
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class AppCmdPreprocessorSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
+class AppCmdPreprocessorSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with FixedClock with MockitoSugar with ArgumentMatchersSugar {
 
   trait SetUp {
     val application = standardApp.inSandbox()
@@ -51,12 +52,12 @@ class AppCmdPreprocessorSpec extends AsyncHmrcSpec with ApplicationWithCollabora
       val dispatchRequest                                       = DispatchRequest(subscribeToAPICommand, Set.empty)
       val dispatchResult: AppCmdPreprocessorTypes.AppCmdResultT = EitherT(Future.successful(GenericFailure("Creation of field values failed").leftNel[DispatchRequest]))
 
-      when(mockSubscribeToApiPreprocessor.process(eqTo(application), eqTo(subscribeToAPICommand), eqTo(Set.empty))(*[HeaderCarrier]))
+      when(mockSubscribeToApiPreprocessor.process(eqTo(application), eqTo(subscribeToAPICommand), eqTo(Set.empty))(using *[HeaderCarrier]))
         .thenReturn(dispatchResult)
 
       appCmdPreprocessor.process(application, dispatchRequest) shouldBe dispatchResult
 
-      verify(mockSubscribeToApiPreprocessor).process(eqTo(application), eqTo(subscribeToAPICommand), eqTo(Set.empty))(*[HeaderCarrier])
+      verify(mockSubscribeToApiPreprocessor).process(eqTo(application), eqTo(subscribeToAPICommand), eqTo(Set.empty))(using *[HeaderCarrier])
     }
 
     "not route other commands to SubscribeToApiPreprocessor" in new SetUp {

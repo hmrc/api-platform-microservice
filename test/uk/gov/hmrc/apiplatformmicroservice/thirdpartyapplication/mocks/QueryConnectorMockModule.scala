@@ -32,30 +32,30 @@ trait QueryConnectorMockModule extends MockitoSugar with ArgumentMatchersSugar {
     object ByQuery {
 
       def returnsFor[T](env: Environment, query: ApplicationQuery, results: T) = {
-        when(aMock.query[T](eqTo(env), eqTo(query))(*, *)).thenReturn(successful(results))
+        when(aMock.query[T](eqTo(env), eqTo(query))(using *, *)).thenReturn(successful(results))
       }
 
       def failsFor[T](env: Environment, query: ApplicationQuery, err: Throwable) = {
-        when(aMock.query[T](eqTo(env), eqTo(query))(*, *)).thenReturn(failed(err))
+        when(aMock.query[T](eqTo(env), eqTo(query))(using *, *)).thenReturn(failed(err))
       }
 
       def returns[T](results: T) = {
-        when(aMock.query[T](*[Environment], *[ApplicationQuery])(*, *)).thenReturn(successful(results))
+        when(aMock.query[T](*[Environment], *[ApplicationQuery])(using *, *)).thenReturn(successful(results))
       }
 
       def fails[T](err: Throwable) = {
-        when(aMock.query[T](*[Environment], *[ApplicationQuery])(*, *)).thenReturn(failed(err))
+        when(aMock.query[T](*[Environment], *[ApplicationQuery])(using *, *)).thenReturn(failed(err))
       }
     }
 
     object ByQueryParams {
 
       def returns[T](results: T) = {
-        when(aMock.query[T](*[Environment], *[Map[String, Seq[String]]])(*, *)).thenReturn(successful(results))
+        when(aMock.query[T](*[Environment], *[Map[String, String]])(using *, *)).thenReturn(successful(results))
       }
 
       def fails[T](err: Throwable) = {
-        when(aMock.query[T](*[Environment], *[Map[String, Seq[String]]])(*, *)).thenReturn(failed(err))
+        when(aMock.query[T](*[Environment], *[Map[String, String]])(using *, *)).thenReturn(failed(err))
       }
     }
   }

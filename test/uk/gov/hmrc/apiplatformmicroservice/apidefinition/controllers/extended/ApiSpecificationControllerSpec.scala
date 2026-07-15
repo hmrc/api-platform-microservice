@@ -23,12 +23,12 @@ import org.apache.pekko.stream.testkit.NoMaterializer
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.*
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
 class ApiSpecificationControllerSpec extends AsyncHmrcSpec {

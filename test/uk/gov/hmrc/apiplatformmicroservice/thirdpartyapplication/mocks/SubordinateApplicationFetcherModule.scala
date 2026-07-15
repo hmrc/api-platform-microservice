@@ -32,9 +32,9 @@ trait SubordinateApplicationFetcherModule extends MockitoSugar with ArgumentMatc
     object FetchSubordinateApplication {
 
       def willReturnApplication(application: ApplicationWithCollaborators) =
-        when(aMock.fetchSubordinateApplication(*[ApplicationId])(*)).thenReturn(Future.successful(Some(application)))
+        when(aMock.fetchSubordinateApplication(*[ApplicationId])(using *)).thenReturn(Future.successful(Some(application)))
 
-      def willReturnNothing = when(aMock.fetchSubordinateApplication(*[ApplicationId])(*)).thenReturn(Future.successful(None))
+      def willReturnNothing = when(aMock.fetchSubordinateApplication(*[ApplicationId])(using *)).thenReturn(Future.successful(None))
     }
   }
 }

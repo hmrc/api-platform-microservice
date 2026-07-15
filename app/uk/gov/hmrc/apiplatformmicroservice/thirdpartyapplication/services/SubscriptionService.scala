@@ -23,7 +23,7 @@ import scala.language.postfixOps
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionsForApplicationFetcher, FilterGateKeeperSubscriptions}
@@ -37,7 +37,7 @@ class SubscriptionService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends FilterGateKeeperSubscriptions {
 
-  def createManySubscriptionsForApplication(application: ApplicationWithCollaborators, apis: Set[ApiIdentifier])(implicit hc: HeaderCarrier): Future[CreateSubscriptionResult] = {
+  def createManySubscriptionsForApplication(application: ApplicationWithCollaborators, apis: Set[ApiIdentifier])(using HeaderCarrier): Future[CreateSubscriptionResult] = {
 
     def canSubscribeToAll(allowedSubscriptions: Seq[ApiDefinition]): Boolean = {
       val allowedApiIdentifiers: Seq[ApiIdentifier] = allowedSubscriptions.flatMap(api => api.versions.keySet.map(versionNbr => ApiIdentifier(api.context, versionNbr)))

@@ -16,6 +16,6 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.xmlapis.models
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 case class XmlApi(name: String, serviceName: ServiceName, context: String, description: String, categories: Option[List[ApiCategory]] = None)

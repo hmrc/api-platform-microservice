@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services
 
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 trait PushPullNotificationJsonFormatters extends ApplicationJsonFormatters {
   import play.api.libs.json._
-
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
 
   implicit val formatBoxId: Format[BoxId]                 = Json.valueFormat[BoxId]
   implicit val formatBoxCreator: Format[BoxCreator]       = Json.format[BoxCreator]

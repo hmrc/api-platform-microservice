@@ -20,16 +20,16 @@ import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, WireMockSugar, WireMockSugarExtensions}
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.PrincipalSubscriptionFieldsConnector
@@ -57,6 +57,8 @@ class SubscriptionFieldsConnectorSpec
     val bulkSubsOne = Json.parse(
       s"""{"subscriptions":[{"clientId":"123","apiContext":"$apiContextOne","apiVersion":"$apiVersionNbrOne", "fieldsId":"$fieldsId","fields":{"$fieldNameOne":"$fieldValueOne"}}]}"""
     )
+
+    println(Json.prettyPrint(bulkSubsOne))
   }
 
   def encode(in: ApiContext): String = URLEncoder.encode(in.value, "UTF-8")
@@ -64,7 +66,7 @@ class SubscriptionFieldsConnectorSpec
   "SubscriptionFieldsConnector" should {
     "retrieve all field values by client id" in new SetupPrincipal {
       stubFor(
-        get(urlEqualTo(s"/field/application/${clientId}"))
+        get(urlEqualTo(s"/field/application/${clientId.value}"))
           .willReturn(
             aResponse()
               .withStatus(OK)

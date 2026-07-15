@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.domain.BoxResponse
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 
 private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
@@ -42,10 +42,10 @@ private[pushpullnotifications] object AbstractPushPullNotificationsConnector {
 }
 
 trait PushPullNotificationsConnector {
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]]
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[BoxResponse]]
 }
 
-abstract private[pushpullnotifications] class AbstractPushPullNotificationsConnector(implicit val ec: ExecutionContext) extends PushPullNotificationsConnector {
+abstract private[pushpullnotifications] class AbstractPushPullNotificationsConnector(using ExecutionContext) extends PushPullNotificationsConnector {
   import AbstractPushPullNotificationsConnector.JsonFormatters._
 
   def serviceBaseUrl: String
@@ -54,7 +54,7 @@ abstract private[pushpullnotifications] class AbstractPushPullNotificationsConne
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[BoxResponse]] = {
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[BoxResponse]] = {
     val aUrl = url"$serviceBaseUrl/box"
     configureEbridgeIfRequired(
       http.get(aUrl)
@@ -78,7 +78,7 @@ object SubordinatePushPullNotificationsConnector {
 class SubordinatePushPullNotificationsConnector @Inject() (
     config: SubordinatePushPullNotificationsConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractPushPullNotificationsConnector {
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
@@ -101,7 +101,7 @@ object PrincipalPushPullNotificationsConnector {
 class PrincipalPushPullNotificationsConnector @Inject() (
     config: PrincipalPushPullNotificationsConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractPushPullNotificationsConnector {
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl

@@ -23,48 +23,50 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, *}
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.interface.models.UpsertFieldValuesRequest
 import uk.gov.hmrc.apiplatformmicroservice.common.EnvironmentAware
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
 
 trait SubscriptionFieldsConnector {
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
+  def bulkFetchFieldDefinitions(using HeaderCarrier): Future[ApiFieldMap[FieldDefinition]]
 
   // TODO Move to TPA/Remove (API-8358)
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]]
+  def bulkFetchFieldValues(clientId: ClientId)(using HeaderCarrier): Future[ApiFieldMap[FieldValue]]
 
   // TODO Move to TPA/Remove (API-8358)
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]]
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, values: Map[FieldName, FieldValue])(using HeaderCarrier): Future[Either[FieldErrorMap, Unit]]
 
-  def csv()(implicit hc: HeaderCarrier): Future[String]
+  def csv()(using HeaderCarrier): Future[String]
 }
 
-abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
+abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector with JsonBodyWritables {
 
   def serviceBaseUrl: String
   def http: HttpClientV2
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
-  def bulkFetchFieldDefinitions(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
-    import Implicits.OverrideForBulkResponse._
+  def bulkFetchFieldDefinitions(using HeaderCarrier): Future[ApiFieldMap[FieldDefinition]] = {
+    import Implicits.OverrideForBulkResponse.given
+
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldDefinitions)
     )
       .execute[ApiFieldMap[FieldDefinition]]
   }
 
-  def bulkFetchFieldValues(clientId: ClientId)(implicit hc: HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
-    import Implicits.OverrideForBulkResponse._
+  def bulkFetchFieldValues(clientId: ClientId)(using HeaderCarrier): Future[ApiFieldMap[FieldValue]] = {
+    import Implicits.OverrideForBulkResponse.given
 
     configureEbridgeIfRequired(
       http.get(urlBulkSubscriptionFieldValues(clientId))
@@ -73,7 +75,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       .map(_.getOrElse(Map.empty[ApiContext, Map[ApiVersionNbr, Map[FieldName, FieldValue]]]))
   }
 
-  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(implicit hc: HeaderCarrier): Future[Either[FieldErrorMap, Unit]] = {
+  def saveFieldValues(clientId: ClientId, apiIdentifier: ApiIdentifier, fields: Map[FieldName, FieldValue])(using HeaderCarrier): Future[Either[FieldErrorMap, Unit]] = {
     if (fields.isEmpty) {
       successful(Right(()))
     } else {
@@ -96,7 +98,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
   }
 
-  def csv()(implicit hc: HeaderCarrier): Future[String] = {
+  def csv()(using HeaderCarrier): Future[String] = {
     val csv = configureEbridgeIfRequired(
       http.get(url"$serviceBaseUrl/csv")
         .setHeader(HeaderNames.ACCEPT -> "text/csv")
@@ -132,7 +134,7 @@ class SubordinateSubscriptionFieldsConnector @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends AbstractSubscriptionFieldsConnector {
 
-  val environment: Environment = Environment.SANDBOX
+  val environment: Environment = Environment.Sandbox
   val serviceBaseUrl: String   = config.serviceBaseUrl
   val useProxy: Boolean        = config.useProxy
   val bearerToken: String      = config.bearerToken
@@ -156,7 +158,7 @@ class PrincipalSubscriptionFieldsConnector @Inject() (
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
 
-  val environment: Environment = Environment.PRODUCTION
+  val environment: Environment = Environment.Production
   val serviceBaseUrl: String   = config.serviceBaseUrl
 }
 

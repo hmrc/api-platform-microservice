@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain
 
-import play.api.mvc._
+import play.api.mvc.*
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators

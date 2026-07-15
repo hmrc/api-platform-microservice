@@ -24,11 +24,11 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, *}
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.{AppCmdPreprocessor, AppCmdPreprocessorTypes}
 
 trait AppCmdPreprocessorMockModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   trait AbstractAppCmdPreprocessorMock {
     def aMock: AppCmdPreprocessor
@@ -38,23 +38,23 @@ trait AppCmdPreprocessorMockModule {
     object Process {
 
       def verifyNotCalled() = {
-        verify(aMock, never).process(*, *)(*)
+        verify(aMock, never).process(*, *)(using *)
       }
 
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
-        verify(aMock, atLeastOnce).process(*, eqTo(DispatchRequest(cmd, emails)))(*)
+        verify(aMock, atLeastOnce).process(*, eqTo(DispatchRequest(cmd, emails)))(using *)
       }
 
       def succeedsWith(request: DispatchRequest) = {
-        when(aMock.process(*, *)(*)).thenReturn(E.pure(request))
+        when(aMock.process(*, *)(using *)).thenReturn(E.pure(request))
       }
 
       def passThru() = {
-        when(aMock.process(*, *)(*)).thenAnswer((_: ApplicationWithCollaborators, inbound: DispatchRequest) => E.pure(inbound))
+        when(aMock.process(*, *)(using *)).thenAnswer((_: ApplicationWithCollaborators, inbound: DispatchRequest) => E.pure(inbound))
       }
 
       def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-        when(aMock.process(*, *)(*)).thenReturn(E.leftT(NonEmptyList.of(failure, failures: _*)))
+        when(aMock.process(*, *)(using *)).thenReturn(E.leftT(NonEmptyList.of(failure, failures*)))
       }
     }
   }

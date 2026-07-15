@@ -18,17 +18,14 @@ package uk.gov.hmrc.apiplatformmicroservice.common.utils
 
 import scala.collection.mutable
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[LaxEmailAddress, UserId]()
 
-  def idOf(email: Any): UserId = email match {
-    case s: String            => idsByEmail.getOrElseUpdate(s.toLaxEmail, UserId.random)
+  def idOf(email: LaxEmailAddress): UserId = email match {
     case lea: LaxEmailAddress => idsByEmail.getOrElseUpdate(lea, UserId.random)
-    case _                    => throw new IllegalArgumentException("Not suitable")
   }
 }
 

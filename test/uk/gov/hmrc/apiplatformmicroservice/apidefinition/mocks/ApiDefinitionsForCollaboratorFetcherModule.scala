@@ -30,11 +30,11 @@ trait ApiDefinitionsForCollaboratorFetcherModule extends PlaySpec with MockitoSu
     val aMock = mock[ApiDefinitionsForCollaboratorFetcher]
 
     def willReturnApiDefinitions(apis: ApiDefinition*) = {
-      when(aMock.fetch(*)(*)).thenReturn(Future.successful(apis.toList))
+      when(aMock.fetch(*)(using *)).thenReturn(Future.successful(apis.toList))
     }
 
     def willThrowException(e: Exception) = {
-      when(aMock.fetch(*)(*)).thenReturn(Future.failed(e))
+      when(aMock.fetch(*)(using *)).thenReturn(Future.failed(e))
     }
   }
 

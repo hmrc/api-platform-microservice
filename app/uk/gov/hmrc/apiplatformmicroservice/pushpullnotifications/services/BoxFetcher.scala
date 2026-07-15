@@ -24,18 +24,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.connectors.EnvironmentAwarePushPullNotificationsConnector
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain._
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.*
 
 @Singleton
 class BoxFetcher @Inject() (pushpullnotificationsConnector: EnvironmentAwarePushPullNotificationsConnector)(implicit ec: ExecutionContext)
     extends Recoveries {
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(using HeaderCarrier): Future[List[Box]] = {
     for {
       subordinateBoxes               <- pushpullnotificationsConnector.subordinate.fetchAllBoxes()
       principalBoxes                 <- pushpullnotificationsConnector.principal.fetchAllBoxes()
-      subordinateBoxesWithEnvironment = subordinateBoxes.map(_.toBox(Environment.SANDBOX))
-      principalBoxesWithEnvironment   = principalBoxes.map(_.toBox(Environment.PRODUCTION))
+      subordinateBoxesWithEnvironment = subordinateBoxes.map(_.toBox(Environment.Sandbox))
+      principalBoxesWithEnvironment   = principalBoxes.map(_.toBox(Environment.Production))
 
     } yield (subordinateBoxesWithEnvironment ++ principalBoxesWithEnvironment)
   }

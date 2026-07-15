@@ -20,18 +20,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
-import org.apache.pekko.stream.Materializer
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.*
 
 @Singleton()
 class ExtendedApiDefinitionController @Inject() (
@@ -40,8 +39,7 @@ class ExtendedApiDefinitionController @Inject() (
     extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     apiDocumentationResourceFetcher: ApiDocumentationResourceFetcher,
     subscribedApiDefinitionsForCollaboratorFetcher: SubscribedApiDefinitionsForCollaboratorFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
+  )(using ExecutionContext
   ) extends BackendController(cc)
     with StreamedResponseResourceHelper {
 

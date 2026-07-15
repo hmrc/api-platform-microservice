@@ -21,23 +21,25 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.data.NonEmptyList
 
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.libs.ws.JsonBodyReadables
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId, Environment, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, _}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, *}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks._
-import uk.gov.hmrc.apiplatformmicroservice.common.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, _}
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.mocks.*
+import uk.gov.hmrc.apiplatformmicroservice.common.connectors.*
+import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, *}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.ApplicationByIdFetcherModule
 
-class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock {
+class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with FixedClock with JsonBodyReadables {
 
   trait Setup
       extends ApplicationByIdFetcherModule
@@ -53,7 +55,7 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
     val sandboxApplicationId    = ApplicationId.random
     val sandboxApplication      = standardApp.inSandbox().withId(sandboxApplicationId)
     val productionApplicationId = ApplicationId.random
-    val productionApplication   = standardApp.inSandbox().withId(productionApplicationId).modify(_.copy(deployedTo = Environment.PRODUCTION))
+    val productionApplication   = standardApp.inSandbox().withId(productionApplicationId).modify(_.copy(deployedTo = Environment.Production))
 
     val adminEmail              = "admin@example.com".toLaxEmail
     val developerAsCollaborator = "dev@example.com".toLaxEmail.asDeveloperCollaborator
@@ -140,7 +142,6 @@ class AppCmdControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelpe
       val result = controller.dispatch(productionApplicationId)(request)
       status(result) shouldBe BAD_REQUEST
 
-      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       Json.fromJson[NonEmptyList[CommandFailure]](contentAsJson(result)).get shouldBe NonEmptyList.one(CommandFailures.ActorIsNotACollaboratorOnApp)
 
       AppCmdConnectorMock.IssueCommand.verifyCalledWith(cmd, verifiedEmails)

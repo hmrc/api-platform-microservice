@@ -31,7 +31,7 @@ class AllApisFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries {
 
-  def fetch()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch()(using HeaderCarrier): Future[List[ApiDefinition]] = {
     val principalDefinitionsFuture   = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 

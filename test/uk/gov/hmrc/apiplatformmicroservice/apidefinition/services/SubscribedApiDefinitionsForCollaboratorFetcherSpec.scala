@@ -20,8 +20,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionsForCollaboratorFetcherModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -36,9 +36,9 @@ class SubscribedApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec w
   trait Setup extends ApiDefinitionsForCollaboratorFetcherModule with SubscriptionsForCollaboratorFetcherModule {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
     val email                                 = UserId.random
-    val helloWorldDefinition                  = apiDefinition(helloWorldContext.value, apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
-    val helloAgentsDefinition                 = apiDefinition("hello-agents", apiVersion(versionOne, ApiStatus.STABLE), apiVersion(versionTwo, ApiStatus.STABLE))
-    val helloVatDefinition                    = apiDefinition("hello-vat", apiVersion(versionOne, ApiStatus.STABLE))
+    val helloWorldDefinition                  = apiDefinition(helloWorldContext.value, apiVersion(versionOne, ApiStatus.Stable), apiVersion(versionTwo, ApiStatus.Stable))
+    val helloAgentsDefinition                 = apiDefinition("hello-agents", apiVersion(versionOne, ApiStatus.Stable), apiVersion(versionTwo, ApiStatus.Stable))
+    val helloVatDefinition                    = apiDefinition("hello-vat", apiVersion(versionOne, ApiStatus.Stable))
 
     val underTest = new SubscribedApiDefinitionsForCollaboratorFetcher(ApiDefinitionsForCollaboratorFetcherMock.aMock, SubscriptionsForCollaboratorFetcherMock.aMock)
   }

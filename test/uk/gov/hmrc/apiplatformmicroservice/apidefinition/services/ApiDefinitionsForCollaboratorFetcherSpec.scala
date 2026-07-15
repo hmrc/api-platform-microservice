@@ -20,8 +20,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.ApiDefinitionServiceModule
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
@@ -37,17 +37,17 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
     val userId                                = Some(UserId.random)
     val applicationId                         = ApplicationId.random
     val helloApiDefinition                    = apiDefinition("hello-api")
-    val apiWithOnlyRetiredVersions            = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.RETIRED))
+    val apiWithOnlyRetiredVersions            = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.Retired), apiVersion(versionTwo, ApiStatus.Retired))
 
-    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.RETIRED), apiVersion(versionTwo, ApiStatus.STABLE))
+    val apiWithRetiredVersions = apiDefinition("api-with-retired-versions", apiVersion(versionOne, ApiStatus.Retired), apiVersion(versionTwo, ApiStatus.Stable))
 
     val apiWithPublicAndInternalVersions =
-      apiDefinition("api-with-public-and-internal-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL), apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
+      apiDefinition("api-with-public-and-internal-versions", apiVersion(versionOne, access = ApiAccessType.Internal), apiVersion(versionTwo, access = ApiAccessType.Public))
 
     val apiWithOnlyInternalVersions =
-      apiDefinition("api-with-internal-versions", apiVersion(versionOne, access = ApiAccessType.INTERNAL), apiVersion(versionTwo, access = ApiAccessType.INTERNAL))
+      apiDefinition("api-with-internal-versions", apiVersion(versionOne, access = ApiAccessType.Internal), apiVersion(versionTwo, access = ApiAccessType.Internal))
 
-    val apiWithControlled = apiDefinition("api-with-controlled", apiVersion(versionOne, access = ApiAccessType.CONTROLLED))
+    val apiWithControlled = apiDefinition("api-with-controlled", apiVersion(versionOne, access = ApiAccessType.Controlled))
 
     val underTest =
       new ApiDefinitionsForCollaboratorFetcher(
@@ -93,7 +93,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(userId))
 
-      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
+      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.Public))
     }
 
     "filter out non-public versions for an api if no email provided" in new Setup {
@@ -101,7 +101,7 @@ class ApiDefinitionsForCollaboratorFetcherSpec extends AsyncHmrcSpec with ApiDef
 
       val result = await(underTest.fetch(None))
 
-      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.PUBLIC))
+      result.head.versions.values should contain only (apiVersion(versionTwo, access = ApiAccessType.Public))
     }
 
     "filter out an api if it only has non-public versions" in new Setup {

@@ -19,14 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
@@ -44,7 +43,7 @@ class ApiDefinitionController @Inject() (
     controllerComponents: ControllerComponents,
     apiIdentifiersForUpliftFetcher: ApiIdentifiersForUpliftFetcher,
     apiEventsFetcher: ApiEventsFetcher
-  )(implicit val ec: ExecutionContext
+  )(using val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
     with ActionBuilders {
 
@@ -60,11 +59,11 @@ class ApiDefinitionController @Inject() (
 
   def fetchAllSubscribeableApis(applicationId: ApplicationId, restricted: Option[Boolean] = Some(true)): Action[AnyContent] =
     if (restricted.getOrElse(true)) {
-      applicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[_] =>
+      applicationWithSubscriptionDataAction(applicationId).async { implicit request: ApplicationWithSubscriptionDataRequest[?] =>
         toJson(applicationBasedApiFetcher.fetchRestricted(request.deployedTo, request.subscriptions))
       }
     } else {
-      applicationAction(applicationId).async { implicit request: ApplicationRequest[_] =>
+      applicationAction(applicationId).async { implicit request: ApplicationRequest[?] =>
         toJson(applicationBasedApiFetcher.fetchUnrestricted(request.deployedTo))
       }
     }
@@ -79,8 +78,8 @@ class ApiDefinitionController @Inject() (
 
   def fetchApiForServiceName(serviceName: ServiceName): Action[AnyContent] = Action.async { implicit request =>
     implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
-    val sandboxFuture                                       = apiDefinitionService(Environment.SANDBOX).fetchDefinition(serviceName)
-    val productionFuture                                    = apiDefinitionService(Environment.PRODUCTION).fetchDefinition(serviceName)
+    val sandboxFuture                                       = apiDefinitionService(Environment.Sandbox).fetchDefinition(serviceName)
+    val productionFuture                                    = apiDefinitionService(Environment.Production).fetchDefinition(serviceName)
 
     for {
       maybeSandbox    <- sandboxFuture
@@ -101,8 +100,8 @@ class ApiDefinitionController @Inject() (
 
   def fetchApiEventsForServiceName(serviceName: ServiceName, includeNoChange: Boolean = true): Action[AnyContent] = Action.async { implicit request =>
     for {
-      sandboxApiEvents <- apiEventsFetcher.fetchApiVersionsForEnvironment(SANDBOX, serviceName, includeNoChange)
-      prodApiEvents    <- apiEventsFetcher.fetchApiVersionsForEnvironment(PRODUCTION, serviceName, includeNoChange)
+      sandboxApiEvents <- apiEventsFetcher.fetchApiVersionsForEnvironment(Environment.Sandbox, serviceName, includeNoChange)
+      prodApiEvents    <- apiEventsFetcher.fetchApiVersionsForEnvironment(Environment.Production, serviceName, includeNoChange)
     } yield Ok(Json.toJson(sandboxApiEvents ++ prodApiEvents))
   }
 }

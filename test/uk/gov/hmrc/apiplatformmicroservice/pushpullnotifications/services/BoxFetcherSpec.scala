@@ -49,8 +49,8 @@ class BoxFetcherSpec extends AsyncHmrcSpec {
         private val subordinateBoxResponse = buildBoxResponse("1")
         private val principalBoxResponse   = buildBoxResponse("2")
 
-        private val subordinateBox = buildBoxFromBoxResponse(subordinateBoxResponse, Environment.SANDBOX)
-        private val principalBox   = buildBoxFromBoxResponse(principalBoxResponse, Environment.PRODUCTION)
+        private val subordinateBox = buildBoxFromBoxResponse(subordinateBoxResponse, Environment.Sandbox)
+        private val principalBox   = buildBoxFromBoxResponse(principalBoxResponse, Environment.Production)
 
         EnvironmentAwarePushPullNotificationsConnectorMock.Subordinate.FetchBoxes.willReturnAllBoxes(List(subordinateBoxResponse))
         EnvironmentAwarePushPullNotificationsConnectorMock.Principal.FetchBoxes.willReturnAllBoxes(List(principalBoxResponse))

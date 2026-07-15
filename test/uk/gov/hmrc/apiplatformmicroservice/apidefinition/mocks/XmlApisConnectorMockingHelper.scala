@@ -30,11 +30,11 @@ trait XmlApisConnectorMockingHelper extends PlaySpec with MockitoSugar with Argu
     val aMock = mock[XmlApisConnector]
 
     def willReturnAllXmlApis(xmlApis: XmlApi*) = {
-      when(aMock.fetchAllXmlApis()(*)).thenReturn(Future.successful(xmlApis.toList))
+      when(aMock.fetchAllXmlApis()(using *)).thenReturn(Future.successful(xmlApis.toList))
     }
 
     def willThrowExceptionforReturnAll(e: Exception) = {
-      when(aMock.fetchAllXmlApis()(*)).thenReturn(Future.failed(e))
+      when(aMock.fetchAllXmlApis()(using *)).thenReturn(Future.failed(e))
     }
   }
 }

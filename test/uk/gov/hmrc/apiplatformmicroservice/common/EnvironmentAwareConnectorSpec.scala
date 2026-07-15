@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 class EnvironmentAwareSpec extends HmrcSpec with MockitoSugar with ArgumentMatchersSugar {
@@ -38,10 +38,10 @@ class EnvironmentAwareSpec extends HmrcSpec with MockitoSugar with ArgumentMatch
 
   "EnvironmentAwareConnector" should {
     "return the principal when asked for production" in new Setup {
-      eatpac(PRODUCTION) shouldBe principalSomething
+      eatpac(Production) shouldBe principalSomething
     }
     "return the subordinate when asked for anything other than production" in new Setup {
-      eatpac(SANDBOX) shouldBe subordinateSomething
+      eatpac(Sandbox) shouldBe subordinateSomething
     }
   }
 }

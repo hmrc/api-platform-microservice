@@ -19,26 +19,25 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.{JsObject, JsValue}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{DisplayApiEvent, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.ConnectorRecovery
 
-trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
+trait ApiDefinitionConnector(using ExecutionContext) extends ApiDefinitionConnectorUtils
     with ApplicationLogger with ConnectorRecovery {
 
   def http: HttpClientV2
   def serviceBaseUrl: String
-  implicit val ec: ExecutionContext
 
   def configureEbridgeIfRequired: RequestBuilder => RequestBuilder
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllApiDefinitions(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllApiDefinitionsWithoutFiltering")
     configureEbridgeIfRequired(
       http.get(url"$definitionsUrl?type=all")
@@ -50,7 +49,7 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
       })
   }
 
-  def fetchApiDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
+  def fetchApiDefinition(serviceName: ServiceName)(using hc: HeaderCarrier): Future[Option[ApiDefinition]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiDefinition")
     configureEbridgeIfRequired(
       http.get(definitionUrl(serviceName))
@@ -59,9 +58,9 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
       .recover(recovery)
   }
 
-  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]]
+  def fetchApiDocumentationResource(resourceId: ResourceId)(using hc: HeaderCarrier): Future[Option[HttpResponse]]
 
-  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(using hc: HeaderCarrier): Future[Option[JsValue]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiSpecification")
     configureEbridgeIfRequired(
       http.get(specificationUrl(serviceName, version))
@@ -70,7 +69,7 @@ trait ApiDefinitionConnector extends ApiDefinitionConnectorUtils
       .recover(recovery)
   }
 
-  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
+  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(using hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchApiEvents")
     configureEbridgeIfRequired(
       http.get(eventsUrl(serviceName, includeNoChange))

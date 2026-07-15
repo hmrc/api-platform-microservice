@@ -20,14 +20,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
-import cats.implicits._
-import org.apache.pekko.stream.Materializer
+import cats.implicits.*
 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ExtendedApiDefinition, ExtendedApiVersion}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 
 @Singleton
@@ -35,16 +34,16 @@ class ApiDocumentationResourceFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     extendedApiDefinitionFetcher: ExtendedApiDefinitionForCollaboratorFetcher
-  )(implicit override val ec: ExecutionContext,
-    override val mat: Materializer
+  )(using ExecutionContext
   ) extends StreamedResponseResourceHelper
     with ApplicationLogger {
 
+// TODO - enum
   sealed trait WhereToLook
   case object Both           extends WhereToLook
   case object ProductionOnly extends WhereToLook
 
-  def fetch(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+  def fetch(resourceId: ResourceId)(using HeaderCarrier): Future[Option[HttpResponse]] = {
     (
       for {
         apiDefinition <- OptionT(extendedApiDefinitionFetcher.fetchCached(resourceId.serviceName, None))
@@ -64,12 +63,12 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
 
     version match {
-      case ApiVersionNbr("common") => Both.some
-      case _                       => findVersion.map(whereToLookForVersion)
+      case v: ApiVersionNbr if v == ApiVersionNbr("common") => Both.some
+      case _                                                => findVersion.map(whereToLookForVersion)
     }
   }
 
-  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] =
+  private def fetchResource(whereToLook: WhereToLook, resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] =
     whereToLook match {
       case Both           => fetchSubordinateOrPrincipal(resourceId)
       case ProductionOnly => fetchPrincipalResourceOnly(resourceId)
@@ -85,7 +84,7 @@ class ApiDocumentationResourceFetcher @Inject() (
     }
   }
 
-  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
+  private def fetchSubordinateOrPrincipal(resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] = {
 
     val subordinateData: OptionT[Future, HttpResponse] =
       OptionT(subordinateDefinitionService.fetchApiDocumentationResource(resourceId))
@@ -99,7 +98,7 @@ class ApiDocumentationResourceFetcher @Inject() (
       .orElse(principalData)
   }
 
-  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(implicit hc: HeaderCarrier): OptionT[Future, HttpResponse] = {
+  private def fetchPrincipalResourceOnly(resourceId: ResourceId)(using HeaderCarrier): OptionT[Future, HttpResponse] = {
     OptionT(principalDefinitionService.fetchApiDocumentationResource(resourceId))
       .flatMap(logAndHandleErrorsAsNone("Principal")(resourceId))
   }

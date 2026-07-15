@@ -20,10 +20,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.{JsValue, Json, Reads}
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, *}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldErrorMap, FieldName, FieldValue}
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.{ErrorCode, JsErrorResponse}
@@ -57,7 +57,7 @@ class SubscriptionFieldsController @Inject() (
         subscriptionFieldsConnector(environment).saveFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), payload.fields)
           .map(_ match {
             case Left(errs: FieldErrorMap) => BadRequest(Json.toJson(errs))
-            case Right(subsFields)         => Ok
+            case Right(())                 => Ok
           })
       }
     }

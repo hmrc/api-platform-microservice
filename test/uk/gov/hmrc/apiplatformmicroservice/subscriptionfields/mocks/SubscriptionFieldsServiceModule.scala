@@ -21,11 +21,11 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ClientId
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
 
 trait SubscriptionFieldsServiceModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   object SubscriptionFieldsServiceMock {
     val aMock = mock[SubscriptionFieldsService]
@@ -33,17 +33,17 @@ trait SubscriptionFieldsServiceModule {
     object FetchFieldValuesWithDefaults {
 
       def willReturnFieldValues(subs: ApiFieldMap[FieldValue]) = {
-        when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(*)).thenReturn(successful(subs))
+        when(aMock.fetchFieldValuesWithDefaults(*, *[ClientId], *)(using *)).thenReturn(successful(subs))
       }
     }
 
     object CreateFieldValues {
 
       def succeeds() =
-        when(aMock.createFieldValues(*[ClientId], *, *)(*)).thenReturn(successful(Right(())))
+        when(aMock.createFieldValues(*[ClientId], *, *)(using *)).thenReturn(successful(Right(())))
 
       def fails() =
-        when(aMock.createFieldValues(*[ClientId], *, *)(*)).thenReturn(successful(Left(Map.empty)))
+        when(aMock.createFieldValues(*[ClientId], *, *)(using *)).thenReturn(successful(Left(Map.empty)))
     }
   }
 }

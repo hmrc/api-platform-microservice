@@ -22,37 +22,37 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
 
 trait SubscriptionFieldsConnectorModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   abstract class SubscriptionFieldsConnectorMock {
     def aMock: SubscriptionFieldsConnector
 
     object BulkFetchFieldValues {
 
-      def willReturnFields(subs: ApiFieldMap[FieldValue])(implicit hc: HeaderCarrier) = {
-        when(aMock.bulkFetchFieldValues(*[ClientId])(eqTo(hc))).thenReturn(successful(subs))
+      def willReturnFields(subs: ApiFieldMap[FieldValue])(using HeaderCarrier) = {
+        when(aMock.bulkFetchFieldValues(*[ClientId])(using *)).thenReturn(successful(subs))
       }
 
       def willThrowException(e: Exception) =
-        when(aMock.bulkFetchFieldValues(*[ClientId])(*[HeaderCarrier])).thenReturn(failed(e))
+        when(aMock.bulkFetchFieldValues(*[ClientId])(using *)).thenReturn(failed(e))
     }
 
     object BulkFetchFieldDefinitions {
 
       def willReturnDefinitions(defns: ApiFieldMap[FieldDefinition]) = {
-        when(aMock.bulkFetchFieldDefinitions(*)).thenReturn(successful(defns))
+        when(aMock.bulkFetchFieldDefinitions(using *)).thenReturn(successful(defns))
       }
     }
 
     object SaveFieldValues {
 
       def willReturn(apiIdentifier: ApiIdentifier) = {
-        when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(*)).thenReturn(successful(Right(())))
+        when(aMock.saveFieldValues(*[ClientId], eqTo(apiIdentifier), *)(using *)).thenReturn(successful(Right(())))
       }
     }
   }

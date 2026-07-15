@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
 import play.api.libs.json.Json
-import play.api.test.Helpers.{status, _}
+import play.api.test.Helpers.{status, *}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTes
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.{AsyncHmrcSpec, UpliftRequestSamples}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.domain.services.ApplicationJsonFormatters
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ApplicationWithCollaboratorsFixtures {
@@ -62,7 +62,7 @@ class ApplicationControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestData
       val application = standardApp.inSandbox().withId(applicationIdOne)
 
       ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiId1))
-      when(mockUpliftService.upliftApplicationV2(*, *, *)(*)).thenReturn(successful(Right(newAppId)))
+      when(mockUpliftService.upliftApplicationV2(*, *, *)(using *)).thenReturn(successful(Right(newAppId)))
 
       val request = FakeRequest("POST", s"/applications/${applicationIdOne}/uplift").withBody(Json.toJson(ApplicationController.RequestUpliftV2(makeUpliftRequest(apiId1))))
 

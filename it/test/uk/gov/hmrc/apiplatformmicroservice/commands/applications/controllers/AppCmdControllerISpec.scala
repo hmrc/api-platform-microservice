@@ -16,23 +16,23 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.commands.applications.controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{DefaultBodyWritables, WSClient, WSResponse}
 import play.api.{Application, Configuration, Mode}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.utils
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import uk.gov.hmrc.apiplatformmicroservice.utils.*
 
 class AppCmdControllerISpec
     extends AsyncHmrcSpec
@@ -40,7 +40,8 @@ class AppCmdControllerISpec
     with ConfigBuilder
     with PrincipalAndSubordinateWireMockSetup
     with ApplicationWithCollaboratorsFixtures
-    with utils.FixedClock {
+    with utils.FixedClock
+    with DefaultBodyWritables {
 
   private val stubConfig = Configuration(
     "microservice.services.third-party-application-principal.host"   -> WireMockHost,

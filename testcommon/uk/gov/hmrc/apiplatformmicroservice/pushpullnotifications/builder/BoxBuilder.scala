@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.{Box, Bo
 trait BoxBuilder extends FixedClock {
 
   def buildBox(boxId: String): Box = {
-    Box(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), Some(ApplicationId(java.util.UUID.randomUUID())), Some(buildSubscriber()), Environment.PRODUCTION)
+    Box(BoxId(boxId), s"boxName-$boxId", buildBoxCreator(), Some(ApplicationId(java.util.UUID.randomUUID())), Some(buildSubscriber()), Environment.Production)
   }
 
   def buildBoxResponse(boxId: String, applicationId: Option[ApplicationId] = Some(ApplicationId.random)): BoxResponse = {
@@ -32,7 +32,7 @@ trait BoxBuilder extends FixedClock {
   }
 
   def buildSubscriber(): BoxSubscriber = {
-    BoxSubscriber("callbackUrl", instant, SubscriptionType.API_PUSH_SUBSCRIBER)
+    BoxSubscriber("callbackUrl", instant, SubscriptionType.ApiPushSubscriber)
   }
 
   def buildBoxCreator(): BoxCreator = {

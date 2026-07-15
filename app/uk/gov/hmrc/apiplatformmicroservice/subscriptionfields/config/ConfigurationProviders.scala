@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.config
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names.named
 
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors._
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.*
 
 class ConfigurationModule extends AbstractModule {
 

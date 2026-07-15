@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.{QueryConnectorMockModule, ThirdPartyApplicationConnectorModule}
@@ -48,7 +48,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock wi
     "return the subordinate application if it exists" in new Setup {
       PrincipalThirdPartyApplicationConnectorMock.GetLinkedSubordinateApplicationId.thenReturn(subordinateAppId)
       val qry = ApplicationQuery.ById(subordinateAppId, Nil)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, Some(subordinateApplication))
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, Some(subordinateApplication))
 
       val result = await(service.fetchSubordinateApplication(principalAppId))
 
@@ -66,7 +66,7 @@ class SubordinateApplicationFetcherSpec extends AsyncHmrcSpec with FixedClock wi
     "return nothing if subordinate app does not exist" in new Setup {
       PrincipalThirdPartyApplicationConnectorMock.GetLinkedSubordinateApplicationId.thenReturn(subordinateAppId)
       val qry = ApplicationQuery.ById(subordinateAppId, Nil)
-      QueryConnectorMock.ByQuery.returnsFor(Environment.SANDBOX, qry, None)
+      QueryConnectorMock.ByQuery.returnsFor(Environment.Sandbox, qry, None)
 
       val result = await(service.fetchSubordinateApplication(principalAppId))
 

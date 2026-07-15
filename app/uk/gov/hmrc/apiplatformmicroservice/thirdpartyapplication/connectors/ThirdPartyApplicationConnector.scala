@@ -20,11 +20,12 @@ import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
@@ -59,13 +60,15 @@ private[thirdpartyapplication] object AbstractThirdPartyApplicationConnector {
 
 trait ThirdPartyApplicationConnector {
 
-  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId]
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(using HeaderCarrier): Future[ApplicationId]
 
   // TODO Move to TPA/Remove (API-8358)
   // add methods currently in subs field connector
 }
 
-abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(implicit val ec: ExecutionContext) extends ThirdPartyApplicationConnector
+abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConnector(using ExecutionContext)
+    extends ThirdPartyApplicationConnector
+    with JsonBodyWritables
     with ApplicationLogger {
 
   def http: HttpClientV2
@@ -75,7 +78,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
   protected val config: AbstractThirdPartyApplicationConnector.Config
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(implicit hc: HeaderCarrier): Future[ApplicationId] = {
+  def createApplicationV2(createAppRequest: CreateApplicationRequestV2)(using HeaderCarrier): Future[ApplicationId] = {
     logger.info(s" Request to uplift ${createAppRequest.name} to production")
     configureEbridgeIfRequired(
       http
@@ -92,7 +95,7 @@ abstract private[thirdpartyapplication] class AbstractThirdPartyApplicationConne
 class SubordinateThirdPartyApplicationConnector @Inject() (
     @Named("subordinate") override val config: AbstractThirdPartyApplicationConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractThirdPartyApplicationConnector {
 
   lazy val useProxy: Boolean   = config.applicationUseProxy
@@ -108,12 +111,12 @@ class SubordinateThirdPartyApplicationConnector @Inject() (
 class PrincipalThirdPartyApplicationConnector @Inject() (
     @Named("principal") override val config: AbstractThirdPartyApplicationConnector.Config,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends AbstractThirdPartyApplicationConnector {
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
 
-  def getLinkedSubordinateApplicationId(principalApplicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationId]] = {
+  def getLinkedSubordinateApplicationId(principalApplicationId: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationId]] = {
     http.get(url"$serviceBaseUrl/application/${principalApplicationId.value}/linked-subordinate-id")
       .execute[Option[ApplicationId]]
   }

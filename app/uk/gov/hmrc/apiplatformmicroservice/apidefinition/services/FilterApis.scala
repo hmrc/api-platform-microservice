@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 
 trait FilterApis {
 
@@ -31,13 +31,13 @@ trait FilterApis {
       )
   }
 
-  protected val isRetired: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.RETIRED
+  protected val isRetired: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.Retired
 
-  protected val isDeprecated: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.DEPRECATED
+  protected val isDeprecated: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.Deprecated
 
-  protected val isAlpha: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.ALPHA
+  protected val isAlpha: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.status == ApiStatus.Alpha
 
-  protected val isControlled: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access == ApiAccessType.CONTROLLED
+  protected val isControlled: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access == ApiAccessType.Controlled
 
   protected val isPublicAccess: ApiVersions.ApiVersionFilterFn = apiVersion => apiVersion.access.isPublic
 
@@ -50,7 +50,7 @@ trait FilterApis {
       !isSubscribed(subscriptions)(apiContext)(apiVersion)
 
   def filterOutRetiredVersions(definition: ApiDefinition): Option[ApiDefinition] = {
-    definition.filterVersions((v) => v.status != ApiStatus.RETIRED)
+    definition.filterVersions((v) => v.status != ApiStatus.Retired)
   }
 
   def filterSubscriptions(apiContext: ApiContext, subscriptions: Set[ApiIdentifier]): ApiVersions.ApiVersionFilterFn = (v) =>
@@ -89,7 +89,7 @@ trait FilterDevHubSubscriptions extends FilterApis {
 trait FilterGateKeeperSubscriptions extends FilterApis {
 
   def filterApisForGateKeeperSubscriptions(apis: List[ApiDefinition]): List[ApiDefinition] = {
-    filterApis(apiContext =>
+    filterApis((_) =>
       Some(_)
         .filterNot(isRetired)
         .isDefined

@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
-import play.api.http._
+import play.api.http.*
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, Environment}

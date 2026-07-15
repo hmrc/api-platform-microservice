@@ -39,19 +39,16 @@ case class BoxSubscriber(
     subscriptionType: SubscriptionType
   )
 
-sealed trait SubscriptionType
+enum SubscriptionType {
+  case ApiPushSubscriber, ApiPullSubscriber
+}
 
 object SubscriptionType {
-  val values: Set[SubscriptionType] = Set(API_PUSH_SUBSCRIBER, API_PULL_SUBSCRIBER)
-
-  case object API_PUSH_SUBSCRIBER extends SubscriptionType
-  case object API_PULL_SUBSCRIBER extends SubscriptionType
-
-  def apply(text: String): Option[SubscriptionType] = SubscriptionType.values.find(_.toString.toUpperCase == text.toUpperCase())
+  def apply(text: String): Option[SubscriptionType] = SubscriptionType.values.find(_.toString.equalsIgnoreCase(text))
 
   import play.api.libs.json.Format
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
-  implicit val format: Format[SubscriptionType] = SealedTraitJsonFormatting.createFormatFor[SubscriptionType]("SubscriptionType", apply)
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
+  implicit val format: Format[SubscriptionType] = SimpleEnumJsonFormatting.createEnumFormatFor[SubscriptionType]("SubscriptionType", apply)
 }
 
 sealed trait Subscriber {

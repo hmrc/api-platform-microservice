@@ -18,18 +18,19 @@ package uk.gov.hmrc.apiplatformmicroservice.apidefinition.services
 
 import scala.concurrent.Future
 
-import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.scalatest.prop.TableDrivenPropertyChecks.*
 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{ApiDefinitionConnector, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiDefinitionTestDataHelper, DisplayApiEvent, ResourceId}
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformmicroservice.metrics.{API, ApiMetrics, Timer}
 
-class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with MockitoSugar with ArgumentMatchersSugar {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -79,7 +80,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
   class SetupPrincipal extends AbstractSetup {
 
-    val mockConnector = mock[PrincipalApiDefinitionConnector]
+    val mockConnector: PrincipalApiDefinitionConnector = mock[PrincipalApiDefinitionConnector]
 
     val svc: ApiDefinitionService =
       new PrincipalApiDefinitionService(mockConnector, mockApiMetrics)
@@ -87,11 +88,11 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
   class SetupSubordinate(isEnabled: Boolean) extends AbstractSetup {
 
-    val mockConnector = mock[SubordinateApiDefinitionConnector]
+    val mockConnector: SubordinateApiDefinitionConnector = mock[SubordinateApiDefinitionConnector]
 
     val config = SubordinateApiDefinitionService.Config(enabled = isEnabled)
 
-    val svc: ApiDefinitionService =
+    val svc: SubordinateApiDefinitionService =
       new SubordinateApiDefinitionService(mockConnector, config, mockApiMetrics)
   }
 
@@ -170,7 +171,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val expected   = Some(mock[ApiDefinition])
           val mockFuture = Future.successful(expected)
 
-          when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
+          when(mockConnector.fetchApiDefinition(eqTo(serviceName))(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchDefinition(serviceName))
@@ -185,7 +186,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.failed(new RuntimeException)
 
-          when(mockConnector.fetchApiDefinition(eqTo(serviceName))(any))
+          when(mockConnector.fetchApiDefinition(eqTo(serviceName))(using *))
             .thenReturn(mockFuture)
 
           intercept[RuntimeException] {
@@ -201,7 +202,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.successful(List(api1, api2))
 
-          when(mockConnector.fetchAllApiDefinitions(any))
+          when(mockConnector.fetchAllApiDefinitions(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchAllNonOpenAccessApiDefinitions)
@@ -216,7 +217,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.failed(new RuntimeException)
 
-          when(mockConnector.fetchAllApiDefinitions(any))
+          when(mockConnector.fetchAllApiDefinitions(using *))
             .thenReturn(mockFuture)
 
           intercept[RuntimeException] {
@@ -232,7 +233,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.successful(List(api1, api2))
 
-          when(mockConnector.fetchAllApiDefinitions(any))
+          when(mockConnector.fetchAllApiDefinitions(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchAllOpenAccessApiDefinitions)
@@ -247,7 +248,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.successful(List(api1, api3))
 
-          when(mockConnector.fetchAllApiDefinitions(any))
+          when(mockConnector.fetchAllApiDefinitions(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchAllOpenAccessApiDefinitions)
@@ -262,7 +263,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
 
           val mockFuture = Future.failed(new RuntimeException)
 
-          when(mockConnector.fetchAllApiDefinitions(any))
+          when(mockConnector.fetchAllApiDefinitions(using *))
             .thenReturn(mockFuture)
 
           intercept[RuntimeException] {
@@ -280,7 +281,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val mockFuture = Future.successful(result)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(using *)
           )
             .thenReturn(mockFuture)
 
@@ -296,7 +297,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val mockFuture = Future.failed(new RuntimeException)
 
           when(
-            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(any)
+            mockConnector.fetchApiDocumentationResource(eqTo(resourceId))(using *)
           )
             .thenReturn(mockFuture)
 
@@ -314,7 +315,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val expected   = List(mock[DisplayApiEvent])
           val mockFuture = Future.successful(expected)
 
-          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(true))(any))
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(true))(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchApiEvents(serviceName))
@@ -330,7 +331,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec with ApiDefinitionTestDataH
           val expected   = List(mock[DisplayApiEvent])
           val mockFuture = Future.successful(expected)
 
-          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(false))(any))
+          when(mockConnector.fetchApiEvents(eqTo(serviceName), eqTo(false))(using *))
             .thenReturn(mockFuture)
 
           val actual = await(svc.fetchApiEvents(serviceName, includeNoChange = false))

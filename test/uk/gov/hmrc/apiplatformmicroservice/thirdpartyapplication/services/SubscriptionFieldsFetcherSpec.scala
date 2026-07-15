@@ -18,16 +18,18 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.domain.models.ThreeDMap
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.mocks.*
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
 
-class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionFieldsConnectorModule {
+class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionFieldsConnectorModule with MockitoSugar with ArgumentMatchersSugar {
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val context1 = ApiContext("C1")
@@ -42,7 +44,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
   private val fieldName2 = FieldName("Fb")
   private val fieldName3 = FieldName("Fc")
 
-  def fieldDef(c: String, v: String, f: String) = FieldDefinition(FieldName(s"F$c$v$f"), s"field $f", "", FieldDefinitionType.STRING, s"short $f", None)
+  def fieldDef(c: String, v: String, f: String) = FieldDefinition(FieldName(s"F$c$v$f"), s"field $f", "", FieldDefinitionType.PlainText, s"short $f", None)
 
   def fv(c: Int, v: Int, f: Int) = FieldValue(s"$c-$v-$f")
 
@@ -121,7 +123,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
     in.flatMap(tupleXY =>
       tupleXY._2.flatMap(tupleYZ =>
         tupleYZ._2.map {
-          case (z, v) => (tupleXY._1, tupleYZ._1, z)
+          case (z, _) => (tupleXY._1, tupleYZ._1, z)
         }
       )
     )
@@ -156,7 +158,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
         ApiIdentifier(context2, version1)
       )
 
-      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
+      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.Sandbox, ClientId("1"), subs))
 
       result.keys should contain.allOf(context1, context2)
 
@@ -183,7 +185,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
         ApiIdentifier(context3, version1)
       )
 
-      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
+      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.Sandbox, ClientId("1"), subs))
 
       // Subscribed to contexts
       contexts(result) should contain.allOf(context1, context2, context3)
@@ -213,7 +215,7 @@ class SubscriptionFieldsFetcherSpec extends AsyncHmrcSpec with SubscriptionField
         ApiIdentifier(context4, version1)
       )
 
-      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.SANDBOX, ClientId("1"), subs))
+      val result = await(fetcher.fetchFieldValuesWithDefaults(Environment.Sandbox, ClientId("1"), subs))
 
       // Subscribed to contexts
       contexts(result) should contain(context4)

@@ -20,12 +20,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import org.apache.pekko.pattern.FutureTimeoutSupport
-import org.apache.pekko.stream.Materializer
 
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StreamHttpReadsInstances}
 
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.SubordinateApiDefinitionConnector.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.EbridgeConfigurator
@@ -35,16 +34,15 @@ class SubordinateApiDefinitionConnector @Inject() (
     val config: Config,
     val http: HttpClientV2,
     val futureTimeout: FutureTimeoutSupport
-  )(implicit val ec: ExecutionContext,
-    val mat: Materializer
-  ) extends ApiDefinitionConnector with ApplicationLogger {
+  )(using ExecutionContext
+  ) extends ApiDefinitionConnector with ApplicationLogger with StreamHttpReadsInstances {
 
   lazy val configureEbridgeIfRequired: RequestBuilder => RequestBuilder =
     EbridgeConfigurator.configure(config.useProxy, config.bearerToken, config.apiKey)
 
   val serviceBaseUrl: String = config.serviceBaseUrl
 
-  override def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+  override def fetchApiDocumentationResource(resourceId: ResourceId)(using HeaderCarrier): Future[Option[HttpResponse]] = {
     val theUrl = documentationUrl(resourceId)
 
     logger.info(s"${this.getClass.getSimpleName} - S - fetchApiDocumentationResource. Url: $theUrl")

@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldErrorMap, FieldNameFixtures, FieldsFixtures}
 import uk.gov.hmrc.apiplatformmicroservice.utils.PrincipalAndSubordinateWireMockSetup
 

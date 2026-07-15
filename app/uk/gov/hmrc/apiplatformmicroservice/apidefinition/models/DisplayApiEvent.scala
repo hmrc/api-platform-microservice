@@ -29,7 +29,7 @@ final case class ApiEventId(value: UUID) extends AnyVal
 object ApiEventId {
   def random: ApiEventId = ApiEventId(UUID.randomUUID())
 
-  implicit val eventIdJf: Format[ApiEventId] = Json.valueFormat[ApiEventId]
+  given Format[ApiEventId] = Json.valueFormat[ApiEventId]
 }
 
 case class DisplayApiEvent(
@@ -42,5 +42,5 @@ case class DisplayApiEvent(
   )
 
 object DisplayApiEvent {
-  implicit val format: OFormat[DisplayApiEvent] = Json.format[DisplayApiEvent]
+  given OFormat[DisplayApiEvent] = Json.format[DisplayApiEvent]
 }

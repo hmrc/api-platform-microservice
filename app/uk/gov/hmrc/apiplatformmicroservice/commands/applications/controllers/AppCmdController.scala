@@ -23,13 +23,13 @@ import cats.data.NonEmptyList
 import cats.implicits.catsStdInstancesForFuture
 
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
 import uk.gov.hmrc.apiplatform.modules.common.services.EitherTHelper
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.AppCmdConnector
 import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.AppCmdPreprocessor
 import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
@@ -45,7 +45,7 @@ class AppCmdController @Inject() (
     preprocessor: AppCmdPreprocessor,
     cmdConnector: AppCmdConnector,
     cc: ControllerComponents
-  )(implicit val ec: ExecutionContext
+  )(using ExecutionContext
   ) extends BackendController(cc)
     with ActionBuilders
     with ApplicationLogger {

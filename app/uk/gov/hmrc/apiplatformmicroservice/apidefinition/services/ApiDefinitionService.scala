@@ -35,7 +35,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
   def connector: ApiDefinitionConnector
   def enabled: Boolean
 
-  def fetchDefinition(serviceName: ServiceName)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApiDefinition]] = {
+  def fetchDefinition(serviceName: ServiceName)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApiDefinition]] = {
     lazy val failFn = (e: Throwable) => s"fetchDefinition($serviceName) failed $e"
 
     if (enabled) {
@@ -49,7 +49,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchAllApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
+  def fetchAllApiDefinitions(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     lazy val failFn = (e: Throwable) => s"FetchAllApiDefinitions failed $e"
 
     if (enabled) {
@@ -63,21 +63,21 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchAllNonOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
+  def fetchAllNonOpenAccessApiDefinitions(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
       open     = allApis.filterNot(_.isOpenAccess)
     } yield open
   }
 
-  def fetchAllOpenAccessApiDefinitions(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
+  def fetchAllOpenAccessApiDefinitions(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApiDefinition]] = {
     for {
       allApis <- fetchAllApiDefinitions
       open     = allApis.filter(_.isOpenAccess)
     } yield open
   }
 
-  def fetchApiDocumentationResource(resourceId: ResourceId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HttpResponse]] = {
+  def fetchApiDocumentationResource(resourceId: ResourceId)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HttpResponse]] = {
     import resourceId._
     lazy val failFn = (e: Throwable) => s"fetchApiDocumentationResource($serviceName, $versionNbr, $resource) failed $e"
 
@@ -92,7 +92,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
+  def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName, $version) failed $e"
 
     if (enabled) {
@@ -106,7 +106,7 @@ abstract class ApiDefinitionService extends LogWrapper with RecordMetrics {
     }
   }
 
-  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[DisplayApiEvent]] = {
+  def fetchApiEvents(serviceName: ServiceName, includeNoChange: Boolean = true)(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[DisplayApiEvent]] = {
     lazy val failFn = (e: Throwable) => s"fetchApiSpecification($serviceName) failed $e"
 
     if (enabled) {

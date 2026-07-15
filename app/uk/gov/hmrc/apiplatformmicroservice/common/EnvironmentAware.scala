@@ -22,7 +22,7 @@ trait EnvironmentAware[C] {
 
   def apply(environment: Environment): C = {
     environment match {
-      case Environment.PRODUCTION => principal
+      case Environment.Production => principal
       case _                      => subordinate
     }
   }

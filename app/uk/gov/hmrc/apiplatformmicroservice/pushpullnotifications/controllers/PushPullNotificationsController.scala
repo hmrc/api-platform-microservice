@@ -19,18 +19,16 @@ package uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import org.apache.pekko.stream.Materializer
-
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseResourceHelper
-import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters._
+import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters.*
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
 
 @Singleton()
-class PushPullNotificationsController @Inject() (boxFetcher: BoxFetcher, cc: ControllerComponents)(implicit override val ec: ExecutionContext, override val mat: Materializer)
+class PushPullNotificationsController @Inject() (boxFetcher: BoxFetcher, cc: ControllerComponents)(using ExecutionContext)
     extends BackendController(cc) with StreamedResponseResourceHelper {
 
   def getAll(): Action[AnyContent] = Action.async { implicit request =>

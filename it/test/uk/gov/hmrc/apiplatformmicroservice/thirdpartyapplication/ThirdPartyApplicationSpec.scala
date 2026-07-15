@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 
-import play.api.http.HeaderNames._
-import play.api.http.MimeTypes._
-import play.api.http.Status._
+import play.api.http.HeaderNames.*
+import play.api.http.MimeTypes.*
+import play.api.http.Status.*
 import play.api.libs.ws.WSClient
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
@@ -31,8 +31,8 @@ class ThirdPartyApplicationSpec extends WireMockSpec with ApplicationMock {
 
     "stub get request for fetching an application" in {
       val applicationId = ApplicationId.random
-      mockFetchApplicationWithFieldsNotFound(Environment.SANDBOX, applicationId)
-      mockFetchApplicationWithFields(Environment.PRODUCTION, applicationId)
+      mockFetchApplicationWithFieldsNotFound(Environment.Sandbox, applicationId)
+      mockFetchApplicationWithFields(Environment.Production, applicationId)
 
       val response = await(wsClient.url(s"$baseUrl/applications/$applicationId")
         .withHttpHeaders(ACCEPT -> JSON)

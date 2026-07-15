@@ -19,12 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.testkit.NoMaterializer
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.BeforeAndAfterAll
 
 import play.api.libs.json.Json
-import play.api.test.Helpers.{status, _}
+import play.api.test.Helpers.{status, *}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -35,21 +36,15 @@ import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.controllers.Pus
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.domain.services.PushPullNotificationJsonFormatters
 import uk.gov.hmrc.apiplatformmicroservice.pushpullnotifications.services.BoxFetcher
 
-class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApiDefinitionTestDataHelper with PushPullNotificationJsonFormatters {
+class PushPullNotificationsControllerSpec
+    extends AsyncHmrcSpec
+    with BeforeAndAfterAll
+    with ApiDefinitionTestDataHelper
+    with PushPullNotificationJsonFormatters
+    with MockitoSugar
+    with ArgumentMatchersSugar {
 
-  var as: ActorSystem            = _
-  implicit var mat: Materializer = _
-
-  override protected def beforeAll(): Unit = {
-    as = ActorSystem("test")
-    mat = Materializer(as)
-  }
-
-  override protected def afterAll(): Unit = {
-    mat = null
-    await(as.terminate())
-    as = null
-  }
+  given Materializer = NoMaterializer
 
   trait Setup extends BoxBuilder {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
@@ -65,7 +60,7 @@ class PushPullNotificationsControllerSpec extends AsyncHmrcSpec with BeforeAndAf
     "return a list of boxes" in new Setup {
       val boxes = List(buildBox("1"))
 
-      when(mockBoxFetcher.fetchAllBoxes()(*)).thenReturn(successful(boxes))
+      when(mockBoxFetcher.fetchAllBoxes()(using *)).thenReturn(successful(boxes))
 
       val result = controller.getAll()(FakeRequest("GET", "/"))
 

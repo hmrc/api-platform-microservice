@@ -20,30 +20,25 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.EnvironmentAwareSubscriptionFieldsConnector
-import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.services.SubscriptionFieldsService
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, QueryConnector}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.QueryConnector
 
 @Singleton
 class ApplicationByIdFetcher @Inject() (
-    thirdPartyApplicationConnector: EnvironmentAwareThirdPartyApplicationConnector,
-    queryConnector: QueryConnector,
-    subscriptionFieldsConnector: EnvironmentAwareSubscriptionFieldsConnector,
-    subscriptionFieldsService: SubscriptionFieldsService
-  )(implicit ec: ExecutionContext
+    queryConnector: QueryConnector
+  )(using ExecutionContext
   ) extends Recoveries {
 
-  def fetchApplication(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def fetchApplication(id: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     val qry                                                          = ApplicationQuery.ById(id, Nil)
     val subordinateApp: Future[Option[ApplicationWithCollaborators]] =
-      queryConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX, qry) recover recoverWithDefault(None)
-    val principalApp: Future[Option[ApplicationWithCollaborators]]   = queryConnector.query[Option[ApplicationWithCollaborators]](Environment.PRODUCTION, qry)
+      queryConnector.query[Option[ApplicationWithCollaborators]](Environment.Sandbox, qry) recover recoverWithDefault(None)
+    val principalApp: Future[Option[ApplicationWithCollaborators]]   = queryConnector.query[Option[ApplicationWithCollaborators]](Environment.Production, qry)
 
     for {
       subordinate <- subordinateApp
@@ -51,11 +46,11 @@ class ApplicationByIdFetcher @Inject() (
     } yield principal.orElse(subordinate)
   }
 
-  def fetchApplicationWithSubscriptionFields(id: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
+  def fetchApplicationWithSubscriptionFields(id: ApplicationId)(using HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     val qry                                                               = ApplicationQuery.ById(id, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
     val subordinateApp: Future[Option[ApplicationWithSubscriptionFields]] =
-      queryConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX, qry) recover recoverWithDefault(None)
-    val principalApp: Future[Option[ApplicationWithSubscriptionFields]]   = queryConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION, qry)
+      queryConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Sandbox, qry) recover recoverWithDefault(None)
+    val principalApp: Future[Option[ApplicationWithSubscriptionFields]]   = queryConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Production, qry)
 
     for {
       subordinate <- subordinateApp

@@ -23,12 +23,12 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors._
-import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.connectors.*
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.domain.models.*
 
 trait AppCmdConnectorMockModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   object AppCmdConnectorMock {
     val aMock = mock[AppCmdConnector]
@@ -38,11 +38,11 @@ trait AppCmdConnectorMockModule {
       import cats.syntax.either._
 
       def verifyNoCommandsIssued() = {
-        verify(aMock, never).dispatch(*[ApplicationId], *)(*)
+        verify(aMock, never).dispatch(*[ApplicationId], *)(using *)
       }
 
       def verifyCalledWith(cmd: ApplicationCommand, emails: Set[LaxEmailAddress]) = {
-        verify(aMock, atLeastOnce).dispatch(*[ApplicationId], eqTo(DispatchRequest(cmd, emails)))(*)
+        verify(aMock, atLeastOnce).dispatch(*[ApplicationId], eqTo(DispatchRequest(cmd, emails)))(using *)
       }
 
       object Dispatch {
@@ -50,15 +50,15 @@ trait AppCmdConnectorMockModule {
         val mockResult = mock[DispatchSuccessResult]
 
         def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(mockResult.asRight[Types.Failures]))
+          when(aMock.dispatch(*[ApplicationId], *)(using *)).thenReturn(successful(mockResult.asRight[Types.Failures]))
         }
 
         def succeedsWith(application: ApplicationWithCollaborators) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
+          when(aMock.dispatch(*[ApplicationId], *)(using *)).thenReturn(successful(DispatchSuccessResult(application).asRight[Types.Failures]))
         }
 
         def failsWith(failure: CommandFailure, failures: CommandFailure*) = {
-          when(aMock.dispatch(*[ApplicationId], *)(*)).thenReturn(successful(NonEmptyList.of(failure, failures: _*).asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *)(using *)).thenReturn(successful(NonEmptyList.of(failure, failures*).asLeft[DispatchSuccessResult]))
         }
       }
     }

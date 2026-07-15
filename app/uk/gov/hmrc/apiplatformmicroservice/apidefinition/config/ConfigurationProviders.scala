@@ -27,6 +27,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.{FutureTimeoutSupportImpl, PrincipalApiDefinitionConnector, SubordinateApiDefinitionConnector}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
+import uk.gov.hmrc.apiplatformmicroservice.commands.applications.services.{SubscribeToApiPreprocessor, SubscribeToApiPreprocessorImpl}
 import uk.gov.hmrc.apiplatformmicroservice.common.ServicesConfigBridgeExtension
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 
@@ -40,6 +41,8 @@ class ConfigurationModule extends AbstractModule {
 
     bind(classOf[ApiDefinitionService]).annotatedWith(named("subordinate")).to(classOf[SubordinateApiDefinitionService])
     bind(classOf[ApiDefinitionService]).annotatedWith(named("principal")).to(classOf[PrincipalApiDefinitionService])
+
+    bind(classOf[SubscribeToApiPreprocessor]).to(classOf[SubscribeToApiPreprocessorImpl])
 
     bind(classOf[AuthConnector.Config]).toProvider(classOf[AuthConfigProvider])
   }

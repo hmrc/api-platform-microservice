@@ -18,15 +18,15 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 
 import scala.concurrent.ExecutionContext
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId, *}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
@@ -48,9 +48,9 @@ class ThirdPartyApplicationConnectorISpec
 
   trait Setup {
 
-    implicit val hc: HeaderCarrier    = HeaderCarrier()
-    val httpClient                    = app.injector.instanceOf[HttpClientV2]
-    implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    val httpClient                 = app.injector.instanceOf[HttpClientV2]
+    given ExecutionContext         = app.injector.instanceOf[ExecutionContext]
 
     val apiKeyTest = "5bb51bca-8f97-4f2b-aee4-81a4a70a42d3"
     val bearer     = "TestBearerToken"
@@ -89,11 +89,12 @@ class ThirdPartyApplicationConnectorISpec
       name = ApplicationName("V2 Create Application Request"),
       access = StandardAccessDataToCopy(standardAccess.redirectUris, standardAccess.postLogoutRedirectUris, standardAccess.overrides),
       description = None,
-      environment = Environment.PRODUCTION,
+      environment = Environment.Production,
       collaborators = collaborators,
       upliftRequest = makeUpliftRequest(ApiIdentifier.random),
       "bob@example.com",
-      ApplicationId.random
+      ApplicationId.random,
+      None
     )
   }
 

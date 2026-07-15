@@ -20,6 +20,8 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, UserId}
 
+// N.B. Commented code rather than removing it as we're waiting to restore service-as-is once Play supports path bindables for opaque types
+
 package object binders {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
@@ -30,16 +32,16 @@ package object binders {
     UserId.apply(text).toRight(s"Cannot accept $text as UserId")
   }
 
-  implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+  // implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
 
-    override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).flatMap(applicationIdFromString)
-    }
+  //   override def bind(key: String, value: String): Either[String, ApplicationId] = {
+  //     textBinder.bind(key, value).flatMap(applicationIdFromString)
+  //   }
 
-    override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.toString()
-    }
-  }
+  //   override def unbind(key: String, applicationId: ApplicationId): String = {
+  //     applicationId.toString()
+  //   }
+  // }
 
   implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApplicationId] = new QueryStringBindable[ApplicationId] {
 
@@ -84,16 +86,16 @@ package object binders {
     }
   }
 
-  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+  // implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
 
-    override def bind(key: String, value: String): Either[String, UserId] = {
-      textBinder.bind(key, value).flatMap(userIdFromString)
-    }
+  //   override def bind(key: String, value: String): Either[String, UserId] = {
+  //     textBinder.bind(key, value).flatMap(userIdFromString)
+  //   }
 
-    override def unbind(key: String, userId: UserId): String = {
-      userId.toString
-    }
-  }
+  //   override def unbind(key: String, userId: UserId): String = {
+  //     userId.toString
+  //   }
+  // }
 
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 

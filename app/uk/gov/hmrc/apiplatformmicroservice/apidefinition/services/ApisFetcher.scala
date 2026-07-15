@@ -30,7 +30,7 @@ class ApisFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchAllForEnvironment(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllForEnvironment(environment: Environment)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     apiDefinitionService(environment).fetchAllApiDefinitions
   }
 }

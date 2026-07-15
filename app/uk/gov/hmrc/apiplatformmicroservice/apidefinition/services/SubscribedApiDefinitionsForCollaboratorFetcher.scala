@@ -21,8 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
@@ -33,7 +33,7 @@ class SubscribedApiDefinitionsForCollaboratorFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Recoveries with FilterApis {
 
-  def fetch(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(userId: UserId)(using HeaderCarrier): Future[List[ApiDefinition]] = {
     for {
       apiDefinitions <- apiDefinitionsForCollaboratorFetcher.fetch(Some(userId))
       subscriptions  <- subscriptionsForCollaboratorFetcher.fetch(userId)

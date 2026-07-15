@@ -24,19 +24,20 @@ import org.apache.pekko.stream.testkit.NoMaterializer
 
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
+import play.api.libs.ws.{JsonBodyReadables, JsonBodyWritables}
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, UserId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.mocks.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.StreamedResponseHelper.PROXY_SAFE_CONTENT_TYPE
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper {
+class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with JsonBodyWritables with JsonBodyReadables {
 
   trait Setup
       extends ApiDefinitionsForCollaboratorFetcherModule
@@ -92,7 +93,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return an empty when there are no api definitions available" in new Setup {
-      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
+      ApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty*)
 
       val result = controller.fetchApiDefinitionsForCollaborator(userId)(request)
 
@@ -123,7 +124,7 @@ class ExtendedApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefiniti
     }
 
     "return an empty List when there are no api definitions available" in new Setup {
-      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty: _*)
+      SubscribedApiDefinitionsForCollaboratorFetcherMock.willReturnApiDefinitions(List.empty*)
 
       val result = controller.fetchSubscribedApiDefinitionsForCollaborator(userId)(request)
 

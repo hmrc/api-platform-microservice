@@ -71,7 +71,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting an api definition" should {
 
       "call the underlying http client" in new Setup {
-        whenGetDefinition(Environment.PRODUCTION)(serviceName, apiDefinitionFromJson(apiName1))
+        whenGetDefinition(Environment.Production)(serviceName, apiDefinitionFromJson(apiName1))
 
         val result = await(connector.fetchApiDefinition(serviceName))
 
@@ -80,7 +80,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "throw an exception correctly" in new Setup {
-        whenGetDefinitionFails(Environment.PRODUCTION)(serviceName, 500)
+        whenGetDefinitionFails(Environment.Production)(serviceName, 500)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchApiDefinition(serviceName))
@@ -88,7 +88,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "return none when nothing found" in new Setup {
-        whenGetDefinitionFindsNothing(Environment.PRODUCTION)(serviceName)
+        whenGetDefinitionFindsNothing(Environment.Production)(serviceName)
 
         val result = await(connector.fetchApiDefinition(serviceName))
         result should not be Symbol("defined")
@@ -98,7 +98,7 @@ class PrincipalApiDefinitionConnectorSpec
     "when requesting all api definitions" should {
 
       "call the underlying http client with the type argument set to all" in new Setup {
-        whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinitionFromJson(apiName1), apiDefinitionFromJson(apiName2))
+        whenGetAllDefinitions(Environment.Production)(apiDefinitionFromJson(apiName1), apiDefinitionFromJson(apiName2))
 
         val result = await(connector.fetchAllApiDefinitions)
 
@@ -107,14 +107,14 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "do not throw exception when not found but instead return empty List" in new Setup {
-        whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
+        whenGetAllDefinitionsFindsNothing(Environment.Production)
 
         val result = await(connector.fetchAllApiDefinitions)
         result shouldEqual List.empty
       }
 
       "throw an exception correctly" in new Setup {
-        whenGetAllDefinitionsFails(Environment.PRODUCTION)(500)
+        whenGetAllDefinitionsFails(Environment.Production)(500)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchAllApiDefinitions)
@@ -125,7 +125,7 @@ class PrincipalApiDefinitionConnectorSpec
     "fetchApiSpecification" should {
       "call out and get json value" in new Setup {
         val jsValue: JsValue = Json.parse("""{ "x": 1 }""")
-        whenFetchApiSpecification(Environment.PRODUCTION)(serviceName, version, jsValue)
+        whenFetchApiSpecification(Environment.Production)(serviceName, version, jsValue)
 
         val result = await(connector.fetchApiSpecification(serviceName, version))
 
@@ -133,7 +133,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
     }
     "call out and get no value" in new Setup {
-      whenFetchApiSpecificationFindsNothing(Environment.PRODUCTION)(serviceName, version)
+      whenFetchApiSpecificationFindsNothing(Environment.Production)(serviceName, version)
 
       val result = await(connector.fetchApiSpecification(serviceName, version))
 
@@ -144,7 +144,7 @@ class PrincipalApiDefinitionConnectorSpec
 
       "call the underlying http client" in new Setup {
         val displayApiEvent = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
-        whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent))
+        whenGetApiEvents(Environment.Production)(serviceName, List(displayApiEvent))
 
         val result = await(connector.fetchApiEvents(serviceName))
 
@@ -153,7 +153,7 @@ class PrincipalApiDefinitionConnectorSpec
 
       "call the underlying http client, requesting to exclude no change events" in new Setup {
         val displayApiEvent = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
-        whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent), includeNoChange = false)
+        whenGetApiEvents(Environment.Production)(serviceName, List(displayApiEvent), includeNoChange = false)
 
         val result = await(connector.fetchApiEvents(serviceName, includeNoChange = false))
 
@@ -161,7 +161,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "throw an exception correctly" in new Setup {
-        whenGetApiEventsFails(Environment.PRODUCTION)(serviceName, 500)
+        whenGetApiEventsFails(Environment.Production)(serviceName, 500)
 
         intercept[UpstreamErrorResponse] {
           await(connector.fetchApiEvents(serviceName))
@@ -169,7 +169,7 @@ class PrincipalApiDefinitionConnectorSpec
       }
 
       "return empty list when no events found" in new Setup {
-        whenGetApiEventsFindsNothing(Environment.PRODUCTION)(serviceName)
+        whenGetApiEventsFindsNothing(Environment.Production)(serviceName)
 
         val result = await(connector.fetchApiEvents(serviceName))
         result shouldEqual List.empty

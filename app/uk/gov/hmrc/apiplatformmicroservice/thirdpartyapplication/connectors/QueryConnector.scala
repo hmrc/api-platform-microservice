@@ -19,13 +19,13 @@ package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
-import uk.gov.hmrc.apiplatformmicroservice.metrics._
+import uk.gov.hmrc.apiplatformmicroservice.metrics.*
 
 object QueryConnector {
   case class Config(tpoBaseUrl: String)
@@ -44,20 +44,14 @@ class QueryConnector @Inject() (
 
   val api = API("third-party-orchestrator")
 
-  def query[T](environment: Environment, qry: Map[String, Seq[String]])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
-
-    val simplifiedQry = qry.map {
-      case (k, vs) => k -> vs.mkString
-    }
-
+  def query[T](environment: Environment, qry: Map[String, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
     http
-      .get(url"${tpoBaseUrl}/environment/$environment/query?$simplifiedQry")
+      .get(url"${tpoBaseUrl}/environment/${environment.toString.toUpperCase}/query?$qry")
       .execute[T]
   }
 
   def query[T](environment: Environment, qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
-    val params = QueryParamsToQueryStringMap.toQuery(qry)
-
+    val params = QueryParamsToQueryStringMap.toHttpQueryString(qry)
     query(environment, params)
   }
 }

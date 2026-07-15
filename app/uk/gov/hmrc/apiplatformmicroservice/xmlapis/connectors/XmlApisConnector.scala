@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
@@ -35,14 +35,14 @@ class XmlApisConnector @Inject() (http: HttpClientV2, appConfig: XmlApisConnecto
 
   private lazy val serviceBaseUrl: String = appConfig.serviceBaseUrl
 
-  def fetchAllXmlApis()(implicit hc: HeaderCarrier): Future[Seq[XmlApi]] = {
+  def fetchAllXmlApis()(using HeaderCarrier): Future[Seq[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchAllXmlApis")
     http.get(url"$serviceBaseUrl/api-platform-xml-services/xml/apis")
       .execute[Seq[XmlApi]]
       .recover(recovery)
   }
 
-  def fetchXmlApiByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[XmlApi]] = {
+  def fetchXmlApiByServiceName(serviceName: ServiceName)(using HeaderCarrier): Future[Option[XmlApi]] = {
     logger.info(s"${this.getClass.getSimpleName} - fetchXmlApiByName $serviceName")
     http.get(url"$serviceBaseUrl/api-platform-xml-services/xml/api?serviceName=$serviceName")
       .execute[Option[XmlApi]]

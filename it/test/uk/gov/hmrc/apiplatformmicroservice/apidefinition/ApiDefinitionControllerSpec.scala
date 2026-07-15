@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.apidefinition
 
-import java.{util => ju}
+import java.util as ju
 
-import play.api.http.HeaderNames._
-import play.api.http.MimeTypes._
-import play.api.http.Status._
-import play.api.libs.json._
+import play.api.http.HeaderNames.*
+import play.api.http.MimeTypes.*
+import play.api.http.Status.*
+import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.{PRODUCTION, SANDBOX}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ClientId, Environment, *}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{ApiEventId, DisplayApiEvent}
 import uk.gov.hmrc.apiplatformmicroservice.common.builder.DefinitionsFromJson
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.SubscriptionFieldValuesMock
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.ApplicationMock
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import uk.gov.hmrc.apiplatformmicroservice.utils.*
 
 class ApiDefinitionControllerSpec extends WireMockSpec
     with ApplicationMock with ApiDefinitionMock with SubscriptionFieldValuesMock with DefinitionsFromJson with FixedClock {
@@ -44,9 +43,9 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val applicationId = ApplicationId.random
       val clientId      = ClientId(ju.UUID.randomUUID.toString)
 
-      mockFetchApplicationWithFields(Environment.PRODUCTION, applicationId, clientId)
-      mockBulkFetchFieldDefinitions(Environment.PRODUCTION, clientId)
-      mockFetchApiDefinition(Environment.PRODUCTION)
+      mockFetchApplicationWithFields(Environment.Production, applicationId, clientId)
+      mockBulkFetchFieldDefinitions(Environment.Production, clientId)
+      mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
         .withQueryStringParameters("applicationId" -> applicationId.value.toString)
@@ -60,7 +59,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.Retired)) shouldBe false }
 
       val defn        = result.find(_.context == ApiContext("hello")).value
       val versionKeys = defn.versions.keys.toList
@@ -77,8 +76,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
     "stub get request for fetch unrestricted subscribable apis" in {
       val applicationId = ApplicationId.random
 
-      mockFetchApplication(Environment.PRODUCTION, applicationId)
-      mockFetchApiDefinition(Environment.PRODUCTION)
+      mockFetchApplication(Environment.Production, applicationId)
+      mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
         .withQueryStringParameters("applicationId" -> applicationId.toString(), "restricted" -> "false")
@@ -92,7 +91,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       }
 
       result should not be empty
-      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.RETIRED)) shouldBe false }
+      withClue("No RETIRED status allowed: ") { result.exists(_.versions.values.exists(v => v.status == ApiStatus.Retired)) shouldBe false }
 
       val defn        = result.find(_.context == ApiContext("hello")).value
       val versionKeys = defn.versions.keys
@@ -107,7 +106,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
     }
 
     "stub get request for fetch open access apis" in {
-      mockFetchApiDefinition(Environment.PRODUCTION)
+      mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/open")
         .withQueryStringParameters("environment" -> "PRODUCTION")
@@ -128,7 +127,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
     }
 
     "stub get request for fetch non open access apis" in {
-      mockFetchApiDefinition(Environment.PRODUCTION, "USER")
+      mockFetchApiDefinition(Environment.Production, "USER")
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/nonopen")
         .withQueryStringParameters("environment" -> "PRODUCTION")
@@ -156,7 +155,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val serviceName = ServiceName("hello-world")
       val definition  = apiDefinition("Hello World")
 
-      whenGetDefinition(Environment.PRODUCTION)(serviceName, definition)
+      whenGetDefinition(Environment.Production)(serviceName, definition)
       implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
@@ -176,7 +175,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val serviceName = ServiceName("hello-world")
       val definition  = apiDefinition("Hello World")
 
-      whenGetDefinition(Environment.SANDBOX)(serviceName, definition)
+      whenGetDefinition(Environment.Sandbox)(serviceName, definition)
       implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
@@ -196,8 +195,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val serviceName = ServiceName("hello-world")
       val definition  = apiDefinition("Hello World")
 
-      whenGetDefinition(Environment.PRODUCTION)(serviceName, definition)
-      whenGetDefinition(Environment.SANDBOX)(serviceName, definition)
+      whenGetDefinition(Environment.Production)(serviceName, definition)
+      whenGetDefinition(Environment.Sandbox)(serviceName, definition)
       implicit val formatter: OFormat[Locator[ApiDefinition]] = Locator.buildLocatorFormatter[ApiDefinition]
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName")
@@ -232,8 +231,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val displayApiEvent1 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
       val displayApiEvent2 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
 
-      whenGetApiEvents(Environment.SANDBOX)(serviceName, List(displayApiEvent1))
-      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent2))
+      whenGetApiEvents(Environment.Sandbox)(serviceName, List(displayApiEvent1))
+      whenGetApiEvents(Environment.Production)(serviceName, List(displayApiEvent2))
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -246,8 +245,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
         case e: JsError      => fail(s"Bad response $e")
       }
       result shouldBe List(
-        displayApiEvent1.copy(environment = Some(SANDBOX)),
-        displayApiEvent2.copy(environment = Some(PRODUCTION))
+        displayApiEvent1.copy(environment = Some(Environment.Sandbox)),
+        displayApiEvent2.copy(environment = Some(Environment.Production))
       )
     }
 
@@ -256,8 +255,8 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val displayApiEvent1 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
       val displayApiEvent2 = DisplayApiEvent(ApiEventId.random, serviceName, instant, "Api Created", List.empty, None)
 
-      whenGetApiEvents(Environment.SANDBOX)(serviceName, List(displayApiEvent1), includeNoChange = false)
-      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List(displayApiEvent2), includeNoChange = false)
+      whenGetApiEvents(Environment.Sandbox)(serviceName, List(displayApiEvent1), includeNoChange = false)
+      whenGetApiEvents(Environment.Production)(serviceName, List(displayApiEvent2), includeNoChange = false)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events?includeNoChange=false")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -270,16 +269,16 @@ class ApiDefinitionControllerSpec extends WireMockSpec
         case e: JsError      => fail(s"Bad response $e")
       }
       result shouldBe List(
-        displayApiEvent1.copy(environment = Some(SANDBOX)),
-        displayApiEvent2.copy(environment = Some(PRODUCTION))
+        displayApiEvent1.copy(environment = Some(Environment.Sandbox)),
+        displayApiEvent2.copy(environment = Some(Environment.Production))
       )
     }
 
     "return empty list when no events exist" in {
       val serviceName = ServiceName("hello-world")
 
-      whenGetApiEvents(Environment.SANDBOX)(serviceName, List.empty)
-      whenGetApiEvents(Environment.PRODUCTION)(serviceName, List.empty)
+      whenGetApiEvents(Environment.Sandbox)(serviceName, List.empty)
+      whenGetApiEvents(Environment.Production)(serviceName, List.empty)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions/service-name/$serviceName/events")
         .withHttpHeaders(ACCEPT -> JSON)

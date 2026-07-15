@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.DisplayApiEvent
 
 @Singleton
@@ -31,7 +31,7 @@ class ApiEventsFetcher @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchApiVersionsForEnvironment(environment: Environment, serviceName: ServiceName, includeNoChange: Boolean = true)(implicit hc: HeaderCarrier): Future[List[DisplayApiEvent]] = {
+  def fetchApiVersionsForEnvironment(environment: Environment, serviceName: ServiceName, includeNoChange: Boolean = true)(using HeaderCarrier): Future[List[DisplayApiEvent]] = {
     for {
       apiEvents           <- apiDefinitionService(environment).fetchApiEvents(serviceName, includeNoChange)
       environmentApiEvents = apiEvents.map(ev => ev.copy(environment = Some(environment)))

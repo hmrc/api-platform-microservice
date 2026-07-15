@@ -3,11 +3,11 @@ import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
-  val bootstrapVersion = "10.7.0"
-  val apiDomainVersion = "1.4.0"
-  val appDomainVersion = "1.1.0"
-  val tpdDomainVersion = "0.15.0"
-  val mockitoScalaVersion = "2.0.0"
+  val bootstrapVersion = "10.7.1"
+  val apiDomainVersion = "1.5.0"
+  val appDomainVersion = "1.3.0"
+  val tpdDomainVersion = "1.0.0"
+  val mockitoScalaVersion = "2.2.1"
 
   lazy val dependencies = Seq(
     caffeine,

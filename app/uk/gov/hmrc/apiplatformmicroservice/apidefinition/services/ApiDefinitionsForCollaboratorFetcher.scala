@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, UserId}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.common.Recoveries
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.SubscriptionsForCollaboratorFetcher
 
@@ -32,10 +32,10 @@ class ApiDefinitionsForCollaboratorFetcher @Inject() (
     principalDefinitionService: PrincipalApiDefinitionService,
     subordinateDefinitionService: SubordinateApiDefinitionService,
     subscriptionsForCollaborator: SubscriptionsForCollaboratorFetcher
-  )(implicit ec: ExecutionContext
+  )(using ExecutionContext
   ) extends Recoveries with FilterApiDocumentation {
 
-  def fetch(developerId: Option[UserId])(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetch(developerId: Option[UserId])(using HeaderCarrier): Future[List[ApiDefinition]] = {
     val principalDefinitionsFuture   = principalDefinitionService.fetchAllApiDefinitions
     val subordinateDefinitionsFuture = subordinateDefinitionService.fetchAllApiDefinitions recover recoverWithDefault(List.empty[ApiDefinition])
 

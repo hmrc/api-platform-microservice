@@ -8,7 +8,7 @@ lazy val appName = "api-platform-microservice"
 
 Global / bloopAggregateSourceDependencies := true
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.7.4"
 ThisBuild / majorVersion := 0
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
@@ -23,9 +23,11 @@ lazy val root = Project(appName, file("."))
     PlayKeys.playDefaultPort := 6700,
     libraryDependencies ++= dependencies ++ testDependencies,
     routesImport ++= Seq(
-      "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders._",
-      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders._",
-      "uk.gov.hmrc.apiplatform.modules.common.domain.models._"
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders.given",
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders.RouteModels.*",
+      "uk.gov.hmrc.apiplatformmicroservice.common.controllers.binders.RouteModels.Conversions.given",
+      "uk.gov.hmrc.apiplatformmicroservice.apidefinition.controllers.binders.given",
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models.*"
     )
   )
   .settings(ScoverageSettings())

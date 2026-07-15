@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StreamHttpReadsInstances, StringContextOps}
 
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.connectors.PrincipalApiDefinitionConnector.Config
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
@@ -30,15 +30,15 @@ import uk.gov.hmrc.apiplatformmicroservice.common.ApplicationLogger
 class PrincipalApiDefinitionConnector @Inject() (
     val http: HttpClientV2,
     val config: Config
-  )(implicit val ec: ExecutionContext
-  ) extends ApiDefinitionConnector with ApplicationLogger {
+  )(using val ec: ExecutionContext
+  ) extends ApiDefinitionConnector with ApplicationLogger with StreamHttpReadsInstances {
   val serviceBaseUrl: String = config.baseUrl
 
   val configureEbridgeIfRequired: RequestBuilder => RequestBuilder = identity
 
   override def fetchApiDocumentationResource(
       resourceId: ResourceId
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[Option[HttpResponse]] = {
     val theUrl = url"${documentationUrl(resourceId)}"
 

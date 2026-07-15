@@ -20,22 +20,20 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
-import cats.implicits._
-import org.apache.pekko.stream.Materializer
+import cats.implicits.*
 
 import play.api.mvc.ControllerComponents
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services._
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 
 @Singleton()
 class ApiSpecificationController @Inject() (
     cc: ControllerComponents,
     apiSpecificationFetcher: ApiSpecificationFetcher
-  )(implicit val ec: ExecutionContext,
-    val mat: Materializer
+  )(using ExecutionContext
   ) extends BackendController(cc) {
 
   def fetchApiSpecification(serviceName: ServiceName, version: ApiVersionNbr) = Action.async { implicit request =>

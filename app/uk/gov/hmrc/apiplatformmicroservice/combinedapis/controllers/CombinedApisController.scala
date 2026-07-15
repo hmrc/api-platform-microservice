@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
-import uk.gov.hmrc.apiplatformmicroservice.common.controllers._
+import uk.gov.hmrc.apiplatformmicroservice.common.controllers.*
 
 @Singleton
 class CombinedApisController @Inject() (combinedApisService: CombinedApisService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends BackendController(cc) {

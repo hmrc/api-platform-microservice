@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import org.mockito.stubbing.ScalaOngoingStubbing
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -31,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiAccessType, ApiCat
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.services.CombinedApisService
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
 
-class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory {
+class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with MockitoSugar with ArgumentMatchersSugar {
 
   trait SetUp {
     val developerId             = Some(UserId.random)
@@ -39,16 +40,16 @@ class CombinedApisControllerSpec extends AsyncHmrcSpec with StubControllerCompon
     val objInTest               = new CombinedApisController(mockCombinedApisService, stubControllerComponents())
 
     val combinedApis = List(
-      CombinedApi("restService1", ServiceName("restService1"), Set(ApiCategory.VAT), ApiType.REST_API, ApiAccessType.PUBLIC),
-      CombinedApi("xmlService1", ServiceName("xmlService1"), Set(ApiCategory.OTHER), ApiType.XML_API, ApiAccessType.PUBLIC)
+      CombinedApi("restService1", ServiceName("restService1"), Set(ApiCategory.Vat), ApiType.RestApi, ApiAccessType.Public),
+      CombinedApi("xmlService1", ServiceName("xmlService1"), Set(ApiCategory.Other), ApiType.XmlApi, ApiAccessType.Public)
     )
 
     def primeCombinedApisService(developerId: Option[UserId], apis: List[CombinedApi]): ScalaOngoingStubbing[Future[List[CombinedApi]]] = {
-      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(*)).thenReturn(Future.successful(apis))
+      when(mockCombinedApisService.fetchCombinedApisForDeveloperId(eqTo(developerId))(using *)).thenReturn(Future.successful(apis))
     }
 
     def primeCombinedApiByServiceName(serviceName: ServiceName, apis: CombinedApi): ScalaOngoingStubbing[Future[Option[CombinedApi]]] = {
-      when(mockCombinedApisService.fetchCombinedApiByServiceName(eqTo(serviceName))(*)).thenReturn(Future.successful(Some(apis)))
+      when(mockCombinedApisService.fetchCombinedApiByServiceName(eqTo(serviceName))(using *)).thenReturn(Future.successful(Some(apis)))
     }
   }
 

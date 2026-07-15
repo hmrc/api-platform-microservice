@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.controllers
 
-import play.api.http.HeaderNames._
-import play.api.http.MimeTypes._
-import play.api.http.Status._
-import play.api.libs.ws.WSClient
+import play.api.http.HeaderNames.*
+import play.api.http.MimeTypes.*
+import play.api.http.Status.*
+import play.api.libs.ws.{DefaultBodyWritables, WSClient}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.SubscriptionFieldsMock
-import uk.gov.hmrc.apiplatformmicroservice.utils._
+import uk.gov.hmrc.apiplatformmicroservice.utils.*
 
-class SubscriptionFieldsControllerSpec extends WireMockSpec with SubscriptionFieldsMock with ApiIdentifierFixtures {
+class SubscriptionFieldsControllerSpec extends WireMockSpec with SubscriptionFieldsMock with ApiIdentifierFixtures with DefaultBodyWritables {
 
   "SubscriptionFieldsController" should {
     val wsClient = app.injector.instanceOf[WSClient]
 
     "put resulting in NOT FOUND in back end" in {
-      mockUpsertNotFound(Environment.PRODUCTION)
+      mockUpsertNotFound(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields/field/application/xyz/context/abc/version/stu?environment=PRODUCTION")
         .withHttpHeaders(ACCEPT -> JSON, CONTENT_TYPE -> JSON)
@@ -41,7 +41,7 @@ class SubscriptionFieldsControllerSpec extends WireMockSpec with SubscriptionFie
     }
 
     "put resulting in BAD REQUEST when back end responds with BAD REQUEST" in {
-      mockUpsertWithBadRequest(Environment.PRODUCTION)
+      mockUpsertWithBadRequest(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields/field/application/xyz/context/abc/version/stu?environment=PRODUCTION")
         .withHttpHeaders(ACCEPT -> JSON, CONTENT_TYPE -> JSON)
@@ -51,7 +51,7 @@ class SubscriptionFieldsControllerSpec extends WireMockSpec with SubscriptionFie
     }
 
     "put resulting in OK when back end responds with OK" in {
-      mockUpsert(Environment.PRODUCTION)
+      mockUpsert(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/subscription-fields/field/application/xyz/context/abc/version/stu?environment=PRODUCTION")
         .withHttpHeaders(ACCEPT -> JSON, CONTENT_TYPE -> JSON)

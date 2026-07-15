@@ -23,34 +23,33 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{CombinedApi, ServiceName}
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher, ExtendedApiDefinitionForCollaboratorFetcher}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{AllApisFetcher, ApiDefinitionsForCollaboratorFetcher}
 import uk.gov.hmrc.apiplatformmicroservice.combinedapis.utils.CombinedApiDataHelper.{filterOutRetiredApis, fromApiDefinition, fromXmlApi}
 import uk.gov.hmrc.apiplatformmicroservice.xmlapis.connectors.XmlApisConnector
 
 @Singleton
 class CombinedApisService @Inject() (
     apiDefinitionsForCollaboratorFetcher: ApiDefinitionsForCollaboratorFetcher,
-    extendedApiDefinitionForCollaboratorFetcher: ExtendedApiDefinitionForCollaboratorFetcher,
     xmlApisConnector: XmlApisConnector,
     allApisFetcher: AllApisFetcher
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchCombinedApisForDeveloperId(userId: Option[UserId])(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchCombinedApisForDeveloperId(userId: Option[UserId])(using HeaderCarrier): Future[List[CombinedApi]] = {
     for {
       restApis <- apiDefinitionsForCollaboratorFetcher.fetch(userId)
       xmlApis  <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition) ++ xmlApis.map(fromXmlApi)
   }
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchAllCombinedApis()(using HeaderCarrier): Future[List[CombinedApi]] = {
     for {
       restApis <- allApisFetcher.fetch().map(filterOutRetiredApis)
       xmlApis  <- xmlApisConnector.fetchAllXmlApis()
     } yield restApis.map(fromApiDefinition).distinct ++ xmlApis.map(fromXmlApi)
   }
 
-  def fetchCombinedApiByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Option[CombinedApi]] = {
+  def fetchCombinedApiByServiceName(serviceName: ServiceName)(using HeaderCarrier): Future[Option[CombinedApi]] = {
     def filterApis(apis: List[CombinedApi]): Option[CombinedApi] = apis.find(_.serviceName == serviceName)
 
     fetchAllCombinedApis().map(filterApis)

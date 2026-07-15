@@ -23,10 +23,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV2
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, _}
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.{EnvironmentAwareThirdPartyApplicationConnector, *}
 
 trait ThirdPartyApplicationConnectorModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   abstract class ThirdPartyApplicationConnectorMock {
     val aMock: ThirdPartyApplicationConnector
@@ -34,20 +34,20 @@ trait ThirdPartyApplicationConnectorModule {
     object CreateApplicationV2 {
 
       def willReturnSuccess(applcationId: ApplicationId) = {
-        when(aMock.createApplicationV2(*)(*)).thenReturn(successful(applcationId))
+        when(aMock.createApplicationV2(*)(using *)).thenReturn(successful(applcationId))
       }
 
       def willThrowException(e: Exception) = {
-        when(aMock.createApplicationV2(*)(*)).thenReturn(failed(e))
+        when(aMock.createApplicationV2(*)(using *)).thenReturn(failed(e))
       }
 
       def verifyNotCalled() = {
-        verify(aMock, never).createApplicationV2(*)(*)
+        verify(aMock, never).createApplicationV2(*)(using *)
       }
 
       def captureRequest() = {
         val capture = ArgCaptor[CreateApplicationRequestV2]
-        verify(aMock).createApplicationV2(capture)(*)
+        verify(aMock).createApplicationV2(capture)(using *)
         capture.value
       }
     }
@@ -60,9 +60,9 @@ trait ThirdPartyApplicationConnectorModule {
   object PrincipalThirdPartyApplicationConnectorMock extends ThirdPartyApplicationConnectorMock {
 
     object GetLinkedSubordinateApplicationId {
-      def thenReturn(subordinateAppId: ApplicationId) = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(Some(subordinateAppId)))
+      def thenReturn(subordinateAppId: ApplicationId) = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(using *)).thenReturn(successful(Some(subordinateAppId)))
 
-      def thenReturnNothing = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(*)).thenReturn(successful(None))
+      def thenReturnNothing = when(aMock.getLinkedSubordinateApplicationId(*[ApplicationId])(using *)).thenReturn(successful(None))
     }
     override val aMock: PrincipalThirdPartyApplicationConnector = mock[PrincipalThirdPartyApplicationConnector]
   }

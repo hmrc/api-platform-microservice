@@ -20,11 +20,10 @@ import java.util.UUID
 
 import play.api.http.ContentTypes.JSON
 import play.api.http.HeaderNames.ACCEPT
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, UserId}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType, CombinedApi, ServiceName}
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.ApiDefinitionMock
@@ -49,7 +48,7 @@ class CombinedApisControllerISpec
       serviceName = ServiceName("xml-api-1"),
       context = "xml api context",
       description = "xml api description",
-      categories = Some(List(ApiCategory.VAT))
+      categories = Some(List(ApiCategory.Vat))
     )
 
     val xmlApi2: XmlApi = xmlApi1.copy(name = "xml api 2")
@@ -57,18 +56,18 @@ class CombinedApisControllerISpec
 
     val userId = UserId(UUID.fromString("e8d1adb7-e211-4da2-89e8-2bf089a01833"))
 
-    val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory.OTHER, ApiCategory.INCOME_TAX_MTD))
-    val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory.VAT, ApiCategory.OTHER))
+    val apiDefinition1    = apiDefinition(name = "service1").copy(categories = List(ApiCategory.Other, ApiCategory.IncomeTaxMtd))
+    val apiDefinition2    = apiDefinition(name = "service2").copy(categories = List(ApiCategory.Vat, ApiCategory.Other))
     val listOfDefinitions = List(apiDefinition1, apiDefinition2)
   }
 
   "CombinedApisController" should {
     "return OK with a combination of xml and rest apis when api definitions and xml services return results" in new Setup {
 
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
-      mockFetchApiDefinition(PRODUCTION)
-      whenGetAllXmlApis(xmlApis: _*)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Sandbox, userId)
+      mockFetchSubscriptionsForDeveloper(Environment.Production, userId)
+      mockFetchApiDefinition(Environment.Production)
+      whenGetAllXmlApis(xmlApis*)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.toString()}").get())
@@ -78,15 +77,15 @@ class CombinedApisControllerISpec
       body shouldBe """[{"displayName":"Hello Another","serviceName":"api-example-another","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"Hello World","serviceName":"api-example-microservice","categories":["OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
 
       val apiList = Json.parse(body).as[Set[CombinedApi]]
-      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
-      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.XmlApi) shouldBe 2
+      apiList.count(_.apiType == ApiType.RestApi) shouldBe 2
     }
 
     "return INTERNAL_SERVER_ERROR when xml services returns Internal server error" in new Setup {
 
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
-      mockFetchSubscriptionsForDeveloper(PRODUCTION, userId)
-      mockFetchApiDefinition(PRODUCTION)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Sandbox, userId)
+      mockFetchSubscriptionsForDeveloper(Environment.Production, userId)
+      mockFetchApiDefinition(Environment.Production)
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
@@ -98,8 +97,8 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when api definition returns Internal server error" in new Setup {
 
-      whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
-      whenGetAllXmlApis(xmlApis: _*)
+      whenGetAllDefinitionsFails(Environment.Production)(INTERNAL_SERVER_ERROR)
+      whenGetAllXmlApis(xmlApis*)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -110,9 +109,9 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when get applications as collaborator returns Not Found" in new Setup {
 
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
-      mockFetchApiDefinition(PRODUCTION)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Sandbox, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Production, userId)
+      mockFetchApiDefinition(Environment.Production)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -123,9 +122,9 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when get developer subscriptions returns Not Found" in new Setup {
 
-      mockFetchApiDefinition(PRODUCTION)
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
+      mockFetchApiDefinition(Environment.Production)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Sandbox, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Production, userId)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -136,9 +135,9 @@ class CombinedApisControllerISpec
 
     "return INTERNAL_SERVER_ERROR when getcolloborators returns Not Found" in new Setup {
 
-      whenGetAllDefinitionsFails(PRODUCTION)(INTERNAL_SERVER_ERROR)
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.SANDBOX, userId)
-      mockFetchSubscriptionsForDeveloperNotFound(Environment.PRODUCTION, userId)
+      whenGetAllDefinitionsFails(Environment.Production)(INTERNAL_SERVER_ERROR)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Sandbox, userId)
+      mockFetchSubscriptionsForDeveloperNotFound(Environment.Production, userId)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/developer")
         .withQueryStringParameters("developerId" -> s"${userId.value}").get())
@@ -150,9 +149,9 @@ class CombinedApisControllerISpec
 
   "fetchAllApis" should {
     "return combined apis when both xml and rest apis are returned" in new Setup {
-      whenGetAllXmlApis(xmlApis: _*)
-      whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition1)
-      whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition2)
+      whenGetAllXmlApis(xmlApis*)
+      whenGetAllDefinitions(Environment.Sandbox)(apiDefinition1)
+      whenGetAllDefinitions(Environment.Production)(apiDefinition2)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -162,14 +161,14 @@ class CombinedApisControllerISpec
       val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":["OTHER","INCOME_TAX_MTD"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[Set[CombinedApi]]
-      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
-      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.XmlApi) shouldBe 2
+      apiList.count(_.apiType == ApiType.RestApi) shouldBe 2
     }
 
     "return combined apis when only xml apis are returned" in new Setup {
-      whenGetAllXmlApis(xmlApis: _*)
-      whenGetAllDefinitionsFindsNothing(Environment.SANDBOX)
-      whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
+      whenGetAllXmlApis(xmlApis*)
+      whenGetAllDefinitionsFindsNothing(Environment.Sandbox)
+      whenGetAllDefinitionsFindsNothing(Environment.Production)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -179,14 +178,14 @@ class CombinedApisControllerISpec
       val body    = result.body
       body shouldBe """[{"displayName":"xml api 1","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"},{"displayName":"xml api 2","serviceName":"xml-api-1","categories":["VAT"],"apiType":"XML_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[Set[CombinedApi]]
-      apiList.count(_.apiType == ApiType.XML_API) shouldBe 2
-      apiList.count(_.apiType == ApiType.REST_API) shouldBe 0
+      apiList.count(_.apiType == ApiType.XmlApi) shouldBe 2
+      apiList.count(_.apiType == ApiType.RestApi) shouldBe 0
     }
 
     "return combined apis when only rest apis are returned" in new Setup {
-      whenGetAllXmlApis(List.empty: _*)
-      whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition1)
-      whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition2)
+      whenGetAllXmlApis(List.empty*)
+      whenGetAllDefinitions(Environment.Sandbox)(apiDefinition1)
+      whenGetAllDefinitions(Environment.Production)(apiDefinition2)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -196,14 +195,14 @@ class CombinedApisControllerISpec
       val body    = result.body
       body shouldBe """[{"displayName":"service1","serviceName":"service1","categories":["OTHER","INCOME_TAX_MTD"],"apiType":"REST_API","accessType":"PUBLIC"},{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[Set[CombinedApi]]
-      apiList.count(_.apiType == ApiType.XML_API) shouldBe 0
-      apiList.count(_.apiType == ApiType.REST_API) shouldBe 2
+      apiList.count(_.apiType == ApiType.XmlApi) shouldBe 0
+      apiList.count(_.apiType == ApiType.RestApi) shouldBe 2
     }
 
     "return no apis when no xml or rest apis are returned" in new Setup {
-      whenGetAllXmlApis(List.empty: _*)
-      whenGetAllDefinitionsFindsNothing(Environment.SANDBOX)
-      whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
+      whenGetAllXmlApis(List.empty*)
+      whenGetAllDefinitionsFindsNothing(Environment.Sandbox)
+      whenGetAllDefinitionsFindsNothing(Environment.Production)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -217,8 +216,8 @@ class CombinedApisControllerISpec
 
     "return error when no xml returns error" in new Setup {
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
-      whenGetAllDefinitionsFindsNothing(Environment.SANDBOX)
-      whenGetAllDefinitionsFindsNothing(Environment.PRODUCTION)
+      whenGetAllDefinitionsFindsNothing(Environment.Sandbox)
+      whenGetAllDefinitionsFindsNothing(Environment.Production)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -231,9 +230,9 @@ class CombinedApisControllerISpec
     }
 
     "return a rest definition when sandbox definitions returns error" in new Setup {
-      whenGetAllXmlApis(List.empty: _*)
-      whenGetAllDefinitionsFails(Environment.SANDBOX)(INTERNAL_SERVER_ERROR)
-      whenGetAllDefinitions(Environment.PRODUCTION)(apiDefinition2)
+      whenGetAllXmlApis(List.empty*)
+      whenGetAllDefinitionsFails(Environment.Sandbox)(INTERNAL_SERVER_ERROR)
+      whenGetAllDefinitions(Environment.Production)(apiDefinition2)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -243,15 +242,15 @@ class CombinedApisControllerISpec
       val body    = result.body
       body shouldBe """[{"displayName":"service2","serviceName":"service2","categories":["VAT","OTHER"],"apiType":"REST_API","accessType":"PUBLIC"}]"""
       val apiList = Json.parse(body).as[Set[CombinedApi]]
-      apiList.count(_.apiType == ApiType.XML_API) shouldBe 0
-      apiList.count(_.apiType == ApiType.REST_API) shouldBe 1
+      apiList.count(_.apiType == ApiType.XmlApi) shouldBe 0
+      apiList.count(_.apiType == ApiType.RestApi) shouldBe 1
 
     }
 
     "return error when production definition returns error" in new Setup {
-      whenGetAllXmlApis(List.empty: _*)
-      whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition2)
-      whenGetAllDefinitionsFails(Environment.PRODUCTION)(INTERNAL_SERVER_ERROR)
+      whenGetAllXmlApis(List.empty*)
+      whenGetAllDefinitions(Environment.Sandbox)(apiDefinition2)
+      whenGetAllDefinitionsFails(Environment.Production)(INTERNAL_SERVER_ERROR)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)
@@ -265,8 +264,8 @@ class CombinedApisControllerISpec
 
     "return error when xml api fetcher and production definition returns error" in new Setup {
       whenGetAllXmlApisReturnsError(INTERNAL_SERVER_ERROR)
-      whenGetAllDefinitions(Environment.SANDBOX)(apiDefinition2)
-      whenGetAllDefinitionsFails(Environment.PRODUCTION)(INTERNAL_SERVER_ERROR)
+      whenGetAllDefinitions(Environment.Sandbox)(apiDefinition2)
+      whenGetAllDefinitionsFails(Environment.Production)(INTERNAL_SERVER_ERROR)
 
       val result = await(wsClient.url(s"$baseUrl/combined-rest-xml-apis/")
         .withHttpHeaders(ACCEPT -> JSON)

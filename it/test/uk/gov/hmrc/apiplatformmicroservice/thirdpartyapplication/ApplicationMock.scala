@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
-import play.api.http._
+import play.api.http.*
+import play.api.http.Status.*
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaboratorsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
@@ -36,7 +36,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationNotFound(env: Environment, applicationId: ApplicationId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$env/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("applicationId", equalTo(applicationId.toString()))
         .willReturn(
           aResponse()
@@ -45,14 +45,14 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
     }
   }
 
-  def mockFetchApplication(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random): Unit = {
+  def mockFetchApplication(env: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random): Unit = {
     stubForProd(
-      get(urlPathEqualTo(s"/environment/$deployedTo/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("applicationId", equalTo(applicationId.toString()))
         .willReturn(
           aResponse()
             .withBody(Json.toJson(
-              standardApp.withEnvironment(deployedTo).withId(applicationId)
+              standardApp.withEnvironment(env).withId(applicationId)
                 .modify(_.copy(token = standardApp.details.token.copy(clientId = clientId)))
             ).toString())
             .withHeader(HeaderNames.CONTENT_TYPE, MimeTypes.JSON)
@@ -63,7 +63,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationWithFieldsNotFound(env: Environment, applicationId: ApplicationId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$env/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("applicationId", equalTo(applicationId.toString()))
         .withQueryParam("wantSubscriptions", equalTo(""))
         .withQueryParam("wantSubscriptionFields", equalTo(""))
@@ -76,7 +76,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationWithFields(deployedTo: Environment, applicationId: ApplicationId, clientId: ClientId = ClientId.random): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$deployedTo/query"))
+      get(urlPathEqualTo(s"/environment/${deployedTo.toString.toUpperCase}/query"))
         .withQueryParam("applicationId", equalTo(applicationId.toString()))
         .withQueryParam("wantSubscriptions", equalTo(""))
         .withQueryParam("wantSubscriptionFields", equalTo(""))
@@ -106,7 +106,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationsForDeveloperNotFound(deployedTo: Environment, userId: UserId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$deployedTo/query"))
+      get(urlPathEqualTo(s"/environment/${deployedTo.toString.toUpperCase}/query"))
         .withQueryParam("userId", equalTo(userId.toString()))
         .willReturn(aResponse()
           .withBody("[]")
@@ -117,7 +117,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationsForDeveloper(deployedTo: Environment, userId: UserId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$deployedTo/query"))
+      get(urlPathEqualTo(s"/environment/${deployedTo.toString.toUpperCase}/query"))
         .withQueryParam("userId", equalTo(userId.toString()))
         .willReturn(
           aResponse()
@@ -136,7 +136,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchSubscriptionsForDeveloperNotFound(env: Environment, userId: UserId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$env/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("userId", equalTo(userId.toString()))
         .willReturn(
           aResponse()
@@ -149,7 +149,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchSubscriptionsForDeveloper(env: Environment, userId: UserId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$env/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("userId", equalTo(userId.toString()))
         .withQueryParam("wantSubscriptions", equalTo(""))
         .willReturn(
@@ -171,7 +171,7 @@ trait ApplicationMock extends ApplicationWithCollaboratorsFixtures with ApiIdent
 
   def mockFetchApplicationSubscriptions(env: Environment, applicationId: ApplicationId): Unit = {
     stubForProd {
-      get(urlPathEqualTo(s"/environment/$env/query"))
+      get(urlPathEqualTo(s"/environment/${env.toString.toUpperCase}/query"))
         .withQueryParam("application", equalTo(applicationId.toString()))
         .willReturn(
           aResponse()

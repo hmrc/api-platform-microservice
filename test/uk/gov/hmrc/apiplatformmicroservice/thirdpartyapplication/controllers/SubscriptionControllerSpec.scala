@@ -24,17 +24,17 @@ import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.testkit.NoMaterializer
 
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, status, _}
+import play.api.test.Helpers.{contentAsJson, status, *}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ApiDefinitionTestDataHelper
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.mocks.*
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.UpliftApplicationService
 
 class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDataHelper with ClockNow with ApplicationIdFixtures with ApiIdentifierFixtures {
@@ -66,7 +66,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
         val apiIdentifiers = Set(apiIdentifierOne)
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(apiIdentifiers))
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(using *)).thenReturn(successful(apiIdentifiers))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 
@@ -80,7 +80,7 @@ class SubscriptionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDat
         val application = standardApp.inSandbox()
         ApplicationByIdFetcherMock.FetchApplicationWithSubscriptionData.willReturnApplicationWithSubscriptionData(application, Set(apiIdentifierOne, apiIdentifierTwo))
 
-        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(*)).thenReturn(successful(Set.empty[ApiIdentifier]))
+        when(mockUpliftApplicationService.fetchUpliftableApisForApplication(*)(using *)).thenReturn(successful(Set.empty[ApiIdentifier]))
 
         val result = controller.fetchUpliftableSubscriptions(ApplicationId.random)(FakeRequest())
 

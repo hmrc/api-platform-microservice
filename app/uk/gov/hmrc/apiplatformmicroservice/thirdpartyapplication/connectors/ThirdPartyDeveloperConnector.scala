@@ -20,13 +20,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User
-import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain._
+import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.connectors.domain.*
 
 private[thirdpartyapplication] object ThirdPartyDeveloperConnector {
 
@@ -42,18 +43,18 @@ private[thirdpartyapplication] class ThirdPartyDeveloperConnector @Inject() (
     val config: ThirdPartyDeveloperConnector.Config,
     http: HttpClientV2
   )(implicit val ec: ExecutionContext
-  ) {
+  ) extends JsonBodyWritables {
 
   lazy val serviceBaseUrl: String = config.applicationBaseUrl
 
-  def fetchByEmails(emails: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Seq[User]] = {
+  def fetchByEmails(emails: Set[LaxEmailAddress])(using HeaderCarrier): Future[Seq[User]] = {
     http.post(url"$serviceBaseUrl/developers/get-by-emails")
       .withBody(Json.toJson(emails.toList))
       .execute[Seq[User]]
 
   }
 
-  def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(implicit hc: HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
+  def getOrCreateUserId(getOrCreateUserIdRequest: GetOrCreateUserIdRequest)(using HeaderCarrier): Future[GetOrCreateUserIdResponse] = {
     http.post(url"$serviceBaseUrl/developers/user-id")
       .withBody(Json.toJson(getOrCreateUserIdRequest))
       .execute[GetOrCreateUserIdResponse]
