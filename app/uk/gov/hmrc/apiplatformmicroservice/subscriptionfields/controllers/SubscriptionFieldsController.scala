@@ -52,7 +52,7 @@ class SubscriptionFieldsController @Inject() (
 
     withJsonBody[SubscriptionFieldsRequest] { payload =>
       if (payload.fields.isEmpty) {
-        Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, "At least one field must be specified")))
+        Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.InvalidRequestPayload, "At least one field must be specified")))
       } else {
         subscriptionFieldsConnector(environment).saveFieldValues(clientId, ApiIdentifier(apiContext, apiVersionNbr), payload.fields)
           .map(_ match {
