@@ -97,7 +97,7 @@ trait ActionBuilders(using ExecutionContext) {
     ) extends ActionFilter[ApplicationWithSubscriptionDataRequest] {
     protected def executionContext: ExecutionContext = ec
 
-    lazy val FAILED_ACCESS_TYPE = successful(Some(Results.Forbidden(JsErrorResponse(ErrorCode.APPLICATION_NOT_FOUND, "application access type mismatch"))))
+    lazy val FAILED_ACCESS_TYPE = successful(Some(Results.Forbidden(JsErrorResponse(ErrorCode.ApplicationNotFound, "application access type mismatch"))))
 
     def filter[A](request: ApplicationWithSubscriptionDataRequest[A]): Future[Option[Result]] =
       if (toMatchAccessTypes.contains(request.application.access.accessType)) authenticate(request.request)

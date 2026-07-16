@@ -60,7 +60,7 @@ trait StreamedResponseHelper extends ApplicationLogger {
     ): StreamedResponseHandlerPF = {
     case response: HttpResponse =>
       logger.warn(s"Failed due to $msg with status ${response.status}")
-      InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
+      InternalServerError(JsErrorResponse(ErrorCode.UnknownError, "An unexpected error occurred"))
   }
 
   def streamedResponseAsResult(

@@ -19,28 +19,24 @@ package uk.gov.hmrc.apiplatformmicroservice.common
 import scala.util.control.NonFatal
 
 import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Format, JsObject, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import uk.gov.hmrc.http.NotFoundException
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper
+
 package object controllers extends ApplicationLogger {
 
-  object ErrorCode extends Enumeration {
-    type ErrorCode = Value
-
-    val UNKNOWN_ERROR               = Value("UNKNOWN_ERROR")
-    val SUBSCRIPTION_ALREADY_EXISTS = Value("SUBSCRIPTION_ALREADY_EXISTS")
-    val APPLICATION_NOT_FOUND       = Value("APPLICATION_NOT_FOUND")
-    val SUBSCRIPTION_DENIED         = Value("SUBSCRIPTION_DENIED")
-    val INVALID_REQUEST_PAYLOAD     = Value("INVALID_REQUEST_PAYLOAD")
+  enum ErrorCode {
+    case UnknownError, SubscriptionAlreadyExists, ApplicationNotFound, SubscriptionDenied, InvalidRequestPayload
   }
 
   object JsErrorResponse {
 
-    def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
+    def apply(errorCode: ErrorCode, message: JsValueWrapper): JsObject =
       Json.obj(
-        "code"    -> errorCode.toString,
+        "code"    -> EnumJsonHelper.toScreamingSnakeCase(errorCode),
         "message" -> message
       )
   }
@@ -54,7 +50,7 @@ package object controllers extends ApplicationLogger {
 
   def handleException(e: Throwable) = {
     logger.error(s"An unexpected error occurred: ${e.getMessage}", e)
-    InternalServerError(JsErrorResponse(ErrorCode.UNKNOWN_ERROR, "An unexpected error occurred"))
+    InternalServerError(JsErrorResponse(ErrorCode.UnknownError, "An unexpected error occurred"))
   }
 
 }
