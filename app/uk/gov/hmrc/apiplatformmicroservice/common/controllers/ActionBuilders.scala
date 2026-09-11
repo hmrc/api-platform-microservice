@@ -108,7 +108,8 @@ trait ActionBuilders(using ExecutionContext) {
   private def authenticate[A](input: Request[A]): Future[Option[Result]] = {
     if (authConfig.enabled) {
       implicit val hc               = HeaderCarrierConverter.fromRequest(input)
-      val hasAnyGatekeeperEnrolment = Enrolment(authConfig.userRole) or Enrolment(authConfig.superUserRole) or Enrolment(authConfig.adminRole)
+      val hasAnyGatekeeperEnrolment =
+        Enrolment(authConfig.userRole) or Enrolment(authConfig.advancedUserRole) or Enrolment(authConfig.superUserRole) or Enrolment(authConfig.adminRole)
       authConnector.authorise(hasAnyGatekeeperEnrolment, EmptyRetrieval).map { _ => None }
     } else {
       Future.successful(None)

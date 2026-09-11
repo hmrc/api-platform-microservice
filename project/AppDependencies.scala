@@ -23,7 +23,7 @@ object AppDependencies {
   lazy val testDependencies = Seq(
     "uk.gov.hmrc"             %% "bootstrap-test-play-30"                     % bootstrapVersion,
     "org.mockito"             %% "mockito-scala-scalatest"                    % mockitoScalaVersion,
-    "uk.gov.hmrc"             %% "api-platform-common-domain-fixtures"        % tpdDomainVersion,
+    "uk.gov.hmrc"             %% "api-platform-common-domain-fixtures"        % commonDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-tpd-domain-fixtures"           % tpdDomainVersion,
     "uk.gov.hmrc"             %% "api-platform-application-domain-fixtures"   % appDomainVersion
   ).map(_ % "test")

@@ -30,5 +30,5 @@ class AuthConnector @Inject() (val httpClientV2: HttpClientV2, authConfig: Confi
 }
 
 object AuthConnector {
-  case class Config(baseUrl: String, userRole: String, superUserRole: String, adminRole: String, enabled: Boolean, authorisationKey: String)
+  case class Config(baseUrl: String, userRole: String, advancedUserRole: String, superUserRole: String, adminRole: String, enabled: Boolean, authorisationKey: String)
 }
