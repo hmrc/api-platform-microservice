@@ -95,13 +95,15 @@ class AuthConfigProvider @Inject() (val configuration: Configuration)
 
   override def get() = {
     val url              = baseUrl("auth")
-    val userRole         = getString("roles.user")
-    val superUserRole    = getString("roles.super-user")
-    val adminRole        = getString("roles.admin")
+    val strideConfig     = configuration.underlying.getConfig("stride")
+    val userRole         = strideConfig.getString("roles.user")
+    val advancedUserRole = strideConfig.getString("roles.advanced-user")
+    val superUserRole    = strideConfig.getString("roles.super-user")
+    val adminRole        = strideConfig.getString("roles.admin")
     val enabled          = getConfBool("auth.enabled", true)
     val authorisationKey = getString("authorisationKey")
 
-    AuthConnector.Config(url, userRole, superUserRole, adminRole, enabled, authorisationKey)
+    AuthConnector.Config(url, userRole, advancedUserRole, superUserRole, adminRole, enabled, authorisationKey)
   }
 }
 
