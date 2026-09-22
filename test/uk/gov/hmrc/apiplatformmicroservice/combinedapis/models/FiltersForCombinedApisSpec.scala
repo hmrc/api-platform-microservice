@@ -29,7 +29,7 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
   val endpoint1 = Endpoint(Endpoint.UriPattern("/some/endpoint1"), Endpoint.Name("endpoint1"), HttpMethod.Post, AuthType.User, ResourceThrottlingTier.Unlimited, None, Nil)
 
   def versionDefinition(version: String, status: ApiStatus, apiAccess: ApiAccessType) = {
-    ApiVersion(ApiVersionNbr(version), status, apiAccess, List(endpoint1), true, None, ApiVersionSource.OAS)
+    ApiVersion(ApiVersionNbr(version), status, apiAccess, List(endpoint1), None, ApiVersionSource.OAS)
   }
 
   def newDefinition(versions: List[ApiVersion]) = {
@@ -102,20 +102,20 @@ class FiltersForCombinedApisSpec extends AsyncHmrcSpec with FiltersForCombinedAp
         ApiVersionNbr("1.0"),
         ApiStatus.Stable,
         List(endpoint),
-        Some(ApiAvailability(true, ApiAccessType.Public, true, true)),
-        Some(ApiAvailability(true, ApiAccessType.Public, true, true))
+        Some(ApiAvailability(ApiAccessType.Public, true, true)),
+        Some(ApiAvailability(ApiAccessType.Public, true, true))
       )
 
       val mixedApiVersions = ExtendedApiVersion(
         ApiVersionNbr("1.0"),
         ApiStatus.Stable,
         List(endpoint),
-        Some(ApiAvailability(true, ApiAccessType.Internal, true, true)),
-        Some(ApiAvailability(true, ApiAccessType.Public, true, true))
+        Some(ApiAvailability(ApiAccessType.Internal, true, true)),
+        Some(ApiAvailability(ApiAccessType.Public, true, true))
       )
 
       val mixedApiVersionsWithNone =
-        ExtendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.Stable, List(endpoint), Some(ApiAvailability(true, ApiAccessType.Internal, true, true)), None)
+        ExtendedApiVersion(ApiVersionNbr("1.0"), ApiStatus.Stable, List(endpoint), Some(ApiAvailability(ApiAccessType.Internal, true, true)), None)
 
       "return true when all versions are public access" in {
 

@@ -1,4 +1,3 @@
-import play.core.PlayVersion
 import play.sbt.PlayImport._
 import sbt._
 
@@ -7,7 +6,7 @@ object AppDependencies {
   private val mockitoScalaVersion = "2.2.1"
 
   private val commonDomainVersion    = "1.4.0"
-  private val apiDomainVersion       = "1.8.0"
+  private val apiDomainVersion       = "1.9.0-SNAPSHOT"
   private val appDomainVersion       = "1.6.0"
   private val tpdDomainVersion       = "1.3.0"
 

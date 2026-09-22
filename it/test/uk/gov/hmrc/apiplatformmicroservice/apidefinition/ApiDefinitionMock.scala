@@ -114,7 +114,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "0.5",
                          |              "status": "RETIRED",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -125,13 +125,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          },
                          |          {
                          |              "version": "5.0",
                          |              "status": "ALPHA",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -142,13 +141,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": false
+                         |              ]
                          |          },
                          |          {
                          |              "version": "3.0",
                          |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -159,13 +157,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          },
                          |          {
                          |              "version": "2.5rc",
                          |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -176,13 +173,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          },
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -193,13 +189,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          },
                          |          {
                          |              "version": "2.0",
                          |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -210,13 +205,12 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          },
                          |          {
                          |              "version": "4.0",
                          |              "status": "DEPRECATED",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -227,8 +221,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          }
                          |      ],
                          |      "lastPublishedAt": "2018-07-13T13:18:06.124Z"
@@ -245,7 +238,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |          {
                          |              "version": "1.0",
                          |              "status": "STABLE",
-                         |              "access": { "type": "PUBLIC"},
+                         |              "access": "PUBLIC",
                          |              "versionSource": "UNKNOWN",
                          |              "endpoints": [
                          |                  {
@@ -256,8 +249,7 @@ trait ApiDefinitionMock extends WireMockSugarExtensions {
                          |                      "throttlingTier": "UNLIMITED",
                          |                      "queryParameters": []  
                          |                  }
-                         |              ],
-                         |              "endpointsEnabled": true
+                         |              ]
                          |          }
                          |      ],
                          |      "lastPublishedAt": "2018-07-13T13:18:06.124Z"
