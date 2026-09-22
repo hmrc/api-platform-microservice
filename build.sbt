@@ -1,8 +1,5 @@
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.DefaultBuildSettings
 import AppDependencies._
-
-import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-microservice"
 

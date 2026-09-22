@@ -27,7 +27,7 @@ trait ExtendedApiDefinitionExampleData {
 
   val anExtendedApiDefinitionWithOnlySubordinate = extendedApiDefinition(
     apiName,
-    List(extendedApiVersion(versionOne, ApiStatus.Stable, None, Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true))))
+    List(extendedApiVersion(versionOne, ApiStatus.Stable, None, Some(ApiAvailability(ApiAccessType.Public, loggedIn = true, authorised = true))))
   )
 
   val anExtendedApiDefinitionWithOnlyPrincipal = extendedApiDefinition(
@@ -38,7 +38,6 @@ trait ExtendedApiDefinitionExampleData {
         ApiStatus.Stable,
         Some(
           ApiAvailability(
-            endpointsEnabled = true,
             ApiAccessType.Public,
             loggedIn = true,
             authorised = true
@@ -54,8 +53,8 @@ trait ExtendedApiDefinitionExampleData {
     List(extendedApiVersion(
       versionOne,
       ApiStatus.Stable,
-      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true)),
-      Some(ApiAvailability(endpointsEnabled = true, ApiAccessType.Public, loggedIn = true, authorised = true))
+      Some(ApiAvailability(ApiAccessType.Public, loggedIn = true, authorised = true)),
+      Some(ApiAvailability(ApiAccessType.Public, loggedIn = true, authorised = true))
     ))
   )
 }

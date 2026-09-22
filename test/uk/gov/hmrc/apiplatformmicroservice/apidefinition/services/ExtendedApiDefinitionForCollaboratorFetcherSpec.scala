@@ -71,8 +71,8 @@ class ExtendedApiDefinitionForCollaboratorFetcherSpec extends AsyncHmrcSpec with
       doNothingCache
     )
 
-    val publicApiAvailability  = ApiAvailability(false, ApiAccessType.Public, false, true)
-    val privateApiAvailability = ApiAvailability(false, ApiAccessType.Internal, false, false)
+    val publicApiAvailability  = ApiAvailability(ApiAccessType.Public, false, true)
+    val privateApiAvailability = ApiAvailability(ApiAccessType.Internal, false, false)
 
     val incomeTaxCategory = ApiCategory.IncomeTaxMtd
     val vatTaxCategory    = ApiCategory.Vat

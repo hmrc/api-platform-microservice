@@ -35,7 +35,6 @@ trait DefinitionsFromJson {
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
-                  |      "endpointsEnabled": true,
                   |      "endpoints" : [
                   |        {
                   |          "uriPattern" : "/hello",
@@ -47,10 +46,7 @@ trait DefinitionsFromJson {
                   |        }
                   |      ],
                   |      "productionAvailability": {
-                  |        "endpointsEnabled": true,
-                  |        "access": {
-                  |          "type": "PUBLIC"
-                  |        },
+                  |        "access": "PUBLIC",
                   |        "loggedIn": false,
                   |        "authorised": true
                   |      }
@@ -69,10 +65,7 @@ trait DefinitionsFromJson {
                   |        }
                   |      ],
                   |      "productionAvailability": {
-                  |        "endpointsEnabled": true,
-                  |        "access": {
-                  |          "type": "PRIVATE"
-                  |        },
+                  |        "access": "INTERNAL",
                   |        "loggedIn": false,
                   |        "authorised": false
                   |      }
@@ -96,8 +89,7 @@ trait DefinitionsFromJson {
                   |    {
                   |      "version" : "1.0",
                   |      "status" : "STABLE",
-                  |      "access": { "type": "PUBLIC" },
-                  |      "endpointsEnabled": true,
+                  |      "access": "PUBLIC",
                   |      "versionSource": "UNKNOWN",
                   |      "endpoints" : [
                   |        {
@@ -113,8 +105,7 @@ trait DefinitionsFromJson {
                   |    {
                   |      "version" : "2.0",
                   |      "status" : "STABLE",
-                  |      "access": { "type": "PUBLIC" },
-                  |      "endpointsEnabled": true,
+                  |      "access": "PUBLIC",
                   |      "versionSource": "UNKNOWN",
                   |      "endpoints" : [
                   |        {

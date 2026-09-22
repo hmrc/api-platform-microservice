@@ -115,7 +115,6 @@ trait ApiDefinitionTestDataHelper {
       status,
       access,
       List(endpoint("/today", "Today's Date"), endpoint("Yesterday's Date", "/yesterday")),
-      endpointsEnabled = false,
       None,
       ApiVersionSource.OAS
     )
