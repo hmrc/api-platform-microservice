@@ -35,11 +35,12 @@ class ApiDefinitionSpec extends WireMockSpec with ApplicationMock with ApiDefini
 
     "stub get request for fetch api definitions" in {
       val applicationId = ApplicationId.random
+      mockFetchApplicationWithFields(Environment.Production, applicationId)
       mockBulkFetchFieldDefinitions(Environment.Production)
       mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")
-        .withQueryStringParameters("applicationId" -> applicationId.value.toString)
+        .withQueryStringParameters("applicationId" -> applicationId.toString)
         .withHttpHeaders(ACCEPT -> JSON)
         .get())
 
