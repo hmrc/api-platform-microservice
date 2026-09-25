@@ -84,5 +84,21 @@ class ApiDefinitionControllerSpec extends AsyncHmrcSpec with ApiDefinitionTestDa
       status(result) shouldBe OK
       contentAsString(result) shouldBe body
     }
+
+    "respond with 404 when the resource is not found in production" in new Setup {
+      PrincipalApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
+
+      val result = controller.fetchApiDocumentationResource(Environment.Production, serviceName, version, resource)(request)
+
+      status(result) shouldBe NOT_FOUND
+    }
+
+    "respond with 404 when the resource is not found in sandbox" in new Setup {
+      SubordinateApiDefinitionServiceMock.FetchApiDocumentationResource.willReturnNoResponse()
+
+      val result = controller.fetchApiDocumentationResource(Environment.Sandbox, serviceName, version, resource)(request)
+
+      status(result) shouldBe NOT_FOUND
+    }
   }
 }
