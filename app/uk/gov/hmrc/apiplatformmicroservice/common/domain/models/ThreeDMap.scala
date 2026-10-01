@@ -64,7 +64,7 @@ object ThreeDMap {
 
   def flatten[X, Y, Z, V](in: Type[X, Y, Z, V]): Type[X, Y, Z, V] = {
     in.flatMap {
-      case (x, ys) if ys.isEmpty => Map.empty[X, Map[Y, Map[Z, V]]]
+      case (_, ys) if ys.isEmpty => Map.empty[X, Map[Y, Map[Z, V]]]
       case (x, ys)               => Map(x -> ys.filterNot(yzs => yzs._2.isEmpty))
     }
       .filterNot(xys => xys._2.isEmpty)

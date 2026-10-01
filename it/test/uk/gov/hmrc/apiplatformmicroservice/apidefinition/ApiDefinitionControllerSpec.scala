@@ -44,7 +44,7 @@ class ApiDefinitionControllerSpec extends WireMockSpec
       val clientId      = ClientId(ju.UUID.randomUUID.toString)
 
       mockFetchApplicationWithFields(Environment.Production, applicationId, clientId)
-      mockBulkFetchFieldDefinitions(Environment.Production, clientId)
+      mockBulkFetchFieldDefinitions(Environment.Production)
       mockFetchApiDefinition(Environment.Production)
 
       val response = await(wsClient.url(s"$baseUrl/api-definitions")

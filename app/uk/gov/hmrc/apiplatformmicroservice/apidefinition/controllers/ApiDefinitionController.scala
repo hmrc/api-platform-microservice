@@ -25,10 +25,12 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.ResourceId
 import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.*
 import uk.gov.hmrc.apiplatformmicroservice.common.connectors.AuthConnector
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.ActionBuilders
 import uk.gov.hmrc.apiplatformmicroservice.common.controllers.domain.{ApplicationRequest, ApplicationWithSubscriptionDataRequest}
+import uk.gov.hmrc.apiplatformmicroservice.common.{ApplicationLogger, StreamedResponseResourceHelper}
 import uk.gov.hmrc.apiplatformmicroservice.thirdpartyapplication.services.ApplicationByIdFetcher
 
 @Singleton
@@ -45,7 +47,9 @@ class ApiDefinitionController @Inject() (
     apiEventsFetcher: ApiEventsFetcher
   )(using val ec: ExecutionContext
   ) extends BackendController(controllerComponents)
-    with ActionBuilders {
+    with ActionBuilders
+    with ApplicationLogger
+    with StreamedResponseResourceHelper {
 
   private def toJson(fetch: => Future[List[ApiDefinition]]): Future[Result] = {
     for {
@@ -104,4 +108,20 @@ class ApiDefinitionController @Inject() (
       prodApiEvents    <- apiEventsFetcher.fetchApiVersionsForEnvironment(Environment.Production, serviceName, includeNoChange)
     } yield Ok(Json.toJson(sandboxApiEvents ++ prodApiEvents))
   }
+
+  def fetchApiDocumentationResource(environment: Environment, serviceName: ServiceName, versionNbr: ApiVersionNbr, resource: String): Action[AnyContent] =
+    Action.async { implicit request =>
+
+      def handleNotFound: Result = {
+        logger.info(s"$resource not found for $serviceName $versionNbr for $environment")
+        NotFound
+      }
+
+      val resourceId = ResourceId(serviceName, versionNbr, resource)
+
+      apiDefinitionService(environment).fetchApiDocumentationResource(resourceId).map {
+        _.fold[Result](handleNotFound)(handler(resourceId))
+      }
+    }
+
 }

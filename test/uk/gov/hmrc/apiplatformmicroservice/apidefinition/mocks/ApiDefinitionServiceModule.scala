@@ -26,8 +26,13 @@ import uk.gov.hmrc.http.HttpResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.DisplayApiEvent
-import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{ApiDefinitionService, PrincipalApiDefinitionService, SubordinateApiDefinitionService}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.models.{DisplayApiEvent, ResourceId}
+import uk.gov.hmrc.apiplatformmicroservice.apidefinition.services.{
+  ApiDefinitionService,
+  EnvironmentAwareApiDefinitionService,
+  PrincipalApiDefinitionService,
+  SubordinateApiDefinitionService
+}
 
 trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with ArgumentMatchersSugar {
 
@@ -68,6 +73,10 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
       def willReturnWsResponse(wsResponse: HttpResponse) = {
         when(aMock.fetchApiDocumentationResource(*)(using *, *)).thenReturn(successful(Some(wsResponse)))
+      }
+
+      def willReturnWsResponseFor(resourceId: ResourceId, wsResponse: HttpResponse) = {
+        when(aMock.fetchApiDocumentationResource(eqTo(resourceId))(using *, *)).thenReturn(successful(Some(wsResponse)))
       }
 
       def willReturnNoResponse() = {
@@ -132,5 +141,9 @@ trait ApiDefinitionServiceModule extends PlaySpec with MockitoSugar with Argumen
 
   object PrincipalApiDefinitionServiceMock extends ApiDefinitionServiceMock {
     override val aMock: PrincipalApiDefinitionService = mock[PrincipalApiDefinitionService]
+  }
+
+  object EnvironmentAwareApiDefinitionServiceMock {
+    lazy val instance = new EnvironmentAwareApiDefinitionService(SubordinateApiDefinitionServiceMock.aMock, PrincipalApiDefinitionServiceMock.aMock)
   }
 }

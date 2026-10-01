@@ -58,7 +58,7 @@ class PrincipalApiDefinitionConnectorConfigProvider @Inject() (sc: ServicesConfi
 }
 
 @Singleton
-class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc: ServicesConfig, configuration: Configuration)
+class SubordinateApiDefinitionConnectorConfigProvider @Inject() (override val sc: ServicesConfig)
     extends Provider[SubordinateApiDefinitionConnector.Config]
     with ServicesConfigBridgeExtension {
 

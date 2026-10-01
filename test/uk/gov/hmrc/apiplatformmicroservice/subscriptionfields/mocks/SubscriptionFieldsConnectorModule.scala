@@ -20,8 +20,6 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.apiplatformmicroservice.subscriptionfields.connectors.{EnvironmentAwareSubscriptionFieldsConnector, SubscriptionFieldsConnector}
@@ -34,7 +32,7 @@ trait SubscriptionFieldsConnectorModule {
 
     object BulkFetchFieldValues {
 
-      def willReturnFields(subs: ApiFieldMap[FieldValue])(using HeaderCarrier) = {
+      def willReturnFields(subs: ApiFieldMap[FieldValue]) = {
         when(aMock.bulkFetchFieldValues(*[ClientId])(using *)).thenReturn(successful(subs))
       }
 
