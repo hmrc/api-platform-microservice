@@ -3,12 +3,12 @@ import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
-  private val bootstrapVersion = "10.8.0"
+  private val bootstrapVersion = "10.9.0"
 
   private val commonDomainVersion    = "1.4.0"
   private val apiDomainVersion       = "1.8.0"
   private val appDomainVersion       = "1.6.0"
-  private val tpdDomainVersion       = "1.4.0"
+  private val tpdDomainVersion       = "1.5.0"
 
   lazy val dependencies = Seq(
     caffeine,

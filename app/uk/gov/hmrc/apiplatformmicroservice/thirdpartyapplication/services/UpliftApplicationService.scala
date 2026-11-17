@@ -98,7 +98,7 @@ class UpliftApplicationService @Inject() (
                                      filteredUpliftRequest,
                                      filteredUpliftRequest.requestedBy, // TODO - remove once TPA is using the lib version of UpliftRequest
                                      app.id,
-                                     None
+                                     app.details.organisationId
                                    )
         newAppId                <- liftF(principalTPAConnector.createApplicationV2(createApplicationRequest))
         app                     <- fromOptionF(applicationByIdFetcher.fetchApplication(newAppId), "Amazingly no such app???")
